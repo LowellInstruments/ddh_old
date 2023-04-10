@@ -423,17 +423,17 @@ def gps_did_we_ever_clock_sync() -> bool:
 
 def _gps_power_on_off_hat():
     _u("{}".format(STATE_DDS_GPS_POWER_CYCLE))
-    lg.a("=== warning: power check, shut down hat -> start ===")
+    lg.a("=== warning: shut down hat -> start ===")
     # GPIO26 controls the sixfab hat power rail
     _pin = LED(26)
     # high means OFF
     _pin.on()
     time.sleep(5)
     _pin.off()
-    t = 25
-    lg.a("=== warning: power check, shut down hat -> end, wait {}s ===")
+    t = 50
+    lg.a("=== warning: shut down hat -> end, wait {}s ===".format(t))
     time.sleep(t)
-    lg.a("=== warning: power check, had should be ON by now ===")
+    lg.a("=== warning: hat should be ON by now ===")
 
 
 def gps_power_cycle_if_so(forced=False):
