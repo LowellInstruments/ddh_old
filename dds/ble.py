@@ -13,7 +13,7 @@ from mat.ble.bleak.cc26x2r_sim import ble_logger_is_cc26x2r_simulated
 
 from dds.ble_dl_rn4020 import ble_interact_rn4020
 from dds.ble_dl_cc26x2r import ble_interact_cc26x2
-from dds.ble_dl_moana import ble_interact_moana
+from dds.ble_dl_moana import ble_interact_moana, check_moana_plugin_is_missing
 from dds.gps import gps_tell_position_logger
 from dds.sqs import (
     sqs_msg_logger_error_max_retries,
@@ -132,6 +132,9 @@ async def _ble_id_n_interact_logger(mac, info: str, h, g):
     elif _ble_logger_is_moana(info):
         fol = get_dl_folder_path_from_mac(mac)
         rv = await ble_interact_moana(fol, mac, hs, g)
+        if check_moana_plugin_is_missing(rv):
+            # stop it here
+            return
 
     # see how it went
     _ble_analyze_logger_result(rv, mac, lat, lon, sn)
