@@ -4,8 +4,6 @@ Graphical User Interface to download Bluetooth-enabled data loggers in fishing a
 
 ![alt text](ddh/gui/res/screenshot.png)
 
-Documentation can be found in [DDH readthedocs page](https://ddh.readthedocs.io/en/latest/index.html).
-
 ## License
 
-This project is licensed under GPL License - see LICENSE file for details
+This project is licensed under GPL License - see COPYING file for details
