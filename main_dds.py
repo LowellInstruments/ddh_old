@@ -63,6 +63,7 @@ from utils.logs import (
 )
 import setproctitle
 
+# todo ---> test DDH updating feature
 
 def main_dds():
 
