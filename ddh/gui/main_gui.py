@@ -250,7 +250,11 @@ class DDH(QMainWindow, d_m.Ui_MainWindow):
         with open(str(ddh_get_settings_json_file()), "w") as f:
             f.write(j)
 
-        # bye, bye
+        # bye, bye DDS
+        # todo --> test this kill of DDS when pressing save button
+        dds_kill_by_pid_file()
+
+        # bye, bye DDH
         lg.a("quit by save config button")
         sys.stderr.close()
         os._exit(0)
