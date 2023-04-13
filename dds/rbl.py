@@ -47,7 +47,11 @@ def float_to_bcd_str(fi: float) -> str:
     return fo_s.rjust(4, "0")
 
 
-def rbl_build_emolt_msg_as_str(lat, lon, x85, m_ver=1, m_type=1) -> str:
+def rbl_build_emolt_msg_as_str(lat,
+                               lon,
+                               x85,
+                               m_ver=1,
+                               m_type=1) -> str:
 
     m_ver = "{:02x}".format(m_ver)
     m_type = "{:02x}".format(m_type)
@@ -63,6 +67,7 @@ def rbl_build_emolt_msg_as_str(lat, lon, x85, m_ver=1, m_type=1) -> str:
     m_max_t_df_85 = float_to_bcd_str(x85.max_t_df_85)
     m_mean_t_df_85 = float_to_bcd_str(x85.mean_t_df_85)
     m_std_t_df_85 = float_to_bcd_str(x85.std_t_df_85)
+    # todo ---> need to do haul_duration and lg_sn
     m_haul_duration = "{:06x}".format(0x333333)
     m_lg_sn = "{:08x}".format(0x44444444)
     m_lg_man_id = "{:02x}".format(1)
