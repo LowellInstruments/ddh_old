@@ -9,8 +9,8 @@ from utils.ddh_shared import (
 from mat.utils import PrintColors as PC
 
 
-# experiment
-g_tracking_path = ""
+g_last_tk_ts_unit = None
+g_last_file_out = ''
 
 
 class DDSLogs:
@@ -90,33 +90,46 @@ def dds_log_core_start_at_boot():
 
 
 # these TRACKING logs get uploaded
-def dds_log_tracking_start_at_boot():
+def dds_log_tracking_add(lat, lon, tg):
 
-    v = dds_get_json_vessel_name().replace(" ", "_")
-    d = str(get_ddh_folder_path_dl_files())
-
-    # create TRACKING log folder if it does not exist
-    d = "{}/ddh_{}/".format(d, v)
-    Path(d).mkdir(parents=True, exist_ok=True)
-    ts = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
-    lg_dds.a("started tracking logs on {}".format(ts))
-    global g_tracking_path
-    g_tracking_path = "{}/track_{}_{}.txt".format(d, v, ts)
-
-
-def dds_log_tracking_add(lat, lon):
-
-    assert g_tracking_path != ""
-
-    if not lat:
-        return
-
-    # conditional, cache-based, GPS tracking log
     if not its_time_to("track_boat_gps", t=10):
         return
+    if not lat:
+        return
+    if not tg:
+        return
 
-    # we don't want to use 'lg' functions here
-    now = datetime.datetime.now().strftime("%m-%d-%y %H:%M:%S")
-    s = "{} | {}\n".format(now, "{},{}".format(lat, lon))
-    with open(g_tracking_path, "a") as f:
-        f.write(s)
+    # works with GPS hat and PUCK, checked
+    tg = tg.replace(microsecond=0)
+    iso_tg = tg.isoformat()
+
+    # how often filename rotates
+    # when testing, change %d (day) to %M (minutes)
+    global g_last_tk_ts_unit
+    flag_new_file = g_last_tk_ts_unit != tg.strftime("%d")
+    g_last_tk_ts_unit = tg.strftime("%d")
+
+    # get current GPS time in our string format
+    str_iso_tg_tz_utc = '{}Z'.format(iso_tg)
+
+    # create TRACKING log folder if it does not exist
+    v = dds_get_json_vessel_name().replace(" ", "_")
+    d = str(get_ddh_folder_path_dl_files())
+    d = "{}/ddh_{}/".format(d, v)
+    Path(d).mkdir(parents=True, exist_ok=True)
+
+    # get the filename, either new or re-use previous one
+    global g_last_file_out
+    file_out = g_last_file_out
+    if flag_new_file:
+        if g_last_file_out:
+            lg_dds.a("closing current tracking file due to rotation")
+        file_out = '{}{}_{}_track.txt'.format(d, str_iso_tg_tz_utc, v)
+        lg_dds.a("started new tracking file {}".format(file_out))
+        g_last_file_out = file_out
+
+    # write the tracking line
+    lat = '{:.6f}'.format(float(lat))
+    lon = '{:.6f}'.format(float(lon))
+    with open(file_out, 'a') as f:
+        f.write("{},{},{}\n".format(str_iso_tg_tz_utc, lat, lon))

@@ -58,8 +58,7 @@ from settings import ctx
 from utils.logs import (
     lg_dds as lg,
     dds_log_tracking_add,
-    dds_log_core_start_at_boot,
-    dds_log_tracking_start_at_boot,
+    dds_log_core_start_at_boot
 )
 import setproctitle
 
@@ -75,7 +74,6 @@ def main_dds():
     dds_create_folder_dl_files()
     dds_create_folder_logs()
     dds_log_core_start_at_boot()
-    dds_log_tracking_start_at_boot()
     dds_check_conf_json_file()
     dds_macs_color_show_at_boot()
     m_j = dds_get_macs_from_json_file()
@@ -153,7 +151,7 @@ def main_dds():
             time.sleep(1)
             continue
         lat, lon, tg, speed = g
-        dds_log_tracking_add(lat, lon)
+        dds_log_tracking_add(lat, lon, tg)
         gps_clock_sync_if_so(tg)
 
         # -----------------
@@ -195,8 +193,9 @@ def controller_main_dds():
 
 if __name__ == "__main__":
 
+    # -----------------
     # run DDS software
-    # ------------
+    # -----------------
     if not linux_is_process_running(NAME_EXE_DDS_CONTROLLER):
         controller_main_dds()
     else:
