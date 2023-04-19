@@ -35,7 +35,7 @@ from dds.ble_utils_dds import (
     ble_show_monitored_macs,
     ble_op_conditions_met,
     ble_tell_gui_antenna_type,
-    dds_tell_software_update,
+    dds_tell_software_update, ble_check_antenna_up_n_running,
 )
 from liu.linux import linux_app_write_pid_to_tmp, linux_is_process_running
 from mat.ble.ble_mat_utils import (
@@ -162,6 +162,9 @@ def main_dds():
         # ----------------
         # Bluetooth stage
         # ----------------
+
+        if not ble_check_antenna_up_n_running(lat, lon, h):
+            continue
 
         if ble_op_conditions_met(speed):
 

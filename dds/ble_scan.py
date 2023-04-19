@@ -6,7 +6,7 @@ from utils.ddh_shared import (
     send_ddh_udp_gui as _u,
     dds_get_macs_from_json_file,
     STATE_DDS_BLE_SCAN_FIRST_EVER,
-    STATE_DDS_BLE_SCAN,
+    STATE_DDS_BLE_SCAN, STATE_DDS_BLE_HARDWARE_ERROR,
 )
 from bleak import BleakScanner, BleakError
 from bleak.backends.device import BLEDevice
@@ -86,4 +86,5 @@ async def ble_scan(g, _h: int, _h_desc, t=5.0):
         if its_time_to(e, 600):
             lg.a(e.format(ex))
             sqs_msg_ddh_error_ble_hw(_lat, _lon)
+            _u(STATE_DDS_BLE_HARDWARE_ERROR)
         return {}
