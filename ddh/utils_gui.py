@@ -577,7 +577,8 @@ def _parse_udp(my_app, s, ip="127.0.0.1"):
     # -----------------------
     now = time.perf_counter()
     if f == STATE_DDS_BLE_SCAN and now < _g_ts_gui_expire_icon:
-        # 'scan' icon: LOW priority, show others till they expire
+        # current icon should be 'scan', but it has LOW priority
+        # lets show others till they expire
         return
 
     # GUI main icon and title
