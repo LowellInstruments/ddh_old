@@ -40,7 +40,8 @@ class DDSLogs:
         if type(s) is bytes:
             s = s.decode()
         now = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        s = "{} | [ {} ] {}".format(now, self.label.upper(), s)
+        utcnow = datetime.datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
+        s = "{} / {} | [ {} ] {}".format(now, utcnow, self.label.upper(), s)
 
         # color stuff, print() is called inside
         if "error" in s:
@@ -109,7 +110,9 @@ def dds_log_tracking_add(lat, lon, tg):
     flag_new_file = g_last_tk_ts_unit != tg.strftime("%d")
     g_last_tk_ts_unit = tg.strftime("%d")
 
-    # get current GPS time in our string format
+    # --------------------------------------------------
+    # get current GPS time in our string format, as UTC
+    # --------------------------------------------------
     str_iso_tg_tz_utc = '{}Z'.format(iso_tg)
 
     # create TRACKING log folder if it does not exist
