@@ -36,9 +36,9 @@ rbl_en = ddh_is_emolt_box()
 
 
 # debug hooks :)
-hook_gps_dummy_measurement = not linux_is_rpi()
+hook_gps_dummy_measurement = False
 # GPS puck (external) or hat, append 'or True' to force gps as EXTERNAL
-g_gps_is_external = os.path.exists(dds_get_gps_external_flag_file()) or False
+g_gps_is_external = ddh_is_emolt_box()
 hook_gps_error_measurement_forced = False
 hook_ble_purge_black_macs_on_boot = False
 hook_ble_purge_this_mac_dl_files_folder = False
