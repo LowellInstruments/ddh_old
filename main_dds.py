@@ -35,7 +35,7 @@ from dds.ble_utils_dds import (
     ble_show_monitored_macs,
     ble_op_conditions_met,
     ble_tell_gui_antenna_type,
-    dds_tell_software_update,
+    dds_tell_software_update, ble_check_antenna_up_n_running,
 )
 from liu.linux import linux_app_write_pid_to_tmp, linux_is_process_running
 from mat.ble.ble_mat_utils import (
@@ -58,7 +58,7 @@ from settings import ctx
 from utils.logs import (
     lg_dds as lg,
     dds_log_tracking_add,
-    dds_log_core_start_at_boot,
+    dds_log_core_start_at_boot
 )
 import setproctitle
 
@@ -163,6 +163,9 @@ def main_dds():
         # Bluetooth stage
         # ----------------
 
+        if not ble_check_antenna_up_n_running(lat, lon, h):
+            continue
+
         if ble_op_conditions_met(speed):
 
             # SCAN for BLE loggers around
@@ -193,8 +196,9 @@ def controller_main_dds():
 
 if __name__ == "__main__":
 
+    # -----------------
     # run DDS software
-    # ------------
+    # -----------------
     if not linux_is_process_running(NAME_EXE_DDS_CONTROLLER):
         controller_main_dds()
     else:

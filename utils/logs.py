@@ -7,13 +7,10 @@ from utils.ddh_shared import (
     get_ddh_folder_path_dl_files,
 )
 from mat.utils import PrintColors as PC
-from loguru import logger
 
 
-# loguru stuff
-g_last_tk = None
-g_logger_tracking_id = None
-logger.remove(0)
+g_last_tk_ts_unit = None
+g_last_file_out = ''
 
 
 class DDSLogs:
@@ -103,13 +100,16 @@ def dds_log_tracking_add(lat, lon, tg):
         return
 
     # works with GPS hat and PUCK, checked
+    tg = tg.replace(microsecond=0)
     iso_tg = tg.isoformat()
-    global g_last_tk
-    flag_new_file = g_last_tk != tg.strftime("%d")
-    # for testing, use minutes %M
-    g_last_tk = tg.strftime("%d")
 
-    # get the current GPS time in our format
+    # how often filename rotates
+    # when testing, change %d (day) to %M (minutes)
+    global g_last_tk_ts_unit
+    flag_new_file = g_last_tk_ts_unit != tg.strftime("%d")
+    g_last_tk_ts_unit = tg.strftime("%d")
+
+    # get current GPS time in our string format
     str_iso_tg_tz_utc = '{}Z'.format(iso_tg)
 
     # create TRACKING log folder if it does not exist
@@ -118,19 +118,18 @@ def dds_log_tracking_add(lat, lon, tg):
     d = "{}/ddh_{}/".format(d, v)
     Path(d).mkdir(parents=True, exist_ok=True)
 
-    # get the potential new filename
+    # get the filename, either new or re-use previous one
+    global g_last_file_out
+    file_out = g_last_file_out
     if flag_new_file:
-        global g_logger_tracking_id
-        if g_logger_tracking_id:
-            # close the previous logger
-            logger.remove(g_logger_tracking_id)
+        if g_last_file_out:
             lg_dds.a("closing current tracking file due to rotation")
-        # create new logger
         file_out = '{}{}_{}_track.txt'.format(d, str_iso_tg_tz_utc, v)
-        g_logger_tracking_id = logger.add(file_out, format="{message}")
         lg_dds.a("started new tracking file {}".format(file_out))
+        g_last_file_out = file_out
 
     # write the tracking line
-    lat = '{:.6f}'.format(lat)
-    lon = '{:.6f}'.format(lon)
-    logger.info("{ts},{lat},{lon}", ts=str_iso_tg_tz_utc, lat=lat, lon=lon)
+    lat = '{:.6f}'.format(float(lat))
+    lon = '{:.6f}'.format(float(lon))
+    with open(file_out, 'a') as f:
+        f.write("{},{},{}\n".format(str_iso_tg_tz_utc, lat, lon))
