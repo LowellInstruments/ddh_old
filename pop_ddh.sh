@@ -36,5 +36,6 @@ cp $FTS/script_logger_do_deploy_cfg.json $FA/scripts
 cp $FTS/_li_all_macs_to_sn.yml $FA/settings
 cp $FTS/ctx.py $FA/settings
 cp $FTS/ddh.json $FA/settings
+cp /home/pi/li/ddt/_dt_files/ble_dl_moana.py $FA/dds
 
 echo; echo '>>> done'; echo

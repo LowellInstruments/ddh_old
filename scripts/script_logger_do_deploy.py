@@ -6,7 +6,7 @@ import subprocess as sp
 import yaml
 import os
 from mat.utils import PrintColors as PC
-from scripts.script_logger_do_deploy_utils import (
+from script_logger_do_deploy_utils import (
     set_script_cfg_file,
     deploy_logger,
     get_script_cfg_file,
