@@ -1,10 +1,14 @@
 import datetime
+import glob
+import json
+import os
 from pathlib import Path
 from dds.timecache import its_time_to
+from settings import ctx
 from utils.ddh_shared import (
     get_ddh_folder_path_logs,
     dds_get_json_vessel_name,
-    get_ddh_folder_path_dl_files,
+    get_ddh_folder_path_dl_files, get_ddh_folder_path_lef,
 )
 from mat.utils import PrintColors as PC
 
@@ -118,7 +122,7 @@ def dds_log_tracking_add(lat, lon, tg):
     # create TRACKING log folder if it does not exist
     v = dds_get_json_vessel_name().replace(" ", "_")
     d = str(get_ddh_folder_path_dl_files())
-    d = "{}/ddh_{}/".format(d, v)
+    d = "{}/ddh#{}/".format(d, v)
     Path(d).mkdir(parents=True, exist_ok=True)
 
     # get the filename, either new or re-use previous one
@@ -127,12 +131,28 @@ def dds_log_tracking_add(lat, lon, tg):
     if flag_new_file:
         if g_last_file_out:
             lg_dds.a("closing current tracking file due to rotation")
-        file_out = '{}{}_{}_track.txt'.format(d, str_iso_tg_tz_utc, v)
+        file_out = '{}{}#{}_track.txt'.format(d, str_iso_tg_tz_utc, v)
         lg_dds.a("started new tracking file {}".format(file_out))
         g_last_file_out = file_out
 
-    # write the tracking line
+    # -----------------------------
+    # write the tracking line alone
+    # -----------------------------
     lat = '{:.6f}'.format(float(lat))
     lon = '{:.6f}'.format(float(lon))
     with open(file_out, 'a') as f:
         f.write("{},{},{}\n".format(str_iso_tg_tz_utc, lat, lon))
+
+    # add lines with LEF info, if so
+    if not ctx.lef_en:
+        return
+    fol_lef = get_ddh_folder_path_lef()
+    ff_lef = glob.glob("{}/*.lef".format(fol_lef))
+    for f_lef in ff_lef:
+        with open(f_lef, 'r') as fl:
+            # fl content is JSON, no need for json.loads() here
+            j = fl.read()
+            with open(file_out, 'a') as fo:
+                fo.write("{},{},{}***{}\n".format(str_iso_tg_tz_utc, lat, lon, j))
+        # delete the LEF file
+        os.unlink(f_lef)

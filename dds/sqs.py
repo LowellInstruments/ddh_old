@@ -5,7 +5,7 @@ import uuid
 import boto3
 import time
 import json
-
+from dds.lef import dds_create_file_lef
 from liu.ddn_msg import (
     DdnMsg,
     OPCODE_SQS_LOGGER_LOW_BATTERY,
@@ -26,7 +26,7 @@ from utils.ddh_shared import (
     get_ddh_folder_path_sqs,
     get_ddh_commit,
     dds_get_json_vessel_name,
-    get_utc_offset,
+    get_utc_offset
 )
 import warnings
 
@@ -122,6 +122,12 @@ def _sqs_gen_file(desc, mac, lg_sn, lat, lon, m_ver=1, data=""):
     path = "{}/{}.sqs".format(fol, now)
     with open(path, "w") as f:
         json.dump(d, f)
+
+    # -----------------------------------------------
+    # create a LEF file from dict, content: JSON
+    # it will be consumed by dds_log_tracking_add()
+    # -----------------------------------------------
+    dds_create_file_lef(now, d)
 
     # log what kind of message was uploaded
     s = "generated file {}, details below"

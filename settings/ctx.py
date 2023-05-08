@@ -34,9 +34,12 @@ ble_rfkill = False
 rbl_en = ddh_is_emolt_box()
 # rbl_en = True
 
+# lowell event file
+lef_en = True
+
 
 # debug hooks :)
-hook_gps_dummy_measurement = False
+hook_gps_dummy_measurement = True
 # GPS puck (external) or hat, append 'or True' to force gps as EXTERNAL
 g_gps_is_external = ddh_is_emolt_box()
 hook_gps_error_measurement_forced = False

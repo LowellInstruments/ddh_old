@@ -28,8 +28,9 @@ from dds.sqs import (
     dds_create_folder_sqs,
     sqs_serve,
     sqs_msg_ddh_booted,
-    sqs_msg_ddh_alive,
+    sqs_msg_ddh_alive
 )
+from dds.lef import dds_create_folder_lef
 from dds.ble_utils_dds import (
     ble_apply_debug_hooks_at_boot,
     ble_show_monitored_macs,
@@ -71,6 +72,7 @@ def main_dds():
     dds_ensure_proper_working_folder()
     dds_create_folder_macs_color()
     dds_create_folder_sqs()
+    dds_create_folder_lef()
     dds_create_folder_dl_files()
     dds_create_folder_logs()
     dds_log_core_start_at_boot()

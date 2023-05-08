@@ -337,6 +337,10 @@ def get_ddh_folder_path_sqs() -> Path:
     return Path("dds/sqs")
 
 
+def get_ddh_folder_path_lef() -> Path:
+    return Path("dds/lef")
+
+
 def get_ddh_folder_path_rbl() -> Path:
     return Path("dds/rbl")
 
