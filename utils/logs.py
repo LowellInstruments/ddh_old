@@ -80,6 +80,7 @@ lg_gui = DDSLogs("gui", entity="gui")
 lg_net = DDSLogs("net")
 lg_rbl = DDSLogs("rbl")
 lg_emo = DDSLogs("emo")
+lg_log = DDSLogs("log")
 
 
 # these NORMAL logs are local
@@ -151,4 +152,5 @@ def dds_log_tracking_add(lat, lon, tg):
             with open(file_out, 'a') as fo:
                 fo.write("{},{},{}***{}\n".format(str_iso_tg_tz_utc, lat, lon, j))
         # delete the LEF file
+        lg_log.a("deleting LEF file {}".format(f_lef))
         os.unlink(f_lef)

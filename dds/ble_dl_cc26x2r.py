@@ -1,6 +1,8 @@
 import asyncio
 import datetime
 import os
+
+from dds.lef import dds_create_file_lef
 from mat.ble.ble_mat_utils import (
     ble_mat_crc_local_vs_remote,
     DDH_GUI_UDP_PORT,
@@ -130,6 +132,11 @@ class BleCC26X2Download:
             _rae(rv, "del")
             any_dl = True
             lg.a("deleted file {}".format(name))
+
+            # create LEF file with download info
+            # todo ---> test this
+            lg.a("creating file LEF for {}".format(name))
+            dds_create_file_lef(g, name)
 
         # format file-system, o/w DO-1 loggers (NAND mem) get slower
         rv = await lc.cmd_frm()

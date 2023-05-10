@@ -1,7 +1,7 @@
 import glob
 import json
 from settings import ctx
-from utils.ddh_shared import get_ddh_folder_path_lef
+from utils.ddh_shared import get_ddh_folder_path_lef, get_ddh_folder_path_dl_files, dds_get_json_vessel_name
 import os
 
 
@@ -16,9 +16,18 @@ def dds_create_folder_lef():
     os.makedirs(r, exist_ok=True)
 
 
-def dds_create_file_lef(now, d):
+def dds_create_file_lef(g, name):
+    lat, lon, tg, speed = g
+    d = {
+        "dl_lat": lat,
+        "dl_lon": lon,
+        "dl_utc_tg": str(tg),
+        "dl_speed": speed,
+        "dl_filename": name,
+        "dl_vessel": dds_get_json_vessel_name()
+    }
     fol = str(get_ddh_folder_path_lef())
-    path = "{}/{}.lef".format(fol, now)
+    path = "{}/dl_{}.lef".format(fol, name)
     with open(path, "w") as fl:
         # from dict to file
         json.dump(d, fl)

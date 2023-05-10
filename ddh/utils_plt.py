@@ -46,8 +46,7 @@ def _plt_csv_file_suffix_from_metric(m):
         "DOP": "_DissolvedOxygen",
         "DOT": "_DissolvedOxygen",
         "T": "_Temperature",
-        "P": "_Pressure",
-        "WAT": "_WaterDetect",
+        "P": "_Pressure"
     }
     return d[m]
 
