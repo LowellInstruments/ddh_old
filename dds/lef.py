@@ -17,8 +17,6 @@ def dds_create_folder_lef():
 
 
 def dds_create_file_lef(now, d):
-    if not ctx.lef_en:
-        return
     fol = str(get_ddh_folder_path_lef())
     path = "{}/{}.lef".format(fol, now)
     with open(path, "w") as fl:
