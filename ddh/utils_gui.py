@@ -21,7 +21,7 @@ from ddh import utils_plt
 from ddh.utils_net import net_get_my_current_wlan_ssid
 from dds.ble_utils_dds import ble_get_cc26x2_recipe_file_rerun_flag
 from mat.ble.ble_mat_utils import DDH_GUI_UDP_PORT
-from mat.utils import linux_is_rpi
+from mat.utils import linux_is_rpi, is_valid_mac_address
 import subprocess as sp
 from settings import ctx
 from utils.ddh_shared import (
@@ -773,7 +773,7 @@ def gui_refresh_dl_folder_list(d):
     if os.path.isdir(d):
         f_l = [f.path for f in os.scandir(d) if f.is_dir()]
         # remove 'ddh_vessel' folders
-        f_l = [f for f in f_l if "ddh_" not in str(f)]
+        f_l = [f for f in f_l if "ddh" not in f]
         return f_l
     else:
         os.makedirs(d, exist_ok=True)

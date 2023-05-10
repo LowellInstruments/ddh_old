@@ -1,7 +1,6 @@
 import glob
 import os
 import pathlib
-
 from dds.timecache import its_time_to
 from mat.data_converter import default_parameters, DataConverter
 from mat.data_file_factory import load_data_file
@@ -47,7 +46,7 @@ def _cnv(fol, suf) -> (bool, list):
     # suffix: _DissolvedOxygen
     # ---------------------------
 
-    valid_suffixes = ("_DissolvedOxygen", "_Temperature", "_Pressure", "_WaterDetect")
+    valid_suffixes = ("_DissolvedOxygen", "_Temperature", "_Pressure")
     if suf not in valid_suffixes:
         lg.a("error: unknown suffix {}".format(suf))
         return False, []
@@ -97,7 +96,7 @@ def _cnv(fol, suf) -> (bool, list):
             # --------------------------------
             # RN4020: hack for pressure adjust
             # --------------------------------
-            if ("_Pressure" in suf) and ("moana" not in f):
+            if ("_Pressure" in suf) and ("moana" not in f.lower()):
                 lg.a("debug: adjusting LI file {}".format(f))
                 fp_csv = f[:-4] + "_Pressure.csv"
                 df = pd.read_csv(fp_csv)

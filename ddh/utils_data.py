@@ -145,7 +145,7 @@ def data_glob_files_to_plot(fol, ts, metric, suffix, sd):
     # generate and GLOB CSV files from LID file
     # ---------------------------------------------
 
-    # todo ---> do we need cnv_serve() function? we already do it here
+    # convert before plotting just in case cnv_serve() did not yet
     convert_lid_to_csv(fol, suffix)
     s = "globbing mask: {}/*{}.csv, metric: {}"
     lg.a(s.format(fol, suffix, metric))

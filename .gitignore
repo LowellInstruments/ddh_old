@@ -10,6 +10,7 @@ _macs_to_sn.*
 *.lid
 *.csv
 *.gps
+*.lef
 dds/sqs/
 dds/rbl/
 dds/dl_files/

@@ -1,10 +1,8 @@
 import datetime
 import glob
-import json
 import os
 from pathlib import Path
 from dds.timecache import its_time_to
-from settings import ctx
 from utils.ddh_shared import (
     get_ddh_folder_path_logs,
     dds_get_json_vessel_name,
@@ -144,8 +142,6 @@ def dds_log_tracking_add(lat, lon, tg):
         f.write("{},{},{}\n".format(str_iso_tg_tz_utc, lat, lon))
 
     # add lines with LEF info, if so
-    if not ctx.lef_en:
-        return
     fol_lef = get_ddh_folder_path_lef()
     ff_lef = glob.glob("{}/*.lef".format(fol_lef))
     for f_lef in ff_lef:

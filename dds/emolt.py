@@ -1,4 +1,6 @@
 from collections import namedtuple
+
+from mat.utils import linux_is_rpi
 from utils.logs import lg_emo as lg
 from utils.ddh_shared import dds_get_is_emolt_box_flag_file, dds_get_json_vessel_name
 import pandas as pd
@@ -29,6 +31,10 @@ EmoltMsgShortHaul = namedtuple(
 
 def ddh_is_emolt_box():
     return os.path.exists(dds_get_is_emolt_box_flag_file())
+
+
+def ddh_is_dev_platform():
+    return not linux_is_rpi()
 
 
 def file_moana_raw_csv_to_emolt_csv(path, lat, lon):
