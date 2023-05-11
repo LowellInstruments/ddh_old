@@ -82,16 +82,20 @@ class BleRN4020Download(BleRN4020):
                 f.write(data)
 
             # grab the file's CLK header section
-            _ = data_file_factory.load_data_file(path)
-            t = _.header().tag("CLK")
-            t = t.replace(":", "")
-            t = t.replace("-", "")
-            t = t.replace(" ", "")
-            # t: 20230217171119, YYYYMMDDHHMMSS
-            t = t[:8] + "_" + t[8:]
-            dst = path.replace(".lid", "")
-            dst = "{}_{}.lid".format(dst, t)
-            os.rename(path, dst)
+            try:
+                _ = data_file_factory.load_data_file(path)
+                t = _.header().tag("CLK")
+                t = t.replace(":", "")
+                t = t.replace("-", "")
+                t = t.replace(" ", "")
+                # t: 20230217171119, YYYYMMDDHHMMSS
+                t = t[:8] + "_" + t[8:]
+                dst = path.replace(".lid", "")
+                dst = "{}_{}.lid".format(dst, t)
+                os.rename(path, dst)
+            except (Exception, ) as ex:
+                e = "error after downloading RN4020 -> {}"
+                lg.a(e.format(ex))
 
             # delete file in logger
             lg.a("deleting file {}".format(name))
