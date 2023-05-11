@@ -52,6 +52,7 @@ def _cnv(fol, suf) -> (bool, list):
         return False, []
 
     # needed variables for conversion
+    # only done for LID files
     parameters = default_parameters()
     err_files = []
     all_ok = True

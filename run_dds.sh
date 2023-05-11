@@ -24,13 +24,23 @@ export DDH_BOX_PROJECT_NAME=
 export DDH_SQS_QUEUE_NAME=ddw_in.fifo
 
 
-echo; echo 'R > bluetooth sanity check for hci0'
-sudo systemctl restart bluetooth
-sudo hciconfig hci0 down || true
+echo; echo 'R > bluetooth power check'
+sudo bluetoothctl power off
+sleep .5
+sudo bluetoothctl power on
+sleep .5
 sudo hciconfig hci0 up || true
-echo; echo 'R > bluetooth sanity check for hci1'
-sudo hciconfig hci1 down || true
 sudo hciconfig hci1 up || true
+
+
+# do not run DDS so DDH will complain
+echo; echo 'R > bluetooth sanity check'
+hciconfig hci0 | grep RUNNING > /dev/null
+rv=$?
+if [ $rv -ne 0 ]; then
+    printf "error: Bluetooth hci0 seems bad\n"
+    exit 1
+fi
 
 
 echo; echo 'R > ensure rfkill wlan unblock'
