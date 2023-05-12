@@ -112,7 +112,7 @@ def dds_tell_software_update():
         lg.a("told software updated")
         _u(STATE_DDS_SOFTWARE_UPDATED)
         # give GUI time to show this
-        time.sleep(5)
+        time.sleep(20)
 
 
 def ble_apply_debug_hooks_at_boot():
