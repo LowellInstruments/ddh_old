@@ -35,8 +35,7 @@ sudo hciconfig hci1 up || true
 
 # do not run DDS so DDH will complain
 echo; echo 'R > bluetooth sanity check'
-hciconfig hci0 | grep RUNNING > /dev/null
-rv=$?
+hciconfig hci0 | grep RUNNING > /dev/null; rv=$?
 if [ $rv -ne 0 ]; then
     printf "error: Bluetooth hci0 seems bad\n"
     exit 1
