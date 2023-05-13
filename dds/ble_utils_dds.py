@@ -90,10 +90,29 @@ def ble_tell_gui_antenna_type(_h, desc):
 
 
 def ble_check_antenna_up_n_running(lat, lon, h: int):
-    # todo > test this :) force hciconfig down
-    c = "hciconfig hci{} | grep 'UP RUNNING'".format(h)
-    rv = sp.run(c, shell=True, stdout=sp.PIPE, stderr=sp.PIPE)
+    cr = "hciconfig hci{} | grep 'UP RUNNING'".format(h)
+    rv = sp.run(cr, shell=True, stdout=sp.PIPE, stderr=sp.PIPE)
     if rv.returncode == 0:
+        return True
+
+    # try to recover it
+        # todo ---> test this, just put interface down
+        for c in [
+            'sudo hciconfig hci{} down'.format(h),
+            'sudo rmmod btusb',
+            'sudo modprobe -r btusb',
+            'sudo modprobe btusb',
+            'sudo rfkill unblock bluetooth',
+            'sudo hciconfig hci{} up'.format(h)
+        ]:
+            rv = sp.run(c, shell=True, stdout=sp.PIPE, stderr=sp.PIPE)
+            if rv.returncode:
+                lg.a('command {} returned error {}'.format(c, rv.stderr))
+
+    # check again!
+    rv = sp.run(cr, shell=True, stdout=sp.PIPE, stderr=sp.PIPE)
+    if rv.returncode == 0:
+        lg.a('success: we recovered BLE interface from down to up')
         return True
 
     # not UP and running, tell so
