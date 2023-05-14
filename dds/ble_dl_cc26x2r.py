@@ -6,7 +6,6 @@ from dds.lef import dds_create_file_lef
 from mat.ble.ble_mat_utils import (
     ble_mat_crc_local_vs_remote,
     DDH_GUI_UDP_PORT,
-    ble_mat_bluetoothctl_disconnect,
 )
 from mat.ble.bleak.cc26x2r import BleCC26X2
 from mat.ble.bleak.cc26x2r_sim import BleCC26X2Sim, ble_logger_is_cc26x2r_simulated
@@ -208,8 +207,6 @@ async def ble_interact_cc26x2(mac, info, g, h):
 
     except Exception as ex:
         lg.a("error dl_cc26x2r_exception {}".format(ex))
-        # a bit tough, but meh
-        ble_mat_bluetoothctl_disconnect()
         rv = 1
 
     finally:

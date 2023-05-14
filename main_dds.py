@@ -41,7 +41,7 @@ from dds.ble_utils_dds import (
 from liu.linux import linux_app_write_pid_to_tmp, linux_is_process_running
 from mat.ble.ble_mat_utils import (
     ble_mat_get_antenna_type,
-    ble_mat_bluetoothctl_disconnect,
+    ble_mat_bluetoothctl_power_cycle,
 )
 from utils.ddh_shared import (
     dds_check_conf_json_file,
@@ -82,7 +82,7 @@ def main_dds():
 
     ble_show_monitored_macs()
     ble_apply_debug_hooks_at_boot()
-    ble_mat_bluetoothctl_disconnect()
+    ble_mat_bluetoothctl_power_cycle()
 
     # detecting and selecting Bluetooth antenna
     h, h_d = ble_mat_get_antenna_type()

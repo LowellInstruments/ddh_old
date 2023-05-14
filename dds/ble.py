@@ -9,6 +9,7 @@ from dds.macs import (
     is_mac_in_orange,
     add_mac_orange,
 )
+from mat.ble.ble_mat_utils import ble_mat_bluetoothctl_power_cycle
 from mat.ble.bleak.cc26x2r_sim import ble_logger_is_cc26x2r_simulated
 
 from dds.ble_dl_rn4020 import ble_interact_rn4020
@@ -144,6 +145,7 @@ async def _ble_id_n_interact_logger(mac, info: str, h, g):
         _u("history/add&{}&ok&{}&{}&{}".format(sn, lat, lon, dt))
     else:
         _u("history/add&{}&error&{}&{}&{}".format(sn, lat, lon, dt))
+        ble_mat_bluetoothctl_power_cycle()
 
 
 async def ble_interact_all_loggers(macs_det, macs_mon, g, _h: int, _h_desc):
