@@ -36,7 +36,7 @@ from dds.ble_utils_dds import (
     ble_show_monitored_macs,
     ble_op_conditions_met,
     ble_tell_gui_antenna_type,
-    dds_tell_software_update, ble_check_antenna_up_n_running,
+    ble_check_antenna_up_n_running, dds_tell_software_update,
 )
 from liu.linux import linux_app_write_pid_to_tmp, linux_is_process_running
 from mat.ble.ble_mat_utils import (
@@ -64,6 +64,7 @@ from utils.logs import (
 import setproctitle
 
 # todo ---> test DDH updating feature
+
 
 def main_dds():
 

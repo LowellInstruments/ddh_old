@@ -396,8 +396,8 @@ class MoanaBle:
                 status = await self.file_checksum()
                 offload_state = OffloadState.CLEAR_DATA
             elif offload_state == OffloadState.CLEAR_DATA:
-                await self.clear_data()
-                await self.disconnect()
+                #await self.clear_data()
+                #await self.disconnect()
                 offload_state = OffloadState.COMPLETE
                 break
 

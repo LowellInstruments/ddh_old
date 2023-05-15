@@ -393,6 +393,7 @@ def _parse_udp(my_app, s, ip="127.0.0.1"):
         ci = "blue{}.png".format(i)
 
     elif f == STATE_DDS_SOFTWARE_UPDATED:
+        _g_ts_gui_expire_icon = time.perf_counter() + 30
         ct = "DDH updated!"
         ci = "update.png"
 

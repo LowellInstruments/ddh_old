@@ -10,15 +10,16 @@ echo '>>> stashing current DDS configuration'
 echo
 rm -rf $FTS
 mkdir $FTS
-cp run_dds.sh $FTS
-cp scripts/script_logger_do_deploy_cfg.json $FTS
-cp settings/_li_all_macs_to_sn.yml $FTS
-cp settings/ctx.py $FTS
-cp settings/ddh.json $FTS
+cp $FA/run_dds.sh $FTS
+cp $FA/scripts/script_logger_do_deploy_cfg.json $FTS
+cp $FA/settings/_li_all_macs_to_sn.yml $FTS
+cp $FA/settings/ctx.py $FTS
+cp $FA/settings/ddh.json $FTS
 
 
 echo '>>> resetting and pulling DDH from github'
 echo
+cd $FA
 git reset --hard
 git pull
 rv=$?

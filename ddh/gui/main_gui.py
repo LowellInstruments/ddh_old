@@ -1,3 +1,4 @@
+import psutil
 import glob
 import os
 import pathlib
@@ -57,7 +58,7 @@ from utils.ddh_shared import (
     dds_get_aws_has_something_to_do_via_gui_flag_file,
     ble_get_cc26x2_recipe_flags_from_json,
     ble_set_cc26x2r_recipe_flags_to_file,
-    STATE_DDS_BLE_SERVICE_INACTIVE,
+    STATE_DDS_BLE_SERVICE_INACTIVE, dds_get_ddh_got_an_update_flag_file, STATE_DDS_SOFTWARE_UPDATED,
 )
 
 matplotlib.use("Qt5Agg")
@@ -133,10 +134,24 @@ class DDH(QMainWindow, d_m.Ui_MainWindow):
         self.tp = QTimer()
         self.tp.timeout.connect(self._tp_fxn)
 
+        # check if we had an update, also done at DDS
+        if dds_get_ddh_got_an_update_flag_file():
+            send_ddh_udp_gui(STATE_DDS_SOFTWARE_UPDATED)
+
+        m = psutil.virtual_memory()
+        print(m.percent)
+
     def _tg_fxn(self):
         gui_timer_fxn(self)
 
     def _tt_fxn(self):
+        # measure RAM usage of DDH box
+        m = psutil.virtual_memory()
+        if int(m.percent) > 75:
+            ma = m.available / 1e9
+            s = "debug: {:.2f}% GB of RAM used, {:.2f} GB available"
+            lg.a(s.format(m.percent, ma))
+
         # measure temperature of DDH box, tell when too high
         self.tt.stop()
         c = "/usr/bin/vcgencmd measure_temp"

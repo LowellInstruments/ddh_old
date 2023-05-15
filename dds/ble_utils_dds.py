@@ -6,6 +6,7 @@ import time
 from dds.macs import dds_create_folder_macs_color
 from dds.sqs import sqs_msg_ddh_error_ble_hw
 from dds.timecache import its_time_to
+from mat.utils import linux_is_rpi
 from utils.ddh_shared import (
     send_ddh_udp_gui as _u,
     ble_get_cc26x2_recipe_flags_from_json,
@@ -95,19 +96,22 @@ def ble_check_antenna_up_n_running(lat, lon, h: int):
     if rv.returncode == 0:
         return True
 
+    # will not be able to do next sudo <command> on laptop
+    if not linux_is_rpi():
+        return
+
     # try to recover it
-        # todo ---> test this, just put interface down
-        for c in [
-            'sudo hciconfig hci{} down'.format(h),
-            'sudo rmmod btusb',
-            'sudo modprobe -r btusb',
-            'sudo modprobe btusb',
-            'sudo rfkill unblock bluetooth',
-            'sudo hciconfig hci{} up'.format(h)
-        ]:
-            rv = sp.run(c, shell=True, stdout=sp.PIPE, stderr=sp.PIPE)
-            if rv.returncode:
-                lg.a('command {} returned error {}'.format(c, rv.stderr))
+    for c in [
+        'sudo hciconfig hci{} down'.format(h),
+        'sudo rmmod btusb',
+        'sudo modprobe -r btusb',
+        'sudo modprobe btusb',
+        'sudo rfkill unblock bluetooth',
+        'sudo hciconfig hci{} up'.format(h)
+    ]:
+        rv = sp.run(c, shell=True, stdout=sp.PIPE, stderr=sp.PIPE)
+        if rv.returncode:
+            lg.a('command {} returned error {}'.format(c, rv.stderr))
 
     # check again!
     rv = sp.run(cr, shell=True, stdout=sp.PIPE, stderr=sp.PIPE)
