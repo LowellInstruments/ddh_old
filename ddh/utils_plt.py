@@ -242,8 +242,7 @@ def _plot_draw_metric_set(fol, ax, ts, m_s, t, y_set):
 
 def _plot_one_set_of_metrics(fol, ax, ts, metric_set):
 
-    # one_metric_set: ['DOS', 'DOT', 'WAT']
-    # another metric set: ['T', 'P']
+    # one_metric_set: ['DOS', 'DOT', 'WAT'] / another: ['T', 'P']
     mac = get_mac_from_folder_path(fol)
     lhf = ddh_get_is_last_haul()
     sd = _plt_json_get_span_dict()
@@ -254,11 +253,14 @@ def _plot_one_set_of_metrics(fol, ax, ts, metric_set):
     all_y = []
     for i, metric in enumerate(metric_set):
         try:
-            # metric: 'DOS'
-            # suffix: '_DissolvedOxygen'
+            # calculate file suffic from input metric
             suffix = _plt_csv_file_suffix_from_metric(metric)
 
-            # grab the data within files corresponding to suffix
+            # grab the data from within files having the calculated suffix
+            # metric: 'DOS'
+            # suffix: '_DissolvedOxygen'
+            # sd: span dictionary from ddh.json
+            # ts: "h" for hour, "d" for day...
             t, y = data_glob_files_to_plot(fol, ts, metric, suffix, sd)
             good_dots = np.count_nonzero(~np.isnan(y))
             if good_dots < 2:
@@ -270,7 +272,7 @@ def _plot_one_set_of_metrics(fol, ax, ts, metric_set):
         except (AttributeError, Exception) as ex:
             # e.g. no values at all, None.values
             sn = dds_get_json_mac_dns(mac)
-            lg.a("error at _plot_one_set_of_metrics, exception -> {}".format(ex))
+            lg.a("error _plot_one_set_of_metrics, exception -> {}".format(ex))
             _ = "{}({}) for {}, mac {}".format(metric, ts, sn, mac)
             if i == 0:
                 lg.a("error: critical -> {}".format(_))
@@ -288,30 +290,26 @@ def gui_plot_all_set_of_metrics():
 
     fol = ctx.g_p_d
     ax = ctx.g_p_ax
-    # ts: for example 'h'
+    # ts: for example 'h', set by GUI
     ts = ctx.g_p_ts
     all_metric_sets = ctx.g_p_met
 
     # ---------------------------------------
-    # iterate all metric_sets to be plotted
+    # iterate and try to plot all_metric_sets
+    # [ ['DOS', 'DOT', 'WAT'], ['T', 'P'] ]
     # ---------------------------------------
     rv = 0
     for each_metric_set in all_metric_sets:
-        # all_metric_sets: [ ['DOS', 'DOT', 'WAT'], ['T', 'P'] ]
         args = (fol, ax, ts, each_metric_set)
-
-        # --------------------------------
-        # try to plot current metric set
-        # --------------------------------
         rv = _plot_one_set_of_metrics(*args)
         if rv == 0:
             # good!
             _u(STATE_DDS_NOTIFY_PLOT_RESULT_OK)
             return 0
 
-    # ----------------------------
-    # bad -> all plots went wrong
-    # ----------------------------
+    # ---------------------
+    # ALL PLOTS went wrong
+    # ---------------------
     _m = get_mac_from_folder_path(fol)
     if rv == 1:
         e = "error: plot '{}'".format(dds_get_json_mac_dns(_m))

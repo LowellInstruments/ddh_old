@@ -15,13 +15,18 @@ from utils.ddh_shared import (
 import pandas as pd
 
 
+"""
+code in this file only takes care of LID data files
+"""
+
+
 PERIOD_CNV_SECS = 3600 * 12
 BAROMETRIC_PRESSURE_SEA_LEVEL_IN_DECIBAR = 10.1
 DDH_BPSL = BAROMETRIC_PRESSURE_SEA_LEVEL_IN_DECIBAR
 
 
 _g_files_we_cannot_convert = []
-_g_files_already_exists_told = []
+_g_files_already_converted = []
 
 
 def _lid_file_has_sensor_data_type(path, suffix):
@@ -32,47 +37,33 @@ def _lid_file_has_sensor_data_type(path, suffix):
 
 def _cnv(fol, suf) -> (bool, list):
 
-    # ---------------------------
-    # check asked folder exists
-    # fol: dl_files/e5-fc-4e-94-ed-dd
-    # ---------------------------
-
+    # check asked folder (ex: dl_files/e5-fc-4e-94-ed-dd) exists
     if not pathlib.Path(fol).is_dir():
         lg.a("error: folder {} not found".format(fol))
         return False, []
 
-    # ---------------------------
-    # check asked suffix exists
-    # suffix: _DissolvedOxygen
-    # ---------------------------
-
+    # check asked suffix (ex: _DissolvedOxygen) exists
     valid_suffixes = ("_DissolvedOxygen", "_Temperature", "_Pressure")
     if suf not in valid_suffixes:
         lg.a("error: unknown suffix {}".format(suf))
         return False, []
 
-    # needed variables for conversion
-    # only done for LID files
+    # we only convert LID files
     parameters = default_parameters()
     err_files = []
     all_ok = True
     global _g_files_we_cannot_convert
     lid_files = linux_ls_by_ext(fol, "lid")
 
-    # ------------------------------------------------
-    # iterate all LID files w/in this logger's folder
-    # ------------------------------------------------
-
     for f in lid_files:
-
         # do not convert when already have CSV files for this LID file
         _ = "{}{}.csv".format(f.split(".")[0], suf)
         if pathlib.Path(_).is_file():
-            global _g_files_already_exists_told
+            global _g_files_already_converted
             s = "debug: skip conversion, file {} already exists"
-            if _ not in _g_files_already_exists_told:
+            if _ not in _g_files_already_converted:
                 lg.a(s.format(_))
-                _g_files_already_exists_told.append(_)
+                _g_files_already_converted.append(_)
             continue
 
         # do not convert when LID file already known as defective
@@ -82,9 +73,7 @@ def _cnv(fol, suf) -> (bool, list):
         # -----------------------------
         # try to convert this LID file
         # -----------------------------
-
         try:
-
             # skip files not containing this sensor data
             if not _lid_file_has_sensor_data_type(f, suf):
                 # s = 'debug: skip conversion, file {} has no {} data'
@@ -113,7 +102,7 @@ def _cnv(fol, suf) -> (bool, list):
             e = "error: converting file {}, metric {} --> {}"
             lg.a(e.format(f, suf, str(ex)))
 
-            # only happens once
+            # add to black list of files
             if f not in _g_files_we_cannot_convert:
                 e = "warning: ignoring file {} for metric {} from now on"
                 lg.a(e.format(f, suf))
