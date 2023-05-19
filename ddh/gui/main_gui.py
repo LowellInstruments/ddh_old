@@ -82,6 +82,9 @@ class DDH(QMainWindow, d_m.Ui_MainWindow):
         # ------------------------
         lg.are_enabled(True)
 
+        # for future new plotting
+        self.aw = None
+
         # gui: appearance
         dl_fol = str(get_ddh_folder_path_dl_files())
         self.plt_fol_list = gui_refresh_dl_folder_list(dl_fol)

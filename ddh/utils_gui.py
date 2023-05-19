@@ -18,6 +18,7 @@ from PyQt5.QtWidgets import (
 from gpiozero import Button
 from ddh.db.db_his import DBHis
 from ddh import utils_plt
+from ddh.utils_graph import SeparateGraphWindow
 from ddh.utils_net import net_get_my_current_wlan_ssid
 from dds.ble_utils_dds import ble_get_cc26x2_recipe_file_rerun_flag
 from mat.ble.ble_mat_utils import DDH_GUI_UDP_PORT
@@ -521,6 +522,10 @@ def _parse_udp(my_app, s, ip="127.0.0.1"):
         # PLOT THREAD
         _th = threading.Thread(target=utils_plt.gui_plot_all_set_of_metrics)
         _th.start()
+
+        # for future new plotting in separate window
+        # a.w = SeparateGraphWindow()
+        # a.w.show()
 
     elif f == STATE_DDS_NOTIFY_PLOT_RESULT_OK:
         a.lbl_plt_bsy.setVisible(False)
