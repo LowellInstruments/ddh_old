@@ -2,6 +2,8 @@
 FOL_SCR=/home/pi/li/ddh/scripts/
 VENV=/home/pi/li/venv
 
+clear
+
 
 source $VENV/bin/activate && \
 cd $FOL_SCR && \

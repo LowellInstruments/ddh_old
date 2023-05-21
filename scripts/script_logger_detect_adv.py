@@ -58,7 +58,7 @@ async def ble_scan_mean_adv(t=10.0):
             _g_dd[k].append(time.time())
 
     try:
-        print("\nscanning for {} seconds ...".format(int(t)))
+        print("\nADV averager - scanning {} seconds".format(int(t)))
         scanner = BleakScanner(_scan_cb, None)
         await scanner.start()
         await asyncio.sleep(t)
