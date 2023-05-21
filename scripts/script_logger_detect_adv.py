@@ -46,6 +46,7 @@ def _summary():
 
 async def ble_scan_mean_adv(t=10.0):
 
+    # grab the scan duration parameter
     if len(sys.argv) == 2:
         t = float(sys.argv[1])
 
