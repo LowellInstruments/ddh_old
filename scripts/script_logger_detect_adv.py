@@ -1,4 +1,5 @@
 import asyncio
+import sys
 import time
 from bleak import BleakScanner, BLEDevice, BleakError
 
@@ -38,6 +39,10 @@ def _summary():
 
 
 async def ble_scan_mean_adv(t=10.0):
+
+    if len(sys.argv) == 2:
+        t = float(sys.argv[1])
+
     def _scan_cb(d: BLEDevice, _):
         try:
             s = str(d.name)

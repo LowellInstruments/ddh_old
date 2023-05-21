@@ -5,4 +5,4 @@ VENV=/home/pi/li/venv
 
 source $VENV/bin/activate && \
 cd $FOL_SCR && \
-$VENV/bin/python ./script_logger_detect_adv.py
+$VENV/bin/python ./script_logger_detect_adv.py "$@"
