@@ -25,6 +25,12 @@ def _summary():
         return diff_tt
 
     global _g_dd
+    # sort it by mac
+    _ = list(_g_dd.keys())
+    _.sort()
+    _g_dd = {i: _g_dd[i] for i in _}
+
+    # calculate average
     for k, tt in _g_dd.items():
         if len(tt) > 1:
             d = _diff(tt)
@@ -58,7 +64,7 @@ async def ble_scan_mean_adv(t=10.0):
             _g_dd[k].append(time.time())
 
     try:
-        print("\nADV averager - scanning {} seconds".format(int(t)))
+        print("\nADV averager - scanning for {} seconds".format(int(t)))
         scanner = BleakScanner(_scan_cb, None)
         await scanner.start()
         await asyncio.sleep(t)
