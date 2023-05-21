@@ -3,7 +3,6 @@ FOL_SCR=/home/pi/li/ddh/scripts/
 VENV=/home/pi/li/venv
 
 
-echo '----------------------------------------------------------------------------------'
-echo 'DDH SCRIPT -> in progress'
-source $VENV/bin/activate && cd $FOL_SCR && $VENV/bin/python ./script_logger_detect_adv.py
-echo '----------------------------------------------------------------------------------'
+source $VENV/bin/activate && \
+cd $FOL_SCR && \
+$VENV/bin/python ./script_logger_detect_adv.py
