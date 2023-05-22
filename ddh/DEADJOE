@@ -1,0 +1,22 @@
+
+*** These modified files were found in JOE when it aborted on Mon May 22 19:47:12 2023
+*** JOE was aborted by UNIX signal 1
+
+*** File '(Unnamed)'
+/home/kaz/PycharmProjects/obg/.git/MERGE_MSG
+/home/kaz/PycharmProjects/ddh/.git/MERGE_MSG
+/home/kaz/PycharmProjects/ddt/.git/MERGE_MSG
+/home/kaz/PycharmProjects/ddt/.git/MERGE_MSG
+prova_zenity.sh
+prova_zenity.sh
+prova_zenity.sh
+prova_zenity.sh
+/home/kaz/PycharmProjects/mat/.git/MERGE_MSG
+/home/kaz/PycharmProjects/ddt/.git/MERGE_MSG
+graph_req.json
+
+*** File '* Startup Log *'
+Processing '/etc/joe/joerc'...
+Processing '/etc/joe/ftyperc'...
+Finished processing /etc/joe/ftyperc
+Finished processing /etc/joe/joerc
