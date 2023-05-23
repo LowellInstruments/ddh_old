@@ -138,11 +138,9 @@ class DDH(QMainWindow, d_m.Ui_MainWindow):
         self.tp.timeout.connect(self._tp_fxn)
 
         # check if we had an update, also done at DDS
-        if dds_get_ddh_got_an_update_flag_file():
+        file_flag = dds_get_ddh_got_an_update_flag_file()
+        if os.path.exists(file_flag):
             send_ddh_udp_gui(STATE_DDS_SOFTWARE_UPDATED)
-
-        m = psutil.virtual_memory()
-        print(m.percent)
 
     def _tg_fxn(self):
         gui_timer_fxn(self)

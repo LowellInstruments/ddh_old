@@ -131,7 +131,7 @@ def dds_tell_software_update():
     # check for file created by DDH startup script
     f = dds_get_ddh_got_an_update_flag_file()
     if os.path.exists(f):
-        # don't unlink(f) we want updates only once x boot (/tmp)
+        os.unlink(f)
         lg.a("told software updated")
         _u(STATE_DDS_SOFTWARE_UPDATED)
         # give GUI time to show this
