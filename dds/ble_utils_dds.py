@@ -100,6 +100,8 @@ def ble_check_antenna_up_n_running(lat, lon, h: int):
     if not linux_is_rpi():
         return
 
+    lg.a('warning: BLE interface hci{} seems down'.format(h))
+
     # try to recover it
     for c in [
         'sudo hciconfig hci{} down'.format(h),
@@ -114,6 +116,7 @@ def ble_check_antenna_up_n_running(lat, lon, h: int):
             lg.a('command {} returned error {}'.format(c, rv.stderr))
 
     # check again!
+    time.sleep(1)
     rv = sp.run(cr, shell=True, stdout=sp.PIPE, stderr=sp.PIPE)
     if rv.returncode == 0:
         lg.a('success: we recovered BLE interface from down to up')
