@@ -1,3 +1,4 @@
+import copy
 import glob
 import os
 from mat.utils import linux_is_rpi
@@ -43,7 +44,7 @@ def graph_get_fol_req_file():
         os._exit(1)
 
 
-def graph_get_data_csv(fol, lh, h) -> dict:
+def graph_get_data_csv(fol, h, hi) -> dict:
     global _g_ff_t, _g_ff_p, _g_ff_do
     met = "TP"
     _g_ff_t = sorted(glob.glob("{}/{}".format(fol, "*_Temperature.csv")))
@@ -53,21 +54,27 @@ def graph_get_data_csv(fol, lh, h) -> dict:
 
     # last haul stuff
     if _g_ff_t:
-        if lh:
+        if h == 'all hauls':
+            _g_ff_t = _g_ff_t
+        elif h == 'last haul':
             _g_ff_t = _g_ff_t[-1:]
         else:
-            _g_ff_t = _g_ff_t[h:h+1]
+            _g_ff_t = [_g_ff_t[hi]]
     if _g_ff_p:
-        if lh:
+        if h == 'all hauls':
+            _g_ff_p = _g_ff_p
+        elif h == 'last haul':
             _g_ff_p = _g_ff_p[-1:]
         else:
-            _g_ff_p = _g_ff_p[h:h+1]
+            _g_ff_p = [_g_ff_p[hi]]
 
     if _g_ff_do:
-        if lh:
+        if h == 'all hauls':
+            _g_ff_do = _g_ff_do
+        elif h == 'last haul':
             _g_ff_do = _g_ff_do[-1:]
         else:
-            _g_ff_do = _g_ff_do[h:h+1]
+            _g_ff_do = [_g_ff_do[hi]]
 
     t, p, x = [], [], []
     if met == 'TP':

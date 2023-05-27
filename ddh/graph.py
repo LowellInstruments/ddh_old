@@ -7,7 +7,7 @@ import time
 import numpy
 from PyQt5 import QtWidgets
 from PyQt5.QtCore import Qt, QTime
-from PyQt5.QtWidgets import QPushButton, QApplication, QCheckBox
+from PyQt5.QtWidgets import QPushButton, QApplication, QCheckBox, QRadioButton
 import pyqtgraph as pg
 from ddh.utils_graph import graph_get_fol_req_file, \
     graph_get_fol_list, graph_get_data_csv
@@ -45,24 +45,22 @@ class SeparateGraphWindow(QtWidgets.QMainWindow):
         self.fol = self.fol_ls[self.fol_ls_idx]
         print('\nswitch to folder', basename(self.fol))
         self.haul_len = len(glob.glob('{}/*_Temperature.csv'.format(self.fol)))
-        p1.clear()
-        p2.clear()
+        self.hi = -1
         self.graph_all()
 
     def _btn_next_haul_click(self):
-        self.haul = (self.haul - 1) % self.haul_len
-        print('haul is', self.haul)
-        p1.clear()
-        p2.clear()
+        self.hi = (self.hi + 1) % self.haul_len
+        print('haul is', self.hi)
         self.graph_all()
 
-    def _btn_cbox_lh_click(self):
-        self.lh = not self.lh
-        if not self.lh:
+    def _rb_haul_click(self, b):
+        if not b.isChecked():
             return
-        print('lh is', self.lh)
-        p1.clear()
-        p2.clear()
+
+        self.h = b.text()
+        self.btn_next_haul.setEnabled(False)
+        if self.h == 'one haul':
+            self.btn_next_haul.setEnabled(True)
         self.graph_all()
 
     def __init__(self, *args, **kwargs):
@@ -71,7 +69,7 @@ class SeparateGraphWindow(QtWidgets.QMainWindow):
         # ---------------------------------------
         # get requested folder and list of them
         # ---------------------------------------
-        self.lh = True
+        self.h = 'last'
         self.fol = graph_get_fol_req_file()
         if not self.fol:
             print('graph: error self.fol empty')
@@ -83,43 +81,48 @@ class SeparateGraphWindow(QtWidgets.QMainWindow):
         self.fol_ls_len = len(self.fol_ls)
         self.fol_ls_idx = self.fol_ls.index(self.fol)
         print('start at folder', basename(self.fol))
-        self.haul = -1
+        self.hi = -1
         self.haul_len = len(glob.glob('{}/*_Temperature.csv'.format(self.fol)))
 
         # controls
-        self.btn_close = QPushButton('Quit', self)
-        self.btn_cbox_lh = QCheckBox('last haul', self)
-        self.btn_cbox_lh.setChecked(self.lh)
+        self.g = pg.PlotWidget(axisItems={'bottom': pg.DateAxisItem()})
+        self.btn_close = QPushButton('close', self)
         self.btn_next_logger = QPushButton('next logger', self)
         self.btn_next_haul = QPushButton('next haul', self)
         self.btn_close.clicked.connect(self._btn_close_click)
         self.btn_next_logger.clicked.connect(self._btn_next_logger_click)
         self.btn_next_haul.clicked.connect(self._btn_next_haul_click)
-        self.btn_cbox_lh.stateChanged.connect(self._btn_cbox_lh_click)
-        self.g = pg.PlotWidget(axisItems={'bottom': pg.DateAxisItem()})
+        self.rb1 = QRadioButton("all hauls")
+        self.rb1.toggled.connect(lambda: self._rb_haul_click(self.rb1))
+        self.rb2 = QRadioButton("last haul")
+        self.rb2.toggled.connect(lambda: self._rb_haul_click(self.rb2))
+        self.rb2.setChecked(True)
+        self.rb3 = QRadioButton("one haul")
+        self.rb3.toggled.connect(lambda: self._rb_haul_click(self.rb3))
 
         # layout everything
         wid = QtWidgets.QWidget(self)
         self.setCentralWidget(wid)
         hl = QtWidgets.QHBoxLayout()
         hl.addWidget(self.btn_close)
-        hl.addWidget(self.btn_cbox_lh, alignment=Qt.AlignRight)
-        hl.addWidget(self.btn_next_haul)
         hl.addWidget(self.btn_next_logger)
+        hl.addWidget(self.rb1)
+        hl.addWidget(self.rb2)
+        hl.addWidget(self.rb3)
+        hl.addWidget(self.btn_next_haul)
         vl = QtWidgets.QVBoxLayout()
         vl.setSpacing(10)
         vl.addLayout(hl)
         vl.addWidget(self.g)
         wid.setLayout(vl)
 
-        # ------------------
-        # draw graph at boot
-        # ------------------
-        self.graph_all()
-
     def graph_all(self):
         global p1
         global p2
+        if p1:
+            p1.clear()
+        if p2:
+            p2.clear()
         p1 = self.g.plotItem
         self.g.showGrid(x=True, y=True)
 
@@ -139,7 +142,11 @@ class SeparateGraphWindow(QtWidgets.QMainWindow):
         # ----------------------------------------
         # grab all this CSV data for this folder
         # ----------------------------------------
-        data = graph_get_data_csv(self.fol, self.lh, self.haul)
+        print('self.fol', self.fol)
+        print('self.h', self.h)
+        print('self.hi', self.hi)
+
+        data = graph_get_data_csv(self.fol, self.h, self.hi)
         if not data:
             return
         # x is the time and is already in seconds
