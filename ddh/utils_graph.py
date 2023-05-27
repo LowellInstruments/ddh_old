@@ -1,5 +1,4 @@
-import copy
-import glob
+from glob import glob
 import os
 from mat.utils import linux_is_rpi
 import pandas as pd
@@ -12,6 +11,7 @@ _g_ff_p = []
 _g_ff_do = []
 
 
+# grab all mac folders
 def graph_get_fol_list():
     """
     return absolute paths of "dl_files/<mac>" folders
@@ -27,6 +27,7 @@ def graph_get_fol_list():
     return []
 
 
+# get graph_req.json from /tmp containing the full folder path to plot
 def graph_get_fol_req_file():
     """
     read file in /tmp containing folder to graph
@@ -46,13 +47,20 @@ def graph_get_fol_req_file():
 
 def graph_get_data_csv(fol, h, hi) -> dict:
     global _g_ff_t, _g_ff_p, _g_ff_do
-    met = "TP"
-    _g_ff_t = sorted(glob.glob("{}/{}".format(fol, "*_Temperature.csv")))
-    _g_ff_p = sorted(glob.glob("{}/{}".format(fol, "*_Pressure.csv")))
-    _g_ff_do = sorted(glob.glob("{}/{}".format(fol, "*_DissolvedOxygen.csv")))
-    print('drawing metric {} folder {}'.format(met, basename(fol)))
 
-    # last haul stuff
+    _g_ff_t = sorted(glob("{}/{}".format(fol, "*_Temperature.csv")))
+    _g_ff_p = sorted(glob("{}/{}".format(fol, "*_Pressure.csv")))
+    _g_ff_do = sorted(glob("{}/{}".format(fol, "*_DissolvedOxygen.csv")))
+
+    # auto-detect metrics by folder content
+    if _g_ff_t:
+        met = 'TP'
+    else:
+        met = 'DO'
+    s = 'drawing metric {} folder {} hauls {} hi {}'
+    print(s.format(met, basename(fol), h, hi))
+
+    # type of haul to plot
     if _g_ff_t:
         if h == 'all hauls':
             _g_ff_t = _g_ff_t
@@ -76,7 +84,9 @@ def graph_get_data_csv(fol, h, hi) -> dict:
         else:
             _g_ff_do = [_g_ff_do[hi]]
 
-    t, p, x = [], [], []
+    # lists containing values
+    t, p, x, doc, dot = [], [], [], [], []
+
     if met == 'TP':
         # Temperature values
         if not _g_ff_t:
@@ -98,9 +108,7 @@ def graph_get_data_csv(fol, h, hi) -> dict:
                 df = pd.read_csv(f)
                 p += list(df['Pressure (dbar)'])
 
-        # ------------------------
-        # convert time to seconds
-        # ------------------------
+        # convert 2018-11-11T13:00:00.000 --> epoch seconds
         x = [dp.parse('{}Z'.format(i)).timestamp() for i in x]
         return {'ISO 8601 Time': x,
                 'Temperature (C)': t,

@@ -1,19 +1,17 @@
-import datetime
-import glob
-import os
+from datetime import datetime
+from glob import glob
 import sys
-import time
-
-import numpy
 from PyQt5 import QtWidgets
-from PyQt5.QtCore import Qt, QTime
-from PyQt5.QtWidgets import QPushButton, QApplication, QCheckBox, QRadioButton
+from PyQt5.QtCore import QTime
+from PyQt5.QtWidgets import QPushButton, QApplication, QRadioButton
 import pyqtgraph as pg
+from pyqtgraph.Qt import QtGui
 from ddh.utils_graph import graph_get_fol_req_file, \
     graph_get_fol_list, graph_get_data_csv
 from os.path import basename
 
 
+# plot objects
 p1 = None
 p2 = None
 
@@ -41,14 +39,17 @@ class SeparateGraphWindow(QtWidgets.QMainWindow):
         self.close()
 
     def _btn_next_logger_click(self):
+        # keep haul type, change logger folder and draw graph
         self.fol_ls_idx = (self.fol_ls_idx + 1) % self.fol_ls_len
         self.fol = self.fol_ls[self.fol_ls_idx]
         print('\nswitch to folder', basename(self.fol))
-        self.haul_len = len(glob.glob('{}/*_Temperature.csv'.format(self.fol)))
+        # reset haul index
         self.hi = -1
+        self.haul_len = len(glob('{}/*_Temperature.csv'.format(self.fol)))
         self.graph_all()
 
     def _btn_next_haul_click(self):
+        # keep logger, increase haul index and draw graph
         self.hi = (self.hi + 1) % self.haul_len
         print('haul is', self.hi)
         self.graph_all()
@@ -57,6 +58,7 @@ class SeparateGraphWindow(QtWidgets.QMainWindow):
         if not b.isChecked():
             return
 
+        # keep logger, change haul type and draw graph
         self.h = b.text()
         self.btn_next_haul.setEnabled(False)
         if self.h == 'one haul':
@@ -66,14 +68,14 @@ class SeparateGraphWindow(QtWidgets.QMainWindow):
     def __init__(self, *args, **kwargs):
         super(SeparateGraphWindow, self).__init__(*args, **kwargs)
 
-        # ---------------------------------------
-        # get requested folder and list of them
-        # ---------------------------------------
+        # get requested folder and graph type
         self.h = 'last'
         self.fol = graph_get_fol_req_file()
         if not self.fol:
             print('graph: error self.fol empty')
             return
+
+        # get all the folders that we can draw
         self.fol_ls = graph_get_fol_list()
         if not self.fol_ls:
             print('graph: no plot folders')
@@ -81,10 +83,12 @@ class SeparateGraphWindow(QtWidgets.QMainWindow):
         self.fol_ls_len = len(self.fol_ls)
         self.fol_ls_idx = self.fol_ls.index(self.fol)
         print('start at folder', basename(self.fol))
-        self.hi = -1
-        self.haul_len = len(glob.glob('{}/*_Temperature.csv'.format(self.fol)))
 
-        # controls
+        # reset haul variables
+        self.hi = -1
+        self.haul_len = len(glob('{}/*_Temperature.csv'.format(self.fol)))
+
+        # buttons and controls
         self.g = pg.PlotWidget(axisItems={'bottom': pg.DateAxisItem()})
         self.btn_close = QPushButton('close', self)
         self.btn_next_logger = QPushButton('next logger', self)
@@ -100,7 +104,7 @@ class SeparateGraphWindow(QtWidgets.QMainWindow):
         self.rb3 = QRadioButton("one haul")
         self.rb3.toggled.connect(lambda: self._rb_haul_click(self.rb3))
 
-        # layout everything
+        # layout window
         wid = QtWidgets.QWidget(self)
         self.setCentralWidget(wid)
         hl = QtWidgets.QHBoxLayout()
@@ -117,6 +121,8 @@ class SeparateGraphWindow(QtWidgets.QMainWindow):
         wid.setLayout(vl)
 
     def graph_all(self):
+
+        # clear the graph
         global p1
         global p2
         if p1:
@@ -124,9 +130,11 @@ class SeparateGraphWindow(QtWidgets.QMainWindow):
         if p2:
             p2.clear()
         p1 = self.g.plotItem
-        self.g.showGrid(x=True, y=True)
 
-        # create the 2nd plot
+        # to grid or not to grid
+        # self.g.showGrid(x=True, y=True)
+
+        # create the 2nd line
         p2 = pg.ViewBox()
         p1.showAxis('right')
         p1.scene().addItem(p2)
@@ -137,15 +145,16 @@ class SeparateGraphWindow(QtWidgets.QMainWindow):
         sty = {"color": "red", "font-size": "20px"}
         p1.setLabel("left", "Temperature (°C)", **sty)
         sty = {"color": "blue", "font-size": "20px"}
-        p1.getAxis('right').setLabel("Pressure (dbar)", ** sty)
+        p1.getAxis('right').setLabel("Pressure (dbar)", **sty)
 
-        # ----------------------------------------
-        # grab all this CSV data for this folder
-        # ----------------------------------------
-        print('self.fol', self.fol)
-        print('self.h', self.h)
-        print('self.hi', self.hi)
+        # size of axis ticks text
+        font = QtGui.QFont()
+        font.setPixelSize(15)
+        p1.getAxis("bottom").setStyle(tickFont=font)
+        p1.getAxis("left").setStyle(tickFont=font)
+        p1.getAxis("right").setStyle(tickFont=font)
 
+        # grab this folder's CSV data, filter by haul
         data = graph_get_data_csv(self.fol, self.h, self.hi)
         if not data:
             return
@@ -156,9 +165,9 @@ class SeparateGraphWindow(QtWidgets.QMainWindow):
 
         # set the title
         fmt = '%b %d %H:%M'
-        t1 = datetime.datetime.utcfromtimestamp(x[0]).strftime(fmt)
-        t2 = datetime.datetime.utcfromtimestamp(x[-1]).strftime(fmt)
-        mac = os.path.basename(self.fol).replace('-', ':')
+        t1 = datetime.utcfromtimestamp(x[0]).strftime(fmt)
+        t2 = datetime.utcfromtimestamp(x[-1]).strftime(fmt)
+        mac = basename(self.fol).replace('-', ':')
         title = '{} - {} to {}'.format(mac, t1, t2)
         self.g.setTitle(title, color="black", size="15pt")
 
