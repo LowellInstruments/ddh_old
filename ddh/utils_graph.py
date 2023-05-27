@@ -3,6 +3,7 @@ import os
 from mat.utils import linux_is_rpi
 import pandas as pd
 import dateutil.parser as dp
+from os.path import basename
 
 
 _g_ff_t = []
@@ -21,7 +22,7 @@ def graph_get_fol_list():
     if os.path.isdir(d):
         f_l = [f.path for f in os.scandir(d) if f.is_dir()]
         # remove 'ddh_vessel' folders
-        return [f for f in f_l if "ddh" not in os.path.basename(f)]
+        return [f for f in f_l if "ddh" not in basename(f)]
     return []
 
 
@@ -42,27 +43,31 @@ def graph_get_fol_req_file():
         os._exit(1)
 
 
-def graph_get_all_data_csv(fol, lh) -> dict:
+def graph_get_data_csv(fol, lh, h) -> dict:
     global _g_ff_t, _g_ff_p, _g_ff_do
     met = "TP"
     _g_ff_t = sorted(glob.glob("{}/{}".format(fol, "*_Temperature.csv")))
     _g_ff_p = sorted(glob.glob("{}/{}".format(fol, "*_Pressure.csv")))
     _g_ff_do = sorted(glob.glob("{}/{}".format(fol, "*_DissolvedOxygen.csv")))
-    print('graph: trying met {} fol {}'.format(met, fol))
+    print('drawing metric {} folder {}'.format(met, basename(fol)))
 
     # last haul stuff
-    if _g_ff_t and lh:
-        _ = list()
-        _.append(_g_ff_t[-1])
-        _g_ff_t = _
-    if _g_ff_p and lh:
-        _ = list()
-        _.append(_g_ff_p[-1])
-        _g_ff_p = _
-    if _g_ff_do and lh:
-        _ = list()
-        _.append(_g_ff_do[-1])
-        _g_ff_do = _
+    if _g_ff_t:
+        if lh:
+            _g_ff_t = _g_ff_t[-1:]
+        else:
+            _g_ff_t = _g_ff_t[h:h+1]
+    if _g_ff_p:
+        if lh:
+            _g_ff_p = _g_ff_p[-1:]
+        else:
+            _g_ff_p = _g_ff_p[h:h+1]
+
+    if _g_ff_do:
+        if lh:
+            _g_ff_do = _g_ff_do[-1:]
+        else:
+            _g_ff_do = _g_ff_do[h:h+1]
 
     t, p, x = [], [], []
     if met == 'TP':
@@ -71,7 +76,7 @@ def graph_get_all_data_csv(fol, lh) -> dict:
             print('no _g_ff_t')
         else:
             for f in _g_ff_t:
-                print('loading file', f)
+                print('\tread file', basename(f))
                 df = pd.read_csv(f)
                 # grab Time (x) values from here
                 x += list(df['ISO 8601 Time'])
@@ -82,11 +87,13 @@ def graph_get_all_data_csv(fol, lh) -> dict:
             print('no _g_ff_p')
         else:
             for f in _g_ff_p:
-                print('loading file', f)
+                print('\tread file', basename(f))
                 df = pd.read_csv(f)
                 p += list(df['Pressure (dbar)'])
 
-        # convert time
+        # ------------------------
+        # convert time to seconds
+        # ------------------------
         x = [dp.parse('{}Z'.format(i)).timestamp() for i in x]
         return {'ISO 8601 Time': x,
                 'Temperature (C)': t,

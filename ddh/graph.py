@@ -1,9 +1,17 @@
+import datetime
+import glob
+import os
 import sys
+import time
+
+import numpy
 from PyQt5 import QtWidgets
+from PyQt5.QtCore import Qt, QTime
 from PyQt5.QtWidgets import QPushButton, QApplication, QCheckBox
 import pyqtgraph as pg
 from ddh.utils_graph import graph_get_fol_req_file, \
-    graph_get_fol_list, graph_get_all_data_csv
+    graph_get_fol_list, graph_get_data_csv
+from os.path import basename
 
 
 p1 = None
@@ -17,6 +25,15 @@ def graph_update_views():
     p2.linkedViewChanged(p1.vb, p2.XAxis)
 
 
+class TimeAxisItem(pg.AxisItem):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+    def tickStrings(self, values, scale, spacing):
+        # PySide's QTime() initialiser fails miserably and dismisses args/kwargs
+        return [QTime().addMSecs(value).toString('mm:ss') for value in values]
+
+
 class SeparateGraphWindow(QtWidgets.QMainWindow):
 
     def _btn_close_click(self):
@@ -24,18 +41,27 @@ class SeparateGraphWindow(QtWidgets.QMainWindow):
         self.close()
 
     def _btn_next_logger_click(self):
-        self.g.setTitle("next logger", color="b", size="15pt")
-        print('next_logger')
+        self.fol_ls_idx = (self.fol_ls_idx + 1) % self.fol_ls_len
+        self.fol = self.fol_ls[self.fol_ls_idx]
+        print('\nswitch to folder', basename(self.fol))
+        self.haul_len = len(glob.glob('{}/*_Temperature.csv'.format(self.fol)))
+        self.graph_all()
+
+    def _btn_next_haul_click(self):
+        self.haul = (self.haul - 1) % self.haul_len
+        print('haul is', self.haul)
+        p1.clear()
+        p2.clear()
+        self.graph_all()
 
     def _btn_cbox_lh_click(self):
         self.lh = not self.lh
-
-    def _btn_next_span_click(self):
-        print('next_span')
-        # example how to update graph
+        if not self.lh:
+            return
+        print('lh is', self.lh)
         p1.clear()
         p2.clear()
-        self.graph_all(inv=True)
+        self.graph_all()
 
     def __init__(self, *args, **kwargs):
         super(SeparateGraphWindow, self).__init__(*args, **kwargs)
@@ -54,27 +80,30 @@ class SeparateGraphWindow(QtWidgets.QMainWindow):
             return
         self.fol_ls_len = len(self.fol_ls)
         self.fol_ls_idx = self.fol_ls.index(self.fol)
+        print('start at folder', basename(self.fol))
+        self.haul = -1
+        self.haul_len = len(glob.glob('{}/*_Temperature.csv'.format(self.fol)))
 
         # controls
         self.btn_close = QPushButton('Quit', self)
         self.btn_cbox_lh = QCheckBox('last haul', self)
         self.btn_cbox_lh.setChecked(self.lh)
         self.btn_next_logger = QPushButton('next logger', self)
-        self.btn_next_span = QPushButton('next span', self)
+        self.btn_next_haul = QPushButton('next haul', self)
         self.btn_close.clicked.connect(self._btn_close_click)
         self.btn_next_logger.clicked.connect(self._btn_next_logger_click)
-        self.btn_next_span.clicked.connect(self._btn_next_span_click)
+        self.btn_next_haul.clicked.connect(self._btn_next_haul_click)
         self.btn_cbox_lh.stateChanged.connect(self._btn_cbox_lh_click)
-        self.g = pg.PlotWidget()
+        self.g = pg.PlotWidget(axisItems={'bottom': pg.DateAxisItem()})
 
         # layout everything
         wid = QtWidgets.QWidget(self)
         self.setCentralWidget(wid)
         hl = QtWidgets.QHBoxLayout()
         hl.addWidget(self.btn_close)
-        hl.addWidget(self.btn_cbox_lh)
+        hl.addWidget(self.btn_cbox_lh, alignment=Qt.AlignRight)
+        hl.addWidget(self.btn_next_haul)
         hl.addWidget(self.btn_next_logger)
-        hl.addWidget(self.btn_next_span)
         vl = QtWidgets.QVBoxLayout()
         vl.setSpacing(10)
         vl.addLayout(hl)
@@ -86,10 +115,14 @@ class SeparateGraphWindow(QtWidgets.QMainWindow):
         # ------------------
         self.graph_all()
 
-    def graph_all(self, inv=False):
+    def graph_all(self):
         global p1
         global p2
         p1 = self.g.plotItem
+
+        # set the title
+        mac = os.path.basename(self.fol)
+        self.g.setTitle(mac, color="black", size="15pt")
 
         # create the 2nd plot
         p2 = pg.ViewBox()
@@ -107,14 +140,13 @@ class SeparateGraphWindow(QtWidgets.QMainWindow):
         # ----------------------------------------
         # grab all this CSV data for this folder
         # ----------------------------------------
-        data = graph_get_all_data_csv(self.fol, self.lh)
+        data = graph_get_data_csv(self.fol, self.lh, self.haul)
         if not data:
             return
+        # x is the time and is already in seconds
         x = data['ISO 8601 Time']
         t = data['Temperature (C)']
         p = data['Pressure (dbar)']
-        if inv:
-            t, p = p, t
 
         # --------
         # draw it
