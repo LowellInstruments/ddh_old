@@ -45,6 +45,8 @@ class SeparateGraphWindow(QtWidgets.QMainWindow):
         self.fol = self.fol_ls[self.fol_ls_idx]
         print('\nswitch to folder', basename(self.fol))
         self.haul_len = len(glob.glob('{}/*_Temperature.csv'.format(self.fol)))
+        p1.clear()
+        p2.clear()
         self.graph_all()
 
     def _btn_next_haul_click(self):
@@ -119,10 +121,7 @@ class SeparateGraphWindow(QtWidgets.QMainWindow):
         global p1
         global p2
         p1 = self.g.plotItem
-
-        # set the title
-        mac = os.path.basename(self.fol)
-        self.g.setTitle(mac, color="black", size="15pt")
+        self.g.showGrid(x=True, y=True)
 
         # create the 2nd plot
         p2 = pg.ViewBox()
@@ -148,6 +147,14 @@ class SeparateGraphWindow(QtWidgets.QMainWindow):
         t = data['Temperature (C)']
         p = data['Pressure (dbar)']
 
+        # set the title
+        fmt = '%b %d %H:%M'
+        t1 = datetime.datetime.utcfromtimestamp(x[0]).strftime(fmt)
+        t2 = datetime.datetime.utcfromtimestamp(x[-1]).strftime(fmt)
+        mac = os.path.basename(self.fol).replace('-', ':')
+        title = '{} - {} to {}'.format(mac, t1, t2)
+        self.g.setTitle(title, color="black", size="15pt")
+
         # --------
         # draw it
         # --------
@@ -155,7 +162,7 @@ class SeparateGraphWindow(QtWidgets.QMainWindow):
         p2.setYRange(min(p), max(p), padding=0)
         self.g.setBackground('w')
         p1.plot(x, t, pen='r')
-        pi = pg.PlotCurveItem(x, p, pen='b')
+        pi = pg.PlotCurveItem(x, p, pen='b', hoverable=True)
         p2.addItem(pi)
 
 
