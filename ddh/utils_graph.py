@@ -29,20 +29,12 @@ def graph_get_fol_list():
 
 # get graph_req.json from /tmp containing the full folder path to plot
 def graph_get_fol_req_file():
-    """
-    read file in /tmp containing folder to graph
-    """
-    try:
-        # file written by DDH plot request
-        with open('/tmp/graph_req.json') as f:
-            fol = f.read().strip()
-        if not os.path.exists(fol):
-            print('graph: error _at_boot, bad_fol {}'.format(fol))
-            os._exit(1)
-        return fol
-    except (Exception, ) as ex:
-        print('graph: error _at_boot, exception', ex)
-        os._exit(1)
+    # file written by DDH plot request
+    with open('/tmp/graph_req.json') as f:
+        fol = f.read().strip()
+    if not os.path.exists(fol):
+        raise FileNotFoundError('inexistent plot folder')
+    return fol
 
 
 def graph_get_data_csv(fol, h, hi) -> dict:

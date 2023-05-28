@@ -14,6 +14,7 @@ from os.path import basename
 # plot objects
 p1 = None
 p2 = None
+just_booted = True
 
 
 def graph_update_views():
@@ -63,33 +64,18 @@ class SeparateGraphWindow(QtWidgets.QMainWindow):
         self.btn_next_haul.setEnabled(False)
         if self.h == 'one haul':
             self.btn_next_haul.setEnabled(True)
-        self.graph_all()
+        global just_booted
+        if not just_booted:
+            self.graph_all()
+            just_booted = False
 
     def __init__(self, *args, **kwargs):
         super(SeparateGraphWindow, self).__init__(*args, **kwargs)
 
-        # get requested folder and graph type
-        self.h = 'last'
-        self.fol = graph_get_fol_req_file()
-        if not self.fol:
-            print('graph: error self.fol empty')
-            return
-
-        # get all the folders that we can draw
-        self.fol_ls = graph_get_fol_list()
-        if not self.fol_ls:
-            print('graph: no plot folders')
-            return
-        self.fol_ls_len = len(self.fol_ls)
-        self.fol_ls_idx = self.fol_ls.index(self.fol)
-        print('start at folder', basename(self.fol))
-
-        # reset haul variables
-        self.hi = -1
-        self.haul_len = len(glob('{}/*_Temperature.csv'.format(self.fol)))
+        # main plot object
+        self.g = pg.PlotWidget(axisItems={'bottom': pg.DateAxisItem()})
 
         # buttons and controls
-        self.g = pg.PlotWidget(axisItems={'bottom': pg.DateAxisItem()})
         self.btn_close = QPushButton('close', self)
         self.btn_next_logger = QPushButton('next logger', self)
         self.btn_next_haul = QPushButton('next haul', self)
@@ -119,10 +105,34 @@ class SeparateGraphWindow(QtWidgets.QMainWindow):
         vl.addLayout(hl)
         vl.addWidget(self.g)
         wid.setLayout(vl)
+        self.g.setBackground('w')
+
+        # get requested folder and graph type
+        self.h = 'last'
+        try:
+            self.fol = graph_get_fol_req_file()
+        except (Exception, ):
+            e = 'error: cannot get folder request'
+            self.g.setTitle(e, color="red", size="15pt")
+            return
+
+        # get all the folders that we can draw
+        self.fol_ls = graph_get_fol_list()
+        if not self.fol_ls:
+            e = 'error: cannot get folder list'
+            self.g.setTitle(e, color="red", size="15pt")
+            return
+        self.fol_ls_len = len(self.fol_ls)
+        self.fol_ls_idx = self.fol_ls.index(self.fol)
+        print('start at folder', basename(self.fol))
+
+        # reset haul variables
+        self.hi = -1
+        self.haul_len = len(glob('{}/*_Temperature.csv'.format(self.fol)))
 
     def graph_all(self):
 
-        # clear the graph
+        # clear it
         global p1
         global p2
         if p1:
@@ -176,7 +186,6 @@ class SeparateGraphWindow(QtWidgets.QMainWindow):
         # --------
         p1.setYRange(min(t), max(t), padding=0)
         p2.setYRange(min(p), max(p), padding=0)
-        self.g.setBackground('w')
         p1.plot(x, t, pen='r')
         pi = pg.PlotCurveItem(x, p, pen='b', hoverable=True)
         p2.addItem(pi)
