@@ -130,6 +130,9 @@ class SeparateGraphWindow(QtWidgets.QMainWindow):
         self.hi = -1
         self.haul_len = len(glob('{}/*_Temperature.csv'.format(self.fol)))
 
+        # the first one
+        self.graph_all()
+
     def graph_all(self):
 
         # clear it
