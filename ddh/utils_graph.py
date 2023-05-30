@@ -1,8 +1,9 @@
-import glob
+from glob import glob
 import os
 from mat.utils import linux_is_rpi
 import pandas as pd
 import dateutil.parser as dp
+from os.path import basename
 
 
 _g_ff_t = []
@@ -10,6 +11,7 @@ _g_ff_p = []
 _g_ff_do = []
 
 
+# grab all mac folders
 def graph_get_fol_list():
     """
     return absolute paths of "dl_files/<mac>" folders
@@ -21,57 +23,69 @@ def graph_get_fol_list():
     if os.path.isdir(d):
         f_l = [f.path for f in os.scandir(d) if f.is_dir()]
         # remove 'ddh_vessel' folders
-        return [f for f in f_l if "ddh" not in os.path.basename(f)]
+        return [f for f in f_l if "ddh" not in basename(f)]
     return []
 
 
+# get graph_req.json from /tmp containing the full folder path to plot
 def graph_get_fol_req_file():
-    """
-    read file in /tmp containing folder to graph
-    """
-    try:
-        # file written by DDH plot request
-        with open('/tmp/graph_req.json') as f:
-            fol = f.read().strip()
-        if not os.path.exists(fol):
-            print('graph: error _at_boot, bad_fol {}'.format(fol))
-            os._exit(1)
-        return fol
-    except (Exception, ) as ex:
-        print('graph: error _at_boot, exception', ex)
-        os._exit(1)
+    # file written by DDH plot request
+    with open('/tmp/graph_req.json') as f:
+        fol = f.read().strip()
+    if not os.path.exists(fol):
+        raise FileNotFoundError('inexistent plot folder')
+    return fol
 
 
-def graph_get_all_data_csv(fol, lh) -> dict:
+def graph_get_data_csv(fol, h, hi) -> dict:
     global _g_ff_t, _g_ff_p, _g_ff_do
-    met = "TP"
-    _g_ff_t = sorted(glob.glob("{}/{}".format(fol, "*_Temperature.csv")))
-    _g_ff_p = sorted(glob.glob("{}/{}".format(fol, "*_Pressure.csv")))
-    _g_ff_do = sorted(glob.glob("{}/{}".format(fol, "*_DissolvedOxygen.csv")))
-    print('graph: trying met {} fol {}'.format(met, fol))
 
-    # last haul stuff
-    if _g_ff_t and lh:
-        _ = list()
-        _.append(_g_ff_t[-1])
-        _g_ff_t = _
-    if _g_ff_p and lh:
-        _ = list()
-        _.append(_g_ff_p[-1])
-        _g_ff_p = _
-    if _g_ff_do and lh:
-        _ = list()
-        _.append(_g_ff_do[-1])
-        _g_ff_do = _
+    _g_ff_t = sorted(glob("{}/{}".format(fol, "*_Temperature.csv")))
+    _g_ff_p = sorted(glob("{}/{}".format(fol, "*_Pressure.csv")))
+    _g_ff_do = sorted(glob("{}/{}".format(fol, "*_DissolvedOxygen.csv")))
 
-    t, p, x = [], [], []
+    # auto-detect metrics by folder content
+    if _g_ff_t:
+        met = 'TP'
+    else:
+        met = 'DO'
+    s = 'drawing metric {} folder {} hauls {} hi {}'
+    print(s.format(met, basename(fol), h, hi))
+
+    # type of haul to plot
+    if _g_ff_t:
+        if h == 'all hauls':
+            _g_ff_t = _g_ff_t
+        elif h == 'last haul':
+            _g_ff_t = _g_ff_t[-1:]
+        else:
+            _g_ff_t = [_g_ff_t[hi]]
+    if _g_ff_p:
+        if h == 'all hauls':
+            _g_ff_p = _g_ff_p
+        elif h == 'last haul':
+            _g_ff_p = _g_ff_p[-1:]
+        else:
+            _g_ff_p = [_g_ff_p[hi]]
+
+    if _g_ff_do:
+        if h == 'all hauls':
+            _g_ff_do = _g_ff_do
+        elif h == 'last haul':
+            _g_ff_do = _g_ff_do[-1:]
+        else:
+            _g_ff_do = [_g_ff_do[hi]]
+
+    # lists containing values
+    t, p, x, doc, dot = [], [], [], [], []
+
     if met == 'TP':
         # Temperature values
         if not _g_ff_t:
             print('no _g_ff_t')
         else:
             for f in _g_ff_t:
-                print('loading file', f)
+                print('\tread file', basename(f))
                 df = pd.read_csv(f)
                 # grab Time (x) values from here
                 x += list(df['ISO 8601 Time'])
@@ -82,11 +96,11 @@ def graph_get_all_data_csv(fol, lh) -> dict:
             print('no _g_ff_p')
         else:
             for f in _g_ff_p:
-                print('loading file', f)
+                print('\tread file', basename(f))
                 df = pd.read_csv(f)
                 p += list(df['Pressure (dbar)'])
 
-        # convert time
+        # convert 2018-11-11T13:00:00.000 --> epoch seconds
         x = [dp.parse('{}Z'.format(i)).timestamp() for i in x]
         return {'ISO 8601 Time': x,
                 'Temperature (C)': t,
