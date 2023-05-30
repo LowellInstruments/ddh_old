@@ -66,8 +66,9 @@ class SeparateGraphWindow(QtWidgets.QMainWindow):
             self.btn_next_haul.setEnabled(True)
         global just_booted
         if not just_booted:
+            print('epi')
             self.graph_all()
-            just_booted = False
+        just_booted = False
 
     def __init__(self, *args, **kwargs):
         super(SeparateGraphWindow, self).__init__(*args, **kwargs)
