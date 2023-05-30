@@ -6,7 +6,7 @@ from PyQt5.QtCore import QTime
 from PyQt5.QtWidgets import QPushButton, QApplication, QRadioButton
 import pyqtgraph as pg
 from pyqtgraph.Qt import QtGui
-from ddh.utils_graph import graph_get_fol_req_file, \
+from utils_graph import graph_get_fol_req_file, \
     graph_get_fol_list, graph_get_data_csv
 from os.path import basename
 
