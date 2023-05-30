@@ -16,7 +16,7 @@ def graph_get_fol_list():
     """
     return absolute paths of "dl_files/<mac>" folders
     """
-    d = '/home/pi/ddh/dl_files'
+    d = '/home/pi/li/ddh/dl_files'
     if not linux_is_rpi():
         d = '/home/kaz/PycharmProjects/ddh/dl_files'
 
