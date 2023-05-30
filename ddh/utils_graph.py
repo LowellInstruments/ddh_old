@@ -1,3 +1,4 @@
+from functools import lru_cache
 from glob import glob
 import os
 from mat.utils import linux_is_rpi
@@ -37,6 +38,7 @@ def graph_get_fol_req_file():
     return fol
 
 
+@lru_cache
 def graph_get_data_csv(fol, h, hi) -> dict:
     global _g_ff_t, _g_ff_p, _g_ff_do
 
