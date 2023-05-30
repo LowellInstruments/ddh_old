@@ -12,6 +12,13 @@ from os.path import basename
 
 # to be able to zoom in RPi
 pg.setConfigOption('leftButtonPan', False)
+_g_current = {
+    'x': None,
+    'y1range': None,
+    'y2range': None,
+    't': None,
+    'p': None
+}
 
 
 # plot objects
@@ -43,10 +50,14 @@ class SeparateGraphWindow(QtWidgets.QMainWindow):
         self.close()
 
     def _btn_clear_click(self):
-        if p1:
-            p1.clear()
-        if p2:
-            p2.clear()
+        _c = _g_current
+        p1.setRange(xRange=[min(_c['x']), max(_c['x'])])
+        p1.setYRange(_c['y1range'][0], _c['y1range'][1], padding=0)
+        p2.setYRange(_c['y2range'][0], _c['y2range'][1], padding=0)
+        p1.plot(_c['x'], _c['t'], pen='r')
+        pi = pg.PlotCurveItem(_c['x'], _c['p'], pen='b', hoverable=True)
+        p2.addItem(pi)
+        self.graph_all()
 
     def _btn_next_logger_click(self):
         # keep haul type, change logger folder and draw graph
@@ -86,12 +97,12 @@ class SeparateGraphWindow(QtWidgets.QMainWindow):
         self.g = pg.PlotWidget(axisItems={'bottom': pg.DateAxisItem()})
 
         # buttons and controls
-        self.btn_reset = QPushButton('reset', self)
         self.btn_clear = QPushButton('clear', self)
+        self.btn_close = QPushButton('close', self)
         self.btn_next_logger = QPushButton('next logger', self)
         self.btn_next_haul = QPushButton('next haul', self)
+        self.btn_close.clicked.connect(self._btn_close_click)
         self.btn_clear.clicked.connect(self._btn_clear_click)
-        self.btn_reset.clicked.connect(self._btn_reset_click)
         self.btn_next_logger.clicked.connect(self._btn_next_logger_click)
         self.btn_next_haul.clicked.connect(self._btn_next_haul_click)
         self.rb1 = QRadioButton("all hauls")
@@ -106,8 +117,8 @@ class SeparateGraphWindow(QtWidgets.QMainWindow):
         wid = QtWidgets.QWidget(self)
         self.setCentralWidget(wid)
         hl = QtWidgets.QHBoxLayout()
+        hl.addWidget(self.btn_close)
         hl.addWidget(self.btn_clear)
-        hl.addWidget(self.btn_reset)
         hl.addWidget(self.btn_next_logger)
         hl.addWidget(self.rb1)
         hl.addWidget(self.rb2)
@@ -161,7 +172,7 @@ class SeparateGraphWindow(QtWidgets.QMainWindow):
         # self.g.showGrid(x=True, y=True)
 
         # create the 2nd line
-        p2 = pg.ViewBox()
+        p2 = pg.ViewBox(enableMenu=True)
         p1.showAxis('right')
         p1.scene().addItem(p2)
         p1.getAxis('right').linkToView(p2)
@@ -184,6 +195,7 @@ class SeparateGraphWindow(QtWidgets.QMainWindow):
         data = graph_get_data_csv(self.fol, self.h, self.hi)
         if not data:
             return
+
         # x is the time and is already in seconds
         x = data['ISO 8601 Time']
         t = data['Temperature (C)']
@@ -200,6 +212,12 @@ class SeparateGraphWindow(QtWidgets.QMainWindow):
         # --------
         # draw it
         # --------
+        global _g_current
+        _g_current['x'] = x
+        _g_current['t'] = t
+        _g_current['p'] = p
+        _g_current['y1range'] = (min(t), max(t))
+        _g_current['y2range'] = (min(p), max(p))
         p1.setYRange(min(t), max(t), padding=0)
         p2.setYRange(min(p), max(p), padding=0)
         p1.plot(x, t, pen='r')

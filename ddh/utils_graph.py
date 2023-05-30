@@ -102,9 +102,6 @@ def graph_get_data_csv(fol, h, hi) -> dict:
 
         # convert 2018-11-11T13:00:00.000 --> epoch seconds
         x = [dp.parse('{}Z'.format(i)).timestamp() for i in x]
-        return {'ISO 8601 Time': x,
-                'Temperature (C)': t,
-                'Pressure (dbar)': p}
 
     elif met == 'DO':
         print('hola')
@@ -112,3 +109,12 @@ def graph_get_data_csv(fol, h, hi) -> dict:
     else:
         print('wtf _graph_get_all_csv')
         assert False
+
+    # met allows caller functions to know what to plot
+    return {
+        'met': met,
+        'ISO 8601 Time': x,
+        'Temperature (C)': t,
+        'Pressure (dbar)': p,
+        # todo ---> add DO in the future here
+    }
