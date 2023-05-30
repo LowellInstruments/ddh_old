@@ -2,7 +2,7 @@ import sys
 from PyQt5 import QtWidgets
 from PyQt5.QtWidgets import QPushButton, QApplication, QCheckBox
 import pyqtgraph as pg
-from ddh.utils_graph import graph_get_fol_req_file, \
+from utils_graph import graph_get_fol_req_file, \
     graph_get_fol_list, graph_get_all_data_csv
 
 

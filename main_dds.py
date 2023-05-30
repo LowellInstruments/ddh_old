@@ -36,12 +36,12 @@ from dds.ble_utils_dds import (
     ble_show_monitored_macs,
     ble_op_conditions_met,
     ble_tell_gui_antenna_type,
-    ble_check_antenna_up_n_running, dds_tell_software_update,
+    ble_check_antenna_up_n_running, dds_tell_software_update, dds_check_bluez_version,
 )
 from liu.linux import linux_app_write_pid_to_tmp, linux_is_process_running
 from mat.ble.ble_mat_utils import (
     ble_mat_get_antenna_type,
-    ble_mat_bluetoothctl_power_cycle,
+    ble_mat_bluetoothctl_power_cycle
 )
 from utils.ddh_shared import (
     dds_check_conf_json_file,
@@ -80,6 +80,7 @@ def main_dds():
     dds_check_conf_json_file()
     dds_macs_color_show_at_boot()
     m_j = dds_get_macs_from_json_file()
+    dds_check_bluez_version()
 
     ble_show_monitored_macs()
     ble_apply_debug_hooks_at_boot()

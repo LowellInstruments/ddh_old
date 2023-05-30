@@ -1,17 +1,40 @@
+# how to install
+# --------------
+    # create a file named .pre-commit-config.yaml to contain the git hook scripts
+    # $ pip install pre-commit      ---> python package
+    # $ pre-commit install          ---> so previous file will auto-run each git commit
+    # $ pre-commit run --all-files  ---> test
+
+
+# means fail when the first fail
+fail_fast: true
+
 repos:
--   repo: https://github.com/pre-commit/pre-commit-hooks
+  # run my local script
+  - repo: local
+    hooks:
+      # https://medium.com/@shimo164/custom-python-shell-script-for-pre-commit-700f464bfd63
+      - id: my-pre-commit-sh
+        name: my-pre-commit-sh
+        entry: .my-pre-commit.sh
+        language: script
+        pass_filenames: false
+  # ruff
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.0.270
+    hooks:
+      - id: ruff
+        args: [--fix, --exit-non-zero-on-fix]
+  # some official hooks from pre-commit website
+  - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v2.3.0
     hooks:
-    -   id: check-yaml
-    -   id: end-of-file-fixer
-    -   id: trailing-whitespace
-- repo: https://github.com/charliermarsh/ruff-pre-commit
-  # Ruff version.
-  rev: 'v0.0.260'
-  hooks:
-    - id: ruff
-      args: [--fix, --exit-non-zero-on-fix]
--   repo: https://github.com/psf/black
-    rev: 22.3.0
+      - id: check-yaml
+      - id: end-of-file-fixer
+      - id: trailing-whitespace
+  # isort
+  - repo: https://github.com/pycqa/isort
+    rev: 5.12.0
     hooks:
-    -   id: black
+      - id: isort
+        name: isort (python)

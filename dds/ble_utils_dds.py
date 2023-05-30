@@ -6,6 +6,7 @@ import time
 from dds.macs import dds_create_folder_macs_color
 from dds.sqs import sqs_msg_ddh_error_ble_hw
 from dds.timecache import its_time_to
+from mat.ble.ble_mat_utils import ble_mat_get_bluez_version
 from mat.utils import linux_is_rpi
 from utils.ddh_shared import (
     send_ddh_udp_gui as _u,
@@ -147,3 +148,11 @@ def ble_apply_debug_hooks_at_boot():
         p = pathlib.Path(get_ddh_folder_path_macs_black())
         shutil.rmtree(str(p), ignore_errors=True)
         dds_create_folder_macs_color()
+
+
+def dds_check_bluez_version():
+    v = ble_mat_get_bluez_version()
+    if v != '5.66':
+        lg.a("warning: --------------------")
+        lg.a("warning: check bluez version")
+        lg.a("warning: --------------------")
