@@ -10,6 +10,9 @@ from utils_graph import graph_get_fol_req_file, \
     graph_get_fol_list, graph_get_data_csv
 from os.path import basename
 
+# to be able to zoom in RPi
+pg.setConfigOption('leftButtonPan', False)
+
 
 # plot objects
 p1 = None
@@ -38,6 +41,12 @@ class SeparateGraphWindow(QtWidgets.QMainWindow):
     def _btn_close_click(self):
         print('closing graph window')
         self.close()
+
+    def _btn_clear_click(self):
+        if p1:
+            p1.clear()
+        if p2:
+            p2.clear()
 
     def _btn_next_logger_click(self):
         # keep haul type, change logger folder and draw graph
@@ -77,10 +86,12 @@ class SeparateGraphWindow(QtWidgets.QMainWindow):
         self.g = pg.PlotWidget(axisItems={'bottom': pg.DateAxisItem()})
 
         # buttons and controls
-        self.btn_close = QPushButton('close', self)
+        self.btn_reset = QPushButton('reset', self)
+        self.btn_clear = QPushButton('clear', self)
         self.btn_next_logger = QPushButton('next logger', self)
         self.btn_next_haul = QPushButton('next haul', self)
-        self.btn_close.clicked.connect(self._btn_close_click)
+        self.btn_clear.clicked.connect(self._btn_clear_click)
+        self.btn_reset.clicked.connect(self._btn_reset_click)
         self.btn_next_logger.clicked.connect(self._btn_next_logger_click)
         self.btn_next_haul.clicked.connect(self._btn_next_haul_click)
         self.rb1 = QRadioButton("all hauls")
@@ -95,7 +106,8 @@ class SeparateGraphWindow(QtWidgets.QMainWindow):
         wid = QtWidgets.QWidget(self)
         self.setCentralWidget(wid)
         hl = QtWidgets.QHBoxLayout()
-        hl.addWidget(self.btn_close)
+        hl.addWidget(self.btn_clear)
+        hl.addWidget(self.btn_reset)
         hl.addWidget(self.btn_next_logger)
         hl.addWidget(self.rb1)
         hl.addWidget(self.rb2)
