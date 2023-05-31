@@ -12,13 +12,6 @@ from os.path import basename
 
 # to be able to zoom in RPi
 pg.setConfigOption('leftButtonPan', False)
-_g_current = {
-    'x': None,
-    'y1range': None,
-    'y2range': None,
-    't': None,
-    'p': None
-}
 
 
 # plot objects
@@ -49,15 +42,8 @@ class SeparateGraphWindow(QtWidgets.QMainWindow):
         print('closing graph window')
         self.close()
 
-    def _btn_clear_click(self):
-        _c = _g_current
-        p1.setRange(xRange=[min(_c['x']), max(_c['x'])])
-        p1.setYRange(_c['y1range'][0], _c['y1range'][1], padding=0)
-        p2.setYRange(_c['y2range'][0], _c['y2range'][1], padding=0)
-        p1.plot(_c['x'], _c['t'], pen='r')
-        pi = pg.PlotCurveItem(_c['x'], _c['p'], pen='b', hoverable=True)
-        p2.addItem(pi)
-        self.graph_all()
+    def _btn_reset_click(self):
+        self.g.getPlotItem().enableAutoRange()
 
     def _btn_next_logger_click(self):
         # keep haul type, change logger folder and draw graph
@@ -72,14 +58,14 @@ class SeparateGraphWindow(QtWidgets.QMainWindow):
     def _btn_next_haul_click(self):
         # keep logger, increase haul index and draw graph
         self.hi = (self.hi + 1) % self.haul_len
-        print('haul is', self.hi)
+        print('haul number is', self.hi)
         self.graph_all()
 
     def _rb_haul_click(self, b):
         if not b.isChecked():
             return
 
-        # keep logger, change haul type and draw graph
+        # keep logger, change haul type among 3 and draw graph
         self.h = b.text()
         self.btn_next_haul.setEnabled(False)
         if self.h == 'one haul':
@@ -97,12 +83,12 @@ class SeparateGraphWindow(QtWidgets.QMainWindow):
         self.g = pg.PlotWidget(axisItems={'bottom': pg.DateAxisItem()})
 
         # buttons and controls
-        self.btn_clear = QPushButton('clear', self)
+        self.btn_reset = QPushButton('reset', self)
         self.btn_close = QPushButton('close', self)
         self.btn_next_logger = QPushButton('next logger', self)
         self.btn_next_haul = QPushButton('next haul', self)
         self.btn_close.clicked.connect(self._btn_close_click)
-        self.btn_clear.clicked.connect(self._btn_clear_click)
+        self.btn_reset.clicked.connect(self._btn_reset_click)
         self.btn_next_logger.clicked.connect(self._btn_next_logger_click)
         self.btn_next_haul.clicked.connect(self._btn_next_haul_click)
         self.rb1 = QRadioButton("all hauls")
@@ -118,7 +104,7 @@ class SeparateGraphWindow(QtWidgets.QMainWindow):
         self.setCentralWidget(wid)
         hl = QtWidgets.QHBoxLayout()
         hl.addWidget(self.btn_close)
-        hl.addWidget(self.btn_clear)
+        hl.addWidget(self.btn_reset)
         hl.addWidget(self.btn_next_logger)
         hl.addWidget(self.rb1)
         hl.addWidget(self.rb2)
@@ -168,8 +154,8 @@ class SeparateGraphWindow(QtWidgets.QMainWindow):
             p2.clear()
         p1 = self.g.plotItem
 
-        # to grid or not to grid
-        # self.g.showGrid(x=True, y=True)
+        # draw grid or not
+        self.g.showGrid(x=True, y=False)
 
         # create the 2nd line
         p2 = pg.ViewBox(enableMenu=True)
@@ -179,10 +165,15 @@ class SeparateGraphWindow(QtWidgets.QMainWindow):
         p2.setXLink(p1)
         graph_update_views()
         p1.vb.sigResized.connect(graph_update_views)
-        sty = {"color": "red", "font-size": "20px"}
-        p1.setLabel("left", "Temperature (°C)", **sty)
-        sty = {"color": "blue", "font-size": "20px"}
-        p1.getAxis('right').setLabel("Pressure (dbar)", **sty)
+
+        # invert y on the right
+        p2.invertY(True)
+
+        # tick color and text color
+        p1.getAxis('left').setTickPen('red')
+        p1.getAxis('right').setTickPen('blue')
+        p1.getAxis('bottom').setTickPen('black')
+        p1.getAxis('bottom').setTextPen('black')
 
         # size of axis ticks text
         font = QtGui.QFont()
@@ -198,8 +189,11 @@ class SeparateGraphWindow(QtWidgets.QMainWindow):
 
         # x is the time and is already in seconds
         x = data['ISO 8601 Time']
-        t = data['Temperature (C)']
-        p = data['Pressure (dbar)']
+        # next 2 keys in order are the metrics
+        lbl1 = list(data.keys())[1]
+        lbl2 = list(data.keys())[2]
+        y1 = data[lbl1]
+        y2 = data[lbl2]
 
         # set the title
         fmt = '%b %d %H:%M'
@@ -209,20 +203,23 @@ class SeparateGraphWindow(QtWidgets.QMainWindow):
         title = '{} - {} to {}'.format(mac, t1, t2)
         self.g.setTitle(title, color="black", size="15pt")
 
-        # --------
+        # set the axes
+        p1.setLabel("left", lbl1,
+                    **{"color": "red", "font-size": "20px"})
+        p1.getAxis('left').setTextPen('red')
+        p1.getAxis('right').setLabel(lbl2,
+                                     **{"color": "blue", "font-size": "20px"})
+        p1.getAxis('right').setTextPen('b')
+
         # draw it
-        # --------
-        global _g_current
-        _g_current['x'] = x
-        _g_current['t'] = t
-        _g_current['p'] = p
-        _g_current['y1range'] = (min(t), max(t))
-        _g_current['y2range'] = (min(p), max(p))
-        p1.setYRange(min(t), max(t), padding=0)
-        p2.setYRange(min(p), max(p), padding=0)
-        p1.plot(x, t, pen='r')
-        pi = pg.PlotCurveItem(x, p, pen='b', hoverable=True)
+        p1.setYRange(min(y1), max(y1), padding=0)
+        p2.setYRange(min(y2), max(y2), padding=0)
+        p1.plot(x, y1, pen='r')
+        pi = pg.PlotCurveItem(x, y2, pen='b', hoverable=True)
         p2.addItem(pi)
+
+        # avoid small glitch
+        self.g.getPlotItem().enableAutoRange()
 
 
 # to test

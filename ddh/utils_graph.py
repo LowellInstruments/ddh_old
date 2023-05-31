@@ -46,15 +46,8 @@ def graph_get_data_csv(fol, h, hi) -> dict:
     _g_ff_p = sorted(glob("{}/{}".format(fol, "*_Pressure.csv")))
     _g_ff_do = sorted(glob("{}/{}".format(fol, "*_DissolvedOxygen.csv")))
 
-    # auto-detect metrics by folder content
-    if _g_ff_t:
-        met = 'TP'
-    else:
-        met = 'DO'
-    s = 'drawing metric {} folder {} hauls {} hi {}'
-    print(s.format(met, basename(fol), h, hi))
-
     # type of haul to plot
+    met = 'TP'
     if _g_ff_t:
         if h == 'all hauls':
             _g_ff_t = _g_ff_t
@@ -69,8 +62,8 @@ def graph_get_data_csv(fol, h, hi) -> dict:
             _g_ff_p = _g_ff_p[-1:]
         else:
             _g_ff_p = [_g_ff_p[hi]]
-
     if _g_ff_do:
+        met = 'DO'
         if h == 'all hauls':
             _g_ff_do = _g_ff_do
         elif h == 'last haul':
@@ -78,45 +71,42 @@ def graph_get_data_csv(fol, h, hi) -> dict:
         else:
             _g_ff_do = [_g_ff_do[hi]]
 
-    # lists containing values
-    t, p, x, doc, dot = [], [], [], [], []
-
+    # grab values
+    s = 'drawing metric {} folder {} hauls {} hi {}'
+    print(s.format(met, basename(fol), h, hi))
     if met == 'TP':
-        # Temperature values
-        if not _g_ff_t:
-            print('no _g_ff_t')
-        else:
-            for f in _g_ff_t:
-                print('\tread file', basename(f))
-                df = pd.read_csv(f)
-                # grab Time (x) values from here
-                x += list(df['ISO 8601 Time'])
-                t += list(df['Temperature (C)'])
-
-        # Pressure values
-        if not _g_ff_p:
-            print('no _g_ff_p')
-        else:
-            for f in _g_ff_p:
-                print('\tread file', basename(f))
-                df = pd.read_csv(f)
-                p += list(df['Pressure (dbar)'])
+        x, t, p = [], [], []
+        for f in _g_ff_t:
+            print('\tread file', basename(f))
+            df = pd.read_csv(f)
+            # grab Time (x) values from here
+            x += list(df['ISO 8601 Time'])
+            t += list(df['Temperature (C)'])
+        for f in _g_ff_p:
+            print('\tread file', basename(f))
+            df = pd.read_csv(f)
+            p += list(df['Pressure (dbar)'])
 
         # convert 2018-11-11T13:00:00.000 --> epoch seconds
         x = [dp.parse('{}Z'.format(i)).timestamp() for i in x]
+        return {
+            'ISO 8601 Time': x,
+            'Temperature (C)': t,
+            'Pressure (dbar)': p,
+        }
 
     elif met == 'DO':
+        x, doc, dot = [], [], []
+
         print('hola')
+        return {
+            'ISO 8601 Time': x,
+            'Dissolved C': doc,
+            'Dissolved T': dot
+        }
 
     else:
         print('wtf _graph_get_all_csv')
         assert False
 
     # met allows caller functions to know what to plot
-    return {
-        'met': met,
-        'ISO 8601 Time': x,
-        'Temperature (C)': t,
-        'Pressure (dbar)': p,
-        # todo ---> add DO in the future here
-    }
