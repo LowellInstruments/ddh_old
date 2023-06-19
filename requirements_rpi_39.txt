@@ -1,6 +1,7 @@
 bleak==0.20.2
 boto3
 cacheout==0.14.1
+contourpy==1.0.6
 GitPython==3.1.30
 h5py
 humanize==4.6.0
