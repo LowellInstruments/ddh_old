@@ -339,9 +339,3 @@ def rbl_loop():
         rbl_serve()
         time.sleep(600)
 
-
-# for testing, does not generate a RBL file
-if __name__ == "__main__":
-    # _b = b'\x35\x36\x11\x22\x33\x44\x55'
-    # _rbl_send(_b * 1, fmt='bin')
-    rbl_decode(bytes())

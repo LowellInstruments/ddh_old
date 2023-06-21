@@ -1,6 +1,6 @@
 import os
 from dds.aws import _aws_s3_sync_process
-
+from dds.rbl import _rbl_send
 
 # ----------------------------------------------
 # this file allows testing snippets of code in
@@ -14,5 +14,10 @@ def main_test_aws():
     _aws_s3_sync_process()
 
 
+def main_test_rbl():
+    _rbl_send(b'\x11\x22', fmt='bin')
+
+
 if __name__ == '__main__':
-    main_test_aws()
+    # main_test_aws()
+    main_test_rbl()
