@@ -6,9 +6,10 @@ import serial
 from settings import ctx
 from utils.ddh_shared import get_ddh_folder_path_rbl
 from utils.logs import lg_rbl as lg
-from utils.usb_findport import list_devices
 from ieee754 import IEEE754
 from ctypes import cast, pointer, c_int, POINTER, c_float
+
+from utils.new_usb_find_port import find_usb_port_automatically
 
 
 def dds_create_folder_rbl():
@@ -167,13 +168,7 @@ def _adjust_for_testing(fol) -> str:
 
 
 def _rbl_find_usb_port():
-    dd = list_devices()
-    # print(dd)
-    for each_dev in dd:
-        vid, pid, desc, node = each_dev
-        if vid == "0403" and pid == "6001":
-            lg.a("found rockblocks device at {}".format(node))
-            return node
+    return find_usb_port_automatically('0403:6001')
 
 
 # _ck means check

@@ -24,10 +24,10 @@ from utils.ddh_shared import (
     STATE_DDS_GPS_POWER_CYCLE,
 )
 from utils.logs import lg_gps as lg
-from utils.usb_findport import list_devices
 import re
 from gpiozero import LED
 
+from utils.new_usb_find_port import find_usb_port_automatically
 
 _g_ts_cached_gps_valid_for = 0
 _g_cached_gps = None
@@ -59,12 +59,7 @@ def gps_ll_check_hat_out_stream():
 
 
 def _gps_bu353s4_find_usb_port():
-    dd = list_devices()
-    # print(dd)
-    for each_dev in dd:
-        vid, pid, desc, node = each_dev
-        if vid == "067b" and pid == "2303":
-            return node
+    return find_usb_port_automatically('067B:2303')
 
 
 if g_gps_is_external:
