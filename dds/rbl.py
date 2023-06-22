@@ -9,7 +9,7 @@ from utils.logs import lg_rbl as lg
 from ieee754 import IEEE754
 from ctypes import cast, pointer, c_int, POINTER, c_float
 
-from utils.new_usb_find_port import find_usb_port_automatically
+from utils.find_usb_port_auto import find_usb_port_automatically
 
 
 def dds_create_folder_rbl():

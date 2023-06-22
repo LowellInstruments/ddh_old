@@ -27,7 +27,7 @@ from utils.logs import lg_gps as lg
 import re
 from gpiozero import LED
 
-from utils.new_usb_find_port import find_usb_port_automatically
+from utils.find_usb_port_auto import find_usb_port_automatically
 
 _g_ts_cached_gps_valid_for = 0
 _g_cached_gps = None
