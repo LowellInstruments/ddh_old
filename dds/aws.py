@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import datetime
+import glob
 import multiprocessing
 import os
 import subprocess as sp
@@ -28,6 +29,7 @@ dev = not linux_is_rpi()
 
 
 def _get_aws_bin_path():
+    # requires $ sudo pip install awscli
     return "aws"
 
 
@@ -37,7 +39,7 @@ def _aws_s3_sync_process():
     # sys.exit instead of return prevents zombie processes
     # -----------------------------------------------------
     setproctitle.setproctitle(AWS_S3_SYNC_PROC_NAME)
-    fol = get_ddh_folder_path_dl_files()
+    fol_dl_files = get_ddh_folder_path_dl_files()
     _k = os.getenv("DDH_AWS_KEY_ID")
     _s = os.getenv("DDH_AWS_SECRET")
     _n = os.getenv("DDH_AWS_BUCKET")
@@ -49,38 +51,43 @@ def _aws_s3_sync_process():
     if not _n.startswith("bkt-"):
         _n = "bkt-" + _n
 
-    # ------------------------------
-    # run it! we use aws-cli binary
-    # ------------------------------
+    # prepare to run it
     _u(STATE_DDS_NOTIFY_CLOUD_BUSY)
     _bin = _get_aws_bin_path()
     dr = "--dryrun" if dev else ""
-    c = (
-        "AWS_ACCESS_KEY_ID={} AWS_SECRET_ACCESS_KEY={} "
-        "{} s3 sync {} s3://{} "
-        '--exclude "*" '
-        '--include "*.csv" '
-        '--include "*.gps" '
-        '--include "*.lid" '
-        '--include "*.bin" '
-        '--include "*.txt" {}'
-    )
-    c = c.format(_k, _s, _bin, fol, _n, dr)
-    rv = sp.run(c, shell=True, stdout=sp.PIPE, stderr=sp.PIPE)
+
+    # get list of macs within dl_files folder
+    ms = [d for d in glob.glob(str(fol_dl_files) + '/*') if os.path.isdir(d)]
+    all_rv = 0
+    for m in ms:
+        c = (
+            "AWS_ACCESS_KEY_ID={} AWS_SECRET_ACCESS_KEY={} "
+            "{} s3 sync {} s3://{}/{} "
+            '--exclude "*" '
+            '--include "*.csv" '
+            '--include "*.gps" '
+            '--include "*.lid" '
+            '--include "*.bin" '
+            '--include "*.txt" {}'
+        )
+        c = c.format(_k, _s, _bin, m, _n, m, dr)
+        rv = sp.run(c, shell=True, stdout=sp.PIPE, stderr=sp.PIPE)
+        if rv.stdout:
+            lg.a(rv.stdout)
+        if rv.returncode:
+            lg.a("error: {}".format(rv.stderr))
+        all_rv += rv.returncode
 
     # indicate result
     _t = datetime.datetime.now()
-    if rv.returncode == 0:
+    if all_rv == 0:
         _u(STATE_DDS_NOTIFY_CLOUD_OK)
         lg.a("success: cloud sync on {}".format(_t))
-        if rv.stdout:
-            lg.a(rv.stdout)
         sys.exit(0)
 
     # something went wrong
     _u(STATE_DDS_NOTIFY_CLOUD_ERR)
-    lg.a("error: cloud sync on {}, rv {}".format(_t, rv.returncode))
-    lg.a("error: {}".format(rv.stderr))
+    lg.a("error: cloud sync on {}, rv {}".format(_t, all_rv))
     sys.exit(2)
 
 
