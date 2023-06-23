@@ -88,7 +88,6 @@ def main_dds():
 
     # detecting and selecting Bluetooth antenna
     h, h_d = ble_mat_get_antenna_type()
-    ble_tell_gui_antenna_type(h, h_d)
 
     # seems boot process is going well
     setproctitle.setproctitle(NAME_EXE_DDS)
@@ -167,6 +166,7 @@ def main_dds():
         # Bluetooth stage
         # ----------------
 
+        ble_tell_gui_antenna_type(h, h_d)
         if not ble_check_antenna_up_n_running(lat, lon, h):
             continue
 

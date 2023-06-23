@@ -80,19 +80,23 @@ def ble_tell_gui_antenna_type(_h, desc):
     elif desc == "external":
         desc = "BT_external"
 
+    global _g_ant_ble
+
     # from time to time
     s = "using {} antenna, adapter {}"
     if its_time_to(s, 60):
         _u("{}/{}".format(STATE_DDS_BLE_ANTENNA, desc))
 
-    # only once at the beginning
-    global _g_ant_ble
-    if _g_ant_ble == "undefined":
-        _ad = "hci{}".format(_h)
-        s = s.format(desc, _ad)
-        lg.a("-" * len(s))
-        lg.a(s)
-        lg.a("-" * len(s))
+    # we only run this function once
+    if _g_ant_ble != "undefined":
+        return
+
+    # run this once
+    _ad = "hci{}".format(_h)
+    s = s.format(desc, _ad)
+    lg.a("-" * len(s))
+    lg.a(s)
+    lg.a("-" * len(s))
     _g_ant_ble = desc
 
 
