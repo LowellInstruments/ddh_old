@@ -20,10 +20,6 @@ export DDH_SQS_QUEUE_NAME=ddw_in.fifo
 
 
 echo; echo 'R > bluetooth power check'
-sudo bluetoothctl power off
-sleep .5
-sudo bluetoothctl power on
-sleep .5
 sudo hciconfig hci0 up || true
 sudo hciconfig hci1 up || true
 
