@@ -9,11 +9,6 @@ ALREADY=$?
 if [ "$ALREADY" -eq 0 ]; then echo "DDS already running in bash, leaving"; exit 0; fi
 
 
-# abort upon any error
-set -e
-trap 'echo "$BASH_COMMAND" TRAPPED! rv $?; cd $F_DA' EXIT
-
-
 # AWS credentials
 
 export DDH_AWS_BUCKET=
@@ -33,11 +28,11 @@ sudo hciconfig hci0 up || true
 sudo hciconfig hci1 up || true
 
 
-# do not run DDS so DDH will complain
 echo; echo 'R > bluetooth sanity check'
-hciconfig hci0 | grep RUNNING > /dev/null; rv=$?
-if [ $rv -ne 0 ]; then
-    printf "error: Bluetooth hci0 seems bad\n"
+hciconfig hci0 | grep RUNNING > /dev/null; rv_hci0=$?
+hciconfig hci1 | grep RUNNING > /dev/null; rv_hci1=$?
+if [ $rv_hci0 -ne 0 ] && [ $rv_hci1 -ne 0 ]; then
+    printf "error: all Bluetooth hci seem bad\n"
     exit 1
 fi
 
