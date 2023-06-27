@@ -81,13 +81,22 @@ def ble_tell_gui_antenna_type(_h, desc):
         desc = "BT_external"
 
     global _g_ant_ble
-    if _g_ant_ble == "undefined" or _g_ant_ble != desc:
-        _ad = "hci{}".format(_h)
-        s = "using {} antenna, adapter {}".format(desc, _ad)
-        lg.a("-" * len(s))
-        lg.a(s)
-        lg.a("-" * len(s))
+
+    # from time to time
+    s = "using {} antenna, adapter {}"
+    if its_time_to(s, 60):
         _u("{}/{}".format(STATE_DDS_BLE_ANTENNA, desc))
+
+    # we only run this function once
+    if _g_ant_ble != "undefined":
+        return
+
+    # run this once
+    _ad = "hci{}".format(_h)
+    s = s.format(desc, _ad)
+    lg.a("-" * len(s))
+    lg.a(s)
+    lg.a("-" * len(s))
     _g_ant_ble = desc
 
 
@@ -105,11 +114,15 @@ def ble_check_antenna_up_n_running(lat, lon, h: int):
 
     # try to recover it
     for c in [
+        # unload stuff
+        'sudo systemctl stop hciuart'
         'sudo hciconfig hci{} down'.format(h),
         'sudo rmmod btusb',
         'sudo modprobe -r btusb',
+        # reload stuff
         'sudo modprobe btusb',
         'sudo rfkill unblock bluetooth',
+        'sudo systemctl start hciuart'
         'sudo hciconfig hci{} up'.format(h)
     ]:
         rv = sp.run(c, shell=True, stdout=sp.PIPE, stderr=sp.PIPE)
