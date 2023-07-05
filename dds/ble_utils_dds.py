@@ -122,7 +122,7 @@ def ble_check_antenna_up_n_running(lat, lon, h: int):
         # reload stuff
         'sudo modprobe btusb',
         'sudo rfkill unblock bluetooth',
-        'sudo systemctl start hciuart'
+        'sudo systemctl start hciuart',
         'sudo hciconfig hci{} up'.format(h)
     ]:
         rv = sp.run(c, shell=True, stdout=sp.PIPE, stderr=sp.PIPE)
