@@ -115,7 +115,7 @@ def ble_check_antenna_up_n_running(lat, lon, h: int):
     # try to recover it
     for c in [
         # unload stuff
-        'sudo systemctl stop hciuart'
+        'sudo systemctl stop hciuart',
         'sudo hciconfig hci{} down'.format(h),
         'sudo rmmod btusb',
         'sudo modprobe -r btusb',
