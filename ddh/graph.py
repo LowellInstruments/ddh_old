@@ -44,6 +44,7 @@ class SeparateGraphWindow(QtWidgets.QMainWindow):
 
     def _btn_reset_click(self):
         self.g.getPlotItem().enableAutoRange()
+        self.graph_all()
 
     def _btn_next_logger_click(self):
         # keep haul type, change logger folder and draw graph
@@ -134,7 +135,7 @@ class SeparateGraphWindow(QtWidgets.QMainWindow):
             return
         self.fol_ls_len = len(self.fol_ls)
         self.fol_ls_idx = self.fol_ls.index(self.fol)
-        print('start at folder', basename(self.fol))
+        print('graphing older', basename(self.fol))
 
         # reset haul variables
         self.hi = -1
@@ -184,14 +185,16 @@ class SeparateGraphWindow(QtWidgets.QMainWindow):
 
         # grab this folder's CSV data, filter by haul
         data = graph_get_data_csv(self.fol, self.h, self.hi)
-        if not data:
+        if not data['ISO 8601 Time']:
+            print("error: graph_all() ISO 8601 column is empty")
             return
 
         # x is the time and is already in seconds
         x = data['ISO 8601 Time']
-        # next 2 keys in order are the metrics
-        lbl1 = list(data.keys())[1]
-        lbl2 = list(data.keys())[2]
+        met = data['metric']
+        # last 2 keys in order are the metrics
+        lbl1 = list(data.keys())[2]
+        lbl2 = list(data.keys())[3]
         y1 = data[lbl1]
         y2 = data[lbl2]
 
@@ -212,14 +215,19 @@ class SeparateGraphWindow(QtWidgets.QMainWindow):
         p1.getAxis('right').setTextPen('b')
 
         # draw it
-        p1.setYRange(min(y1), max(y1), padding=0)
-        p2.setYRange(min(y2), max(y2), padding=0)
         p1.plot(x, y1, pen='r')
         pi = pg.PlotCurveItem(x, y2, pen='b', hoverable=True)
         p2.addItem(pi)
 
-        # avoid small glitch
+        # avoid small glitch when re-zooming
         self.g.getPlotItem().enableAutoRange()
+
+        # custom ranges
+        p1.setYRange(min(y1), max(y1), padding=0)
+        p2.setYRange(min(y2), max(y2), padding=0)
+        print('metric', met)
+        if met == 'DO':
+            p1.setYRange(0, 10, padding=0)
 
 
 # to test

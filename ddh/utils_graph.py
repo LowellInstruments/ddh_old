@@ -28,7 +28,7 @@ def graph_get_fol_list():
     return []
 
 
-# get graph_req.json from /tmp containing the full folder path to plot
+# get graph_req.json from /tmp containing the FULL ABSOLUTE folder path to plot
 def graph_get_fol_req_file():
     # file written by DDH plot request
     with open('/tmp/graph_req.json') as f:
@@ -47,7 +47,7 @@ def graph_get_data_csv(fol, h, hi) -> dict:
     _g_ff_do = sorted(glob("{}/{}".format(fol, "*_DissolvedOxygen.csv")))
 
     # type of haul to plot
-    met = 'TP'
+    met = ''
     if _g_ff_t:
         if h == 'all hauls':
             _g_ff_t = _g_ff_t
@@ -71,6 +71,12 @@ def graph_get_data_csv(fol, h, hi) -> dict:
         else:
             _g_ff_do = [_g_ff_do[hi]]
 
+    # check metric is set
+    if not met:
+        return {
+            'metric': '',
+        }
+
     # grab values
     s = 'drawing metric {} folder {} hauls {} hi {}'
     print(s.format(met, basename(fol), h, hi))
@@ -90,6 +96,7 @@ def graph_get_data_csv(fol, h, hi) -> dict:
         # convert 2018-11-11T13:00:00.000 --> epoch seconds
         x = [dp.parse('{}Z'.format(i)).timestamp() for i in x]
         return {
+            'metric': met,
             'ISO 8601 Time': x,
             'Temperature (C)': t,
             'Pressure (dbar)': p,
@@ -97,16 +104,22 @@ def graph_get_data_csv(fol, h, hi) -> dict:
 
     elif met == 'DO':
         x, doc, dot = [], [], []
+        for f in _g_ff_do:
+            print('\tread file', basename(f))
+            df = pd.read_csv(f)
+            x += list(df['ISO 8601 Time'])
+            doc += list(df['Dissolved Oxygen (mg/l)'])
+            dot += list(df['DO Temperature (C)'])
 
-        print('hola')
+        # convert 2018-11-11T13:00:00.000 --> epoch seconds
+        x = [dp.parse('{}Z'.format(i)).timestamp() for i in x]
         return {
+            'metric': met,
             'ISO 8601 Time': x,
             'Dissolved C': doc,
             'Dissolved T': dot
         }
 
     else:
-        print('wtf _graph_get_all_csv')
+        print('error: graph_get_all_csv() unknown metric')
         assert False
-
-    # met allows caller functions to know what to plot
