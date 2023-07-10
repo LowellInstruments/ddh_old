@@ -78,7 +78,7 @@ def graph_get_data_csv(fol, h, hi) -> dict:
         }
 
     # grab values
-    s = 'drawing metric {} folder {} hauls {} hi {}'
+    s = 'graphing metric {}, folder {}, hauls {}, hi {}'
     print(s.format(met, basename(fol), h, hi))
     if met == 'TP':
         x, t, p = [], [], []
@@ -111,13 +111,16 @@ def graph_get_data_csv(fol, h, hi) -> dict:
             doc += list(df['Dissolved Oxygen (mg/l)'])
             dot += list(df['DO Temperature (C)'])
 
+        # convert dot Celsius to Fahrenheit
+        dot = [(c*9/5)+32 for c in dot]
+
         # convert 2018-11-11T13:00:00.000 --> epoch seconds
         x = [dp.parse('{}Z'.format(i)).timestamp() for i in x]
         return {
             'metric': met,
             'ISO 8601 Time': x,
-            'Dissolved C': doc,
-            'Dissolved T': dot
+            'DO Concentration (mg/l)': doc,
+            'DO Temperature (F)': dot
         }
 
     else:

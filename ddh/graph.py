@@ -9,6 +9,7 @@ from pyqtgraph.Qt import QtGui
 from utils_graph import graph_get_fol_req_file, \
     graph_get_fol_list, graph_get_data_csv
 from os.path import basename
+from pyqtgraph import LinearRegionItem
 
 # to be able to zoom in RPi
 pg.setConfigOption('leftButtonPan', False)
@@ -36,6 +37,79 @@ class TimeAxisItem(pg.AxisItem):
         return [QTime().addMSecs(value).toString('mm:ss') for value in values]
 
 
+class LimitsTypeError(Exception):
+    def __init__(self, err='Limits type must be type int or tuple of ints', *args, **kwargs):
+        super().__init__(self, err, *args, **kwargs)
+
+
+class FiniteLinearRegionItem(LinearRegionItem):
+    def __init__(self, limits=None, *args, **kwargs):
+        super(FiniteLinearRegionItem, self).__init__(*args, **kwargs)
+        """Create a new LinearRegionItem.
+
+            Now you can define the shading area. Enjoy!
+
+        ==============  =====================================================================
+        **Arguments:**
+        limits          A tuple containing the upper and lower bounds prependicular to the orientation.
+                        Or a int/float containing the lower bounds prependicular to the orientation.
+                        The default value is None.
+        ==============  =====================================================================
+        """
+        self.limit = limits
+
+    def boundingRect(self):
+        br = self.viewRect()
+        rng = self.getRegion()
+
+        # Infinite with one end close
+        if isinstance(self.limit, int):
+            if self.orientation in ('vertical', LinearRegionItem.Vertical):
+                br.setLeft(rng[0])
+                br.setRight(rng[1])
+                length = br.height()
+                br.setBottom(self.limit)
+                br.setTop(br.top() + length * self.span[0])
+            else:
+                br.setTop(rng[0])
+                br.setBottom(rng[1])
+                length = br.width()
+                br.setRight(br.left() + length * self.span[1])
+                br.setLeft(self.limit)
+        # Finite
+        elif isinstance(self.limit, tuple):
+            if self.orientation in ('vertical', LinearRegionItem.Vertical):
+                br.setLeft(rng[0])
+                br.setRight(rng[1])
+                length = br.height()
+                br.setBottom(self.limit[0])
+                br.setTop(self.limit[1])
+            else:
+                br.setTop(rng[0])
+                br.setBottom(rng[1])
+                length = br.width()
+                br.setRight(self.limit[1])
+                br.setLeft(self.limit[0])
+        elif self.limit is None:
+            if self.orientation in ('vertical', LinearRegionItem.Vertical):
+                br.setLeft(rng[0])
+                br.setRight(rng[1])
+                length = br.height()
+                br.setBottom(br.top() + length * self.span[1])
+                br.setTop(br.top() + length * self.span[0])
+            else:
+                br.setTop(rng[0])
+                br.setBottom(rng[1])
+                length = br.width()
+                br.setRight(br.left() + length * self.span[1])
+                br.setLeft(br.left() + length * self.span[0])
+        else:
+            raise LimitsTypeError
+
+        br = br.normalized()
+        return br
+
+
 class SeparateGraphWindow(QtWidgets.QMainWindow):
 
     def _btn_close_click(self):
@@ -52,14 +126,14 @@ class SeparateGraphWindow(QtWidgets.QMainWindow):
         self.fol = self.fol_ls[self.fol_ls_idx]
         print('\nswitch to folder', basename(self.fol))
         # reset haul index
-        self.hi = -1
+        self.haul_idx = -1
         self.haul_len = len(glob('{}/*_Temperature.csv'.format(self.fol)))
         self.graph_all()
 
     def _btn_next_haul_click(self):
         # keep logger, increase haul index and draw graph
-        self.hi = (self.hi + 1) % self.haul_len
-        print('haul number is', self.hi)
+        self.haul_idx = (self.haul_idx + 1) % self.haul_len
+        print('haul index is', self.haul_idx)
         self.graph_all()
 
     def _rb_haul_click(self, b):
@@ -67,13 +141,12 @@ class SeparateGraphWindow(QtWidgets.QMainWindow):
             return
 
         # keep logger, change haul type among 3 and draw graph
-        self.h = b.text()
+        self.haul_type = b.text()
         self.btn_next_haul.setEnabled(False)
-        if self.h == 'one haul':
+        if self.haul_type == 'one haul':
             self.btn_next_haul.setEnabled(True)
         global just_booted
         if not just_booted:
-            print('epi')
             self.graph_all()
         just_booted = False
 
@@ -119,7 +192,7 @@ class SeparateGraphWindow(QtWidgets.QMainWindow):
         self.g.setBackground('w')
 
         # get requested folder and graph type
-        self.h = 'last'
+        self.haul_type = 'last'
         try:
             self.fol = graph_get_fol_req_file()
         except (Exception, ):
@@ -135,11 +208,11 @@ class SeparateGraphWindow(QtWidgets.QMainWindow):
             return
         self.fol_ls_len = len(self.fol_ls)
         self.fol_ls_idx = self.fol_ls.index(self.fol)
-        print('graphing older', basename(self.fol))
+        print('graph starting folder:', basename(self.fol))
 
         # reset haul variables
-        self.hi = -1
-        self.haul_len = len(glob('{}/*_Temperature.csv'.format(self.fol)))
+        self.haul_idx = -1
+        self.haul_len = len(glob('{}/*.csv'.format(self.fol)))
 
         # the first one
         self.graph_all()
@@ -170,7 +243,7 @@ class SeparateGraphWindow(QtWidgets.QMainWindow):
         # invert y on the right
         p2.invertY(True)
 
-        # tick color and text color
+        # tick color and text color of both left and right
         p1.getAxis('left').setTickPen('red')
         p1.getAxis('right').setTickPen('blue')
         p1.getAxis('bottom').setTickPen('black')
@@ -184,7 +257,7 @@ class SeparateGraphWindow(QtWidgets.QMainWindow):
         p1.getAxis("right").setStyle(tickFont=font)
 
         # grab this folder's CSV data, filter by haul
-        data = graph_get_data_csv(self.fol, self.h, self.hi)
+        data = graph_get_data_csv(self.fol, self.haul_type, self.haul_idx)
         if not data['ISO 8601 Time']:
             print("error: graph_all() ISO 8601 column is empty")
             return
@@ -216,18 +289,39 @@ class SeparateGraphWindow(QtWidgets.QMainWindow):
 
         # draw it
         p1.plot(x, y1, pen='r')
-        pi = pg.PlotCurveItem(x, y2, pen='b', hoverable=True)
-        p2.addItem(pi)
+        p2.addItem(pg.PlotCurveItem(x, y2, pen='b', hoverable=True))
 
         # avoid small glitch when re-zooming
         self.g.getPlotItem().enableAutoRange()
 
-        # custom ranges
+        # common ranges
         p1.setYRange(min(y1), max(y1), padding=0)
         p2.setYRange(min(y2), max(y2), padding=0)
-        print('metric', met)
+
+        # custom adjustments
         if met == 'DO':
             p1.setYRange(0, 10, padding=0)
+            alpha = 50
+            reg_do_l = FiniteLinearRegionItem(values=(0, 2),
+                                              limits=4,
+                                              orientation="horizontal",
+                                              brush=(255, 0, 0, alpha))
+            reg_do_m = FiniteLinearRegionItem(values=(2, 5),
+                                              limits=4,
+                                              orientation="horizontal",
+                                              brush=(255, 170, 6, alpha))
+            reg_do_h = FiniteLinearRegionItem(values=(5, 7),
+                                              limits=4,
+                                              orientation="horizontal",
+                                              brush=(255, 255, 66, alpha))
+            reg_do_g = FiniteLinearRegionItem(values=(7, 10),
+                                              limits=4,
+                                              orientation="horizontal",
+                                              brush=(176, 255, 66, alpha))
+            self.g.addItem(reg_do_l)
+            self.g.addItem(reg_do_m)
+            self.g.addItem(reg_do_h)
+            self.g.addItem(reg_do_g)
 
 
 # to test
