@@ -41,7 +41,7 @@
        </font>
       </property>
       <property name="currentIndex">
-       <number>5</number>
+       <number>4</number>
       </property>
       <widget class="QWidget" name="tab">
        <property name="sizePolicy">
@@ -1346,7 +1346,7 @@ font: 19pt &quot;DejaVu Sans&quot;;</string>
              <bool>false</bool>
             </property>
             <property name="rowCount">
-             <number>15</number>
+             <number>25</number>
             </property>
             <property name="columnCount">
              <number>2</number>
@@ -1357,6 +1357,16 @@ font: 19pt &quot;DejaVu Sans&quot;;</string>
             <attribute name="verticalHeaderVisible">
              <bool>false</bool>
             </attribute>
+            <row/>
+            <row/>
+            <row/>
+            <row/>
+            <row/>
+            <row/>
+            <row/>
+            <row/>
+            <row/>
+            <row/>
             <row/>
             <row/>
             <row/>
