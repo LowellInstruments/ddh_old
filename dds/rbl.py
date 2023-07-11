@@ -352,3 +352,10 @@ def rbl_loop():
         rbl_serve()
         time.sleep(600)
 
+
+if __name__ == '__main__':
+
+    ti = int(time.time())
+    ts = hex(ti)[2:]
+    b = '00000000000000000000' + ts + '000000000000000000000000000000000000000000000000000000'
+    _rbl_send(b.encode(), 'bin')

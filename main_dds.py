@@ -108,13 +108,6 @@ def main_dds():
         gps_clock_sync_if_so(tg)
         sqs_msg_ddh_booted(lat, lon)
 
-    # Rockblocks stuff is slow, do it concurrent
-    th = threading.Thread(target=rbl_loop)
-    th.start()
-
-    # PUBSUB stuff (beta)
-    pubsub_run_sub()
-
     # do nothing if we never had a GPS clock sync
     gps_print_trying_clock_sync_at_boot()
     while not gps_did_we_ever_clock_sync():
@@ -124,6 +117,14 @@ def main_dds():
             if gps_clock_sync_if_so(tg):
                 break
         time.sleep(5)
+
+
+    # Rockblocks stuff is slow, do it concurrent
+    th = threading.Thread(target=rbl_loop)
+    th.start()
+
+    # PUBSUB stuff (beta)
+    # pubsub_run_sub()
 
     # =============
     # main loop

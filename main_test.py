@@ -22,5 +22,4 @@ def main_test_rbl():
 if __name__ == '__main__':
     # main_test_aws()
     # main_test_rbl()
-    b = b'01014222edd0c2887a0364a980ae580067206308031811101170112800203333334444444401706666'
-    rbl_decode(b)
+    pass
