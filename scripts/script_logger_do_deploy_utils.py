@@ -73,13 +73,15 @@ async def deploy_logger(mac, sn, flag_run, flag_sensor):
         rv = await lc.cmd_wli(s)
         _e(rv, "wli_sn")
 
-        rv = await lc.cmd_rli()
+        rv, info = await lc.cmd_rli()
+        _e(len(info.keys()) != 4, "rli")
 
         rv = await lc.cmd_wak("on")
         if rv:
             rv = await lc.cmd_wak("on")
         _e(rv, "wak")
 
+        # these stand for First Deployment Get / Set on TAP loggers
         # rv, v = await lc.cmd_fdg()
         # _e(rv, 'fds')
         # rv, v = await lc.cmd_fds()

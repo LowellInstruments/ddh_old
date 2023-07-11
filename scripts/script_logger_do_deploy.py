@@ -56,7 +56,7 @@ def _list_monitored_macs():
         lines = f.readlines()
         for n, i in enumerate(lines):
             if n == 0:
-                print("\nmonitored macs\n--------------")
+                print("\nmonitored macs\n--------------\n", p)
             if i.startswith("#") or len(i) < 5:
                 continue
             if ":" in i:
