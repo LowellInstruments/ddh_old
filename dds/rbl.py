@@ -105,31 +105,44 @@ def rbl_build_emolt_msg_as_str(lat,
 
 
 def rbl_decode(b: bytes):
+    # ----------------------------------------------------------------
+    # to send an uplink message to Rockblocks+ webservice, we do:
+    #     s = build_rbl_build_emolt_msg_as_str(), where 's' is string
+    #     b = rbl_hex_str_to_hex_bytes(), where 'b' is bytes
+    # then 'b' travels up to Rockblocks+ webservice, which does the
+    # inverse operation, 'b' to 's' and sends 's' to OUR webservice
+    # in this example function, you can choose to decode 's' or 'b'
+    # just remember 's' has twice the length of 'b', see example:
+    # b = b'\x01', length 2 ---> s = '3031', length 4
+    # Lowell Instruments never use this function, just made for NOAA
+    # ----------------------------------------------------------------
     assert type(b) is bytes
-    b = b'\x01\x01B\x18\x00\x00\xc2\xa6\x00\x00d,I !\x10$\x80"\x83\x014"\x00#\x90#\x18'
-    b += b"\x00i333DDDD\x01pff"
     a = b.hex()
-    # decode it
-    a[0:2]
-    a[2:4]
-    float(_ieee754_str_to_float(a[4:12]))
-    float(_ieee754_str_to_float(a[12:20]))
-    m_utc_time = int(a[20:28], 16)
-    "{}.{}".format(a[28:30], a[30:32])
-    "{}.{}".format(a[32:34], a[34:36])
-    "{}.{}".format(a[36:38], a[38:40])
-    "{}.{}".format(a[40:42], a[42:44])
-    "{}.{}".format(a[44:46], a[46:48])
-    "{}.{}".format(a[48:50], a[50:52])
-    "{}.{}".format(a[52:54], a[54:56])
-    "{}.{}".format(a[56:58], a[58:60])
-    a[60:66]
-    a[66:74]
-    a[74:76]
-    a[76:78]
-    a[78:82]
+    a[0:4]
+    a[4:8]
+    float(_ieee754_str_to_float(a[8:24]))
+    float(_ieee754_str_to_float(a[24:40]))
+    # see how there are always 2 ways to do this
+    # example using variables in explanation
+    # b = b'64a980ae', s = '3634613938306165
+    m_utc_time = int(b[20:28], 16)
+    m_utc_time_s = int(bytes.fromhex(a[40:56]), 16)
+    "{}.{}".format(a[56:60], a[60:64])
+    "{}.{}".format(a[64:68], a[68:72])
+    "{}.{}".format(a[72:76], a[76:80])
+    "{}.{}".format(a[80:84], a[84:88])
+    "{}.{}".format(a[88:92], a[92:96])
+    "{}.{}".format(a[96:100], a[100:104])
+    "{}.{}".format(a[104:108], a[108:112])
+    "{}.{}".format(a[112:116], a[116:120])
+    a[120:132]
+    a[132:148]
+    a[148:152]
+    a[152:156]
+    a[156:164]
 
     print("m_utc_time", datetime.datetime.utcfromtimestamp(m_utc_time))
+    print("m_utc_time_s", datetime.datetime.utcfromtimestamp(m_utc_time_s))
     # print(locals())
 
 
