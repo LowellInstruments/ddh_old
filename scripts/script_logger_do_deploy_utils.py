@@ -62,16 +62,20 @@ async def deploy_logger(mac, sn, flag_run, flag_sensor):
 
         rv = await lc.cmd_wli("BA8007")
         _e(rv, "wli_ba")
+        await asyncio.sleep(.1)
 
         rv = await lc.cmd_wli("MA1234ABC")
         _e(rv, "wli_ma")
+        await asyncio.sleep(.1)
 
         rv = await lc.cmd_wli("CA1234")
         _e(rv, "wli_ca")
+        await asyncio.sleep(.1)
 
         s = "SN{}".format(sn)
         rv = await lc.cmd_wli(s)
         _e(rv, "wli_sn")
+        await asyncio.sleep(.1)
 
         rv, info = await lc.cmd_rli()
         _e(len(info.keys()) != 4, "rli")
