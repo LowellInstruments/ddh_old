@@ -1,10 +1,12 @@
 import datetime
+import glob
 import json
 import os
 import shlex
 import socket
 import threading
 import time
+from os.path import basename
 import yaml
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QPixmap, QIcon
@@ -18,6 +20,8 @@ from PyQt5.QtWidgets import (
 from gpiozero import Button
 from ddh.db.db_his import DBHis
 from ddh import utils_plt
+from ddh.graph import graph_embed
+from ddh.utils_graph import graph_get_fol_req_file, graph_get_fol_list
 from ddh.utils_net import net_get_my_current_wlan_ssid
 from dds.ble_utils_dds import ble_get_cc26x2_recipe_file_rerun_flag
 from mat.ble.ble_mat_utils import DDH_GUI_UDP_PORT
@@ -68,7 +72,7 @@ from utils.ddh_shared import (
     dds_get_serial_number_of_macs_from_json_file,
     STATE_DDS_BLE_SCAN_FIRST_EVER,
     ddh_get_db_plots_file,
-    STATE_DDS_BLE_ERROR_MOANA_PLUGIN,
+    STATE_DDS_BLE_ERROR_MOANA_PLUGIN, get_dl_files_type,
 )
 from utils.logs import lg_gui as lg
 
@@ -141,6 +145,46 @@ def gui_setup_view(my_win):
     a.chk_rerun.setChecked(rerun_flag)
 
     return a
+
+
+def gui_setup_graph_tab(my_win):
+    a = my_win
+
+    # layout
+    a.lay_g_h2.addWidget(a.g)
+    a.g.setBackground('w')
+
+    # label text
+    s = a.g_haul_text_options[0]
+    a.lbl_g_cycle_haul.setText(s)
+    a.lbl_g_paint_zones.setText(a.g_paint_zones)
+
+    # get requested folder and graph type
+    a.g_haul_type = s
+    try:
+        a.g_fol = graph_get_fol_req_file()
+    except (Exception,):
+        e = 'error: cannot get folder request'
+        a.g.setTitle(e, color="red", size="15pt")
+        return
+
+    # get all the folders that we can draw
+    a.g_fol_ls = graph_get_fol_list()
+    if not a.g_fol_ls:
+        e = 'error: cannot get folder list'
+        a.g.setTitle(e, color="red", size="15pt")
+        return
+    a.g_fol_ls_len = len(a.g_fol_ls)
+    a.g_fol_ls_idx = a.g_fol_ls.index(a.g_fol)
+    print('graph starting folder:', basename(a.g_fol))
+
+    # reset haul variables
+    a.g_haul_idx = -1
+    ft = get_dl_files_type(a.g_fol)
+    a.g_haul_len = len(glob.glob('{}/*{}'.format(a.g_fol, ft)))
+
+    # the first one
+    graph_embed(a)
 
 
 def gui_center_window(my_app):
@@ -232,6 +276,8 @@ def gui_setup_buttons(my_app):
     a.lbl_commit.mouseReleaseEvent = a.click_lbl_commit_released
     a.lbl_date.mousePressEvent = a.click_lbl_datetime_pressed
     a.lbl_date.mouseReleaseEvent = a.click_lbl_datetime_released
+    a.lbl_g_cycle_haul.mousePressEvent = a.click_lbl_g_cycle_haul
+    a.lbl_g_paint_zones.mousePressEvent = a.click_lbl_g_paint_zones
 
     # buttons' connections
     a.btn_known_clear.clicked.connect(a.click_btn_clear_known_mac_list)
@@ -246,6 +292,9 @@ def gui_setup_buttons(my_app):
     a.btn_note_no.clicked.connect(a.click_btn_note_no)
     a.btn_note_yes_specific.clicked.connect(a.click_btn_note_yes_specific)
     a.chk_rerun.toggled.connect(a.click_chk_rerun)
+    a.btn_g_reset.clicked.connect(a.click_btn_g_reset)
+    a.btn_g_next_logger.clicked.connect(a.click_btn_g_next_logger)
+    a.btn_g_next_haul.clicked.connect(a.click_btn_g_next_haul)
 
 
 def gui_hide_edit_tab(ui):

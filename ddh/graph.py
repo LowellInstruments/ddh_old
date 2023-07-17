@@ -6,10 +6,9 @@ from PyQt5.QtCore import QTime
 from PyQt5.QtWidgets import QPushButton, QApplication, QRadioButton
 import pyqtgraph as pg
 from pyqtgraph.Qt import QtGui
-from utils_graph import graph_get_fol_req_file, \
-    graph_get_fol_list, graph_get_data_csv
 from os.path import basename
 from pyqtgraph import LinearRegionItem
+from ddh.utils_graph import graph_get_fol_req_file, graph_get_fol_list, graph_get_data_csv
 
 # to be able to zoom in RPi
 pg.setConfigOption('leftButtonPan', False)
@@ -143,7 +142,7 @@ class SeparateGraphWindow(QtWidgets.QMainWindow):
         # keep logger, change haul type among 3 and draw graph
         self.haul_type = b.text()
         self.btn_next_haul.setEnabled(False)
-        if self.haul_type == 'one haul':
+        if 'one' in self.haul_type:
             self.btn_next_haul.setEnabled(True)
         global just_booted
         if not just_booted:
@@ -212,7 +211,7 @@ class SeparateGraphWindow(QtWidgets.QMainWindow):
 
         # reset haul variables
         self.haul_idx = -1
-        self.haul_len = len(glob('{}/*.csv'.format(self.fol)))
+        self.haul_len = len(glob('{}/*_Temperature.csv'.format(self.fol)))
 
         # the first one
         self.graph_all()
@@ -322,6 +321,119 @@ class SeparateGraphWindow(QtWidgets.QMainWindow):
             self.g.addItem(reg_do_m)
             self.g.addItem(reg_do_h)
             self.g.addItem(reg_do_g)
+
+
+def graph_embed(a):
+
+    # passed app, get graph
+    g = a.g
+
+    # clear it
+    global p1
+    global p2
+    if p1:
+        p1.clear()
+    if p2:
+        p2.clear()
+    p1 = g.plotItem
+
+    # draw grid or not
+    g.showGrid(x=True, y=False)
+
+    # create the 2nd line
+    p2 = pg.ViewBox(enableMenu=True)
+    p1.showAxis('right')
+    p1.scene().addItem(p2)
+    p1.getAxis('right').linkToView(p2)
+    p2.setXLink(p1)
+    graph_update_views()
+    p1.vb.sigResized.connect(graph_update_views)
+
+    # invert y on the right
+    p2.invertY(True)
+
+    # tick color and text color of both left and right
+    p1.getAxis('left').setTickPen('red')
+    p1.getAxis('right').setTickPen('blue')
+    p1.getAxis('bottom').setTickPen('black')
+    p1.getAxis('bottom').setTextPen('black')
+
+    # size of axis ticks text
+    font = QtGui.QFont()
+    font.setPixelSize(15)
+    p1.getAxis("bottom").setStyle(tickFont=font)
+    p1.getAxis("left").setStyle(tickFont=font)
+    p1.getAxis("right").setStyle(tickFont=font)
+
+    # grab this folder's CSV data, filter by haul
+    data = graph_get_data_csv(a.g_fol, a.g_haul_type, a.g_haul_idx)
+    if not data['ISO 8601 Time']:
+        print("error: graph_all() ISO 8601 column is empty")
+        return
+
+    # x is the time and is already in seconds
+    x = data['ISO 8601 Time']
+    met = data['metric']
+
+    # last 2 keys in order are the metrics
+    lbl1 = list(data.keys())[2]
+    lbl2 = list(data.keys())[3]
+    y1 = data[lbl1]
+    y2 = data[lbl2]
+
+    # set the title
+    fmt = '%b %d %H:%M'
+    t1 = datetime.utcfromtimestamp(x[0]).strftime(fmt)
+    t2 = datetime.utcfromtimestamp(x[-1]).strftime(fmt)
+    mac = basename(a.g_fol).replace('-', ':')
+    title = '{} - {} to {}'.format(mac, t1, t2)
+    g.setTitle(title, color="black", size="15pt")
+
+    # set the axes
+    p1.setLabel("left", lbl1,
+                **{"color": "red", "font-size": "20px"})
+    p1.getAxis('left').setTextPen('red')
+    p1.getAxis('right').setLabel(lbl2,
+                                 **{"color": "blue", "font-size": "20px"})
+    p1.getAxis('right').setTextPen('b')
+
+    # draw it
+    p1.plot(x, y1, pen='r')
+    p2.addItem(pg.PlotCurveItem(x, y2, pen='b', hoverable=True))
+
+    # avoid small glitch when re-zooming
+    g.getPlotItem().enableAutoRange()
+
+    # common ranges
+    p1.setYRange(min(y1), max(y1), padding=0)
+    p2.setYRange(min(y2), max(y2), padding=0)
+
+    # custom adjustments
+    if met == 'DO':
+        p1.setYRange(0, 10, padding=0)
+        alpha = 50
+        if a.g_paint_zones != 'zones':
+            return
+        reg_do_l = FiniteLinearRegionItem(values=(0, 2),
+                                           limits=4,
+                                           orientation="horizontal",
+                                           brush=(255, 0, 0, alpha))
+        reg_do_m = FiniteLinearRegionItem(values=(2, 5),
+                                       limits=4,
+                                       orientation="horizontal",
+                                       brush=(255, 170, 6, alpha))
+        reg_do_h = FiniteLinearRegionItem(values=(5, 7),
+                                       limits=4,
+                                       orientation="horizontal",
+                                       brush=(255, 255, 66, alpha))
+        reg_do_g = FiniteLinearRegionItem(values=(7, 10),
+                                       limits=4,
+                                       orientation="horizontal",
+                                       brush=(176, 255, 66, alpha))
+        g.addItem(reg_do_l)
+        g.addItem(reg_do_m)
+        g.addItem(reg_do_h)
+        g.addItem(reg_do_g)
 
 
 # to test

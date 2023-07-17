@@ -1,4 +1,5 @@
 import datetime
+import glob
 import time
 import git
 import json
@@ -413,6 +414,17 @@ def get_utc_offset():
         datetime.datetime.fromtimestamp(ts) - datetime.datetime.utcfromtimestamp(ts)
     ).total_seconds()
     return utc_offset
+
+
+def get_dl_files_type(path):
+    ls_lid = len(glob.glob('{}/*.lid'.format(path)))
+    if ls_lid:
+        return 'lid'
+    ls_bin = len(glob.glob('{}/*.bin'.format(path)))
+    if ls_bin:
+        return 'bin'
+    print('I dont know what files to search for')
+    return ''
 
 
 def main():

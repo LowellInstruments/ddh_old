@@ -1479,10 +1479,52 @@ font: 19pt &quot;DejaVu Sans&quot;;</string>
        </attribute>
        <layout class="QVBoxLayout" name="verticalLayout_7" stretch="1,8">
         <item>
-         <layout class="QHBoxLayout" name="horizontalLayout_15"/>
+         <layout class="QHBoxLayout" name="lay_g_h1">
+          <property name="spacing">
+           <number>18</number>
+          </property>
+          <item>
+           <widget class="QLabel" name="lbl_g_paint_zones">
+            <property name="text">
+             <string>TextLabel</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="btn_g_reset">
+            <property name="text">
+             <string>reset view</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="btn_g_next_logger">
+            <property name="text">
+             <string>next logger</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLabel" name="lbl_g_cycle_haul">
+            <property name="text">
+             <string>TextLabel</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="btn_g_next_haul">
+            <property name="text">
+             <string>next haul</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
         </item>
         <item>
-         <layout class="QHBoxLayout" name="horizontalLayout_16"/>
+         <layout class="QHBoxLayout" name="lay_g_h2"/>
         </item>
        </layout>
       </widget>

@@ -1,3 +1,6 @@
+from os.path import basename
+
+import pyqtgraph as pg
 import psutil
 import glob
 import os
@@ -9,6 +12,7 @@ from PyQt5.QtCore import QTimer, Qt
 from PyQt5.QtWidgets import QMainWindow, QFileDialog
 import ddh.gui.designer_main as d_m
 from ddh.db.db_his import DBHis
+from ddh.graph import graph_embed
 from ddh.utils_gui import (
     gui_json_get_metrics,
     gui_hide_edit_tab,
@@ -34,7 +38,7 @@ from ddh.utils_gui import (
     gui_ddh_populate_note_tab_dropdown,
     gui_json_set_plot_units,
     gui_hide_recipes_tab,
-    gui_show_recipes_tab, gui_hide_graph_tab,
+    gui_show_recipes_tab, gui_hide_graph_tab, gui_setup_graph_tab,
 )
 from liu.linux import linux_is_process_running
 from mat.utils import linux_is_rpi
@@ -58,7 +62,7 @@ from utils.ddh_shared import (
     dds_get_aws_has_something_to_do_via_gui_flag_file,
     ble_get_cc26x2_recipe_flags_from_json,
     ble_set_cc26x2r_recipe_flags_to_file,
-    STATE_DDS_BLE_SERVICE_INACTIVE, dds_get_ddh_got_an_update_flag_file, STATE_DDS_SOFTWARE_UPDATED,
+    STATE_DDS_BLE_SERVICE_INACTIVE, dds_get_ddh_got_an_update_flag_file, STATE_DDS_SOFTWARE_UPDATED, get_dl_files_type,
 )
 
 matplotlib.use("Qt5Agg")
@@ -112,12 +116,31 @@ class DDH(QMainWindow, d_m.Ui_MainWindow):
         gui_json_set_plot_units()
         gui_hide_edit_tab(self)
         gui_hide_recipes_tab(self)
-        gui_hide_graph_tab(self)
+        # gui_hide_graph_tab(self)
         gui_hide_note_tab(self)
         gui_populate_history(self)
         gui_plot_db_delete()
         gui_ddh_set_brightness(self)
         gui_ddh_populate_note_tab_dropdown(self)
+
+        # graph tab
+        self.g = pg.PlotWidget(axisItems={'bottom': pg.DateAxisItem()})
+        self.g_fol = ''
+        self.g_fol_ls = []
+        self.g_fol_ls_len = 0
+        self.g_fol_ls_idx = 0
+        self.g_haul_idx = 0
+        self.g_haul_len = 0
+        self.g_haul_text_options = [
+            'all hauls',
+            'last haul',
+            'one haul'
+        ]
+        self.g_haul_type = ''
+        self.g_haul_text_idx = 0
+        self.g_just_booted = True
+        self.g_paint_zones = 'zones' # or 'zoom'
+        gui_setup_graph_tab(self)
 
         # timer to update GUI fields
         self.tg = QTimer()
@@ -555,6 +578,51 @@ class DDH(QMainWindow, d_m.Ui_MainWindow):
         j = ble_get_cc26x2_recipe_flags_from_json()
         j["rerun"] = int(v)
         ble_set_cc26x2r_recipe_flags_to_file(j)
+
+    def click_btn_g_reset(self):
+        self.g.getPlotItem().enableAutoRange()
+        graph_embed(self)
+
+    def click_btn_g_next_logger(self):
+        # keep haul type, change logger folder and draw graph
+        self.g_fol_ls_idx = (self.g_fol_ls_idx + 1) % self.g_fol_ls_len
+        self.g_fol = self.g_fol_ls[self.g_fol_ls_idx]
+        print('\nswitch to folder', basename(self.g_fol))
+        # reset haul index
+        self.g_haul_idx = -1
+        ft = get_dl_files_type(self.g_fol)
+        self.g_haul_len = len(glob.glob('{}/*{}'.format(self.g_fol, ft)))
+        graph_embed(self)
+
+    def click_btn_g_next_haul(self):
+        # keep logger, increase haul index and draw graph
+        self.g_haul_idx = (self.g_haul_idx + 1) % self.g_haul_len
+        print('haul index is', self.g_haul_idx)
+        graph_embed(self)
+
+    def click_lbl_g_cycle_haul(self, _):
+        # calculate next haul type in cycle
+        self.g_haul_text_idx = (self.g_haul_text_idx + 1) % 3
+        s = self.g_haul_text_options[self.g_haul_text_idx]
+        self.g_haul_type = s
+        self.lbl_g_cycle_haul.setText(s)
+
+        # keep logger, change haul type among 3 and draw graph
+        self.btn_g_next_haul.setEnabled(False)
+        if 'one' in self.g_haul_type:
+            self.btn_g_next_haul.setEnabled(True)
+        if not self.g_just_booted:
+            graph_embed(self)
+        self.g_just_booted = False
+
+    def click_lbl_g_paint_zones(self, _):
+        print('***', self.g_paint_zones)
+        if self.g_paint_zones == 'zones':
+            self.g_paint_zones = 'zoom'
+        else:
+            self.g_paint_zones = 'zones'
+        self.lbl_g_paint_zones.setText(self.g_paint_zones)
+        graph_embed(self)
 
 
 def on_ctrl_c(signal_num, _):
