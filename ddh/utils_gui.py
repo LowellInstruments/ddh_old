@@ -184,7 +184,7 @@ def gui_setup_graph_tab(my_win):
     a.g_haul_len = len(glob.glob('{}/*{}'.format(a.g_fol, ft)))
 
     # the first one
-    graph_embed(a)
+    # graph_embed(a)
 
 
 def gui_center_window(my_app):

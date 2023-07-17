@@ -116,7 +116,6 @@ class DDH(QMainWindow, d_m.Ui_MainWindow):
         gui_json_set_plot_units()
         gui_hide_edit_tab(self)
         gui_hide_recipes_tab(self)
-        # gui_hide_graph_tab(self)
         gui_hide_note_tab(self)
         gui_populate_history(self)
         gui_plot_db_delete()
@@ -124,6 +123,7 @@ class DDH(QMainWindow, d_m.Ui_MainWindow):
         gui_ddh_populate_note_tab_dropdown(self)
 
         # graph tab
+        gui_hide_graph_tab(self)
         self.g = pg.PlotWidget(axisItems={'bottom': pg.DateAxisItem()})
         self.g_fol = ''
         self.g_fol_ls = []
