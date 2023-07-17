@@ -21,7 +21,7 @@ from ddh import utils_plt
 from ddh.utils_net import net_get_my_current_wlan_ssid
 from dds.ble_utils_dds import ble_get_cc26x2_recipe_file_rerun_flag
 from mat.ble.ble_mat_utils import DDH_GUI_UDP_PORT
-from mat.utils import linux_is_rpi, is_valid_mac_address
+from mat.utils import linux_is_rpi
 import subprocess as sp
 from settings import ctx
 from utils.ddh_shared import (
@@ -97,6 +97,7 @@ def gui_setup_view(my_win):
     a.tabs.setTabIcon(1, QIcon("ddh/gui/res/icon_graph.ico"))
     a.tabs.setTabIcon(2, QIcon("ddh/gui/res/icon_history.ico"))
     a.tabs.setTabIcon(3, QIcon("ddh/gui/res/icon_setup.png"))
+    a.tabs.setTabIcon(6, QIcon("ddh/gui/res/icon_graph.ico"))
     a.setWindowIcon(QIcon("ddh/gui/res/icon_lowell.ico"))
     a.lbl_brightness.setPixmap(QPixmap("ddh/gui/res/bright.png"))
     a.lbl_boat.setPixmap(QPixmap("ddh/gui/res/img_boat.png"))
@@ -118,9 +119,6 @@ def gui_setup_view(my_win):
     a.vl_3.addWidget(toolbar)
     a.vl_3.addWidget(a.plt_cnv)
     # new plotting
-    # a.browser = QWebEngineView()
-    # a.browser.setUrl(QUrl('http://127.0.0.1:8050/'))
-    # a.vl_3.addWidget(a.browser)
     # ---------------------------------------------
 
     # info: lat, lon, time
@@ -263,6 +261,14 @@ def gui_hide_recipes_tab(ui):
     p = ui.tabs.findChild(QWidget, "tab_recipes")
     i = ui.tabs.indexOf(p)
     ui.tab_recipe_wgt_ref = ui.tabs.widget(i)
+    ui.tabs.removeTab(i)
+
+
+def gui_hide_graph_tab(ui):
+    # find tab ID, index and keep ref
+    p = ui.tabs.findChild(QWidget, "tab_graph")
+    i = ui.tabs.indexOf(p)
+    ui.tab_graph_wgt_ref = ui.tabs.widget(i)
     ui.tabs.removeTab(i)
 
 

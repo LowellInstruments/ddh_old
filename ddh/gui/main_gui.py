@@ -34,7 +34,7 @@ from ddh.utils_gui import (
     gui_ddh_populate_note_tab_dropdown,
     gui_json_set_plot_units,
     gui_hide_recipes_tab,
-    gui_show_recipes_tab,
+    gui_show_recipes_tab, gui_hide_graph_tab,
 )
 from liu.linux import linux_is_process_running
 from mat.utils import linux_is_rpi
@@ -102,6 +102,7 @@ class DDH(QMainWindow, d_m.Ui_MainWindow):
         self.tab_edit_wgt_ref = None
         self.tab_note_wgt_ref = None
         self.tab_recipe_wgt_ref = None
+        self.tab_graph_wgt_ref = None
         self.key_pressed = None
         self.num_clicks_brightness = 10
         self.lbl_ble_img_filled = False
@@ -111,6 +112,7 @@ class DDH(QMainWindow, d_m.Ui_MainWindow):
         gui_json_set_plot_units()
         gui_hide_edit_tab(self)
         gui_hide_recipes_tab(self)
+        gui_hide_graph_tab(self)
         gui_hide_note_tab(self)
         gui_populate_history(self)
         gui_plot_db_delete()
