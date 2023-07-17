@@ -1,5 +1,4 @@
 from os.path import basename
-
 import pyqtgraph as pg
 import psutil
 import glob
@@ -127,7 +126,6 @@ class DDH(QMainWindow, d_m.Ui_MainWindow):
         self.g = pg.PlotWidget(axisItems={'bottom': pg.DateAxisItem()})
         self.g_fol = ''
         self.g_fol_ls = []
-        self.g_fol_ls_len = 0
         self.g_fol_ls_idx = 0
         self.g_haul_idx = 0
         self.g_haul_len = 0
@@ -585,7 +583,12 @@ class DDH(QMainWindow, d_m.Ui_MainWindow):
 
     def click_btn_g_next_logger(self):
         # keep haul type, change logger folder and draw graph
-        self.g_fol_ls_idx = (self.g_fol_ls_idx + 1) % self.g_fol_ls_len
+        n = len(self.g_fol_ls)
+        if n == 0:
+            e = 'error: folder list empty'
+            self.g.setTitle(e, color="red", size="15pt")
+            return
+        self.g_fol_ls_idx = (self.g_fol_ls_idx + 1) % n
         self.g_fol = self.g_fol_ls[self.g_fol_ls_idx]
         print('\nswitch to folder', basename(self.g_fol))
         # reset haul index

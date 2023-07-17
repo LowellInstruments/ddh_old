@@ -174,7 +174,6 @@ def gui_setup_graph_tab(my_win):
         e = 'error: cannot get folder list'
         a.g.setTitle(e, color="red", size="15pt")
         return
-    a.g_fol_ls_len = len(a.g_fol_ls)
     a.g_fol_ls_idx = a.g_fol_ls.index(a.g_fol)
     print('graph starting folder:', basename(a.g_fol))
 
