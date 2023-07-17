@@ -134,8 +134,8 @@ class DDH(QMainWindow, d_m.Ui_MainWindow):
             'last haul',
             'one haul'
         ]
-        self.g_haul_type = ''
         self.g_haul_text_idx = 0
+        self.g_haul_type = self.g_haul_text_options[self.g_haul_text_idx]
         self.g_just_booted = True
         self.g_paint_zones = 'zones' # or 'zoom'
         gui_setup_graph_tab(self)

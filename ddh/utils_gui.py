@@ -155,6 +155,7 @@ def gui_setup_graph_tab(my_win):
     a.g.setBackground('w')
 
     # label text
+    a.btn_g_next_haul.setEnabled(False)
     s = a.g_haul_text_options[0]
     a.lbl_g_cycle_haul.setText(s)
     a.lbl_g_paint_zones.setText(a.g_paint_zones)
