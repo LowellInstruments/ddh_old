@@ -1,5 +1,6 @@
 from os.path import basename
 import pyqtgraph as pg
+from pathlib import Path
 import psutil
 import glob
 import os
@@ -39,6 +40,7 @@ from ddh.utils_gui import (
     gui_hide_recipes_tab,
     gui_show_recipes_tab, gui_hide_graph_tab, gui_setup_graph_tab,
 )
+from dds.emolt import this_box_has_grouped_s3_uplink, GROUPED_S3_FILE_FLAG
 from liu.linux import linux_is_process_running
 from mat.utils import linux_is_rpi
 from settings import ctx
@@ -97,6 +99,7 @@ class DDH(QMainWindow, d_m.Ui_MainWindow):
         self.plt_ts = self.plt_time_spans[0]
         self.plt_ts_idx = 0
         self.cb_plot_type.addItems(["fixed", "mobile"])
+        self.cb_s3_uplink_type.addItems(["raw", "group"])
         self.plt_metrics = gui_json_get_metrics()
         self.gear_type = ddh_get_json_plot_type()
         self.bright_idx = 2
@@ -120,6 +123,10 @@ class DDH(QMainWindow, d_m.Ui_MainWindow):
         gui_plot_db_delete()
         gui_ddh_set_brightness(self)
         gui_ddh_populate_note_tab_dropdown(self)
+
+        # s3 uplink type field
+        if this_box_has_grouped_s3_uplink():
+            self.cb_s3_uplink_type.setCurrentIndex(1)
 
         # graph tab
         gui_hide_graph_tab(self)
@@ -564,6 +571,13 @@ class DDH(QMainWindow, d_m.Ui_MainWindow):
             trh = self.tab_recipes_hide = not self.tab_recipes_hide
             gui_hide_recipes_tab(self) if trh else gui_show_recipes_tab(self)
         self.commit_pressed = 0
+
+    def click_cb_s3_uplink_type(self, _):
+        s = self.cb_s3_uplink_type.currentText()
+        if s == 'raw':
+            os.unlink(GROUPED_S3_FILE_FLAG)
+        if s == 'group':
+            Path(GROUPED_S3_FILE_FLAG).touch(exist_ok=True)
 
     def click_lbl_cloud_img(self, _):
         self.lbl_cloud_txt.setText("checking")

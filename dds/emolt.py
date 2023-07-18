@@ -5,7 +5,10 @@ from utils.logs import lg_emo as lg
 from utils.ddh_shared import dds_get_is_emolt_box_flag_file, dds_get_json_vessel_name
 import pandas as pd
 import os
+from os.path import exists
 
+
+GROUPED_S3_FILE_FLAG = '/home/pi/li/.ddt_this_box_has_grouped_s3_uplink.flag'
 
 # -------------------------------------------------------------------------
 # moana RAW CSV file --> emolt CSV file --> header-less file percentile 85
@@ -27,6 +30,10 @@ EmoltMsgShortHaul = namedtuple(
     "mean_t_df_85 "
     "std_t_df_85",
 )
+
+
+def this_box_has_grouped_s3_uplink():
+    return exists(GROUPED_S3_FILE_FLAG)
 
 
 def ddh_is_emolt_box():

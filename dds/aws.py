@@ -7,6 +7,8 @@ import subprocess as sp
 import sys
 from multiprocessing import Process
 import setproctitle
+
+from dds.emolt import this_box_has_grouped_s3_uplink
 from dds.timecache import its_time_to
 from liu.linux import linux_is_process_running
 from mat.utils import linux_is_rpi
@@ -18,7 +20,7 @@ from utils.ddh_shared import (
     STATE_DDS_NOTIFY_CLOUD_BUSY,
     STATE_DDS_NOTIFY_CLOUD_ERR,
     STATE_DDS_NOTIFY_CLOUD_OK,
-    dds_get_aws_has_something_to_do_via_gui_flag_file,
+    dds_get_aws_has_something_to_do_via_gui_flag_file, dds_get_json_vessel_name,
 )
 from utils.logs import lg_aws as lg
 
@@ -71,6 +73,23 @@ def _aws_s3_sync_process():
             '--include "*.txt" {}'
         )
         c = c.format(_k, _s, _bin, m, _n, m, dr)
+        if this_box_has_grouped_s3_uplink():
+            c = (
+                "AWS_ACCESS_KEY_ID={} AWS_SECRET_ACCESS_KEY={} "
+                "{} s3 sync {} s3://{}/{}/{} "
+                '--exclude "*" '
+                '--include "*.csv" '
+                '--include "*.gps" '
+                '--include "*.lid" '
+                '--include "*.bin" '
+                '--include "*.txt" {}'
+            )
+            v = dds_get_json_vessel_name()
+            # v: "bailey's" --> BAYLEYS
+            v = v.replace('\'', '')
+            v = v.upper()
+            c = c.format(_k, _s, _bin, m, _n, v, m, dr)
+
         rv = sp.run(c, shell=True, stdout=sp.PIPE, stderr=sp.PIPE)
         if rv.stdout:
             lg.a(rv.stdout)

@@ -297,6 +297,7 @@ def gui_setup_buttons(my_app):
     a.btn_g_reset.clicked.connect(a.click_btn_g_reset)
     a.btn_g_next_logger.clicked.connect(a.click_btn_g_next_logger)
     a.btn_g_next_haul.clicked.connect(a.click_btn_g_next_haul)
+    a.cb_s3_uplink_type.activated.connect(a.click_cb_s3_uplink_type)
 
 
 def gui_hide_edit_tab(ui):
