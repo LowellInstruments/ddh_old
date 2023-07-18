@@ -621,6 +621,7 @@ class Ui_MainWindow(object):
         self.lay_g_h1.setSpacing(18)
         self.lay_g_h1.setObjectName("lay_g_h1")
         self.lbl_g_paint_zones = QtWidgets.QLabel(self.tab_graph)
+        self.lbl_g_paint_zones.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
         self.lbl_g_paint_zones.setObjectName("lbl_g_paint_zones")
         self.lay_g_h1.addWidget(self.lbl_g_paint_zones)
         self.btn_g_reset = QtWidgets.QPushButton(self.tab_graph)
@@ -647,7 +648,7 @@ class Ui_MainWindow(object):
         MainWindow.setCentralWidget(self.centralwidget)
 
         self.retranslateUi(MainWindow)
-        self.tabs.setCurrentIndex(2)
+        self.tabs.setCurrentIndex(6)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def retranslateUi(self, MainWindow):

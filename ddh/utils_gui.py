@@ -112,7 +112,6 @@ def gui_setup_view(my_win):
     a.setCentralWidget(a.tabs)
     a.tabs.setCurrentIndex(0)
 
-    # ---------------------------------------------
     # old plotting
     toolbar = NavigationToolbar(a.plt_cnv, a)
     unwanted_buttons = ["Pan", "Subplots", "Customize"]
@@ -122,8 +121,6 @@ def gui_setup_view(my_win):
             toolbar.removeAction(x)
     a.vl_3.addWidget(toolbar)
     a.vl_3.addWidget(a.plt_cnv)
-    # new plotting
-    # ---------------------------------------------
 
     # info: lat, lon, time
     fmt = "{}\n{}"
@@ -179,14 +176,6 @@ def gui_setup_graph_tab(my_win):
     # get folder index
     a.g_fol_ls_idx = a.g_fol_ls.index(a.g_fol)
     print('graph starting folder:', basename(a.g_fol))
-
-    # reset haul variables
-    a.g_haul_idx = -1
-    ft = get_dl_files_type(a.g_fol)
-    a.g_haul_len = len(glob.glob('{}/*{}'.format(a.g_fol, ft)))
-
-    # the first one
-    # graph_embed(a)
 
 
 def gui_center_window(my_app):

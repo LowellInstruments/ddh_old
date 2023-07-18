@@ -66,7 +66,10 @@ from utils.ddh_shared import (
     dds_get_aws_has_something_to_do_via_gui_flag_file,
     ble_get_cc26x2_recipe_flags_from_json,
     ble_set_cc26x2r_recipe_flags_to_file,
-    STATE_DDS_BLE_SERVICE_INACTIVE, dds_get_ddh_got_an_update_flag_file, STATE_DDS_SOFTWARE_UPDATED, get_dl_files_type,
+    STATE_DDS_BLE_SERVICE_INACTIVE,
+    dds_get_ddh_got_an_update_flag_file,
+    STATE_DDS_SOFTWARE_UPDATED,
+    get_dl_files_type,
 )
 
 matplotlib.use("Qt5Agg")
@@ -132,20 +135,20 @@ class DDH(QMainWindow, d_m.Ui_MainWindow):
             self.cb_s3_uplink_type.setCurrentIndex(1)
 
         # graph tab
-        gui_hide_graph_tab(self)
+        if linux_is_rpi():
+            gui_hide_graph_tab(self)
         self.g = pg.PlotWidget(axisItems={'bottom': pg.DateAxisItem()})
         self.g_fol = ''
         self.g_fol_ls = []
         self.g_fol_ls_idx = 0
         self.g_haul_idx = 0
-        self.g_haul_len = 0
         self.g_haul_text_options = [
             'all hauls',
             'last haul',
             'one haul'
         ]
-        self.g_haul_text_idx = 0
-        self.g_haul_type = self.g_haul_text_options[self.g_haul_text_idx]
+        self.g_haul_text_options_idx = 0
+        self.g_haul_type = self.g_haul_text_options[self.g_haul_text_options_idx]
         self.g_just_booted = True
         self.g_paint_zones = 'zones' # or 'zoom'
         gui_setup_graph_tab(self)
@@ -599,31 +602,42 @@ class DDH(QMainWindow, d_m.Ui_MainWindow):
         graph_embed(self)
 
     def click_btn_g_next_logger(self):
-        # keep haul type, change logger folder and draw graph
+        # check
         n = len(self.g_fol_ls)
         if n == 0:
             e = 'error: folder list empty'
             self.g.setTitle(e, color="red", size="15pt")
             return
+        # keep haul type, change logger folder and draw graph
         self.g_fol_ls_idx = (self.g_fol_ls_idx + 1) % n
         self.g_fol = self.g_fol_ls[self.g_fol_ls_idx]
         print('\nswitch to folder', basename(self.g_fol))
         # reset haul index
-        self.g_haul_idx = -1
-        ft = get_dl_files_type(self.g_fol)
-        self.g_haul_len = len(glob.glob('{}/*{}'.format(self.g_fol, ft)))
+        self.g_haul_idx = 0
         graph_embed(self)
 
     def click_btn_g_next_haul(self):
+        # check
+        n = len(self.g_fol_ls)
+        if n == 0:
+            e = 'error: folder list empty'
+            self.g.setTitle(e, color="red", size="15pt")
+            return
         # keep logger, increase haul index and draw graph
-        self.g_haul_idx = (self.g_haul_idx + 1) % self.g_haul_len
+        ft = get_dl_files_type(self.g_fol)
+        if not ft:
+            e = 'error: no hauls for this logger'
+            self.g.setTitle(e, color="red", size="15pt")
+            return
+        how_many_hauls = len(glob.glob('{}/*{}'.format(self.g_fol, ft)))
+        self.g_haul_idx = (self.g_haul_idx + 1) % how_many_hauls
         print('haul index is', self.g_haul_idx)
         graph_embed(self)
 
     def click_lbl_g_cycle_haul(self, _):
         # calculate next haul type in cycle
-        self.g_haul_text_idx = (self.g_haul_text_idx + 1) % 3
-        s = self.g_haul_text_options[self.g_haul_text_idx]
+        self.g_haul_text_options_idx = (self.g_haul_text_options_idx + 1) % 3
+        s = self.g_haul_text_options[self.g_haul_text_options_idx]
         self.g_haul_type = s
         self.lbl_g_cycle_haul.setText(s)
 

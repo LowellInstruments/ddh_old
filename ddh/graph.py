@@ -367,8 +367,13 @@ def graph_embed(a):
 
     # grab this folder's CSV data, filter by haul
     data = graph_get_data_csv(a.g_fol, a.g_haul_type, a.g_haul_idx)
-    if not data['ISO 8601 Time']:
-        print("error: graph_all() ISO 8601 column is empty")
+    if not a.g_fol:
+        e = 'error: no folder to graph'
+        g.setTitle(e, color="red", size="15pt")
+        return
+    if 'ISO 8601 Time' not in data.keys():
+        e = 'error: no time data'
+        g.setTitle(e, color="red", size="15pt")
         return
 
     # x is the time and is already in seconds
@@ -418,15 +423,15 @@ def graph_embed(a):
                                            limits=4,
                                            orientation="horizontal",
                                            brush=(255, 0, 0, alpha))
-        reg_do_m = FiniteLinearRegionItem(values=(2, 5),
+        reg_do_m = FiniteLinearRegionItem(values=(2, 4),
                                        limits=4,
                                        orientation="horizontal",
                                        brush=(255, 170, 6, alpha))
-        reg_do_h = FiniteLinearRegionItem(values=(5, 7),
+        reg_do_h = FiniteLinearRegionItem(values=(4, 6),
                                        limits=4,
                                        orientation="horizontal",
                                        brush=(255, 255, 66, alpha))
-        reg_do_g = FiniteLinearRegionItem(values=(7, 10),
+        reg_do_g = FiniteLinearRegionItem(values=(6, 10),
                                        limits=4,
                                        orientation="horizontal",
                                        brush=(176, 255, 66, alpha))
