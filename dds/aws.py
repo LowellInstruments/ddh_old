@@ -62,6 +62,8 @@ def _aws_s3_sync_process():
     ms = [d for d in glob.glob(str(fol_dl_files) + '/*') if os.path.isdir(d)]
     all_rv = 0
     for m in ms:
+        # um: dl_files/ddh#red_feet
+        um = m.replace('dl_files/', '')
         c = (
             "AWS_ACCESS_KEY_ID={} AWS_SECRET_ACCESS_KEY={} "
             "{} s3 sync {} s3://{}/{} "
@@ -72,8 +74,14 @@ def _aws_s3_sync_process():
             '--include "*.bin" '
             '--include "*.txt" {}'
         )
-        c = c.format(_k, _s, _bin, m, _n, m, dr)
+        c = c.format(_k, _s, _bin, m,
+                     _n, um, dr)
+
+        # mostly for CFA and emolt boxes
         if this_box_has_grouped_s3_uplink():
+            # um: dl_files/ddh#red_feet
+            y = datetime.datetime.utcnow().year
+            um = m.replace('dl_files', str(y))
             c = (
                 "AWS_ACCESS_KEY_ID={} AWS_SECRET_ACCESS_KEY={} "
                 "{} s3 sync {} s3://{}/{}/{} "
@@ -88,7 +96,8 @@ def _aws_s3_sync_process():
             # v: "bailey's" --> BAYLEYS
             v = v.replace('\'', '')
             v = v.upper()
-            c = c.format(_k, _s, _bin, m, _n, v, m, dr)
+            c = c.format(_k, _s, _bin, m,
+                         _n, v, um, dr)
 
         rv = sp.run(c, shell=True, stdout=sp.PIPE, stderr=sp.PIPE)
         if rv.stdout:

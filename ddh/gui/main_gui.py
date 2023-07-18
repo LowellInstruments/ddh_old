@@ -38,8 +38,11 @@ from ddh.utils_gui import (
     gui_ddh_populate_note_tab_dropdown,
     gui_json_set_plot_units,
     gui_hide_recipes_tab,
-    gui_show_recipes_tab, gui_hide_graph_tab, gui_setup_graph_tab,
+    gui_show_recipes_tab,
+    gui_hide_graph_tab,
+    gui_setup_graph_tab,
 )
+
 from dds.emolt import this_box_has_grouped_s3_uplink, GROUPED_S3_FILE_FLAG
 from liu.linux import linux_is_process_running
 from mat.utils import linux_is_rpi
