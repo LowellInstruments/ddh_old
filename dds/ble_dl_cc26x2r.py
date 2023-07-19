@@ -13,7 +13,7 @@ from dds.ble_utils_dds import ble_get_cc26x2_recipe_file_rerun_flag
 from utils.ddh_shared import (
     send_ddh_udp_gui as _u,
     STATE_DDS_BLE_LOW_BATTERY,
-    STATE_DDS_BLE_RUN_STATUS,
+    STATE_DDS_BLE_RUN_STATUS, STATE_DDS_BLE_DOWNLOAD_ERROR_GDO,
 )
 from utils.logs import lg_dds as lg
 from utils.ddh_shared import (
@@ -157,6 +157,8 @@ class BleCC26X2Download:
             bad_rv = not rv or (rv and rv[0] == "0000")
             _rae(bad_rv, "gdo")
             lg.a("GDO | {}".format(rv))
+            _u(STATE_DDS_BLE_DOWNLOAD_ERROR_GDO)
+            await asyncio.sleep(5)
 
         # wake mode
         if rerun_flag:

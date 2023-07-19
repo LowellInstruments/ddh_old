@@ -72,7 +72,7 @@ from utils.ddh_shared import (
     dds_get_serial_number_of_macs_from_json_file,
     STATE_DDS_BLE_SCAN_FIRST_EVER,
     ddh_get_db_plots_file,
-    STATE_DDS_BLE_ERROR_MOANA_PLUGIN, get_dl_files_type,
+    STATE_DDS_BLE_ERROR_MOANA_PLUGIN, get_dl_files_type, STATE_DDS_BLE_DOWNLOAD_ERROR_GDO,
 )
 from utils.logs import lg_gui as lg
 
@@ -463,6 +463,11 @@ def _parse_udp(my_app, s, ip="127.0.0.1"):
     elif f == STATE_DDS_BLE_DOWNLOAD_ERROR:
         _g_ts_gui_expire_icon = time.perf_counter() + 60
         ct = "{} failure".format(v)
+        ci = "error.png"
+
+    elif f == STATE_DDS_BLE_DOWNLOAD_ERROR_GDO:
+        _g_ts_gui_expire_icon = time.perf_counter() + 60
+        ct = "error oxygen sensor"
         ci = "error.png"
 
     elif f == STATE_DDS_BLE_HARDWARE_ERROR:
