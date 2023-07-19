@@ -82,6 +82,7 @@ def _aws_s3_sync_process():
             v = dds_get_json_vessel_name()
             # v: "bailey's" --> BAYLEYS
             v = v.replace("'", "")
+            v = v.replace(" ", "_")
             v = v.upper()
             # um: dl_files/ddh#red_feet
             y = datetime.datetime.utcnow().year
