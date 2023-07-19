@@ -79,12 +79,16 @@ def _aws_s3_sync_process():
 
         # mostly for CFA and emolt boxes
         if this_box_has_grouped_s3_uplink():
+            v = dds_get_json_vessel_name()
+            # v: "bailey's" --> BAYLEYS
+            v = v.replace('\'', '')
+            v = v.upper()
             # um: dl_files/ddh#red_feet
             y = datetime.datetime.utcnow().year
-            um = m.replace('dl_files', str(y))
+            um = m.replace('dl_files', "{}/{}".format(str(y), v))
             c = (
                 "AWS_ACCESS_KEY_ID={} AWS_SECRET_ACCESS_KEY={} "
-                "{} s3 sync {} s3://{}/{}/{} "
+                "{} s3 sync {} s3://{}/{} "
                 '--exclude "*" '
                 '--include "*.csv" '
                 '--include "*.gps" '
@@ -92,12 +96,9 @@ def _aws_s3_sync_process():
                 '--include "*.bin" '
                 '--include "*.txt" {}'
             )
-            v = dds_get_json_vessel_name()
-            # v: "bailey's" --> BAYLEYS
-            v = v.replace('\'', '')
-            v = v.upper()
+
             c = c.format(_k, _s, _bin, m,
-                         _n, v, um, dr)
+                         _n, um, dr)
 
         rv = sp.run(c, shell=True, stdout=sp.PIPE, stderr=sp.PIPE)
         if rv.stdout:
