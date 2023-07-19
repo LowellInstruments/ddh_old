@@ -155,10 +155,10 @@ class BleCC26X2Download:
         if "DO-" in info:
             rv = await lc.cmd_gdo()
             bad_rv = not rv or (rv and rv[0] == "0000")
-            _rae(bad_rv, "gdo")
-            lg.a("GDO | {}".format(rv))
             _u(STATE_DDS_BLE_DOWNLOAD_ERROR_GDO)
             await asyncio.sleep(5)
+            _rae(bad_rv, "gdo")
+            lg.a("GDO | {}".format(rv))
 
         # wake mode
         if rerun_flag:
