@@ -81,7 +81,7 @@ def _aws_s3_sync_process():
         if this_box_has_grouped_s3_uplink():
             v = dds_get_json_vessel_name()
             # v: "bailey's" --> BAYLEYS
-            v = v.replace('\'', '')
+            v = v.replace("'", "")
             v = v.upper()
             # um: dl_files/ddh#red_feet
             y = datetime.datetime.utcnow().year
