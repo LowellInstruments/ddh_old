@@ -16,10 +16,13 @@ def main_test_aws():
 
 
 def main_test_rbl():
-    _rbl_send(b'\x11\x22', fmt='bin')
+    # _rbl_send(b'\x11\x22', fmt='bin')
+    sn = os.getenv("DDH_BOX_SERIAL_NUMBER") or "1234567"
+    m_lg_sn = "{:08x}".format(int(sn))
+    print(m_lg_sn)
 
 
 if __name__ == '__main__':
     # main_test_aws()
-    # main_test_rbl()
-     pass
+    main_test_rbl()
+    pass
