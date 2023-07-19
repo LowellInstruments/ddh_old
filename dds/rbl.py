@@ -71,7 +71,7 @@ def rbl_build_emolt_msg_as_str(lat,
     # todo ---> need to do haul_duration
     m_haul_duration = "{:06x}".format(0x00)
     sn = os.getenv("DDH_BOX_SERIAL_NUMBER")
-    m_lg_sn = "{:08x}".format(int(sn))
+    m_lg_sn = "{:08x}".format(int(sn, 16))
     m_lg_man_id = "{:02x}".format(1)
     m_lg_rssi = "{:02x}".format(0x70)
     m_lg_bat_level = "{:04x}".format(0x6666)

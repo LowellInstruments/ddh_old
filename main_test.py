@@ -17,8 +17,8 @@ def main_test_aws():
 
 def main_test_rbl():
     # _rbl_send(b'\x11\x22', fmt='bin')
-    sn = os.getenv("DDH_BOX_SERIAL_NUMBER") or "1234567"
-    m_lg_sn = "{:08x}".format(int(sn))
+    sn = os.getenv("DDH_BOX_SERIAL_NUMBER") or "123456f"
+    m_lg_sn = "{:08x}".format(int(sn, 16))
     print(m_lg_sn)
 
 

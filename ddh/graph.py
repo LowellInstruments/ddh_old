@@ -9,6 +9,7 @@ from pyqtgraph.Qt import QtGui
 from os.path import basename
 from pyqtgraph import LinearRegionItem
 from ddh.utils_graph import graph_get_fol_req_file, graph_get_fol_list, graph_get_data_csv
+from utils.ddh_shared import dds_get_json_mac_dns
 
 # to be able to zoom in RPi
 pg.setConfigOption('leftButtonPan', False)
@@ -391,7 +392,8 @@ def graph_embed(a):
     t1 = datetime.utcfromtimestamp(x[0]).strftime(fmt)
     t2 = datetime.utcfromtimestamp(x[-1]).strftime(fmt)
     mac = basename(a.g_fol).replace('-', ':')
-    title = '{} - {} to {}'.format(mac, t1, t2)
+    sn = dds_get_json_mac_dns(mac)
+    title = 'SN{} - {} to {}'.format(sn, t1, t2)
     g.setTitle(title, color="black", size="15pt")
 
     # set the axes
