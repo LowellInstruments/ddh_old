@@ -59,7 +59,12 @@ def gps_ll_check_hat_out_stream():
 
 
 def _gps_bu353s4_find_usb_port():
-    return find_usb_port_automatically('067B:2303')
+    # it has 2 PIDs
+    p = find_usb_port_automatically('067B:2303')
+    if p:
+        return p
+    # try the other one
+    return find_usb_port_automatically('067B:23A3')
 
 
 if g_gps_is_external:
