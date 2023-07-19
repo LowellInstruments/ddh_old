@@ -36,6 +36,7 @@ STATE_DDS_BLE_ANTENNA = "state_dds_ble_antenna_is"
 STATE_DDS_BLE_LOW_BATTERY = "state_dds_ble_low_battery"
 STATE_DDS_BLE_RUN_STATUS = "state_dds_ble_run_status"
 STATE_DDS_BLE_ERROR_MOANA_PLUGIN = "state_dds_ble_error_moana_plugin"
+STATE_DDS_BLE_ERROR_RUN = "state_dds_ble_error_run"
 
 
 STATE_DDS_NOTIFY_NET_VIA = "net_via"
