@@ -135,20 +135,18 @@ class DDH(QMainWindow, d_m.Ui_MainWindow):
             self.cb_s3_uplink_type.setCurrentIndex(1)
 
         # graph tab
-        if linux_is_rpi():
-            gui_hide_graph_tab(self)
+        gui_hide_graph_tab(self)
         self.g = pg.PlotWidget(axisItems={'bottom': pg.DateAxisItem()})
-        self.g_fol = ''
-        self.g_fol_ls = []
-        self.g_fol_ls_idx = 0
-        self.g_haul_idx = 0
+        self.g_fol = None
+        self.g_fol_ls = None
+        self.g_fol_ls_idx = None
+        self.g_haul_idx = None
         self.g_haul_text_options = [
             'all hauls',
             'last haul',
             'one haul'
         ]
-        self.g_haul_text_options_idx = 0
-        self.g_haul_type = self.g_haul_text_options[self.g_haul_text_options_idx]
+        self.g_haul_text_options_idx = None
         self.g_just_booted = True
         self.g_paint_zones = 'zones' # or 'zoom'
         gui_setup_graph_tab(self)
@@ -637,13 +635,12 @@ class DDH(QMainWindow, d_m.Ui_MainWindow):
     def click_lbl_g_cycle_haul(self, _):
         # calculate next haul type in cycle
         self.g_haul_text_options_idx = (self.g_haul_text_options_idx + 1) % 3
-        s = self.g_haul_text_options[self.g_haul_text_options_idx]
-        self.g_haul_type = s
-        self.lbl_g_cycle_haul.setText(s)
+        _ht = self.g_haul_text_options[self.g_haul_text_options_idx]
+        self.lbl_g_cycle_haul.setText(_ht)
 
         # keep logger, change haul type among 3 and draw graph
         self.btn_g_next_haul.setEnabled(False)
-        if 'one' in self.g_haul_type:
+        if 'one' in _ht:
             self.btn_g_next_haul.setEnabled(True)
         if not self.g_just_booted:
             graph_embed(self)

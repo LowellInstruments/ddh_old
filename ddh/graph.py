@@ -367,7 +367,8 @@ def graph_embed(a):
     p1.getAxis("right").setStyle(tickFont=font)
 
     # grab this folder's CSV data, filter by haul
-    data = graph_get_data_csv(a.g_fol, a.g_haul_type, a.g_haul_idx)
+    _ht = a.g_haul_text_options[a.g_haul_text_options_idx]
+    data = graph_get_data_csv(a.g_fol, _ht, a.g_haul_idx)
     if not a.g_fol:
         e = 'error: no folder to graph'
         g.setTitle(e, color="red", size="15pt")
