@@ -368,8 +368,10 @@ def graph_embed(a):
 
     # grab this folder's CSV data, filter by haul
     _ht = a.g_haul_text_options[a.g_haul_text_options_idx]
-    data = graph_get_data_csv(a.g_fol, _ht, a.g_haul_idx)
-    if not a.g_fol:
+    fol_ls = graph_get_fol_list()
+    fol = fol_ls[a.g_fol_ls_idx]
+    data = graph_get_data_csv(fol, _ht, a.g_haul_idx)
+    if not fol:
         e = 'error: no folder to graph'
         g.setTitle(e, color="red", size="15pt")
         return
@@ -392,7 +394,7 @@ def graph_embed(a):
     fmt = '%b %d %H:%M'
     t1 = datetime.utcfromtimestamp(x[0]).strftime(fmt)
     t2 = datetime.utcfromtimestamp(x[-1]).strftime(fmt)
-    mac = basename(a.g_fol).replace('-', ':')
+    mac = basename(fol).replace('-', ':')
     sn = dds_get_json_mac_dns(mac)
     title = 'SN{} - {} to {}'.format(sn, t1, t2)
     g.setTitle(title, color="black", size="15pt")

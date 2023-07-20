@@ -151,21 +151,22 @@ def gui_setup_graph_tab(my_win):
     a.g.setBackground('w')
 
     # reset haul button and label
+    a.g_haul_text_options_idx = 0
     a.btn_g_next_haul.setEnabled(False)
     a.lbl_g_cycle_haul.setText(a.g_haul_text_options[0])
     a.lbl_g_paint_zones.setText(a.g_paint_zones)
 
     # get all the folders that we can draw
-    a.g_fol_ls = graph_get_fol_list()
-    if not a.g_fol_ls:
+    fol_ls = graph_get_fol_list()
+    if not fol_ls:
         e = 'error: cannot get folder list'
         a.g.setTitle(e, color="red", size="15pt")
         return
 
-    # get folder and folder index
-    a.g_fol = a.g_fol_ls[0]
-    a.g_fol_ls_idx = a.g_fol_ls.index(a.g_fol)
-    print('graph starting folder:', basename(a.g_fol))
+    # re-set folder index
+    fol = fol_ls[0]
+    a.g_fol_ls_idx = 0
+    print('graph starting folder:', basename(fol))
 
 
 def gui_center_window(my_app):

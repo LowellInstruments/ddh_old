@@ -13,6 +13,7 @@ from PyQt5.QtWidgets import QMainWindow, QFileDialog
 import ddh.gui.designer_main as d_m
 from ddh.db.db_his import DBHis
 from ddh.graph import graph_embed
+from ddh.utils_graph import graph_get_fol_list
 from ddh.utils_gui import (
     gui_json_get_metrics,
     gui_hide_edit_tab,
@@ -137,8 +138,6 @@ class DDH(QMainWindow, d_m.Ui_MainWindow):
         # graph tab
         gui_hide_graph_tab(self)
         self.g = pg.PlotWidget(axisItems={'bottom': pg.DateAxisItem()})
-        self.g_fol = None
-        self.g_fol_ls = None
         self.g_fol_ls_idx = None
         self.g_haul_idx = None
         self.g_haul_text_options = [
@@ -601,33 +600,38 @@ class DDH(QMainWindow, d_m.Ui_MainWindow):
 
     def click_btn_g_next_logger(self):
         # check
-        n = len(self.g_fol_ls)
+        fol_ls = graph_get_fol_list()
+        n = len(fol_ls)
         if n == 0:
             e = 'error: folder list empty'
             self.g.setTitle(e, color="red", size="15pt")
             return
-        # keep haul type, change logger folder and draw graph
-        self.g_fol_ls_idx = (self.g_fol_ls_idx + 1) % n
-        self.g_fol = self.g_fol_ls[self.g_fol_ls_idx]
-        print('\nswitch to folder', basename(self.g_fol))
         # reset haul index
         self.g_haul_idx = 0
+        # change logger folder and draw graph
+        self.g_fol_ls_idx = (self.g_fol_ls_idx + 1) % n
+        fol_ls = graph_get_fol_list()
+        fol = fol_ls[self.g_fol_ls_idx]
+        print('\nswitch to folder', basename(fol))
+        self.click_btn_g_reset()
         graph_embed(self)
 
     def click_btn_g_next_haul(self):
         # check
-        n = len(self.g_fol_ls)
+        fol_ls = graph_get_fol_list()
+        n = len(fol_ls)
         if n == 0:
             e = 'error: folder list empty'
             self.g.setTitle(e, color="red", size="15pt")
             return
         # keep logger, increase haul index and draw graph
-        ft = get_dl_files_type(self.g_fol)
+        fol = fol_ls[self.g_fol_ls_idx]
+        ft = get_dl_files_type(fol)
         if not ft:
             e = 'error: no hauls for this logger'
             self.g.setTitle(e, color="red", size="15pt")
             return
-        how_many_hauls = len(glob.glob('{}/*{}'.format(self.g_fol, ft)))
+        how_many_hauls = len(glob.glob('{}/*{}'.format(fol, ft)))
         self.g_haul_idx = (self.g_haul_idx + 1) % how_many_hauls
         print('haul index is', self.g_haul_idx)
         graph_embed(self)
