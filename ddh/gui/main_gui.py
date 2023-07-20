@@ -70,7 +70,7 @@ from utils.ddh_shared import (
     STATE_DDS_BLE_SERVICE_INACTIVE,
     dds_get_ddh_got_an_update_flag_file,
     STATE_DDS_SOFTWARE_UPDATED,
-    get_dl_files_type,
+    get_dl_files_type, dds_kill_by_pid_file_only_child,
 )
 
 matplotlib.use("Qt5Agg")
@@ -300,8 +300,7 @@ class DDH(QMainWindow, d_m.Ui_MainWindow):
             f.write(j)
 
         # bye, bye DDS
-        # todo --> test this kill of DDS when pressing save button
-        dds_kill_by_pid_file()
+        dds_kill_by_pid_file_only_child()
 
         # bye, bye DDH
         lg.a("quit by save config button")

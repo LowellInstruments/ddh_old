@@ -94,6 +94,12 @@ def dds_kill_by_pid_file():
     sp.run(c, shell=True)
 
 
+def dds_kill_by_pid_file_only_child():
+    print("[ KILL ] killing child DDS process")
+    c = "pkill -F {}".format(PID_FILE_DDS)
+    sp.run(c, shell=True)
+
+
 def ddh_get_folder_path_root() -> Path:
     return Path("ddh")
 
