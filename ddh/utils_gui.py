@@ -113,7 +113,7 @@ def gui_setup_view(my_win):
 
     # old plotting
     toolbar = NavigationToolbar(a.plt_cnv, a)
-    unwanted_buttons = ["Pan", "Subplots", "Customize"]
+    unwanted_buttons = ["Pan", "Subplots", "Customize", "Save"]
     for x in toolbar.actions():
         # print(x.text())
         if x.text() in unwanted_buttons:
