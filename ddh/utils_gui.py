@@ -260,6 +260,9 @@ def gui_setup_buttons(my_app):
     a.lbl_date.mouseReleaseEvent = a.click_lbl_datetime_released
     a.lbl_g_cycle_haul.mousePressEvent = a.click_lbl_g_cycle_haul
     a.lbl_g_paint_zones.mousePressEvent = a.click_lbl_g_paint_zones
+    a.lbl_net.mousePressEvent = a. click_lbl_net_pressed
+    a.lbl_net.mouseReleaseEvent = a.click_lbl_net_released
+
 
     # buttons' connections
     a.btn_known_clear.clicked.connect(a.click_btn_clear_known_mac_list)
@@ -304,6 +307,14 @@ def gui_hide_graph_tab(ui):
     i = ui.tabs.indexOf(p)
     ui.tab_graph_wgt_ref = ui.tabs.widget(i)
     ui.tabs.removeTab(i)
+
+
+def gui_show_graph_tab(ui):
+    icon = QIcon("ddh/gui/res/icon_graph.ico")
+    ui.tabs.addTab(ui.tab_graph_wgt_ref, icon, " Graph")
+    p = ui.tabs.findChild(QWidget, "tab_graph")
+    i = ui.tabs.indexOf(p)
+    ui.tabs.setCurrentIndex(i)
 
 
 def gui_show_edit_tab(ui):
@@ -664,6 +675,8 @@ def gui_timer_fxn(my_app):
         a.commit_pressed += 1
     if a.datetime_pressed > 0:
         a.datetime_pressed += 1
+    if a.lbl_net_pressed > 0:
+        a.lbl_net_pressed += 1
 
     _u = bytes()
     try:

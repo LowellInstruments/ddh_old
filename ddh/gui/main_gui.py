@@ -41,7 +41,7 @@ from ddh.utils_gui import (
     gui_hide_recipes_tab,
     gui_show_recipes_tab,
     gui_hide_graph_tab,
-    gui_setup_graph_tab,
+    gui_setup_graph_tab, gui_show_graph_tab,
 )
 
 from dds.emolt import this_box_has_grouped_s3_uplink, GROUPED_S3_FILE_FLAG
@@ -122,6 +122,7 @@ class DDH(QMainWindow, d_m.Ui_MainWindow):
         self.boat_pressed = 0
         self.commit_pressed = 0
         self.datetime_pressed = 0
+        self.lbl_net_pressed = 0
         gui_json_set_plot_units()
         gui_hide_edit_tab(self)
         gui_hide_recipes_tab(self)
@@ -560,6 +561,12 @@ class DDH(QMainWindow, d_m.Ui_MainWindow):
     def click_lbl_commit_pressed(self, _):
         self.commit_pressed = 1
 
+    def click_lbl_commit_released(self, _):
+        if self.commit_pressed >= 2:
+            trh = self.tab_recipes_hide = not self.tab_recipes_hide
+            gui_hide_recipes_tab(self) if trh else gui_show_recipes_tab(self)
+        self.commit_pressed = 0
+
     def click_lbl_datetime_pressed(self, _):
         self.datetime_pressed = 1
 
@@ -568,11 +575,13 @@ class DDH(QMainWindow, d_m.Ui_MainWindow):
             self.showMinimized()
         self.datetime_pressed = 0
 
-    def click_lbl_commit_released(self, _):
-        if self.commit_pressed >= 2:
-            trh = self.tab_recipes_hide = not self.tab_recipes_hide
-            gui_hide_recipes_tab(self) if trh else gui_show_recipes_tab(self)
-        self.commit_pressed = 0
+    def click_lbl_net_pressed(self, _):
+        self.lbl_net_pressed = 1
+
+    def click_lbl_net_released(self, _):
+        if self.lbl_net_pressed >= 2:
+            gui_show_graph_tab(self)
+        self.lbl_net_pressed = 0
 
     def click_cb_s3_uplink_type(self, _):
         s = self.cb_s3_uplink_type.currentText()

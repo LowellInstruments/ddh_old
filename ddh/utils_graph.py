@@ -38,6 +38,15 @@ def graph_get_fol_req_file():
     return fol
 
 
+def graph_set_fol_req_file(mac):
+    try:
+        with open('/tmp/graph_req.json', "w") as f:
+            fol = mac.replace(':', '-')
+            f.write(fol)
+    except (Exception, ) as ex:
+        print('exception graph_set_fol_req_file ->', ex)
+
+
 @lru_cache
 def graph_get_data_csv(fol, h, hi) -> dict:
     global _g_ff_t, _g_ff_p, _g_ff_do

@@ -1,6 +1,7 @@
 import pathlib
 import shutil
 
+from ddh.utils_graph import graph_set_fol_req_file
 from dds.macs import (
     rm_mac_black,
     add_mac_black,
@@ -47,6 +48,9 @@ def _ble_analyze_logger_result(rv, mac, lat, lon, sn):
             del _g_logger_errors[mac]
         lg.a("OK! logger {}/{}".format(mac, sn))
         _u("{}/{}".format(STATE_DDS_BLE_DOWNLOAD_OK, sn))
+
+        # new graphing engine
+        # graph_set_fol_req_file(mac)
         return
 
     if mac not in _g_logger_errors:
