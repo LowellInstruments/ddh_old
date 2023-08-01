@@ -358,6 +358,10 @@ def get_ddh_folder_path_settings() -> Path:
     return Path("settings")
 
 
+def get_ddh_folder_path_tweak()  -> Path:
+    return Path("dds/tweak")
+
+
 def get_ddh_loggers_forget_time() -> int:
     j = str(ddh_get_settings_json_file())
     try:

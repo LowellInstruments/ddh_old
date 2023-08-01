@@ -21,7 +21,7 @@ from utils.ddh_shared import (
     STATE_DDS_BLE_ANTENNA,
     dds_get_ddh_got_an_update_flag_file,
     STATE_DDS_SOFTWARE_UPDATED,
-    get_ddh_folder_path_macs_black, STATE_DDS_BLE_HARDWARE_ERROR,
+    get_ddh_folder_path_macs_black, STATE_DDS_BLE_HARDWARE_ERROR, get_ddh_folder_path_tweak,
 )
 from settings.ctx import hook_ble_purge_black_macs_on_boot
 from utils.logs import lg_dds as lg
@@ -40,6 +40,18 @@ def ble_show_monitored_macs():
     mm = dds_get_macs_from_json_file()
     for i in mm:
         lg.a("debug: monitored mac {}".format(i))
+
+
+def ble_logger_ccx26x2r_needs_a_reset(mac):
+    mac = mac.replace(':', '-')
+    r = get_ddh_folder_path_tweak()
+    file_path = '{}/{}.rst'.format(r, mac)
+    rv = os.path.exists(file_path)
+    if rv:
+        lg.a("debug: logger reset file {} found".format(file_path))
+        os.unlink(file_path)
+        lg.a("debug: logger reset file {} deleted".format(file_path))
+    return rv
 
 
 def ble_op_conditions_met(knots) -> bool:
