@@ -81,6 +81,7 @@ lg_net = DDSLogs("net")
 lg_rbl = DDSLogs("rbl")
 lg_emo = DDSLogs("emo")
 lg_log = DDSLogs("log")
+lg_api = DDSLogs("api")
 
 
 # these NORMAL logs are local
