@@ -15,6 +15,7 @@ from dds.emolt import (
     ddh_is_emolt_box,
     file_emolt_csv_to_hl,
     file_out_hl_process_xc_85,
+    get_firmware_battery,
 )
 from dds.rbl import rbl_build_emolt_msg_as_str, rbl_gen_file, rbl_hex_str_to_hex_bytes
 from mat.utils import linux_is_rpi
@@ -282,7 +283,7 @@ class MoanaBle:
         create_folder_logger_by_mac(self.mac)
         pt = p[:-4] + "_Temperature.csv"
         pp = p[:-4] + "_Pressure.csv"
-        cols = "Date,Time,Depth Decibar,Temperature C\n"
+        cols = "DateTime,Depth Decibar,Temperature C\n"
 
         # open source and destination files
         with open(p, "r") as f:
@@ -337,9 +338,12 @@ class MoanaBle:
                     values = struct.unpack("<3H", data)
 
                     timestamp += values[0]
-                    csv_file.write(
-                        f'{datetime.utcfromtimestamp(timestamp).strftime("%d/%m/%Y,%H:%M:%S")},'.encode()
-                    )
+                    
+                    csv_file.write(f'{datetime.utcfromtimestamp(timestamp).isoformat("T", "milliseconds")},'.encode())
+                    #csv_file.write(
+                    #    #f'{datetime.utcfromtimestamp(timestamp).strftime("%d/%m/%Y,%H:%M:%S")},'.encode()
+                    #  	csv_file.write(f'{datetime.utcfromtimestamp(timestamp).isoformat("T", "milliseconds")},'.encode()
+                    #)
 
                     depth = (values[1] / 10) - 10
                     csv_file.write(f"{depth:.1f},".encode())
@@ -396,8 +400,8 @@ class MoanaBle:
                 status = await self.file_checksum()
                 offload_state = OffloadState.CLEAR_DATA
             elif offload_state == OffloadState.CLEAR_DATA:
-                #await self.clear_data()
-                #await self.disconnect()
+                await self.clear_data()
+                await self.disconnect()
                 offload_state = OffloadState.COMPLETE
                 break
 
@@ -420,12 +424,13 @@ class MoanaBle:
                     file_emolt_zt_csv, logger_type="moana"
                 )
                 x85 = file_out_hl_process_xc_85(hl_csv_file)
-                ms = rbl_build_emolt_msg_as_str(self.lat, self.lon, x85)
+                battery,f_version=get_firmware_battery(self.offload_file_path) #add battery and firmware version to rbl
+                ms = rbl_build_emolt_msg_as_str(self.lat, self.lon, x85,battery,f_version)
                 mb = rbl_hex_str_to_hex_bytes(ms)
                 rbl_gen_file(mb)
 
             # Lowell files always generated, needed for plotting at least
-            lg.a("converting file to LI format")
+            lg.a("NOT emolt box detecting, converting file to LI format")
             self.generate_lowell_csv_files()
 
             # indicate 100% download
