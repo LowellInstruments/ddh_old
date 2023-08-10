@@ -97,7 +97,7 @@ async def api_logger_reset_mac_set(mac: str):
 
 
 @app.get("/files/conf_get")
-async def api_conf_file_get():
+async def api_conf_get():
     # prepare the zip file name
     s = ' '.join([f for f in LIST_CONF_FILES])
     vn = dds_get_json_vessel_name()
@@ -186,6 +186,9 @@ async def api_versions():
     need_mat_update = v_mat_l != v_mat_r
     need_ddh_update = v_ddh_l != v_ddh_r
     need_ddt_update = v_ddt_l != v_ddt_r
+    need_mat_update = 'yes' if need_mat_update else 'no'
+    need_ddh_update = 'yes' if need_ddh_update else 'no'
+    need_ddt_update = 'yes' if need_ddt_update else 'no'
     return {fxn: {'need_mat_update': need_mat_update,
                   'need_ddh_update': need_ddh_update,
                   'need_ddt_update': need_ddt_update}}
@@ -211,15 +214,43 @@ async def api_gps():
     return {fxn: g}
 
 
+@app.get("/ble_state")
+async def api_ble_state():
+    fxn = str(inspect.currentframe().f_code.co_name)
+    return {fxn: get_ble_state()}
+
+
 @app.get("/update_ddt")
 async def api_update_ddt():
     fxn = str(inspect.currentframe().f_code.co_name)
+    if not linux_is_rpi():
+        return {fxn: 'not RPi, not updating DDH'}
     c = 'cd ../ddt && git pull'
     rv = shell(c)
     return {
         fxn: rv.returncode == 0,
         "ddt_commit": get_git_commit_ddt_local()
     }
+
+
+@app.get("/update_ddh")
+async def update_ddh():
+    fxn = str(inspect.currentframe().f_code.co_name)
+    if not linux_is_rpi():
+        return {fxn: 'not RPi, not updating DDH'}
+    c = 'cd scripts && ./pop_ddh.sh'
+    rv = shell(c)
+    return {fxn: rv.returncode == 0}
+
+
+@app.get("/update_mat")
+async def update_mat():
+    fxn = str(inspect.currentframe().f_code.co_name)
+    if not linux_is_rpi():
+        return {fxn: 'not RPi, not updating mat'}
+    c = 'cd scripts && ./pop_mat.sh'
+    rv = shell(c)
+    return {fxn: rv.returncode == 0}
 
 
 @app.get("/kill_ddh")
@@ -237,34 +268,8 @@ async def api_kill_ddh():
     }
 
 
-@app.get("/ble_state")
-async def api_ble_state():
-    fxn = str(inspect.currentframe().f_code.co_name)
-    return {fxn: get_ble_state()}
-
-
-@app.get("/update_ddh")
-async def update_ddh():
-    fxn = str(inspect.currentframe().f_code.co_name)
-    if not linux_is_rpi():
-        return {fxn: 'not a RPi'}
-    c = 'cd scripts && ./pop_ddh.sh'
-    rv = shell(c)
-    return {fxn: rv.returncode == 0}
-
-
-@app.get("/update_mat")
-async def update_mat():
-    fxn = str(inspect.currentframe().f_code.co_name)
-    if not linux_is_rpi():
-        return {fxn: 'not a RPi'}
-    c = 'cd scripts && ./pop_mat.sh'
-    rv = shell(c)
-    return {fxn: rv.returncode == 0}
-
-
 def main_api():
-    # docs at http://0.0.0.0/port/redocs
+    # docs at http://0.0.0.0/port/docs
     setproctitle.setproctitle(NAME_EXE_API)
     linux_app_write_pid_to_tmp(PID_FILE_API)
     uvicorn.run(app, host="0.0.0.0", port=8000)

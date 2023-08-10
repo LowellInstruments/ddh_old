@@ -101,12 +101,13 @@ def get_crontab():
     c = 'cat /etc/crontab | grep crontab_ddh.sh'
     rv = shell(c)
     if rv.returncode:
+        # no "crontab_ddh.sh" string found in whole crontab
         return False
 
     c = 'cat /etc/crontab | grep crontab_ddh.sh | grep "#"'
     rv = shell(c)
-    if rv.returncode:
-        # 1 means not found, so disabled
+    if rv.returncode == 0:
+        # string "# crontab_ddh.sh" found, but it is disabled
         return False
     return True
 
@@ -132,10 +133,10 @@ def get_running():
     rv_hc = shell('ps -aux | grep "main_ddh_controller" | grep -v grep')
     rv_hs = shell('ps -aux | grep "main_dds_controller" | grep -v grep')
     return {
-        'ddh': rv_h.returncode == 0,
-        'dds': rv_s.returncode == 0,
-        'ddh_controller': rv_hc.returncode == 0,
-        'dds_controller': rv_hs.returncode == 0
+        'is_ddh_running': rv_h.returncode == 0,
+        'is_dds_running': rv_s.returncode == 0,
+        'is_ddh_controller_running': rv_hc.returncode == 0,
+        'is_dds_controller_running': rv_hs.returncode == 0
     }
 
 
@@ -143,11 +144,17 @@ def get_ble_state():
     h = '/usr/bin/hciconfig'
     rv_0 = shell('{} -a | grep hci0'.format(h))
     rv_1 = shell('{} -a | grep hci1'.format(h))
-    d = {}
+    d = dict()
+    d['hci0_present'] = False
+    d['hci1_present'] = False
+    d['hci0_running'] = False
+    d['hci1_running'] = False
     if rv_0.returncode == 0:
+        d['hci0_present'] = True
         rv = shell('{} hci0'.format(h))
-        d['hci0'] = 'UP RUNNING' in rv.stdout.decode()
+        d['hci0_running'] = 'UP RUNNING' in rv.stdout.decode()
     if rv_1.returncode == 0:
+        d['hci1_present'] = True
         rv = shell('{} hci1'.format(h))
-        d['hci1'] = 'UP RUNNING' in rv.stdout.decode()
+        d['hci1_running'] = 'UP RUNNING' in rv.stdout.decode()
     return d
