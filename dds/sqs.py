@@ -32,11 +32,22 @@ import warnings
 warnings.filterwarnings("ignore", category=FutureWarning, module="botocore.client")
 
 
+# new credential system
+sqs_key_id = os.getenv("DDH_AWS_KEY_ID")
+custom_sqs_key_id = os.getenv("DDH_CUSTOM_SQS_KEY_ID")
+if custom_sqs_key_id:
+    sqs_key_id = custom_sqs_key_id
+sqs_access_key = os.getenv("DDH_AWS_SECRET")
+custom_sqs_access_key = os.getenv("DDH_CUSTOM_SQS_ACCESS_KEY")
+if custom_sqs_access_key:
+    sqs_access_key = custom_sqs_access_key
+
+
 sqs = boto3.client(
     "sqs",
     region_name="us-east-2",
-    aws_access_key_id=os.getenv("DDH_AWS_KEY_ID"),
-    aws_secret_access_key=os.getenv("DDH_AWS_SECRET"),
+    aws_access_key_id=sqs_key_id,
+    aws_secret_access_key=sqs_access_key,
 )
 
 

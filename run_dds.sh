@@ -17,6 +17,10 @@ export DDH_AWS_SECRET=
 export DDH_BOX_SERIAL_NUMBER=
 export DDH_BOX_PROJECT_NAME=
 export DDH_SQS_QUEUE_NAME=ddw_in.fifo
+# next ones are only used when we have 2 different
+# sets of credentials for SQS and S3 instead of common
+export DDH_CUSTOM_SQS_KEY_ID=
+export DDH_CUSTOM_SQS_ACCESS_KEY=
 
 
 echo; echo 'R > bluetooth power check'
