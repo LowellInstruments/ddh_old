@@ -94,6 +94,7 @@ async def api_logger_reset_mac_set(mac: str):
         path_file = 'api/{}.rst'.format(mac)
         pathlib.Path(path_file).touch()
         return {fxn: True}
+    return {fxn: False}
 
 
 @app.get("/files/conf_get")
@@ -116,11 +117,11 @@ async def api_conf_get():
 
 @app.post("/files/conf_set")
 async def api_conf_set(file: UploadFile = File(...)):
-
+    fxn = str(inspect.currentframe().f_code.co_name)
     if not file.filename.startswith('conf_'):
-        return
+        return {fxn: 'error_name'}
     if not file.filename.endswith('.zip'):
-        return
+        return {fxn: 'error_name'}
 
     # clean any remains from conf_get() method
     c = 'rm /tmp/conf_*.zip'
@@ -132,7 +133,7 @@ async def api_conf_set(file: UploadFile = File(...)):
         with open(dst_zip, "wb") as buf:
             shutil.copyfileobj(file.file, buf)
     except (Exception, ):
-        return
+        return {fxn: 'error_saving'}
 
     # clean the /tmp folder where we will unzip
     dst_fol = dst_zip.replace('.zip', '')
@@ -140,23 +141,23 @@ async def api_conf_set(file: UploadFile = File(...)):
         c = 'rm -rf {}'.format(dst_fol)
         rv = shell(c)
         if rv.returncode:
-            return
+            return {fxn: 'error_deleting'}
 
     # unzip
     c = 'cd /tmp && unzip {}'.format(file.filename)
     rv = shell(c)
     if rv.returncode:
-        return
+        return {fxn: 'error_unzipping'}
 
     # overwrite DDH configuration
     c = 'cp -r {}/* .'.format(dst_fol)
     rv = shell(c)
     if rv.returncode:
-        return
+        return {fxn: 'error_installing'}
 
     # response back
     fxn = str(inspect.currentframe().f_code.co_name)
-    return {fxn: True}
+    return {fxn: 'OK'}
 
 
 @app.get("/versions")
@@ -212,8 +213,9 @@ async def api_update_ddt():
         return {fxn: 'not RPi, not updating DDH'}
     c = 'cd ../ddt && git pull'
     rv = shell(c)
+    a = 'OK' if rv.returncode == 0 else 'error'
     return {
-        fxn: rv.returncode == 0,
+        fxn: a,
         "ddt_commit": get_git_commit_ddt_local()
     }
 
@@ -225,7 +227,11 @@ async def update_ddh():
         return {fxn: 'not RPi, not updating DDH'}
     c = 'cd scripts && ./pop_ddh.sh'
     rv = shell(c)
-    return {fxn: rv.returncode == 0}
+    a = 'OK' if rv.returncode == 0 else 'error'
+    return {
+        fxn: a,
+        "ddh_commit": get_git_commit_ddh_local()
+    }
 
 
 @app.get("/update_mat")
@@ -235,7 +241,11 @@ async def update_mat():
         return {fxn: 'not RPi, not updating mat'}
     c = 'cd scripts && ./pop_mat.sh'
     rv = shell(c)
-    return {fxn: rv.returncode == 0}
+    a = 'OK' if rv.returncode == 0 else 'error'
+    return {
+        fxn: a,
+        "ddh_commit": get_git_commit_mat_local()
+    }
 
 
 @app.get("/kill_ddh")
@@ -243,14 +253,23 @@ async def api_kill_ddh():
     fxn = str(inspect.currentframe().f_code.co_name)
     rv_h = shell("killall main_ddh")
     rv_s = shell("killall main_dds")
-    rv_a = shell("killall main_api")
-    return {
-        fxn: {
-            'ddh': rv_h.stderr.decode().replace('\n', ''),
-            'dds': rv_s.stderr.decode().replace('\n', ''),
-            'dda': rv_a.stderr.decode().replace('\n', '')
-        }
-    }
+    ans_h = rv_h.stderr.decode().replace('\n', '')
+    if rv_h.returncode == 0:
+        ans_h = 'OK'
+    ans_s = rv_s.stderr.decode().replace('\n', '')
+    if rv_s.returncode == 0:
+        ans_s = 'OK'
+    return {fxn: {'ddh': ans_h, 'dds': ans_s}}
+
+
+@app.get("/kill_api")
+async def api_kill_api():
+    fxn = str(inspect.currentframe().f_code.co_name)
+    shell("killall main_api_controller")
+    shell("killall main_api")
+    # ends here, crontab may relaunch us
+    a = 'we_are_killing_ourselves_no_answer'
+    return {fxn: a}
 
 
 @app.get("/crontab_get")
@@ -262,16 +281,18 @@ async def api_crontab_get():
 @app.get("/crontab_enable")
 async def api_crontab_enable():
     fxn = str(inspect.currentframe().f_code.co_name)
-    if linux_is_rpi():
-        set_crontab(1)
+    if not linux_is_rpi():
+        return {fxn: 'not RPi, not enabling crontab'}
+    set_crontab(1)
     return {fxn: get_crontab()}
 
 
 @app.get("/crontab_disable")
 async def api_crontab_disable():
     fxn = str(inspect.currentframe().f_code.co_name)
-    if linux_is_rpi():
-        set_crontab(0)
+    if not linux_is_rpi():
+        return {fxn: 'not RPi, not disabling crontab'}
+    set_crontab(0)
     return {fxn: get_crontab()}
 
 
@@ -301,9 +322,6 @@ def controller_main_api():
 
 if __name__ == "__main__":
 
-    # -----------------
-    # run API software
-    # -----------------
     if not linux_is_process_running(NAME_EXE_API_CONTROLLER):
         controller_main_api()
     else:

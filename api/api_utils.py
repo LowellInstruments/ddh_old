@@ -102,22 +102,25 @@ def get_crontab():
     rv = shell(c)
     if rv.returncode:
         # no "crontab_ddh.sh" string found in whole crontab
-        return False
+        return -1
 
     c = 'cat /etc/crontab | grep crontab_ddh.sh | grep "#"'
     rv = shell(c)
     if rv.returncode == 0:
         # string "# crontab_ddh.sh" found, but it is disabled
-        return False
-    return True
+        return 0
+    return 1
 
 
 def set_crontab(on_flag):
-    # todo: test this
     assert on_flag in (0, 1)
     s = get_crontab()
     c = ''
     print('s {} on_flag {}'.format(s, on_flag))
+    if s == -1 and on_flag:
+        # crontab empty, create it
+        # todo: test this
+        c = 'echo "* * * * * pi /home/pi/li/ddt/_dt_files/crontab_ddh.sh" > /etc/crontab'
     if s == 0 and on_flag:
         # is disabled, uncomment it
         print('uncommenting')
