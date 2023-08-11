@@ -117,11 +117,14 @@ def set_crontab(on_flag):
     assert on_flag in (0, 1)
     s = get_crontab()
     c = ''
+    print('s {} on_flag {}'.format(s, on_flag))
     if s == 0 and on_flag:
         # is disabled, uncomment it
+        print('uncommenting')
         c = "sudo sed -i '/crontab_ddh.sh/s/^#//g' /etc/crontab"
     if s == 1 and not on_flag:
         # is enabled, comment it
+        print('commenting')
         c = "sudo sed -i '/crontab_ddh.sh/s/^/#/g' /etc/crontab"
     rv = shell(c)
     return rv.returncode == 0
