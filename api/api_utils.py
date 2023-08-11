@@ -97,7 +97,7 @@ def get_ip_cell():
     return _get_iface_ip('ppp0')
 
 
-def get_crontab():
+def get_crontab_ddh():
     c = 'cat /etc/crontab | grep crontab_ddh.sh'
     rv = shell(c)
     if rv.returncode:
@@ -114,7 +114,7 @@ def get_crontab():
 
 def set_crontab(on_flag):
     assert on_flag in (0, 1)
-    s = get_crontab()
+    s = get_crontab_ddh()
     c = ''
     print('s {} on_flag {}'.format(s, on_flag))
     if s == -1 and on_flag:

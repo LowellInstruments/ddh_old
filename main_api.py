@@ -11,7 +11,7 @@ import time
 import setproctitle
 from api.api_utils import get_git_commit_mat_local, \
     get_boat_sn, get_ip_vpn, get_ip_wlan, get_ip_cell, \
-    get_running, LIST_CONF_FILES, get_crontab, shell, \
+    get_running, LIST_CONF_FILES, get_crontab_ddh, shell, \
     set_crontab, get_git_commit_mat_remote, \
     get_git_commit_ddh_local, get_git_commit_ddh_remote, get_git_commit_ddt_local, get_git_commit_ddt_remote, \
     get_ble_state
@@ -49,7 +49,7 @@ async def api_get_info():
         "ip_vpn": get_ip_vpn(),
         "ip_wlan": get_ip_wlan(),
         "ip_cell": get_ip_cell(),
-        "crontab": get_crontab(),
+        "crontab": get_crontab_ddh(),
         "boat_sn": get_boat_sn(),
         "boat_name": dds_get_json_vessel_name(),
         "commit_mat": get_git_commit_mat_local(),
@@ -268,15 +268,14 @@ async def api_kill_api():
     shell('/home/pi/li/ddt/_dt_files/crontab_api.sh &')
     shell("killall main_api_controller")
     shell("killall main_api")
-    # ends here, crontab may relaunch us
-    a = 'answer?'
-    return {fxn: a}
+    # ends here, crontab should relaunch us
+    return {fxn: 'OK'}
 
 
 @app.get("/crontab_get")
-async def api_crontab_get():
+async def api_crontab_get_ddh():
     fxn = str(inspect.currentframe().f_code.co_name)
-    return {fxn: get_crontab()}
+    return {fxn: get_crontab_ddh()}
 
 
 @app.get("/crontab_enable")
@@ -285,7 +284,7 @@ async def api_crontab_enable():
     if not linux_is_rpi():
         return {fxn: 'not RPi, not enabling crontab'}
     set_crontab(1)
-    return {fxn: get_crontab()}
+    return {fxn: get_crontab_ddh()}
 
 
 @app.get("/crontab_disable")
@@ -294,7 +293,7 @@ async def api_crontab_disable():
     if not linux_is_rpi():
         return {fxn: 'not RPi, not disabling crontab'}
     set_crontab(0)
-    return {fxn: get_crontab()}
+    return {fxn: get_crontab_ddh()}
 
 
 def main_api():
