@@ -265,10 +265,11 @@ async def api_kill_ddh():
 @app.get("/kill_api")
 async def api_kill_api():
     fxn = str(inspect.currentframe().f_code.co_name)
+    shell('/home/pi/li/ddt/_dt_files/crontab_api.sh &')
     shell("killall main_api_controller")
     shell("killall main_api")
     # ends here, crontab may relaunch us
-    a = 'we_are_killing_ourselves_no_answer'
+    a = 'answer?'
     return {fxn: a}
 
 
