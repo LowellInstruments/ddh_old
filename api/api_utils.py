@@ -127,7 +127,11 @@ def set_crontab(on_flag):
         print('commenting')
         c = "sudo sed -i '/crontab_ddh.sh/s/^/#/g' /etc/crontab"
     rv = shell(c)
-    return rv.returncode == 0
+    if rv.returncode == 0:
+        # need to restart crontab service
+        c = "sudo systemctl restart crond.service"
+        rv = shell(c)
+        return rv.returncode == 0
 
 
 def get_running():
