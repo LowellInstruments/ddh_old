@@ -159,21 +159,6 @@ async def api_conf_set(file: UploadFile = File(...)):
     return {fxn: True}
 
 
-@app.get("/crontab_get")
-async def api_crontab_get():
-    fxn = str(inspect.currentframe().f_code.co_name)
-    return {fxn: get_crontab()}
-
-
-@app.post("/crontab_set/{c}")
-async def api_crontab_set(c: str):
-    fxn = str(inspect.currentframe().f_code.co_name)
-    v = c == "on"
-    if linux_is_rpi():
-        set_crontab(v)
-    return {fxn: get_crontab() == v}
-
-
 @app.get("/versions")
 async def api_versions():
     fxn = str(inspect.currentframe().f_code.co_name)
@@ -266,6 +251,28 @@ async def api_kill_ddh():
             'dda': rv_a.stderr.decode().replace('\n', '')
         }
     }
+
+
+@app.get("/crontab_get")
+async def api_crontab_get():
+    fxn = str(inspect.currentframe().f_code.co_name)
+    return {fxn: get_crontab()}
+
+
+@app.post("/crontab_enable")
+async def api_crontab_enable():
+    fxn = str(inspect.currentframe().f_code.co_name)
+    if linux_is_rpi():
+        set_crontab(1)
+    return {fxn: get_crontab()}
+
+
+@app.post("/crontab_disable")
+async def api_crontab_disable():
+    fxn = str(inspect.currentframe().f_code.co_name)
+    if linux_is_rpi():
+        set_crontab(0)
+    return {fxn: get_crontab()}
 
 
 def main_api():
