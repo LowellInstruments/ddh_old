@@ -259,7 +259,7 @@ async def api_crontab_get():
     return {fxn: get_crontab()}
 
 
-@app.post("/crontab_enable")
+@app.get("/crontab_enable")
 async def api_crontab_enable():
     fxn = str(inspect.currentframe().f_code.co_name)
     if linux_is_rpi():
@@ -267,7 +267,7 @@ async def api_crontab_enable():
     return {fxn: get_crontab()}
 
 
-@app.post("/crontab_disable")
+@app.get("/crontab_disable")
 async def api_crontab_disable():
     fxn = str(inspect.currentframe().f_code.co_name)
     if linux_is_rpi():
