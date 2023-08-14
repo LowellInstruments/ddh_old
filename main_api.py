@@ -49,13 +49,12 @@ async def api_get_info():
         "ip_vpn": get_ip_vpn(),
         "ip_wlan": get_ip_wlan(),
         "ip_cell": get_ip_cell(),
-        "crontab": get_crontab_ddh(),
         "boat_sn": get_boat_sn(),
         "boat_name": dds_get_json_vessel_name(),
         "commit_mat": get_git_commit_mat_local(),
         "commit_ddh": get_git_commit_ddh_local(),
         "running": get_running(),
-        "crontab": get_crontab_ddh()
+        "crontab": get_crontab_ddh(),
     }
     return {fxn: d}
 
