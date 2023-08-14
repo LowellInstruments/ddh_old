@@ -55,6 +55,7 @@ async def api_get_info():
         "commit_mat": get_git_commit_mat_local(),
         "commit_ddh": get_git_commit_ddh_local(),
         "running": get_running(),
+        "crontab": get_crontab_ddh()
     }
     return {fxn: d}
 
