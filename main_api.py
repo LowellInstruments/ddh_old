@@ -266,8 +266,8 @@ async def api_kill_ddh():
 async def api_kill_api():
     fxn = str(inspect.currentframe().f_code.co_name)
     shell('/home/pi/li/ddt/_dt_files/crontab_api.sh &')
-    shell("killall main_api_controller")
-    shell("killall main_api")
+    shell("sleep 2 & ; killall main_api_controller &")
+    shell("sleep 2 & ; killall main_api &")
     # ends here, crontab should relaunch us
     return {fxn: 'OK'}
 
