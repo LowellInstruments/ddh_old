@@ -2,7 +2,6 @@
 
 
 import datetime
-import subprocess as sp
 import glob
 import json
 import pathlib
