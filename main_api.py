@@ -2,6 +2,7 @@
 
 
 import datetime
+import subprocess as sp
 import glob
 import json
 import pathlib
@@ -266,8 +267,8 @@ async def api_kill_ddh():
 async def api_kill_api():
     fxn = str(inspect.currentframe().f_code.co_name)
     shell('/home/pi/li/ddt/_dt_files/crontab_api.sh &')
-    shell("sleep 2 & ; killall main_api_controller &")
-    shell("sleep 2 & ; killall main_api &")
+    shell('echo "sleep 3 ; killall main_api_controller" | at now')
+    shell('echo "sleep 3 ; killall main_api" | at now')
     # ends here, crontab should relaunch us
     return {fxn: 'OK'}
 
