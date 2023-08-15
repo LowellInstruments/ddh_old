@@ -162,7 +162,7 @@ async def api_conf_set(file: UploadFile = File(...)):
     return {EP_CONF_SET: 'OK'}
 
 
-async def _ep_update(ep, c):
+def _ep_update(ep, c):
     if not linux_is_rpi():
         return {ep: 'not RPi, not updating DDH'}
     rv = shell(c)
@@ -172,22 +172,22 @@ async def _ep_update(ep, c):
 
 @app.get("/" + EP_UPDATE_DDT)
 async def ep_update_ddt():
-    return await _ep_update(EP_UPDATE_DDT, 'cd ../ddt && git pull')
+    return _ep_update(EP_UPDATE_DDT, 'cd ../ddt && git pull')
 
 
 @app.get("/" + EP_UPDATE_DDH)
 async def ep_update_ddh():
-    return await _ep_update(EP_UPDATE_DDH, 'cd scripts && ./pop_ddh.sh')
+    return _ep_update(EP_UPDATE_DDH, 'cd scripts && ./pop_ddh.sh')
 
 
 @app.get("/" + EP_UPDATE_MAT)
 async def ep_update_mat():
-    return await _ep_update(EP_UPDATE_MAT, 'cd scripts && ./pop_mat.sh')
+    return _ep_update(EP_UPDATE_MAT, 'cd scripts && ./pop_mat.sh')
 
 
 @app.get("/" + EP_UPDATE_LIU)
 async def ep_update_mat():
-    return await _ep_update(EP_UPDATE_LIU, 'cd scripts && ./pop_liu.sh')
+    return _ep_update(EP_UPDATE_LIU, 'cd scripts && ./pop_liu.sh')
 
 
 @app.get("/" + EP_KILL_DDH)
