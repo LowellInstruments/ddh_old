@@ -8,7 +8,7 @@ def shell(c):
 
 
 def _get_remote_commit(s):
-    assert s in ('mat', 'ddh', 'ddt')
+    assert s in ('mat', 'ddh', 'ddt', 'liu')
     url = 'https://github.com/lowellinstruments/{}.git'.format(s)
     c = 'git ls-remote {} refs/heads/master'.format(url)
     rv = shell(c)

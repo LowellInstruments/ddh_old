@@ -205,9 +205,6 @@ async def ep_kill_ddh():
 
 @app.get("/" + EP_KILL_API)
 async def ep_kill_api():
-    # shell('/home/pi/li/ddt/_dt_files/crontab_api.sh &')
-    # shell('echo "sleep 1 ; killall main_api_controller" | at now')
-    # shell('echo "sleep 1 ; killall main_api" | at now')
     shell('killall main_api_controller')
     shell('killall main_api')
     # does not matter, won't answer
