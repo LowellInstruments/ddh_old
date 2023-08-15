@@ -177,7 +177,7 @@ async def ep_update_ddt():
 
 @app.get("/" + EP_UPDATE_DDH)
 async def ep_update_ddh():
-    return await _ep_update(EP_UPDATE_DDT, 'cd scripts && ./pop_ddh.sh')
+    return await _ep_update(EP_UPDATE_DDH, 'cd scripts && ./pop_ddh.sh')
 
 
 @app.get("/" + EP_UPDATE_MAT)
