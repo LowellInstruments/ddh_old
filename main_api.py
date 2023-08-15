@@ -167,7 +167,7 @@ def _ep_update(ep, c):
         return {ep: 'not RPi, not updating DDH'}
     rv = shell(c)
     a = 'OK' if rv.returncode == 0 else 'error'
-    return {ep, a}
+    return {ep: a}
 
 
 @app.get("/" + EP_UPDATE_DDT)
