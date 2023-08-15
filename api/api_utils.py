@@ -1,12 +1,6 @@
+import glob
+import json
 import subprocess as sp
-
-
-LIST_CONF_FILES = {
-    'settings/ddh.json',
-    'run_dds.sh',
-    'settings/_li_all_macs_to_sn.yml',
-    '/etc/crontab'
-}
 
 
 def shell(c):
@@ -45,14 +39,22 @@ def get_git_commit_mat_remote():
     return _get_remote_commit('mat')
 
 
-def get_git_commit_mat_local():
+def _get_git_commit_mat_local_from_file(s):
     # MAT is installed so different way to get the commit
-    c = 'cat /etc/com_mat_loc.txt'
+    c = 'cat /etc/com_{}_loc.txt'.format(s)
     rv = shell(c)
     commit_id = ''
     if rv.returncode == 0:
         commit_id = rv.stdout.decode().replace('\n', '')
     return commit_id
+
+
+def get_git_commit_mat_local():
+    return _get_git_commit_mat_local_from_file('mat')
+
+
+def get_git_commit_liu_local():
+    return _get_git_commit_mat_local_from_file('liu')
 
 
 def get_git_commit_ddt_local():
@@ -61,6 +63,10 @@ def get_git_commit_ddt_local():
 
 def get_git_commit_ddt_remote():
     return _get_remote_commit('ddt')
+
+
+def get_git_commit_liu_remote():
+    return _get_remote_commit('liu')
 
 
 def get_boat_sn():
@@ -168,3 +174,35 @@ def get_ble_state():
         rv = shell('{} hci1'.format(h))
         d['hci1_running'] = 'UP RUNNING' in rv.stdout.decode()
     return d
+
+
+def get_gps():
+    g = ''
+    try:
+        with open('/tmp/gps_last.json', 'r') as f:
+            g = json.load(f)
+    except (Exception, ):
+        pass
+    return g
+
+
+def get_versions():
+    v_mat_l = get_git_commit_mat_local()
+    v_mat_r = get_git_commit_mat_remote()
+    v_ddh_l = get_git_commit_ddh_local()
+    v_ddh_r = get_git_commit_ddh_remote()
+    v_ddt_l = get_git_commit_ddt_local()
+    v_ddt_r = get_git_commit_ddt_remote()
+    v_liu_l = get_git_commit_liu_local()
+    v_liu_r = get_git_commit_liu_remote()
+    return {
+        'need_mat_update': 'yes' if v_mat_l != v_mat_r else 'no',
+        'need_ddh_update': 'yes' if v_ddh_l != v_ddh_r else 'no',
+        'need_ddt_update': 'yes' if v_ddt_l != v_ddt_r else 'no',
+        'need_liu_update': 'yes' if v_liu_l != v_liu_r else 'no'
+    }
+
+
+def get_logger_mac_reset_files():
+    ff = glob.glob('api/*.rst')
+    return {'mac_reset_files': ff}

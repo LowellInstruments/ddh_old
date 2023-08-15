@@ -1,9 +1,6 @@
 #!/usr/bin/env python3
 
-
 import datetime
-import glob
-import json
 import pathlib
 import re
 import shutil
@@ -11,10 +8,12 @@ import time
 import setproctitle
 from api.api_utils import get_git_commit_mat_local, \
     get_boat_sn, get_ip_vpn, get_ip_wlan, get_ip_cell, \
-    get_running, LIST_CONF_FILES, get_crontab_ddh, shell, \
-    set_crontab, get_git_commit_mat_remote, \
-    get_git_commit_ddh_local, get_git_commit_ddh_remote, get_git_commit_ddt_local, get_git_commit_ddt_remote, \
-    get_ble_state
+    get_running, get_crontab_ddh, shell, \
+    set_crontab, \
+    get_git_commit_ddh_local, \
+    get_ble_state, get_gps, get_logger_mac_reset_files, get_versions
+from liu.ddh_api_ep import EP_LOGS_GET, EP_PING, EP_INFO, EP_UPDATE_DDH, EP_UPDATE_MAT, EP_UPDATE_DDT, EP_KILL_DDH, \
+    EP_KILL_API, EP_CRON_ENA, EP_CRON_DIS, EP_CONF_GET, LIST_CONF_FILES, EP_CONF_SET, EP_MAC_LOGGER_RESET
 from liu.linux import linux_app_write_pid_to_tmp, linux_is_process_running
 from mat.utils import linux_is_rpi
 from utils.ddh_shared import NAME_EXE_API_CONTROLLER, \
@@ -28,7 +27,6 @@ import uvicorn
 from fastapi import FastAPI, UploadFile, File
 import os
 from fastapi.responses import FileResponse
-import inspect
 
 
 # ---------------------------------------------------------------------
@@ -42,25 +40,39 @@ import inspect
 app = FastAPI()
 
 
-@app.get("/info")
-async def api_get_info():
-    fxn = str(inspect.currentframe().f_code.co_name)
+@app.get('/' + EP_PING)
+async def ep_ping():
     d = {
+        EP_PING: "OK",
+        "ip": get_ip_vpn(),
+        "vessel": dds_get_json_vessel_name()
+    }
+    return d
+
+
+@app.get('/' + EP_INFO)
+async def api_get_info():
+    d = {
+        EP_INFO: "OK",
         "ip_vpn": get_ip_vpn(),
         "ip_wlan": get_ip_wlan(),
         "ip_cell": get_ip_cell(),
+        "gps": get_gps(),
+        "ble_state": get_ble_state(),
         "boat_sn": get_boat_sn(),
         "boat_name": dds_get_json_vessel_name(),
-        "commit_mat": get_git_commit_mat_local(),
-        "commit_ddh": get_git_commit_ddh_local(),
         "running": get_running(),
         "crontab": get_crontab_ddh(),
+        "mac_reset_files": get_logger_mac_reset_files(),
+        "versions": get_versions(),
+        "commit_mat": get_git_commit_mat_local(),
+        "commit_ddh": get_git_commit_ddh_local(),
     }
-    return {fxn: d}
+    return d
 
 
-@app.get("/logs")
-async def api_get_logs():
+@app.get('/' + EP_LOGS_GET)
+async def ep_logs_get():
     now = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
     vn = dds_get_json_vessel_name()
     vn = vn.replace(' ', '')
@@ -77,28 +89,20 @@ async def api_get_logs():
             return fr
 
 
-@app.get("/reset")
-async def api_logger_reset_mac_get_all():
-    fxn = str(inspect.currentframe().f_code.co_name)
-    ff = glob.glob('api/*.rst')
-    return {fxn: ff}
-
-
-@app.put("/reset/{mac}")
+@app.put("/" + EP_MAC_LOGGER_RESET + "/{mac}")
 async def api_logger_reset_mac_set(mac: str):
-    fxn = str(inspect.currentframe().f_code.co_name)
     mac = mac.replace(':', '-')
     # security: check this is a MAC address and not a malformed path
     r1 = re.search("^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$", mac)
     if r1:
         path_file = 'api/{}.rst'.format(mac)
         pathlib.Path(path_file).touch()
-        return {fxn: True}
-    return {fxn: False}
+        return {EP_MAC_LOGGER_RESET: "OK"}
+    return {EP_MAC_LOGGER_RESET: "error"}
 
 
-@app.get("/files/conf_get")
-async def api_conf_get():
+@app.get("/" + EP_CONF_GET)
+async def ep_conf_get():
     # prepare the zip file name
     s = ' '.join([f for f in LIST_CONF_FILES])
     vn = dds_get_json_vessel_name()
@@ -115,13 +119,12 @@ async def api_conf_get():
         return FileResponse(path=p, filename=file_name)
 
 
-@app.post("/files/conf_set")
+@app.post("/" + EP_CONF_SET)
 async def api_conf_set(file: UploadFile = File(...)):
-    fxn = str(inspect.currentframe().f_code.co_name)
     if not file.filename.startswith('conf_'):
-        return {fxn: 'error_name'}
+        return {EP_CONF_SET: 'error_name'}
     if not file.filename.endswith('.zip'):
-        return {fxn: 'error_name'}
+        return {EP_CONF_SET: 'error_name'}
 
     # clean any remains from conf_get() method
     c = 'rm /tmp/conf_*.zip'
@@ -133,7 +136,7 @@ async def api_conf_set(file: UploadFile = File(...)):
         with open(dst_zip, "wb") as buf:
             shutil.copyfileobj(file.file, buf)
     except (Exception, ):
-        return {fxn: 'error_saving'}
+        return {EP_CONF_SET: 'error_saving'}
 
     # clean the /tmp folder where we will unzip
     dst_fol = dst_zip.replace('.zip', '')
@@ -141,116 +144,49 @@ async def api_conf_set(file: UploadFile = File(...)):
         c = 'rm -rf {}'.format(dst_fol)
         rv = shell(c)
         if rv.returncode:
-            return {fxn: 'error_deleting'}
+            return {EP_CONF_SET: 'error_deleting'}
 
     # unzip
     c = 'cd /tmp && unzip {}'.format(file.filename)
     rv = shell(c)
     if rv.returncode:
-        return {fxn: 'error_unzipping'}
+        return {EP_CONF_SET: 'error_unzipping'}
 
     # overwrite DDH configuration
     c = 'cp -r {}/* .'.format(dst_fol)
     rv = shell(c)
     if rv.returncode:
-        return {fxn: 'error_installing'}
+        return {EP_CONF_SET: 'error_installing'}
 
     # response back
-    fxn = str(inspect.currentframe().f_code.co_name)
-    return {fxn: 'OK'}
+    return {EP_CONF_SET: 'OK'}
 
 
-@app.get("/versions")
-async def api_versions():
-    fxn = str(inspect.currentframe().f_code.co_name)
-    v_mat_l = get_git_commit_mat_local()
-    v_mat_r = get_git_commit_mat_remote()
-    v_ddh_l = get_git_commit_ddh_local()
-    v_ddh_r = get_git_commit_ddh_remote()
-    v_ddt_l = get_git_commit_ddt_local()
-    v_ddt_r = get_git_commit_ddt_remote()
-    need_mat_update = v_mat_l != v_mat_r
-    need_ddh_update = v_ddh_l != v_ddh_r
-    need_ddt_update = v_ddt_l != v_ddt_r
-    need_mat_update = 'yes' if need_mat_update else 'no'
-    need_ddh_update = 'yes' if need_ddh_update else 'no'
-    need_ddt_update = 'yes' if need_ddt_update else 'no'
-    return {fxn: {'need_mat_update': need_mat_update,
-                  'need_ddh_update': need_ddh_update,
-                  'need_ddt_update': need_ddt_update}}
-
-
-@app.get("/ping")
-async def api_ping():
-    fxn = str(inspect.currentframe().f_code.co_name)
-    return {fxn: "pong",
-            "ip": get_ip_vpn(),
-            "vessel": dds_get_json_vessel_name()}
-
-
-@app.get("/gps")
-async def api_gps():
-    fxn = str(inspect.currentframe().f_code.co_name)
-    g = ''
-    try:
-        with open('/tmp/gps_last.json', 'r') as f:
-            g = json.load(f)
-    except (Exception, ):
-        pass
-    return {fxn: g}
-
-
-@app.get("/ble_state")
-async def api_ble_state():
-    fxn = str(inspect.currentframe().f_code.co_name)
-    return {fxn: get_ble_state()}
-
-
-@app.get("/update_ddt")
-async def api_update_ddt():
-    fxn = str(inspect.currentframe().f_code.co_name)
+async def _ep_update(ep, c):
     if not linux_is_rpi():
-        return {fxn: 'not RPi, not updating DDH'}
-    c = 'cd ../ddt && git pull'
+        return {ep: 'not RPi, not updating DDH'}
     rv = shell(c)
     a = 'OK' if rv.returncode == 0 else 'error'
-    return {
-        fxn: a,
-        "ddt_commit": get_git_commit_ddt_local()
-    }
+    return {ep, a}
 
 
-@app.get("/update_ddh")
-async def update_ddh():
-    fxn = str(inspect.currentframe().f_code.co_name)
-    if not linux_is_rpi():
-        return {fxn: 'not RPi, not updating DDH'}
-    c = 'cd scripts && ./pop_ddh.sh'
-    rv = shell(c)
-    a = 'OK' if rv.returncode == 0 else 'error'
-    return {
-        fxn: a,
-        "ddh_commit": get_git_commit_ddh_local()
-    }
+@app.get("/" + EP_UPDATE_DDT)
+async def ep_update_ddt():
+    return await _ep_update(EP_UPDATE_DDT, 'cd ../ddt && git pull')
 
 
-@app.get("/update_mat")
-async def update_mat():
-    fxn = str(inspect.currentframe().f_code.co_name)
-    if not linux_is_rpi():
-        return {fxn: 'not RPi, not updating mat'}
-    c = 'cd scripts && ./pop_mat.sh'
-    rv = shell(c)
-    a = 'OK' if rv.returncode == 0 else 'error'
-    return {
-        fxn: a,
-        "ddh_commit": get_git_commit_mat_local()
-    }
+@app.get("/" + EP_UPDATE_DDH)
+async def ep_update_ddh():
+    return await _ep_update(EP_UPDATE_DDT, 'cd scripts && ./pop_ddh.sh')
 
 
-@app.get("/kill_ddh")
-async def api_kill_ddh():
-    fxn = str(inspect.currentframe().f_code.co_name)
+@app.get("/" + EP_UPDATE_MAT)
+async def ep_update_mat():
+    return await _ep_update(EP_UPDATE_MAT, 'cd scripts && ./pop_mat.sh')
+
+
+@app.get("/" + EP_KILL_DDH)
+async def ep_kill_ddh():
     rv_h = shell("killall main_ddh")
     rv_s = shell("killall main_dds")
     ans_h = rv_h.stderr.decode().replace('\n', '')
@@ -259,40 +195,31 @@ async def api_kill_ddh():
     ans_s = rv_s.stderr.decode().replace('\n', '')
     if rv_s.returncode == 0:
         ans_s = 'OK'
-    return {fxn: {'ddh': ans_h, 'dds': ans_s}}
+    return {EP_KILL_DDH: {'ddh': ans_h, 'dds': ans_s}}
 
 
-@app.get("/kill_api")
-async def api_kill_api():
-    fxn = str(inspect.currentframe().f_code.co_name)
+@app.get("/" + EP_KILL_API)
+async def ep_kill_api():
     shell('/home/pi/li/ddt/_dt_files/crontab_api.sh &')
     shell('echo "sleep 1 ; killall main_api_controller" | at now')
     shell('echo "sleep 1 ; killall main_api" | at now')
-    return {fxn: 'OK'}
+    return {EP_KILL_API: 'OK'}
 
 
-@app.get("/crontab_get")
-async def api_crontab_get_ddh():
-    fxn = str(inspect.currentframe().f_code.co_name)
-    return {fxn: get_crontab_ddh()}
-
-
-@app.get("/crontab_enable")
-async def api_crontab_enable():
-    fxn = str(inspect.currentframe().f_code.co_name)
+@app.get("/" + EP_CRON_ENA)
+async def ep_crontab_enable():
     if not linux_is_rpi():
-        return {fxn: 'not RPi, not enabling crontab'}
+        return {EP_CRON_ENA: 'not RPi, not enabling crontab'}
     set_crontab(1)
-    return {fxn: get_crontab_ddh()}
+    return {EP_CRON_ENA: get_crontab_ddh()}
 
 
-@app.get("/crontab_disable")
-async def api_crontab_disable():
-    fxn = str(inspect.currentframe().f_code.co_name)
+@app.get("/" + EP_CRON_DIS)
+async def ep_crontab_disable():
     if not linux_is_rpi():
-        return {fxn: 'not RPi, not disabling crontab'}
+        return {EP_CRON_DIS: 'not RPi, not disabling crontab'}
     set_crontab(0)
-    return {fxn: get_crontab_ddh()}
+    return {EP_CRON_DIS: get_crontab_ddh()}
 
 
 def main_api():
