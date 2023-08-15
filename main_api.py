@@ -13,7 +13,7 @@ from api.api_utils import get_git_commit_mat_local, \
     get_git_commit_ddh_local, \
     get_ble_state, get_gps, get_logger_mac_reset_files, get_versions
 from liu.ddh_api_ep import EP_LOGS_GET, EP_PING, EP_INFO, EP_UPDATE_DDH, EP_UPDATE_MAT, EP_UPDATE_DDT, EP_KILL_DDH, \
-    EP_KILL_API, EP_CRON_ENA, EP_CRON_DIS, EP_CONF_GET, LIST_CONF_FILES, EP_CONF_SET, EP_MAC_LOGGER_RESET
+    EP_KILL_API, EP_CRON_ENA, EP_CRON_DIS, EP_CONF_GET, LIST_CONF_FILES, EP_CONF_SET, EP_MAC_LOGGER_RESET, EP_UPDATE_LIU
 from liu.linux import linux_app_write_pid_to_tmp, linux_is_process_running
 from mat.utils import linux_is_rpi
 from utils.ddh_shared import NAME_EXE_API_CONTROLLER, \
@@ -183,6 +183,11 @@ async def ep_update_ddh():
 @app.get("/" + EP_UPDATE_MAT)
 async def ep_update_mat():
     return await _ep_update(EP_UPDATE_MAT, 'cd scripts && ./pop_mat.sh')
+
+
+@app.get("/" + EP_UPDATE_LIU)
+async def ep_update_mat():
+    return await _ep_update(EP_UPDATE_LIU, 'cd scripts && ./pop_liu.sh')
 
 
 @app.get("/" + EP_KILL_DDH)
