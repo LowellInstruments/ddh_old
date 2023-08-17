@@ -15,7 +15,7 @@ export DDH_AWS_BUCKET=
 export DDH_AWS_KEY_ID=
 export DDH_AWS_SECRET=
 export DDH_BOX_SERIAL_NUMBER=
-export DDH_BOX_PROJECT_NAME=
+export DDH_BOX_PROJECT_NAME=LAB
 export DDH_SQS_QUEUE_NAME=ddw_in.fifo
 # next ones are only used when we have 2 different
 # sets of credentials for SQS and S3 instead of common

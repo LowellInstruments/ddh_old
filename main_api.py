@@ -4,6 +4,8 @@ import datetime
 import pathlib
 import re
 import shutil
+import threading
+
 import time
 import setproctitle
 from api.api_utils import get_git_commit_mat_local, \
@@ -11,7 +13,7 @@ from api.api_utils import get_git_commit_mat_local, \
     get_running, get_crontab_ddh, shell, \
     set_crontab, \
     get_git_commit_ddh_local, \
-    get_ble_state, get_gps, get_logger_mac_reset_files, get_versions
+    get_ble_state, get_gps, get_logger_mac_reset_files, get_versions, get_boat_project
 from liu.ddh_api_ep import EP_LOGS_GET, EP_PING, EP_INFO, EP_UPDATE_DDH, EP_UPDATE_MAT, EP_UPDATE_DDT, EP_KILL_DDH, \
     EP_KILL_API, EP_CRON_ENA, EP_CRON_DIS, EP_CONF_GET, LIST_CONF_FILES, EP_CONF_SET, EP_MAC_LOGGER_RESET, EP_UPDATE_LIU
 from liu.linux import linux_app_write_pid_to_tmp, linux_is_process_running
@@ -27,6 +29,7 @@ import uvicorn
 from fastapi import FastAPI, UploadFile, File
 import os
 from fastapi.responses import FileResponse
+import concurrent.futures
 
 
 # ---------------------------------------------------------------------
@@ -52,21 +55,28 @@ async def ep_ping():
 
 @app.get('/' + EP_INFO)
 async def api_get_info():
+    def _th(cb):
+        # src: stackoverflow 6893968
+        with concurrent.futures.ThreadPoolExecutor() as executor:
+            future = executor.submit(cb)
+            return future.result()
+
     d = {
         EP_INFO: "OK",
-        "ip_vpn": get_ip_vpn(),
-        "ip_wlan": get_ip_wlan(),
-        "ip_cell": get_ip_cell(),
-        "gps": get_gps(),
-        "ble_state": get_ble_state(),
-        "boat_sn": get_boat_sn(),
-        "boat_name": dds_get_json_vessel_name(),
-        "running": get_running(),
-        "crontab": get_crontab_ddh(),
-        "mac_reset_files": get_logger_mac_reset_files(),
-        "versions": get_versions(),
-        "commit_mat": get_git_commit_mat_local(),
-        "commit_ddh": get_git_commit_ddh_local(),
+        "ip_vpn": _th(get_ip_vpn),
+        "ip_wlan": _th(get_ip_wlan),
+        "ip_cell": _th(get_ip_cell),
+        "gps": _th(get_gps),
+        "ble_state": _th(get_ble_state),
+        "boat_prj": _th(get_boat_project),
+        "boat_sn": _th(get_boat_sn),
+        "boat_name": _th(dds_get_json_vessel_name),
+        "running": _th(get_running),
+        "crontab": _th(get_crontab_ddh),
+        "mac_reset_files": _th(get_logger_mac_reset_files),
+        "versions": _th(get_versions),
+        "commit_mat": _th(get_git_commit_mat_local),
+        "commit_ddh": _th(get_git_commit_ddh_local),
     }
     return d
 
