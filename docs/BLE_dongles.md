@@ -1,7 +1,7 @@
-BLE dongles summary
--------------------
+# About external USB Bluetooth dongles
 
-Run the following command to know the Linux release year of your DDH. 
+Run the following command to know your DDH Linux release year. 
+
 We show a possible answer.
 
 ```console
@@ -9,8 +9,9 @@ $ cat /boot/issue.txt
 Raspberry Pi reference 2023-05-03
 ```
 
-To see the version of your dongle, connect it and run the following command. 
-We show a possible answer. You can see the Bluetooth version on line `HCI version`.
+To see the Bluetooth version of your USB dongle, connect it to the DDH and run the following command. 
+
+We show a possible answer. You can see the Bluetooth version at the line `HCI version`.
 
 ```console
 $ hciconfig -a
@@ -32,5 +33,6 @@ hci1:   Type: Primary  Bus: USB
             Manufacturer: Realtek Semiconductor Corporation (93)
 ```
 
-If your year is 2022, your DDH will accept BLE external dongles v4.2.
-If your year is 2023, your DDH will accept BLE external dongles v4.2 and 5.x.
+If your releaser year is 2022, your DDH will accept BLE external dongles v4.2.
+
+If your release year is 2023, your DDH will accept BLE external dongles v4.2 and 5.x.
