@@ -118,7 +118,6 @@ def main_dds():
                 break
         time.sleep(5)
 
-
     # Rockblocks stuff is slow, do it concurrent
     th = threading.Thread(target=rbl_loop)
     th.start()

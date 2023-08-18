@@ -126,17 +126,13 @@ def ble_check_antenna_up_n_running(lat, lon, h: int):
 
     # try to recover it
     for c in [
-        # unload stuff
-        'sudo systemctl stop hciuart',
-        'sudo hciconfig hci{} down'.format(h),
-        'sudo rmmod btusb',
         'sudo modprobe -r btusb',
-        # reload stuff
         'sudo modprobe btusb',
         'sudo rfkill unblock bluetooth',
-        'sudo systemctl start hciuart',
+        'sudo systemctl restart hciuart',
         'sudo hciconfig hci{} up'.format(h)
     ]:
+        sp.run('sleep 1', shell=True, stdout=sp.PIPE, stderr=sp.PIPE)
         rv = sp.run(c, shell=True, stdout=sp.PIPE, stderr=sp.PIPE)
         if rv.returncode:
             lg.a('command {} returned error {}'.format(c, rv.stderr))
