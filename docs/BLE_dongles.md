@@ -33,6 +33,6 @@ hci1:   Type: Primary  Bus: USB
             Manufacturer: Realtek Semiconductor Corporation (93)
 ```
 
-If your releaser year is 2022, your DDH will accept BLE external dongles v4.2.
+If your release year is 2022, your DDH will accept BLE external dongles v4.2.
 
 If your release year is 2023, your DDH will accept BLE external dongles v4.2 and 5.x.
