@@ -577,6 +577,10 @@ class DDH(QMainWindow, d_m.Ui_MainWindow):
         self.datetime_pressed = 0
 
     def click_lbl_net_pressed(self, _):
+        # ------------------------
+        # lbl_net is the NET icon
+        # lbl_net_txt is the text
+        # -------------------------
         self.lbl_net_pressed = 1
 
     def click_lbl_net_released(self, _):

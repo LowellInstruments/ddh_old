@@ -262,9 +262,8 @@ def gui_setup_buttons(my_app):
     a.lbl_date.mouseReleaseEvent = a.click_lbl_datetime_released
     a.lbl_g_cycle_haul.mousePressEvent = a.click_lbl_g_cycle_haul
     a.lbl_g_paint_zones.mousePressEvent = a.click_lbl_g_paint_zones
-    a.lbl_net.mousePressEvent = a. click_lbl_net_pressed
+    a.lbl_net.mousePressEvent = a.click_lbl_net_pressed
     a.lbl_net.mouseReleaseEvent = a.click_lbl_net_released
-
 
     # buttons' connections
     a.btn_known_clear.clicked.connect(a.click_btn_clear_known_mac_list)
