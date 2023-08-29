@@ -112,6 +112,7 @@ class DDH(QMainWindow, d_m.Ui_MainWindow):
         self.bright_idx = 2
         self.tab_edit_hide = True
         self.tab_recipes_hide = True
+        self.tab_graph_hide = True
         self.tab_edit_wgt_ref = None
         self.tab_note_wgt_ref = None
         self.tab_recipe_wgt_ref = None
@@ -585,7 +586,8 @@ class DDH(QMainWindow, d_m.Ui_MainWindow):
 
     def click_lbl_net_released(self, _):
         if self.lbl_net_pressed >= 2:
-            gui_show_graph_tab(self)
+            tgh = self.tab_graph_hide = not self.tab_graph_hide
+            gui_hide_graph_tab(self) if tgh else gui_show_graph_tab(self)
         self.lbl_net_pressed = 0
 
     def click_cb_s3_uplink_type(self, _):
