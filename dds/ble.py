@@ -11,7 +11,7 @@ from dds.macs import (
     is_mac_in_orange,
     add_mac_orange,
 )
-from mat.ble.ble_mat_utils import ble_mat_bluetoothctl_power_cycle
+from mat.ble.ble_mat_utils import ble_mat_bluetoothctl_power_cycle, ble_mat_disconnect_all_devices_ll
 from mat.ble.bleak.cc26x2r_sim import ble_logger_is_cc26x2r_simulated
 
 from dds.ble_dl_rn4020 import ble_interact_rn4020
@@ -23,6 +23,7 @@ from dds.sqs import (
     sqs_msg_logger_download,
     sqs_msg_notes_cc26x2r,
 )
+from mat.utils import linux_is_rpi
 from utils.ddh_shared import (
     send_ddh_udp_gui as _u,
     STATE_DDS_BLE_DOWNLOAD_OK,
@@ -150,7 +151,11 @@ async def _ble_id_n_interact_logger(mac, info: str, h, g):
         _u("history/add&{}&ok&{}&{}&{}".format(sn, lat, lon, dt))
     else:
         _u("history/add&{}&error&{}&{}&{}".format(sn, lat, lon, dt))
+        # works for RPi
         ble_mat_bluetoothctl_power_cycle()
+        # works for laptop
+        if not linux_is_rpi():
+            ble_mat_disconnect_all_devices_ll()
 
 
 async def ble_interact_all_loggers(macs_det, macs_mon, g, _h: int, _h_desc):

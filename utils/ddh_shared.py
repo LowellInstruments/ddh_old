@@ -130,10 +130,6 @@ def ddh_get_gui_closed_flag_file() -> Path:
     return Path("/tmp/gui_closed.flag")
 
 
-def dds_get_gps_external_flag_file() -> str:
-    return "/home/pi/li/.ddt_using_gps_external.flag"
-
-
 def dds_get_is_emolt_box_flag_file() -> str:
     return "/home/pi/li/.ddt_this_is_emolt_box.flag"
 

@@ -29,11 +29,11 @@ ble_rfkill = False
 
 
 # rockblocks: enabled or not
-rbl_en = ddh_is_emolt_box()
+rbl_en = False
 
 
 # GPS configuration
-g_gps_is_external = ddh_is_emolt_box()
+g_gps_is_external = False
 
 
 # debug hooks :)

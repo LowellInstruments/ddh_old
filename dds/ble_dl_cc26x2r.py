@@ -161,6 +161,7 @@ class BleCC26X2Download:
             rv = await lc.cmd_gdo()
             bad_rv = not rv or (rv and rv[0] == "0000")
             if bad_rv:
+                lg.a("GDO | error {}".format(rv))
                 _u(STATE_DDS_BLE_DOWNLOAD_ERROR_GDO)
                 await asyncio.sleep(5)
             _rae(bad_rv, "gdo")
