@@ -1,10 +1,14 @@
 from functools import lru_cache
 from glob import glob
 import os
-from mat.utils import linux_is_rpi
+from utils.logs import lg_gra as lg
 import pandas as pd
 import dateutil.parser as dp
 from os.path import basename
+
+from utils.ddh_shared import ddh_get_absolute_application_path
+
+GRAPH_REQ_JSON_FILE = '/tmp/graph_req.json'
 
 
 _g_ff_t = []
@@ -17,10 +21,7 @@ def graph_get_fol_list():
     """
     return absolute paths of "dl_files/<mac>" folders
     """
-    d = '/home/pi/li/ddh/dl_files'
-    if not linux_is_rpi():
-        d = '/home/kaz/PycharmProjects/ddh/dl_files'
-
+    d = ddh_get_absolute_application_path() + '/dl_files'
     if os.path.isdir(d):
         f_l = [f.path for f in os.scandir(d) if f.is_dir()]
         # remove 'ddh_vessel' folders
@@ -28,23 +29,38 @@ def graph_get_fol_list():
     return []
 
 
-# get graph_req.json from /tmp containing the FULL ABSOLUTE folder path to plot
+# get GRAPH_REQ_JSON_FILE containing the FULL ABSOLUTE folder path to plot
 def graph_get_fol_req_file():
     # file written by DDH plot request
-    with open('/tmp/graph_req.json') as f:
+    with open(GRAPH_REQ_JSON_FILE) as f:
         fol = f.read().strip()
     if not os.path.exists(fol):
-        raise FileNotFoundError('inexistent plot folder')
+        e = 'error: {} contains an inexistent graph folder {}'
+        lg.a(e.format(GRAPH_REQ_JSON_FILE, fol))
+        return
     return fol
+
+
+def graph_check_fol_req_file():
+    return os.path.exists(GRAPH_REQ_JSON_FILE)
+
+
+def graph_delete_fol_req_file():
+    try:
+        os.unlink(GRAPH_REQ_JSON_FILE)
+    except (Exception, ) as ex:
+        lg.a("error: graph_delete_fol_req_file() {}".format(ex))
 
 
 def graph_set_fol_req_file(mac):
     try:
-        with open('/tmp/graph_req.json', "w") as f:
+        with open(GRAPH_REQ_JSON_FILE, "w") as f:
             fol = mac.replace(':', '-')
-            f.write(fol)
+            dl_files_fol = ddh_get_absolute_application_path() + '/dl_files'
+            content = str(dl_files_fol) + '/' + str(fol)
+            f.write(content)
     except (Exception, ) as ex:
-        print('exception graph_set_fol_req_file ->', ex)
+        lg.a("error: graph_set_fol_req_file() {}".format(ex))
 
 
 @lru_cache
@@ -87,18 +103,18 @@ def graph_get_data_csv(fol, h, hi) -> dict:
         }
 
     # grab values
-    s = 'graphing metric {}, folder {}, hauls {}, hi {}'
-    print(s.format(met, basename(fol), h, hi))
+    s = "graphing\n\tmetric {}\n\tfolder {}\n\thauls {}\n\thi {}"
+    lg.a(s.format(met, basename(fol), h, hi))
     if met == 'TP':
         x, t, p = [], [], []
         for f in _g_ff_t:
-            print('\tread file', basename(f))
+            lg.a('\tgraph: reading T file {}'.format(basename(f)))
             df = pd.read_csv(f)
             # grab Time (x) values from here
             x += list(df['ISO 8601 Time'])
             t += list(df['Temperature (C)'])
         for f in _g_ff_p:
-            print('\tread file', basename(f))
+            lg.a('\tgraph: reading P file {}'.format(basename(f)))
             df = pd.read_csv(f)
             p += list(df['Pressure (dbar)'])
 
@@ -114,7 +130,7 @@ def graph_get_data_csv(fol, h, hi) -> dict:
     elif met == 'DO':
         x, doc, dot = [], [], []
         for f in _g_ff_do:
-            print('\tread file', basename(f))
+            lg.a('\tgraph: reading DO file {}'.format(basename(f)))
             df = pd.read_csv(f)
             x += list(df['ISO 8601 Time'])
             doc += list(df['Dissolved Oxygen (mg/l)'])
@@ -133,5 +149,5 @@ def graph_get_data_csv(fol, h, hi) -> dict:
         }
 
     else:
-        print('error: graph_get_all_csv() unknown metric')
+        lg.a('error: graph_get_all_csv() unknown metric {}'.format(met))
         assert False

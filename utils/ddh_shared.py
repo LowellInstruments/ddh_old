@@ -9,7 +9,7 @@ from pathlib import Path
 from git import InvalidGitRepositoryError
 import subprocess as sp
 from mat.ble.ble_mat_utils import DDH_GUI_UDP_PORT
-
+from mat.utils import linux_is_rpi
 
 STATE_DDS_NOTIFY_BOAT_NAME = "boat_name"
 STATE_DDS_NOTIFY_GPS = "gps"
@@ -51,6 +51,7 @@ STATE_DDS_NOTIFY_CONVERSION_OK = "conversion_ok"
 
 
 STATE_DDS_REQUEST_PLOT = "plot_request"
+STATE_DDS_REQUEST_GRAPH = "graph_request"
 STATE_DDS_NOTIFY_PLOT_RESULT_OK = "state_dds_notify_plot_result_ok"
 STATE_DDS_NOTIFY_PLOT_RESULT_ERR = "state_dds_notify_plot_result_err"
 
@@ -437,6 +438,15 @@ def get_dl_files_type(path):
         return 'bin'
     print('I dont know what files to search for')
     return ''
+
+
+def ddh_get_absolute_application_path():
+    home = os.getenv("HOME")
+    if linux_is_rpi():
+        app = '/li'
+    else:
+        app = '/PycharmProjects'
+    return home + app + '/ddh'
 
 
 def main():

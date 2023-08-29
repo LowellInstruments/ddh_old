@@ -20,6 +20,7 @@ from PyQt5.QtWidgets import (
 from gpiozero import Button
 from ddh.db.db_his import DBHis
 from ddh import utils_plt
+from ddh.graph import graph_embed
 from ddh.utils_graph import graph_get_fol_req_file, graph_get_fol_list
 from ddh.utils_net import net_get_my_current_wlan_ssid
 from dds.ble_utils_dds import ble_get_cc26x2_recipe_file_rerun_flag
@@ -72,6 +73,7 @@ from utils.ddh_shared import (
     STATE_DDS_BLE_SCAN_FIRST_EVER,
     ddh_get_db_plots_file,
     STATE_DDS_BLE_ERROR_MOANA_PLUGIN, get_dl_files_type, STATE_DDS_BLE_DOWNLOAD_ERROR_GDO, STATE_DDS_BLE_ERROR_RUN,
+    STATE_DDS_REQUEST_GRAPH,
 )
 from utils.logs import lg_gui as lg
 
@@ -166,7 +168,7 @@ def gui_setup_graph_tab(my_win):
     # re-set folder index
     fol = fol_ls[0]
     a.g_fol_ls_idx = 0
-    print('graph starting folder:', basename(fol))
+    lg.a('graph engine boot folder: {}'.format(basename(fol)))
 
 
 def gui_center_window(my_app):
@@ -300,6 +302,7 @@ def gui_hide_recipes_tab(ui):
 
 
 def gui_hide_graph_tab(ui):
+
     if not linux_is_rpi():
         return
     # find tab ID, index and keep ref
@@ -583,9 +586,17 @@ def _parse_udp(my_app, s, ip="127.0.0.1"):
         _th = threading.Thread(target=utils_plt.gui_plot_all_set_of_metrics)
         _th.start()
 
-        # for future new plotting in separate window
-        # a.w = SeparateGraphWindow()
-        # a.w.show()
+    elif f == STATE_DDS_REQUEST_GRAPH:
+        if ip != "127.0.0.1":
+            lg.a("not graphing remote downloads")
+            return
+
+        # GRAPH PROCESS
+        try:
+            graph_embed(a)
+        except (Exception,) as ex:
+            # all errors managed inside
+            lg.a("error: graph_embed -> {}".format(ex))
 
     elif f == STATE_DDS_NOTIFY_PLOT_RESULT_OK:
         a.lbl_plt_bsy.setVisible(False)
