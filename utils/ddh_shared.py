@@ -206,8 +206,8 @@ def dds_get_macs_from_json_file():
             cfg = json.load(f)
             known = cfg["db_logger_macs"].keys()
             return [x.lower() for x in known]
-    except TypeError:
-        print("error json_get_macs()")
+    except (Exception, ) as ex:
+        print("error json_get_macs()", ex)
         return {}
 
 
@@ -237,8 +237,8 @@ def dds_get_serial_number_of_macs_from_json_file():
             cfg = json.load(f)
             known = cfg["db_logger_macs"].values()
             return [x.lower() for x in known]
-    except TypeError:
-        print("error json_get_sn()")
+    except (Exception,) as ex:
+        print("error json_get_sn()", ex)
         return []
 
 
@@ -251,9 +251,8 @@ def dds_get_mac_from_sn_from_json_file(sn):
             inv = {v: k for k, v in d.items()}
             return inv[sn].lower()
 
-    except TypeError:
-        print("error json_get_sn()")
-        return []
+    except (Exception,) as ex:
+        print("error json_get_sn()", ex)
 
 
 def ddh_get_json_plot_type():
@@ -279,7 +278,7 @@ def dds_get_json_vessel_name():
         with open(j) as f:
             cfg = json.load(f)
             return cfg["ship_name"]
-    except TypeError:
+    except (Exception,):
         return "Unnamed ship"
 
 
@@ -292,8 +291,8 @@ def dds_get_json_moving_speed() -> list:
             assert len(max_n_min) == 2
             assert max_n_min[0] <= max_n_min[1]
             return max_n_min
-    except TypeError:
-        print("error json_get_moving_speed()")
+    except (Exception,) as ex:
+        print("error json_get_moving_speed()", ex)
 
 
 def _mac_dns_no_case(mac):

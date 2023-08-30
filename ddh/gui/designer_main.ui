@@ -1131,7 +1131,7 @@ font: 19pt &quot;DejaVu Sans&quot;;</string>
       </widget>
       <widget class="QWidget" name="tab_more_info">
        <attribute name="title">
-        <string> More Info</string>
+        <string> Details</string>
        </attribute>
        <layout class="QVBoxLayout" name="verticalLayout_3">
         <item>
@@ -1374,9 +1374,9 @@ font: 19pt &quot;DejaVu Sans&quot;;</string>
         </item>
        </layout>
       </widget>
-      <widget class="QWidget" name="tab_recipes">
+      <widget class="QWidget" name="tab_advanced">
        <attribute name="title">
-        <string>Recipes</string>
+        <string> Advanced</string>
        </attribute>
        <layout class="QVBoxLayout" name="verticalLayout_5">
         <item>
@@ -1468,12 +1468,9 @@ font: 19pt &quot;DejaVu Sans&quot;;</string>
            <number>18</number>
           </property>
           <item>
-           <widget class="QLabel" name="lbl_g_paint_zones">
+           <widget class="QPushButton" name="btn_g_paint_zones">
             <property name="text">
-             <string>TextLabel</string>
-            </property>
-            <property name="alignment">
-             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+             <string>zones</string>
             </property>
            </widget>
           </item>
@@ -1485,16 +1482,32 @@ font: 19pt &quot;DejaVu Sans&quot;;</string>
            </widget>
           </item>
           <item>
-           <widget class="QPushButton" name="btn_g_next_logger">
-            <property name="text">
-             <string>next logger</string>
+           <widget class="QComboBox" name="cb_g_sn">
+            <property name="maximumSize">
+             <size>
+              <width>175</width>
+              <height>16777215</height>
+             </size>
             </property>
            </widget>
           </item>
           <item>
-           <widget class="QLabel" name="lbl_g_cycle_haul">
+           <widget class="QLabel" name="lbl_g_prog">
+            <property name="maximumSize">
+             <size>
+              <width>50</width>
+              <height>16777215</height>
+             </size>
+            </property>
             <property name="text">
-             <string>TextLabel</string>
+             <string/>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLabel" name="label_9">
+            <property name="text">
+             <string>hauls</string>
             </property>
             <property name="alignment">
              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -1502,9 +1515,22 @@ font: 19pt &quot;DejaVu Sans&quot;;</string>
            </widget>
           </item>
           <item>
-           <widget class="QPushButton" name="btn_g_next_haul">
+           <widget class="QPushButton" name="lbl_g_cycle_haul">
             <property name="text">
-             <string>next haul</string>
+             <string>all</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="btn_g_next_haul">
+            <property name="maximumSize">
+             <size>
+              <width>100</width>
+              <height>16777215</height>
+             </size>
+            </property>
+            <property name="text">
+             <string>&gt;</string>
             </property>
            </widget>
           </item>

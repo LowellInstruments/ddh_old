@@ -41,7 +41,7 @@ from ddh.utils_gui import (
     gui_hide_recipes_tab,
     gui_show_recipes_tab,
     gui_hide_graph_tab,
-    gui_setup_graph_tab, gui_show_graph_tab,
+    gui_setup_graph_tab, gui_show_graph_tab, gui_ddh_populate_graph_dropdown_sn,
 )
 
 from dds.emolt import this_box_has_grouped_s3_uplink, GROUPED_S3_FILE_FLAG
@@ -70,7 +70,7 @@ from utils.ddh_shared import (
     STATE_DDS_BLE_SERVICE_INACTIVE,
     dds_get_ddh_got_an_update_flag_file,
     STATE_DDS_SOFTWARE_UPDATED,
-    get_dl_files_type, dds_kill_by_pid_file_only_child,
+    get_dl_files_type, dds_kill_by_pid_file_only_child, get_dl_folder_path_from_mac, ddh_get_absolute_application_path,
 )
 
 matplotlib.use("Qt5Agg")
@@ -132,6 +132,7 @@ class DDH(QMainWindow, d_m.Ui_MainWindow):
         gui_plot_db_delete()
         gui_ddh_set_brightness(self)
         gui_ddh_populate_note_tab_dropdown(self)
+        gui_ddh_populate_graph_dropdown_sn(self)
 
         # s3 uplink type field
         if this_box_has_grouped_s3_uplink():
@@ -142,9 +143,9 @@ class DDH(QMainWindow, d_m.Ui_MainWindow):
         self.g = pg.PlotWidget(axisItems={'bottom': pg.DateAxisItem()})
         self.g_fol_ls_idx = 0
         self.g_haul_text_options = [
-            'all hauls',
-            'last haul',
-            'one haul'
+            'all',
+            'last',
+            'single'
         ]
         self.g_haul_text_options_idx = 0
         self.g_haul_idx = -1
@@ -285,7 +286,7 @@ class DDH(QMainWindow, d_m.Ui_MainWindow):
         # input: vessel name
         ves = self.lne_vessel.text()
 
-        # last haul
+        # last haul plot type
         lhf = self.cb_plot_type.currentIndex()
 
         if t < 600:
@@ -394,7 +395,7 @@ class DDH(QMainWindow, d_m.Ui_MainWindow):
         lhf = ddh_get_json_plot_type()
         self.lne_vessel.setText(ves)
         self.lne_forget.setText(str(f_t))
-        # set index of the dropdown list
+        # set index of the JSON dropdown list
         self.cb_plot_type.setCurrentIndex(lhf)
 
     def click_btn_note_yes_specific(self):
@@ -412,13 +413,16 @@ class DDH(QMainWindow, d_m.Ui_MainWindow):
 
                     sn = self.lst_macs_note_tab.item(i).text()
                     mac = dds_get_mac_from_sn_from_json_file(sn)
-                    mac = mac.replace(":", "-")
-                    mask = "{}/{}@*".format(p, mac)
-                    ff = glob.glob(mask)
-                    for f in ff:
-                        os.unlink(f)
-                        s = "warning: clear lock-out selective for {}"
-                        lg.a(s.format(f))
+                    if mac:
+                        mac = mac.replace(":", "-")
+                        mask = "{}/{}@*".format(p, mac)
+                        ff = glob.glob(mask)
+                        for f in ff:
+                            os.unlink(f)
+                            s = "warning: clear lock-out selective for {}"
+                            lg.a(s.format(f))
+                    else:
+                        lg.a("warning: could not clear lock-out selective")
 
             except (OSError, Exception) as ex:
                 lg.a("error: {}".format(ex))
@@ -613,25 +617,27 @@ class DDH(QMainWindow, d_m.Ui_MainWindow):
         self.g.getPlotItem().enableAutoRange()
         graph_embed(self)
 
-    def click_btn_g_next_logger(self):
-        # check folder list
-        fol_ls = graph_get_fol_list()
-        n = len(fol_ls)
-        if n == 0:
-            e = 'error: folder list empty'
-            self.g.setTitle(e, color="red", size="15pt")
-            return
-
+    def click_lv_sn(self, _):
         # reset haul index
         self.g_haul_idx = -1
 
         # change logger folder and draw graph
-        self.g_fol_ls_idx = (self.g_fol_ls_idx + 1) % n
-        fol_ls = graph_get_fol_list()
-        fol = fol_ls[self.g_fol_ls_idx]
-        lg.a('button graph switch to folder {}'.format(basename(fol)))
-        self.click_btn_g_reset()
-        graph_embed(self)
+        sn = self.cb_g_sn.currentText()
+        if sn.startswith('SN'):
+            sn = sn[2:]
+        mac = dds_get_mac_from_sn_from_json_file(sn)
+        if mac:
+            lg.a('chosen dropdown graph, sn {} mac {}'.format(sn, mac))
+            mac = mac.replace(":", "-")
+            fol = get_dl_folder_path_from_mac(mac)
+            # fol: 'dl_files/<mac>
+            fol = str(ddh_get_absolute_application_path()) + '/' + str(fol)
+            fol_ls = graph_get_fol_list()
+            self.g_fol_ls_idx = fol_ls.index(fol)
+            self.click_btn_g_reset()
+            graph_embed(self)
+        else:
+            lg.a('error: dropdown graph switch, sn {} mac {}'.format(sn, mac))
 
     def click_btn_g_next_haul(self):
         # check
@@ -651,7 +657,7 @@ class DDH(QMainWindow, d_m.Ui_MainWindow):
         how_many_hauls = len(glob.glob('{}/*{}'.format(fol, ft)))
         self.g_haul_idx = (self.g_haul_idx + 1) % how_many_hauls
 
-        # remember this button is only active on haul_text == 'one haul'
+        # remember this button is only active on haul_text == 'single'
         how_many_hauls = len(glob.glob('{}/*{}'.format(fol, ft)))
         self.g_haul_idx = (self.g_haul_idx + 1) % how_many_hauls
         lg.a('button graph switch haul index to {}'.format(self.g_haul_idx))
@@ -665,18 +671,20 @@ class DDH(QMainWindow, d_m.Ui_MainWindow):
 
         # keep logger, change haul type among 3 and draw graph
         self.btn_g_next_haul.setEnabled(False)
-        if 'one' in _ht:
+        self.btn_g_next_haul.setVisible(False)
+        if 'single' in _ht:
             self.btn_g_next_haul.setEnabled(True)
+            self.btn_g_next_haul.setVisible(True)
         if not self.g_just_booted:
             graph_embed(self)
         self.g_just_booted = False
 
-    def click_lbl_g_paint_zones(self, _):
+    def click_btn_g_paint_zones(self, _):
         if self.g_paint_zones == 'zones':
             self.g_paint_zones = 'zoom'
         else:
             self.g_paint_zones = 'zones'
-        self.lbl_g_paint_zones.setText(self.g_paint_zones)
+        self.btn_g_paint_zones.setText(self.g_paint_zones)
         graph_embed(self)
 
 

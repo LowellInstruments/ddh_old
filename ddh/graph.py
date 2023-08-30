@@ -113,6 +113,9 @@ def graph_embed(a):
     # passed app, get graph
     g = a.g
 
+    # progress bar
+    # a.lbl_g_prog.setText('pepi')
+
     # clear it
     global p1
     global p2

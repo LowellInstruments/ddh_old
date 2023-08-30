@@ -74,24 +74,24 @@ def graph_get_data_csv(fol, h, hi) -> dict:
     # type of haul to plot
     met = ''
     if _g_ff_t:
-        if h == 'all hauls':
+        if h == 'all':
             _g_ff_t = _g_ff_t
-        elif h == 'last haul':
+        elif h == 'last':
             _g_ff_t = _g_ff_t[-1:]
         else:
             _g_ff_t = [_g_ff_t[hi]]
     if _g_ff_p:
-        if h == 'all hauls':
+        if h == 'all':
             _g_ff_p = _g_ff_p
-        elif h == 'last haul':
+        elif h == 'last':
             _g_ff_p = _g_ff_p[-1:]
         else:
             _g_ff_p = [_g_ff_p[hi]]
     if _g_ff_do:
         met = 'DO'
-        if h == 'all hauls':
+        if h == 'all':
             _g_ff_do = _g_ff_do
-        elif h == 'last haul':
+        elif h == 'last':
             _g_ff_do = _g_ff_do[-1:]
         else:
             _g_ff_do = [_g_ff_do[hi]]

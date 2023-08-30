@@ -100,8 +100,9 @@ def gui_setup_view(my_win):
     a.lbl_plt_msg.setVisible(False)
     a.tabs.setTabIcon(0, QIcon("ddh/gui/res/icon_info.png"))
     a.tabs.setTabIcon(1, QIcon("ddh/gui/res/icon_graph.ico"))
-    a.tabs.setTabIcon(2, QIcon("ddh/gui/res/icon_history.ico"))
     a.tabs.setTabIcon(3, QIcon("ddh/gui/res/icon_setup.png"))
+    a.tabs.setTabIcon(4, QIcon("ddh/gui/res/icon_history.ico"))
+    a.tabs.setTabIcon(5, QIcon("ddh/gui/res/icon_tweak.png"))
     a.tabs.setTabIcon(6, QIcon("ddh/gui/res/icon_graph.ico"))
     a.setWindowIcon(QIcon("ddh/gui/res/icon_lowell.ico"))
     a.lbl_brightness.setPixmap(QPixmap("ddh/gui/res/bright.png"))
@@ -155,8 +156,9 @@ def gui_setup_graph_tab(my_win):
     # reset haul button and label
     a.g_haul_text_options_idx = 0
     a.btn_g_next_haul.setEnabled(False)
+    a.btn_g_next_haul.setVisible(False)
     a.lbl_g_cycle_haul.setText(a.g_haul_text_options[0])
-    a.lbl_g_paint_zones.setText(a.g_paint_zones)
+    a.btn_g_paint_zones.setText(a.g_paint_zones)
 
     # get all the folders that we can draw
     fol_ls = graph_get_fol_list()
@@ -244,6 +246,17 @@ def gui_ddh_populate_note_tab_dropdown(my_app):
         a.lst_macs_note_tab.addItem(each)
 
 
+def gui_ddh_populate_graph_dropdown_sn(my_app):
+    """fills logger serial number dropdown list in graph tab"""
+
+    a = my_app
+    a.cb_g_sn.clear()
+
+    j = dds_get_serial_number_of_macs_from_json_file()
+    for each in j:
+        a.cb_g_sn.addItem('SN' + each)
+
+
 def gui_setup_buttons(my_app):
     """link buttons and labels clicks and signals"""
     a = my_app
@@ -261,7 +274,7 @@ def gui_setup_buttons(my_app):
     a.lbl_date.mousePressEvent = a.click_lbl_datetime_pressed
     a.lbl_date.mouseReleaseEvent = a.click_lbl_datetime_released
     a.lbl_g_cycle_haul.mousePressEvent = a.click_lbl_g_cycle_haul
-    a.lbl_g_paint_zones.mousePressEvent = a.click_lbl_g_paint_zones
+    a.btn_g_paint_zones.mousePressEvent = a.click_btn_g_paint_zones
     a.lbl_net.mousePressEvent = a.click_lbl_net_pressed
     a.lbl_net.mouseReleaseEvent = a.click_lbl_net_released
 
@@ -279,9 +292,9 @@ def gui_setup_buttons(my_app):
     a.btn_note_yes_specific.clicked.connect(a.click_btn_note_yes_specific)
     a.chk_rerun.toggled.connect(a.click_chk_rerun)
     a.btn_g_reset.clicked.connect(a.click_btn_g_reset)
-    a.btn_g_next_logger.clicked.connect(a.click_btn_g_next_logger)
     a.btn_g_next_haul.clicked.connect(a.click_btn_g_next_haul)
     a.cb_s3_uplink_type.activated.connect(a.click_cb_s3_uplink_type)
+    a.cb_g_sn.activated.connect(a.click_lv_sn)
 
 
 def gui_hide_edit_tab(ui):
@@ -328,8 +341,8 @@ def gui_show_edit_tab(ui):
 
 
 def gui_show_recipes_tab(ui):
-    icon = QIcon("ddh/gui/res/icon_r.png")
-    ui.tabs.addTab(ui.tab_recipe_wgt_ref, icon, " Recipes")
+    icon = QIcon("ddh/gui/res/icon_tweak.png")
+    ui.tabs.addTab(ui.tab_recipe_wgt_ref, icon, " Advanced")
     p = ui.tabs.findChild(QWidget, "tab_recipes")
     i = ui.tabs.indexOf(p)
     ui.tabs.setCurrentIndex(i)
