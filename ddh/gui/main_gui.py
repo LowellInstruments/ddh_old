@@ -38,8 +38,8 @@ from ddh.utils_gui import (
     gui_timer_fxn,
     gui_ddh_populate_note_tab_dropdown,
     gui_json_set_plot_units,
-    gui_hide_recipes_tab,
-    gui_show_recipes_tab,
+    gui_hide_advanced_tab,
+    gui_show_advanced_tab,
     gui_hide_graph_tab,
     gui_setup_graph_tab, gui_show_graph_tab, gui_ddh_populate_graph_dropdown_sn,
 )
@@ -111,7 +111,7 @@ class DDH(QMainWindow, d_m.Ui_MainWindow):
         self.gear_type = ddh_get_json_plot_type()
         self.bright_idx = 2
         self.tab_edit_hide = True
-        self.tab_recipes_hide = True
+        self.tab_advanced_hide = True
         self.tab_graph_hide = True
         self.tab_edit_wgt_ref = None
         self.tab_note_wgt_ref = None
@@ -126,7 +126,7 @@ class DDH(QMainWindow, d_m.Ui_MainWindow):
         self.lbl_net_pressed = 0
         gui_json_set_plot_units()
         gui_hide_edit_tab(self)
-        gui_hide_recipes_tab(self)
+        gui_hide_advanced_tab(self)
         gui_hide_note_tab(self)
         gui_populate_history(self)
         gui_plot_db_delete()
@@ -569,8 +569,8 @@ class DDH(QMainWindow, d_m.Ui_MainWindow):
 
     def click_lbl_commit_released(self, _):
         if self.commit_pressed >= 2:
-            trh = self.tab_recipes_hide = not self.tab_recipes_hide
-            gui_hide_recipes_tab(self) if trh else gui_show_recipes_tab(self)
+            trh = self.tab_advanced_hide = not self.tab_advanced_hide
+            gui_hide_advanced_tab(self) if trh else gui_show_advanced_tab(self)
         self.commit_pressed = 0
 
     def click_lbl_datetime_pressed(self, _):

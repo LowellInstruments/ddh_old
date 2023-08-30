@@ -305,9 +305,9 @@ def gui_hide_edit_tab(ui):
     ui.tabs.removeTab(i)
 
 
-def gui_hide_recipes_tab(ui):
+def gui_hide_advanced_tab(ui):
     # find tab ID, index and keep ref
-    p = ui.tabs.findChild(QWidget, "tab_recipes")
+    p = ui.tabs.findChild(QWidget, "tab_advanced")
     i = ui.tabs.indexOf(p)
     ui.tab_recipe_wgt_ref = ui.tabs.widget(i)
     ui.tabs.removeTab(i)
@@ -340,10 +340,10 @@ def gui_show_edit_tab(ui):
     ui.tabs.setCurrentIndex(i)
 
 
-def gui_show_recipes_tab(ui):
+def gui_show_advanced_tab(ui):
     icon = QIcon("ddh/gui/res/icon_tweak.png")
     ui.tabs.addTab(ui.tab_recipe_wgt_ref, icon, " Advanced")
-    p = ui.tabs.findChild(QWidget, "tab_recipes")
+    p = ui.tabs.findChild(QWidget, "tab_advanced")
     i = ui.tabs.indexOf(p)
     ui.tabs.setCurrentIndex(i)
 
