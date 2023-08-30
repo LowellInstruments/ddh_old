@@ -41,7 +41,7 @@
        </font>
       </property>
       <property name="currentIndex">
-       <number>6</number>
+       <number>5</number>
       </property>
       <widget class="QWidget" name="tab">
        <property name="sizePolicy">
@@ -1381,34 +1381,15 @@ font: 19pt &quot;DejaVu Sans&quot;;</string>
        <layout class="QVBoxLayout" name="verticalLayout_5">
         <item>
          <layout class="QGridLayout" name="gridLayout_6">
-          <item row="4" column="1">
+          <item row="1" column="1">
+           <widget class="QCheckBox" name="chk_rerun">
+            <property name="text">
+             <string> Run logger after download</string>
+            </property>
+           </widget>
+          </item>
+          <item row="6" column="1">
            <spacer name="verticalSpacer_13">
-            <property name="orientation">
-             <enum>Qt::Vertical</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>20</width>
-              <height>40</height>
-             </size>
-            </property>
-           </spacer>
-          </item>
-          <item row="0" column="0">
-           <spacer name="horizontalSpacer_12">
-            <property name="orientation">
-             <enum>Qt::Horizontal</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>40</width>
-              <height>20</height>
-             </size>
-            </property>
-           </spacer>
-          </item>
-          <item row="2" column="1">
-           <spacer name="verticalSpacer_12">
             <property name="orientation">
              <enum>Qt::Vertical</enum>
             </property>
@@ -1446,10 +1427,43 @@ font: 19pt &quot;DejaVu Sans&quot;;</string>
             </property>
            </spacer>
           </item>
-          <item row="1" column="1">
-           <widget class="QCheckBox" name="chk_rerun">
+          <item row="0" column="0">
+           <spacer name="horizontalSpacer_12">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>40</width>
+              <height>20</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item row="4" column="1">
+           <spacer name="verticalSpacer_12">
+            <property name="orientation">
+             <enum>Qt::Vertical</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>20</width>
+              <height>40</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item row="3" column="1">
+           <widget class="QPushButton" name="btn_adv_purge_lo">
             <property name="text">
-             <string> Run logger after download</string>
+             <string>Open loggers lock-out tab</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="1">
+           <widget class="QLabel" name="label_10">
+            <property name="text">
+             <string/>
             </property>
            </widget>
           </item>

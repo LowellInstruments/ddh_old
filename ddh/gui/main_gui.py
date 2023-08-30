@@ -377,6 +377,9 @@ class DDH(QMainWindow, d_m.Ui_MainWindow):
         except OSError as e:
             lg.a("error {} : {}".format(d, e))
 
+    def click_btn_adv_purge_lo(self):
+        gui_show_note_tab_delete_black_macs(self)
+
     def click_btn_purge_his_db(self):
         """deletes contents in history database"""
 
