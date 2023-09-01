@@ -1,4 +1,3 @@
-from os.path import basename
 import pyqtgraph as pg
 from pathlib import Path
 import psutil

@@ -108,7 +108,7 @@ class FiniteLinearRegionItem(LinearRegionItem):
         return br
 
 
-def graph_embed(a):
+def _graph_embed(a):
 
     # passed app, get graph
     g = a.g
@@ -248,3 +248,12 @@ def graph_embed(a):
         g.addItem(reg_do_m)
         g.addItem(reg_do_h)
         g.addItem(reg_do_g)
+
+
+def graph_embed(a):
+    # wrapper so exception-safe
+    try:
+        _graph_embed(a)
+    except (Exception,) as ex:
+        # all errors managed inside
+        lg.a("error: graph_embed -> {}".format(ex))

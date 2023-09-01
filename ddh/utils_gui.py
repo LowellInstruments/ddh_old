@@ -1,5 +1,4 @@
 import datetime
-import glob
 import json
 import os
 import shlex
@@ -605,11 +604,7 @@ def _parse_udp(my_app, s, ip="127.0.0.1"):
             return
 
         # GRAPH PROCESS
-        try:
-            graph_embed(a)
-        except (Exception,) as ex:
-            # all errors managed inside
-            lg.a("error: graph_embed -> {}".format(ex))
+        graph_embed(a)
 
     elif f == STATE_DDS_NOTIFY_PLOT_RESULT_OK:
         a.lbl_plt_bsy.setVisible(False)
