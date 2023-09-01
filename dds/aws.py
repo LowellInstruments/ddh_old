@@ -51,7 +51,7 @@ def _aws_s3_sync_process():
         sys.exit(1)
 
     if not _n.startswith("bkt-"):
-        _n = "bkt-" + _n
+        lg.a('warning: bucket name does not start with bkt-')
 
     # prepare to run it
     _u(STATE_DDS_NOTIFY_CLOUD_BUSY)
