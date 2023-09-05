@@ -41,6 +41,7 @@ PERIOD_GPS_TELL_NUM_SATS_SECS = 300
 PERIOD_GPS_TELL_VESSEL_SECS = 30
 PERIOD_GPS_AT_BOOT_SECS = 300
 PERIOD_GPS_TELL_GPS_HW_ERROR_SECS = 3600 * 3
+PERIOD_GPS_TELL_PUCK_NO_PC = 3600 * 6
 PERIOD_GPS_POWER_CYCLE = 600
 
 
@@ -460,7 +461,8 @@ def gps_power_cycle_if_so(forced=False):
         return
 
     if g_gps_is_external:
-        lg.a("debug: no power cycle BU-353-S4 GPS puck")
+        if its_time_to("show_debug_power_cycle_gps_puck", PERIOD_GPS_TELL_PUCK_NO_PC):
+            lg.a("debug: no power cycle BU-353-S4 GPS puck")
         return
 
     # this tells if we needed to power cycle
