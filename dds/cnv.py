@@ -164,8 +164,15 @@ def cnv_serve():
 
 
 if __name__ == '__main__':
-    os.chdir('..')
-    print('PWD of script conv = ', os.getcwd())
-    for each in glob.glob('dl_files/60-77-71-22-c8-4f/*.csv'):
-        os.unlink(each)
-    convert_lid_to_csv('dl_files/60-77-71-22-c8-4f', '_DissolvedOxygen')
+    # we are currently inside "ddh/dds" folder
+    os.chdir('../dl_files')
+    # now we are inside "ddh/dl_files" folder
+    print('working directory:', os.getcwd())
+    for p in os.listdir():
+        if (not os.path.isdir(p)) or p.startswith('ddh'):
+            continue
+        print(f'doing folder {p}')
+        mask = f'{p}/*.csv'
+        for f in glob.glob(mask):
+            os.unlink(f)
+        convert_lid_to_csv(p, '_DissolvedOxygen')
