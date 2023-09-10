@@ -27,7 +27,6 @@ from mat.ble.ble_mat_utils import DDH_GUI_UDP_PORT
 from mat.utils import linux_is_rpi
 import subprocess as sp
 from settings import ctx
-from settings.ctx import sms_en
 from utils.ddh_shared import (
     dds_get_json_vessel_name,
     STATE_DDS_BLE_SCAN,
@@ -262,7 +261,7 @@ def gui_setup_buttons(my_app):
     a = my_app
 
     # hidden buttons
-    if sms_en or not linux_is_rpi():
+    if not linux_is_rpi():
         a.btn_adv_sms.setEnabled(True)
 
     # clicks in BLE text, boat image, brightness...
