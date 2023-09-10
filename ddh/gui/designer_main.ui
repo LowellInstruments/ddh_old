@@ -1467,6 +1467,16 @@ font: 19pt &quot;DejaVu Sans&quot;;</string>
             </property>
            </widget>
           </item>
+          <item row="5" column="1">
+           <widget class="QPushButton" name="btn_adv_sms">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
+            <property name="text">
+             <string>logger missing</string>
+            </property>
+           </widget>
+          </item>
          </layout>
         </item>
        </layout>

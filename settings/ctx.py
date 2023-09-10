@@ -36,6 +36,10 @@ rbl_en = False
 g_gps_is_external = False
 
 
+# SMS enabled, False, since it is beta
+sms_en = False
+
+
 # debug hooks :)
 hook_gps_dummy_measurement = ddh_is_dev_platform()
 hook_gps_error_measurement_forced = False

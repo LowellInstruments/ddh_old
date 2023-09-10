@@ -14,7 +14,7 @@ from liu.ddn_msg import (
     OPCODE_SQS_DDH_ERROR_GPS_HW,
     OPCODE_SQS_LOGGER_DL_OK,
     OPCODE_SQS_LOGGER_MAX_ERRORS,
-    OPCODE_SQS_LOGGER_ERROR_OXYGEN,
+    OPCODE_SQS_LOGGER_ERROR_OXYGEN
 )
 
 from dds.timecache import its_time_to
@@ -177,6 +177,17 @@ def sqs_msg_logger_error_oxygen_zeros(*args):
 
 def sqs_msg_logger_low_battery(*args):
     _sqs_gen_file(OPCODE_SQS_LOGGER_LOW_BATTERY, *args)
+
+
+def sqs_msg_sms():
+    # we do it here so old versions don't crash
+    from liu.ddn_msg import OPCODE_SQS_SMS
+    mac = ''
+    lg_sn = '6666666'
+    lat = '0.000000'
+    lon = '0.000000'
+    data = 'sms'
+    _sqs_gen_file(OPCODE_SQS_SMS, mac, lg_sn, lat, lon, m_ver=1, data=data)
 
 
 def sqs_msg_notes_cc26x2r(*args):

@@ -44,6 +44,7 @@ from ddh.utils_gui import (
 )
 
 from dds.emolt import this_box_has_grouped_s3_uplink, GROUPED_S3_FILE_FLAG
+from dds.sqs import sqs_msg_sms
 from liu.linux import linux_is_process_running
 from mat.utils import linux_is_rpi
 from settings import ctx
@@ -378,6 +379,10 @@ class DDH(QMainWindow, d_m.Ui_MainWindow):
 
     def click_btn_adv_purge_lo(self):
         gui_show_note_tab_delete_black_macs(self)
+
+    @staticmethod
+    def click_btn_adv_sms():
+        sqs_msg_sms()
 
     def click_btn_purge_his_db(self):
         """deletes contents in history database"""

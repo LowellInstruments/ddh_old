@@ -27,6 +27,7 @@ from mat.ble.ble_mat_utils import DDH_GUI_UDP_PORT
 from mat.utils import linux_is_rpi
 import subprocess as sp
 from settings import ctx
+from settings.ctx import sms_en
 from utils.ddh_shared import (
     dds_get_json_vessel_name,
     STATE_DDS_BLE_SCAN,
@@ -260,6 +261,10 @@ def gui_setup_buttons(my_app):
     """link buttons and labels clicks and signals"""
     a = my_app
 
+    # hidden buttons
+    if sms_en or not linux_is_rpi():
+        a.btn_adv_sms.setEnabled(True)
+
     # clicks in BLE text, boat image, brightness...
     a.lbl_ble.mousePressEvent = a.click_lbl_ble
     a.lbl_brightness.mousePressEvent = a.click_lbl_brightness
@@ -295,6 +300,7 @@ def gui_setup_buttons(my_app):
     a.cb_s3_uplink_type.activated.connect(a.click_cb_s3_uplink_type)
     a.cb_g_sn.activated.connect(a.click_lv_sn)
     a.btn_adv_purge_lo.clicked.connect(a.click_btn_adv_purge_lo)
+    a.btn_adv_sms.clicked.connect(a.click_btn_adv_sms)
 
 
 def gui_hide_edit_tab(ui):
