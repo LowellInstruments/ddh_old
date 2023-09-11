@@ -1473,7 +1473,7 @@ font: 19pt &quot;DejaVu Sans&quot;;</string>
              <bool>false</bool>
             </property>
             <property name="text">
-             <string>logger missing</string>
+             <string>report silent logger</string>
             </property>
            </widget>
           </item>

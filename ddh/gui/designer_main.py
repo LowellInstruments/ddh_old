@@ -708,7 +708,7 @@ class Ui_MainWindow(object):
         self.tabs.setTabText(self.tabs.indexOf(self.tab_more_info), _translate("MainWindow", " Details"))
         self.chk_rerun.setText(_translate("MainWindow", " Run logger after download"))
         self.btn_adv_purge_lo.setText(_translate("MainWindow", "Open loggers lock-out tab"))
-        self.btn_adv_sms.setText(_translate("MainWindow", "logger missing"))
+        self.btn_adv_sms.setText(_translate("MainWindow", "report silent logger"))
         self.tabs.setTabText(self.tabs.indexOf(self.tab_advanced), _translate("MainWindow", " Advanced"))
         self.btn_g_paint_zones.setText(_translate("MainWindow", "zones"))
         self.btn_g_reset.setText(_translate("MainWindow", "reset view"))

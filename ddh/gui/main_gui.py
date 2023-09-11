@@ -45,6 +45,7 @@ from ddh.utils_gui import (
 
 from dds.emolt import this_box_has_grouped_s3_uplink, GROUPED_S3_FILE_FLAG
 from dds.sqs import sqs_msg_sms
+from dds.timecache import its_time_to
 from liu.linux import linux_is_process_running
 from mat.utils import linux_is_rpi
 from settings import ctx
@@ -213,9 +214,9 @@ class DDH(QMainWindow, d_m.Ui_MainWindow):
 
     @staticmethod
     def _tb_fxn():
-        name = NAME_EXE_DDS
-        if not linux_is_process_running(name):
-            lg.a("warning: BLE service seems dead")
+        if not linux_is_process_running(NAME_EXE_DDS):
+            if its_time_to('tell_BLE_dead', 1800):
+                lg.a("warning: BLE service seems dead")
             send_ddh_udp_gui(STATE_DDS_BLE_SERVICE_INACTIVE)
 
     def _tp_fxn(self):
@@ -633,13 +634,26 @@ class DDH(QMainWindow, d_m.Ui_MainWindow):
         if sn.startswith('SN'):
             sn = sn[2:]
         mac = dds_get_mac_from_sn_from_json_file(sn)
-        if mac:
+
+        # fol_ls: list of local 'dl_files/<mac>' folders
+        fol_ls = graph_get_fol_list()
+
+        # check this mac has downloaded files
+        mac_has_dl_files_fol = False
+        for i in fol_ls:
+            if mac in i:
+                mac_has_dl_files_fol = True
+        if not mac_has_dl_files_fol:
+            e = 'error: unknown dropdown graph sn {} mac {}'
+            lg.a(e.format(sn, mac))
+            return
+
+        if mac and mac_has_dl_files_fol:
             lg.a('chosen dropdown graph, sn {} mac {}'.format(sn, mac))
             mac = mac.replace(":", "-")
             fol = get_dl_folder_path_from_mac(mac)
             # fol: 'dl_files/<mac>
             fol = str(ddh_get_absolute_application_path()) + '/' + str(fol)
-            fol_ls = graph_get_fol_list()
             self.g_fol_ls_idx = fol_ls.index(fol)
             self.click_btn_g_reset()
             graph_embed(self)
