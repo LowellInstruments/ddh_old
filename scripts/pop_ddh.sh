@@ -4,7 +4,7 @@ echo; echo; echo
 
 # colors red, blue and reset
 C_R="\033[0;31m"
-C_B="\033[0;34m"
+C_B="\033[0;36m"
 C_Z="\033[0m"
 
 
