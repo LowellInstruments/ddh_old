@@ -18,10 +18,10 @@ echo -e "${C_B}>>> stashing current DDS configuration\n${C_Z}"
 rm -rf $FTS
 mkdir $FTS
 cp $FA/run_dds.sh $FTS
-cp $FA/scripts/script_logger_do_deploy_cfg.json $FTS
-cp $FA/settings/_li_all_macs_to_sn.yml $FTS
-cp $FA/settings/ctx.py $FTS
 cp $FA/settings/ddh.json $FTS
+cp $FA/settings/ctx.py $FTS
+cp $FA/settings/_li_all_macs_to_sn.yml $FTS
+cp $FA/scripts/script_logger_do_deploy_cfg.json $FTS
 cp $FA/ddh/db/db_his.db $FTS
 
 
@@ -44,12 +44,16 @@ fi
 
 echo -e "${C_B}>>> un-stashing DDS configuration\n${C_Z}"
 cp $FTS/run_dds.sh $FA
-cp $FTS/script_logger_do_deploy_cfg.json $FA/scripts
-cp $FTS/_li_all_macs_to_sn.yml $FA/settings
-cp $FTS/ctx.py $FA/settings
 cp $FTS/ddh.json $FA/settings
-cp /home/pi/li/ddt/_dt_files/ble_dl_moana.py $FA/dds
+cp $FTS/ctx.py $FA/settings
+cp $FTS/_li_all_macs_to_sn.yml $FA/settings
+cp $FTS/script_logger_do_deploy_cfg.json $FA/scripts
 cp $FTS/db_his.db $FA/ddh/db
+
+
+
+echo -e "${C_B}>>> installing Moana plugin from ddt\n${C_Z}"
+cp /home/pi/li/ddt/_dt_files/ble_dl_moana.py $FA/dds
 
 
 
