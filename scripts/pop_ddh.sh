@@ -14,7 +14,7 @@ FA=/home/pi/li/ddh
 
 
 
-echo -e "${C_B}>>> stashing current DDS configuration\n${C_Z}"
+echo -e "${C_B}\n>>> stashing current DDS configuration\n${C_Z}"
 rm -rf $FTS
 mkdir $FTS
 cp $FA/run_dds.sh $FTS
@@ -26,7 +26,7 @@ cp $FA/ddh/db/db_his.db $FTS
 
 
 
-echo -e "${C_B}>>> resetting and pulling DDH from github\n${C_Z}"
+echo -e "${C_B}\n>>> resetting and pulling DDH from github\n${C_Z}"
 cd $FA || (echo -e "${C_R}error: no DDH app folder${C_Z}"; exit 1)
 git reset --hard
 git pull
@@ -42,7 +42,7 @@ fi
 
 
 
-echo -e "${C_B}>>> un-stashing DDS configuration\n${C_Z}"
+echo -e "${C_B}\n>>> un-stashing DDS configuration\n${C_Z}"
 cp $FTS/run_dds.sh $FA
 cp $FTS/ddh.json $FA/settings
 cp $FTS/ctx.py $FA/settings
@@ -52,9 +52,9 @@ cp $FTS/db_his.db $FA/ddh/db
 
 
 
-echo -e "${C_B}>>> installing Moana plugin from ddt\n${C_Z}"
+echo -e "${C_B}\n>>> installing Moana plugin from ddt\n${C_Z}"
 cp /home/pi/li/ddt/_dt_files/ble_dl_moana.py $FA/dds
 
 
 
-echo -e "${C_B}\n>>> done\n${C_Z}"
+echo -e "${C_B}\n>>> done pop_ddh.sh\n${C_Z}"
