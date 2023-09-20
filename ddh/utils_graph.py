@@ -17,9 +17,9 @@ _g_ff_do = []
 
 
 # grab all mac folders
-def graph_get_fol_list():
+def graph_get_fol_list() -> list:
     """
-    return absolute paths of "dl_files/<mac>" folders
+    get list of absolute paths of "dl_files/<mac>" folders
     """
     d = ddh_get_absolute_application_path() + '/dl_files'
     if os.path.isdir(d):
@@ -31,11 +31,11 @@ def graph_get_fol_list():
 
 # get GRAPH_REQ_JSON_FILE containing the FULL ABSOLUTE folder path to plot
 def graph_get_fol_req_file():
-    # file written by DDH plot request
+    # file written by DDS when requesting a graph
     with open(GRAPH_REQ_JSON_FILE) as f:
         fol = f.read().strip()
     if not os.path.exists(fol):
-        e = 'error: {} contains an inexistent graph folder {}'
+        e = 'error: {} contains a non-existent graph folder {}'
         lg.a(e.format(GRAPH_REQ_JSON_FILE, fol))
         return
     return fol
