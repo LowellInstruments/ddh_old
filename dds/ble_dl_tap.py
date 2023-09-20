@@ -5,7 +5,7 @@ from ddh.utils_graph import graph_set_fol_req_file
 from dds.lef import dds_create_file_lef
 from mat.ble.ble_mat_utils import (
     ble_mat_crc_local_vs_remote,
-    DDH_GUI_UDP_PORT,
+    DDH_GUI_UDP_PORT, ble_mat_disconnect_all_devices_ll,
 )
 from mat.ble.bleak.cc26x2r import BleCC26X2
 from dds.ble_utils_dds import ble_get_cc26x2_recipe_file_rerun_flag, ble_logger_ccx26x2r_needs_a_reset
@@ -44,7 +44,7 @@ class BleTAPDownload:
         if ble_logger_ccx26x2r_needs_a_reset(mac):
             await lc.cmd_rst()
             # out of here for sure
-            raise BLEAppException("cc26x2 interact logger reset file")
+            raise BLEAppException("TAP interact logger reset file")
 
         rv = await lc.cmd_sws(g)
         _rae(rv, "sws")
@@ -58,11 +58,12 @@ class BleTAPDownload:
         _rae(rv, "bat")
         lg.a("BAT | {} mV".format(b))
         notes["battery_level"] = b
-#         if b < 1800:
-#             # give time to GUI to display
-#             _u("{}/{}".format(STATE_DDS_BLE_LOW_BATTERY, mac))
-#             await asyncio.sleep(3)
-#
+        if b < 1600:
+            # todo ---> check this battery level here and firmware
+            # give time to GUI to display
+            _u("{}/{}".format(STATE_DDS_BLE_LOW_BATTERY, mac))
+            await asyncio.sleep(3)
+
         rv, v = await lc.cmd_gfv()
         _rae(rv, "gfv")
         lg.a("GFV | {}".format(v))
@@ -132,20 +133,30 @@ class BleTAPDownload:
         _rae(rv, "frm")
         lg.a("FRM | OK")
 
-        # check sensors measurement
-        # rv = await lc.cmd_gst()
-        # rv = await lc.cmd_gsp()
+        # check sensors measurement, Temperature
+        rv = await lc.cmd_gst()
+        # rv: (0, 46741)
+        bad_rv = not rv or rv[0] == 1 or rv[1] == 0xFFFF or rv[1] == 0
+        if bad_rv:
+            lg.a('GST | error {}'.format(rv))
+            # _u(STATE_DDS_BLE_DOWNLOAD_ERROR_GDO)
+            # await asyncio.sleep(5)
+        _rae(bad_rv, "gst")
+
+        # check sensors measurement, Pressure
+        rv = await lc.cmd_gsp()
+        # rv: (0, 1241)
+        bad_rv = not rv or rv[0] == 1 or rv[1] == 0xFFFF or rv[1] == 0
+        if bad_rv:
+            lg.a('GSP | error {}'.format(rv))
+            # _u(STATE_DDS_BLE_DOWNLOAD_ERROR_GDO)
+            # await asyncio.sleep(5)
+        _rae(bad_rv, "gsp")
+
         # rv = await lc.cmd_acc()
-        # rv = await lc.cmd_gdo()
-        # bad_rv = not rv or (rv and rv[0] == "0000")
-        # if bad_rv:
-        #     lg.a("GDO | error {}".format(rv))
-        #     _u(STATE_DDS_BLE_DOWNLOAD_ERROR_GDO)
-        #     await asyncio.sleep(5)
-        # _rae(bad_rv, "gdo")
-        # lg.a("GDO | {}".format(rv))
 
 #         # wake mode
+        # todo ---> do we hjave this on TAP loggers? I guess yes
 #         if rerun_flag:
 #             rv = await lc.cmd_wak("on")
 #         else:
@@ -207,9 +218,11 @@ async def ble_interact_tap(mac, info, g, h):
 # test
 # ------
 if __name__ == "__main__":
-    # _m = '60:77:71:22:C9:E8'
-    _m = "11:22:33:44:55:66"
-    _i = "DO-2"
+    ble_mat_disconnect_all_devices_ll()
+    # we currently in 'ddh/dds'
+    os.chdir('..')
+    _m = "D0:2E:AB:D9:29:48"
+    _i = "TAP1"
     _g = ("+1.111111", "-2.222222", datetime.datetime.now(), 0)
     _h = "hci0"
     _args = [_m, _i, _g, _h]

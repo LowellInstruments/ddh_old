@@ -6,7 +6,7 @@ from ddh.utils_graph import graph_set_fol_req_file
 from dds.lef import dds_create_file_lef
 from mat.ble.ble_mat_utils import (
     ble_mat_crc_local_vs_remote,
-    DDH_GUI_UDP_PORT,
+    DDH_GUI_UDP_PORT, ble_mat_disconnect_all_devices_ll,
 )
 from mat.ble.bleak.cc26x2r import BleCC26X2
 from mat.ble.bleak.cc26x2r_sim import BleCC26X2Sim, ble_logger_is_cc26x2r_simulated
@@ -234,9 +234,12 @@ async def ble_interact_cc26x2(mac, info, g, h):
 # test
 # ------
 if __name__ == "__main__":
-    # _m = '60:77:71:22:C9:E8'
+    # we currently in 'ddh/dds'
+    ble_mat_disconnect_all_devices_ll()
+    os.chdir('..')
     _m = "11:22:33:44:55:66"
-    _i = "DO-2"
+    # do not use this one for TAP loggers but 'ble_dl_tap.py'
+    _i = "DO-1"
     _g = ("+1.111111", "-2.222222", datetime.datetime.now(), 0)
     _h = "hci0"
     _args = [_m, _i, _g, _h]

@@ -27,6 +27,7 @@ def _ble_is_supported_logger(s):
         # keep DO-X for Maggie Sue
         "DO-X",
         "MATP-2W",
+        "TAP1"
     ]
     for t in logger_types:
         if t in s:

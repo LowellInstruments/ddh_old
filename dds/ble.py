@@ -1,5 +1,7 @@
 import pathlib
 import shutil
+
+from dds.ble_dl_tap import ble_interact_tap
 from dds.macs import (
     rm_mac_black,
     add_mac_black,
@@ -132,10 +134,10 @@ async def _ble_id_n_interact_logger(mac, info: str, h, g):
         rv, notes = await ble_interact_cc26x2(mac, info, g, hs)
         sqs_msg_notes_cc26x2r(notes, mac, sn, lat, lon)
 
-    # elif _ble_logger_is_tap(info):
-    #     pass
-    #     # rv, notes = await ble_interact_tap(mac, info, g, hs)
-    #     # sqs_msg_notes_tap(notes, mac, sn, lat, lon)
+    elif _ble_logger_is_tap(info):
+        # rv, notes = await ble_interact_tap(mac, info, g, hs)
+        # sqs_msg_notes_tap(notes, mac, sn, lat, lon)
+        pass
 
     elif _ble_logger_is_rn4020(mac, info):
         rv = await ble_interact_rn4020(mac, info, g, hs)

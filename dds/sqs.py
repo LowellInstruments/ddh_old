@@ -181,13 +181,13 @@ def sqs_msg_logger_low_battery(*args):
 
 def sqs_msg_sms():
     # we do it here so old versions don't crash
-    from liu.ddn_msg import OPCODE_SQS_SMS
+    #from liu.ddn_msg import OPCODE_SQS_SMS
     mac = ''
     lg_sn = '6666666'
     lat = '0.000000'
     lon = '0.000000'
     data = 'sms'
-    _sqs_gen_file(OPCODE_SQS_SMS, mac, lg_sn, lat, lon, m_ver=1, data=data)
+    _sqs_gen_file('OPCODE_SQS_SMS', mac, lg_sn, lat, lon, m_ver=1, data=data)
 
 
 def sqs_msg_notes_cc26x2r(*args):
