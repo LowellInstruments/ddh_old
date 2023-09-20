@@ -79,6 +79,10 @@ def _ble_logger_is_cc26x2r(info: str):
     return "DO-" in info
 
 
+def _ble_logger_is_tap(info: str):
+    return "TAP" in info
+
+
 def _ble_logger_is_moana(info: str):
     return "MOANA" in info
 
@@ -95,10 +99,8 @@ async def _ble_id_n_interact_logger(mac, info: str, h, g):
 
     # debug
     # l_d_('forcing query of hardcoded mac')
-    # hc_mac = '60:77:71:22:c8:6f'
-    # hc_info = 'DO-2'
-    # mac = hc_mac
-    # info = hc_info
+    # mac = '60:77:71:22:c8:6f'
+    # info = 'DO-2'
 
     # debug: delete THIS logger's existing files
     if hook_ble_purge_this_mac_dl_files_folder:
@@ -106,7 +108,7 @@ async def _ble_id_n_interact_logger(mac, info: str, h, g):
         p = pathlib.Path(get_dl_folder_path_from_mac(mac))
         shutil.rmtree(str(p), ignore_errors=True)
 
-    # variables
+    # get logger serial number
     sn = dds_get_json_mac_dns(mac)
     _u("{}/{}".format(STATE_DDS_BLE_DOWNLOAD, sn))
     lg.a("processing sensor {} / mac {}".format(sn, mac))
@@ -117,7 +119,7 @@ async def _ble_id_n_interact_logger(mac, info: str, h, g):
     # separate g
     lat, lon, dt, _ = g
 
-    # g can be not whole here
+    # g can be not-whole here
     if lat == "":
         lg.a("error: lat is empty for logger {}".format(sn))
         _u("history/add&{}&error&{}&{}&{}".format(sn, lat, lon, dt))
@@ -129,6 +131,11 @@ async def _ble_id_n_interact_logger(mac, info: str, h, g):
     if _ble_logger_is_cc26x2r(info):
         rv, notes = await ble_interact_cc26x2(mac, info, g, hs)
         sqs_msg_notes_cc26x2r(notes, mac, sn, lat, lon)
+
+    # elif _ble_logger_is_tap(info):
+    #     pass
+    #     # rv, notes = await ble_interact_tap(mac, info, g, hs)
+    #     # sqs_msg_notes_tap(notes, mac, sn, lat, lon)
 
     elif _ble_logger_is_rn4020(mac, info):
         rv = await ble_interact_rn4020(mac, info, g, hs)
