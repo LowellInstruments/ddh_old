@@ -153,27 +153,29 @@ def _graph_embed(a):
     p1.getAxis("left").setStyle(tickFont=font)
     p1.getAxis("right").setStyle(tickFont=font)
 
-    # point to folder to graph
+    # know the possible folders to plot
     fol_ls = graph_get_fol_list()
+
+    # when BLE download requests a graph
     if graph_check_fol_req_file():
-        # when BLE download requests a graph
         fol = graph_get_fol_req_file()
         lg.a('last download set graph folder to {}'.format(fol))
+        # and we delete the file
         graph_delete_fol_req_file()
         # to be safe
         a.g_haul_text_options_idx = 0
         a.g_haul_idx = -1
-    else:
-        # when we cycle through graph with buttons
-        fol = fol_ls[a.g_fol_ls_idx]
-    if not fol:
-        e = 'error: no folder to graph'
-        g.setTitle(e, color="red", size="15pt")
-        return
+        a.g_fol_ls_idx = fol_ls.index(fol)
 
-    # know where we are
+    # when we cycle through graph with buttons
+    else:
+        if not fol_ls:
+            e = 'error: no folder list to graph'
+            g.setTitle(e, color="red", size="15pt")
+            return
+        fol = fol_ls[a.g_fol_ls_idx]
+
     _ht = a.g_haul_text_options[a.g_haul_text_options_idx]
-    a.g_fol_ls_idx = fol_ls.index(fol)
 
     # -------------------------------------------
     # grab the folder's CSV data, filter by haul

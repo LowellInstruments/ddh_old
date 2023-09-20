@@ -634,6 +634,7 @@ class DDH(QMainWindow, d_m.Ui_MainWindow):
         if sn.startswith('SN'):
             sn = sn[2:]
         mac = dds_get_mac_from_sn_from_json_file(sn)
+        mac = mac.replace(':', '-')
 
         # fol_ls: list of local 'dl_files/<mac>' folders
         fol_ls = graph_get_fol_list()
@@ -641,16 +642,15 @@ class DDH(QMainWindow, d_m.Ui_MainWindow):
         # check this mac has downloaded files
         mac_has_dl_files_fol = False
         for i in fol_ls:
-            if mac in i:
+            if mac.lower() in i.lower():
                 mac_has_dl_files_fol = True
         if not mac_has_dl_files_fol:
-            e = 'error: unknown dropdown graph sn {} mac {}'
+            e = 'error: no ddh.json entry for dropdown sn {} mac {}'
             lg.a(e.format(sn, mac))
             return
 
         if mac and mac_has_dl_files_fol:
             lg.a('chosen dropdown graph, sn {} mac {}'.format(sn, mac))
-            mac = mac.replace(":", "-")
             fol = get_dl_folder_path_from_mac(mac)
             # fol: 'dl_files/<mac>
             fol = str(ddh_get_absolute_application_path()) + '/' + str(fol)
