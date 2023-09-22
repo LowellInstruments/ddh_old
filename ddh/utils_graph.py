@@ -109,6 +109,7 @@ def graph_get_data_csv(fol, h, hi) -> dict:
 
     # check metric is set
     if not met:
+        lg.a('error: no metric keys for folder {}'.format(fol))
         return {
             'metric': '',
         }
@@ -165,23 +166,25 @@ def graph_get_data_csv(fol, h, hi) -> dict:
             lg.a('reading TAP file {}'.format(basename(f)))
             df = pd.read_csv(f, sep=',')
             x += list(df['ISO 8601 Time'])
-            tap_t += list(df['T'])
-            tap_p += list(df['P'])
+            tap_t += list(df['Temperature (C)'])
+            tap_p += list(df['Pressure (dbar)'])
             tap_ax += list(df['Ax'])
             tap_ay += list(df['Ay'])
             tap_az += list(df['Az'])
 
-        # convert dot Celsius to Fahrenheit
-        tap_t = [(c*9/5)+32 for c in tap_t]
+        # todo ---> add this when we are almost done to convert dot Celsius to Fahrenheit
+        # tap_t = [(c*9/5)+32 for c in tap_t]
 
         # convert 2018-11-11T13:00:00.000 --> epoch seconds
-        # todo ---> save files like this
-        # x = [dp.parse('{}Z'.format(i)).timestamp() for i in x]
+        x = [dp.parse('{}Z'.format(i)).timestamp() for i in x]
         return {
             'metric': met,
             'ISO 8601 Time': x,
-            'T': tap_t,
-            'P': tap_p
+            'Temperature (C)': tap_t,
+            'Pressure (dbar)': tap_p,
+            'Ax': tap_ax,
+            'Ay': tap_ay,
+            'Az': tap_az
         }
 
     else:
