@@ -1,12 +1,14 @@
+import glob
 from datetime import datetime
 from PyQt5.QtCore import QTime
 import pyqtgraph as pg
 from pyqtgraph.Qt import QtGui
 from os.path import basename
 from pyqtgraph import LinearRegionItem
-from ddh.utils_graph import graph_get_fol_req_file, graph_get_fol_list, graph_get_data_csv, graph_check_fol_req_file, \
+from ddh.utils_graph import graph_get_abs_fol_req_file, graph_get_fol_list, graph_get_data_csv, graph_check_fol_req_file, \
     graph_delete_fol_req_file
-from utils.ddh_shared import dds_get_json_mac_dns
+from utils.ddh_shared import dds_get_json_mac_dns, dds_get_mac_from_sn_from_json_file, get_dl_folder_path_from_mac, \
+    ddh_get_absolute_application_path, get_number_of_hauls
 from utils.logs import lg_gra as lg
 
 # to be able to zoom in RPi
@@ -17,6 +19,17 @@ pg.setConfigOption('leftButtonPan', False)
 p1 = None
 p2 = None
 just_booted = True
+
+
+class GraphException(Exception):
+    pass
+
+
+def has_this_mac_any_dl_files(mac, fol_ls):
+    for i in fol_ls:
+        if mac.lower() in i.lower():
+            return True
+    return False
 
 
 def graph_update_views():
@@ -108,13 +121,73 @@ class FiniteLinearRegionItem(LinearRegionItem):
         return br
 
 
-def _graph_embed(a):
+def _graph_embed(a, r=''):
 
     # passed app, get graph
     g = a.g
 
-    # progress bar
-    # a.lbl_g_prog.setText('pepi')
+    # fol_ls: list of absolute local 'dl_files/<mac>' folders
+    fol_ls = graph_get_fol_list()
+
+    # get current haul type
+    _ht = a.cb_g_cycle_haul.currentText()
+
+    # zones type
+    _zt = a.cb_g_paint_zones.currentText()
+
+    # haul idx
+    if a.g_haul_idx is None:
+        a.g_haul_idx = -1
+
+    # get folder to graph
+    fol: str
+    sn = a.cb_g_sn.currentText()
+    if sn:
+        if sn.startswith('SN'):
+            sn = sn[2:]
+        mac = dds_get_mac_from_sn_from_json_file(sn).replace(':', '-')
+        if not has_this_mac_any_dl_files(mac, fol_ls):
+            raise GraphException(f'error: no files for sn {sn} mac {mac}')
+        lg.a('graphing: dropdown sn {} mac {}'.format(sn, mac))
+        fol = get_dl_folder_path_from_mac(mac)
+        # fol: 'dl_files/<mac>, is not absolute, make it so
+        fol = str(ddh_get_absolute_application_path()) + '/' + str(fol)
+    else:
+        if not graph_check_fol_req_file():
+            raise GraphException('error: no BLE requested folder to graph')
+        fol = graph_get_abs_fol_req_file()
+        lg.a('graphing: last BLE download {}'.format(fol))
+        graph_delete_fol_req_file()
+
+    # number of hauls
+    nh = get_number_of_hauls(fol)
+
+    if r == 'ble':
+        # in fact, do nothing
+        pass
+
+    if r == 'logger_listview':
+        # in fact, do nothing
+        pass
+
+    if r == 'hauls_next':
+        # remember this button is only active on haul_text == 'single'
+        if nh == 0:
+            raise GraphException(f'error: no hauls for {fol}')
+        a.g_haul_idx = (a.g_haul_idx + 1) % nh
+        lg.a(f'button haul index = {a.g_haul_idx}')
+
+    if r == 'hauls_labels':
+        if _ht == 'single':
+            a.btn_g_next_haul.setEnabled(True)
+            a.btn_g_next_haul.setVisible(True)
+        else:
+            a.btn_g_next_haul.setEnabled(False)
+            a.btn_g_next_haul.setVisible(False)
+
+    if r == 'zones_toggle':
+        # in fact, do nothing
+        print(_zt)
 
     # clear it
     global p1
@@ -152,30 +225,6 @@ def _graph_embed(a):
     p1.getAxis("bottom").setStyle(tickFont=font)
     p1.getAxis("left").setStyle(tickFont=font)
     p1.getAxis("right").setStyle(tickFont=font)
-
-    # know the possible folders to plot
-    fol_ls = graph_get_fol_list()
-
-    # when BLE download requests a graph
-    if graph_check_fol_req_file():
-        fol = graph_get_fol_req_file()
-        lg.a('last download set graph folder to {}'.format(fol))
-        # and we delete the file
-        graph_delete_fol_req_file()
-        # to be safe
-        a.g_haul_text_options_idx = 0
-        a.g_haul_idx = -1
-        a.g_fol_ls_idx = fol_ls.index(fol)
-
-    # when we cycle through graph with buttons
-    else:
-        if not fol_ls:
-            e = 'error: no folder list to graph'
-            g.setTitle(e, color="red", size="15pt")
-            return
-        fol = fol_ls[a.g_fol_ls_idx]
-
-    _ht = a.g_haul_text_options[a.g_haul_text_options_idx]
 
     # -------------------------------------------
     # grab the folder's CSV data, filter by haul
@@ -228,7 +277,7 @@ def _graph_embed(a):
     if met == 'DO':
         p1.setYRange(0, 10, padding=0)
         alpha = 50
-        if a.g_paint_zones != 'zones':
+        if _zt != 'zones':
             return
         reg_do_l = FiniteLinearRegionItem(values=(0, 2),
                                            limits=4,
@@ -252,10 +301,12 @@ def _graph_embed(a):
         g.addItem(reg_do_g)
 
 
-def graph_embed(a):
+def graph_embed(a, r=''):
     # wrapper so exception-safe
     try:
-        _graph_embed(a)
+        _graph_embed(a, r)
+    except GraphException as e:
+        a.g.setTitle(e, color="red", size="15pt")
     except (Exception,) as ex:
-        # all errors managed inside
+        # specific errors managed inside
         lg.a("error: graph_embed -> {}".format(ex))

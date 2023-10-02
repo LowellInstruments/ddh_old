@@ -20,7 +20,7 @@ from gpiozero import Button
 from ddh.db.db_his import DBHis
 from ddh import utils_plt
 from ddh.graph import graph_embed
-from ddh.utils_graph import graph_get_fol_req_file, graph_get_fol_list
+from ddh.utils_graph import graph_get_abs_fol_req_file, graph_get_fol_list
 from ddh.utils_net import net_get_my_current_wlan_ssid
 from dds.ble_utils_dds import ble_get_cc26x2_recipe_file_rerun_flag
 from mat.ble.ble_mat_utils import DDH_GUI_UDP_PORT
@@ -71,7 +71,7 @@ from utils.ddh_shared import (
     dds_get_serial_number_of_macs_from_json_file,
     STATE_DDS_BLE_SCAN_FIRST_EVER,
     ddh_get_db_plots_file,
-    STATE_DDS_BLE_ERROR_MOANA_PLUGIN, get_dl_files_type, STATE_DDS_BLE_DOWNLOAD_ERROR_GDO, STATE_DDS_BLE_ERROR_RUN,
+    STATE_DDS_BLE_ERROR_MOANA_PLUGIN, STATE_DDS_BLE_DOWNLOAD_ERROR_GDO, STATE_DDS_BLE_ERROR_RUN,
     STATE_DDS_REQUEST_GRAPH,
 )
 from utils.logs import lg_gui as lg
@@ -143,33 +143,6 @@ def gui_setup_view(my_win):
     a.chk_rerun.setChecked(rerun_flag)
 
     return a
-
-
-def gui_setup_graph_tab(my_win):
-    a = my_win
-
-    # layout
-    a.lay_g_h2.addWidget(a.g)
-    a.g.setBackground('w')
-
-    # reset haul button and label
-    a.g_haul_text_options_idx = 0
-    a.btn_g_next_haul.setEnabled(False)
-    a.btn_g_next_haul.setVisible(False)
-    a.lbl_g_cycle_haul.setText(a.g_haul_text_options[0])
-    a.btn_g_paint_zones.setText(a.g_paint_zones)
-
-    # get all the folders that we can draw
-    fol_ls = graph_get_fol_list()
-    if not fol_ls:
-        e = 'error: cannot get folder list'
-        a.g.setTitle(e, color="red", size="15pt")
-        return
-
-    # re-set folder index
-    fol = fol_ls[0]
-    a.g_fol_ls_idx = 0
-    lg.a('graph engine boot folder: {}'.format(basename(fol)))
 
 
 def gui_center_window(my_app):
@@ -276,8 +249,6 @@ def gui_setup_buttons(my_app):
     a.lbl_commit.mouseReleaseEvent = a.click_lbl_commit_released
     a.lbl_date.mousePressEvent = a.click_lbl_datetime_pressed
     a.lbl_date.mouseReleaseEvent = a.click_lbl_datetime_released
-    a.lbl_g_cycle_haul.mousePressEvent = a.click_lbl_g_cycle_haul
-    a.btn_g_paint_zones.mousePressEvent = a.click_btn_g_paint_zones
     a.lbl_net.mousePressEvent = a.click_lbl_net_pressed
     a.lbl_net.mouseReleaseEvent = a.click_lbl_net_released
 
@@ -289,17 +260,21 @@ def gui_setup_buttons(my_app):
     a.btn_setup_apply.clicked.connect(a.click_btn_apply_write_json_file)
     a.btn_dl_purge.clicked.connect(a.click_btn_purge_dl_folder)
     a.btn_his_purge.clicked.connect(a.click_btn_purge_his_db)
+    a.btn_adv_purge_lo.clicked.connect(a.click_btn_adv_purge_lo)
     a.btn_load_current.clicked.connect(a.click_btn_load_current_json_file)
     a.btn_note_yes.clicked.connect(a.click_btn_note_yes)
     a.btn_note_no.clicked.connect(a.click_btn_note_no)
     a.btn_note_yes_specific.clicked.connect(a.click_btn_note_yes_specific)
     a.chk_rerun.toggled.connect(a.click_chk_rerun)
-    a.btn_g_reset.clicked.connect(a.click_btn_g_reset)
-    a.btn_g_next_haul.clicked.connect(a.click_btn_g_next_haul)
     a.cb_s3_uplink_type.activated.connect(a.click_cb_s3_uplink_type)
-    a.cb_g_sn.activated.connect(a.click_lv_sn)
-    a.btn_adv_purge_lo.clicked.connect(a.click_btn_adv_purge_lo)
     a.btn_adv_sms.clicked.connect(a.click_btn_adv_sms)
+
+    # graph stuff
+    a.btn_g_reset.clicked.connect(a.click_graph_btn_reset)
+    a.btn_g_next_haul.clicked.connect(a.click_graph_btn_next_haul)
+    a.cb_g_sn.activated.connect(a.click_graph_listview_logger_sn)
+    a.cb_g_cycle_haul.activated.connect(a.click_graph_lbl_haul_types)
+    a.cb_g_paint_zones.activated.connect(a.click_graph_btn_paint_zones)
 
 
 def gui_hide_edit_tab(ui):

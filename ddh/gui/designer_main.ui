@@ -41,7 +41,7 @@
        </font>
       </property>
       <property name="currentIndex">
-       <number>5</number>
+       <number>6</number>
       </property>
       <widget class="QWidget" name="tab">
        <property name="sizePolicy">
@@ -1487,15 +1487,22 @@ font: 19pt &quot;DejaVu Sans&quot;;</string>
        </attribute>
        <layout class="QVBoxLayout" name="verticalLayout_7" stretch="1,8">
         <item>
-         <layout class="QHBoxLayout" name="lay_g_h1">
+         <layout class="QHBoxLayout" name="lay_g_h1" stretch="1,1,1,1,1,1,1">
           <property name="spacing">
            <number>18</number>
           </property>
           <item>
-           <widget class="QPushButton" name="btn_g_paint_zones">
-            <property name="text">
-             <string>zones</string>
-            </property>
+           <widget class="QComboBox" name="cb_g_paint_zones">
+            <item>
+             <property name="text">
+              <string>zones</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>zoom</string>
+             </property>
+            </item>
            </widget>
           </item>
           <item>
@@ -1539,10 +1546,22 @@ font: 19pt &quot;DejaVu Sans&quot;;</string>
            </widget>
           </item>
           <item>
-           <widget class="QPushButton" name="lbl_g_cycle_haul">
-            <property name="text">
-             <string>all</string>
-            </property>
+           <widget class="QComboBox" name="cb_g_cycle_haul">
+            <item>
+             <property name="text">
+              <string>all</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>last</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>single</string>
+             </property>
+            </item>
            </widget>
           </item>
           <item>

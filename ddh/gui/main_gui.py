@@ -12,7 +12,6 @@ from PyQt5.QtWidgets import QMainWindow, QFileDialog
 import ddh.gui.designer_main as d_m
 from ddh.db.db_his import DBHis
 from ddh.graph import graph_embed
-from ddh.utils_graph import graph_get_fol_list
 from ddh.utils_gui import (
     gui_json_get_metrics,
     gui_hide_edit_tab,
@@ -40,7 +39,7 @@ from ddh.utils_gui import (
     gui_hide_advanced_tab,
     gui_show_advanced_tab,
     gui_hide_graph_tab,
-    gui_setup_graph_tab, gui_show_graph_tab, gui_ddh_populate_graph_dropdown_sn,
+    gui_show_graph_tab, gui_ddh_populate_graph_dropdown_sn,
 )
 
 from dds.emolt import this_box_has_grouped_s3_uplink, GROUPED_S3_FILE_FLAG
@@ -71,7 +70,7 @@ from utils.ddh_shared import (
     STATE_DDS_BLE_SERVICE_INACTIVE,
     dds_get_ddh_got_an_update_flag_file,
     STATE_DDS_SOFTWARE_UPDATED,
-    get_dl_files_type, dds_kill_by_pid_file_only_child, get_dl_folder_path_from_mac, ddh_get_absolute_application_path,
+    dds_kill_by_pid_file_only_child
 )
 
 matplotlib.use("Qt5Agg")
@@ -94,9 +93,6 @@ class DDH(QMainWindow, d_m.Ui_MainWindow):
         # you want GUI logs or not
         # ------------------------
         lg.are_enabled(True)
-
-        # for future new plotting
-        self.aw = None
 
         # gui: appearance
         dl_fol = str(get_ddh_folder_path_dl_files())
@@ -139,21 +135,18 @@ class DDH(QMainWindow, d_m.Ui_MainWindow):
         if this_box_has_grouped_s3_uplink():
             self.cb_s3_uplink_type.setCurrentIndex(1)
 
+        # -----------
         # graph tab
+        # -----------
         gui_hide_graph_tab(self)
         self.g = pg.PlotWidget(axisItems={'bottom': pg.DateAxisItem()})
-        self.g_fol_ls_idx = 0
-        self.g_haul_text_options = [
-            'all',
-            'last',
-            'single'
-        ]
-        self.g_haul_text_options_idx = 0
-        self.g_haul_idx = -1
+        self.g_haul_idx = None
 
-        self.g_just_booted = True
-        self.g_paint_zones = 'zones' # or 'zoom'
-        gui_setup_graph_tab(self)
+        # graph layout
+        self.lay_g_h2.addWidget(self.g)
+        self.g.setBackground('w')
+        self.btn_g_next_haul.setEnabled(False)
+        self.btn_g_next_haul.setVisible(False)
 
         # timer to update GUI fields
         self.tg = QTimer()
@@ -621,92 +614,21 @@ class DDH(QMainWindow, d_m.Ui_MainWindow):
         j["rerun"] = int(v)
         ble_set_cc26x2r_recipe_flags_to_file(j)
 
-    def click_btn_g_reset(self):
+    def click_graph_btn_reset(self):
         self.g.getPlotItem().enableAutoRange()
         graph_embed(self)
 
-    def click_lv_sn(self, _):
-        # reset haul index
-        self.g_haul_idx = -1
+    def click_graph_listview_logger_sn(self, _):
+        graph_embed(self, r='logger_listview')
 
-        # change logger folder and draw graph
-        sn = self.cb_g_sn.currentText()
-        if sn.startswith('SN'):
-            sn = sn[2:]
-        mac = dds_get_mac_from_sn_from_json_file(sn)
-        mac = mac.replace(':', '-')
+    def click_graph_btn_next_haul(self):
+        graph_embed(self, r='hauls_next')
 
-        # fol_ls: list of local 'dl_files/<mac>' folders
-        fol_ls = graph_get_fol_list()
+    def click_graph_lbl_haul_types(self, _):
+        graph_embed(self, r='hauls_labels')
 
-        # check this mac has downloaded files
-        mac_has_dl_files_fol = False
-        for i in fol_ls:
-            if mac.lower() in i.lower():
-                mac_has_dl_files_fol = True
-        if not mac_has_dl_files_fol:
-            e = 'error: no ddh.json entry for dropdown sn {} mac {}'
-            lg.a(e.format(sn, mac))
-            return
-
-        if mac and mac_has_dl_files_fol:
-            lg.a('chosen dropdown graph, sn {} mac {}'.format(sn, mac))
-            fol = get_dl_folder_path_from_mac(mac)
-            # fol: 'dl_files/<mac>
-            fol = str(ddh_get_absolute_application_path()) + '/' + str(fol)
-            self.g_fol_ls_idx = fol_ls.index(fol)
-            self.click_btn_g_reset()
-            graph_embed(self)
-        else:
-            lg.a('error: dropdown graph switch, sn {} mac {}'.format(sn, mac))
-
-    def click_btn_g_next_haul(self):
-        # check
-        fol_ls = graph_get_fol_list()
-        n = len(fol_ls)
-        if n == 0:
-            e = 'error: folder list empty'
-            self.g.setTitle(e, color="red", size="15pt")
-            return
-        # keep logger, increase haul index and draw graph
-        fol = fol_ls[self.g_fol_ls_idx]
-        ft = get_dl_files_type(fol)
-        if not ft:
-            e = 'error: no hauls for this logger'
-            self.g.setTitle(e, color="red", size="15pt")
-            return
-        how_many_hauls = len(glob.glob('{}/*{}'.format(fol, ft)))
-        self.g_haul_idx = (self.g_haul_idx + 1) % how_many_hauls
-
-        # remember this button is only active on haul_text == 'single'
-        how_many_hauls = len(glob.glob('{}/*{}'.format(fol, ft)))
-        self.g_haul_idx = (self.g_haul_idx + 1) % how_many_hauls
-        lg.a('button graph switch haul index to {}'.format(self.g_haul_idx))
-        graph_embed(self)
-
-    def click_lbl_g_cycle_haul(self, _):
-        # calculate next haul type in cycle
-        self.g_haul_text_options_idx = (self.g_haul_text_options_idx + 1) % 3
-        _ht = self.g_haul_text_options[self.g_haul_text_options_idx]
-        self.lbl_g_cycle_haul.setText(_ht)
-
-        # keep logger, change haul type among 3 and draw graph
-        self.btn_g_next_haul.setEnabled(False)
-        self.btn_g_next_haul.setVisible(False)
-        if 'single' in _ht:
-            self.btn_g_next_haul.setEnabled(True)
-            self.btn_g_next_haul.setVisible(True)
-        if not self.g_just_booted:
-            graph_embed(self)
-        self.g_just_booted = False
-
-    def click_btn_g_paint_zones(self, _):
-        if self.g_paint_zones == 'zones':
-            self.g_paint_zones = 'zoom'
-        else:
-            self.g_paint_zones = 'zones'
-        self.btn_g_paint_zones.setText(self.g_paint_zones)
-        graph_embed(self)
+    def click_graph_btn_paint_zones(self, _):
+        graph_embed(self, r='zones_toggle')
 
 
 def on_ctrl_c(signal_num, _):

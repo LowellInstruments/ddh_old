@@ -428,15 +428,25 @@ def get_utc_offset():
     return utc_offset
 
 
-def get_dl_files_type(path):
+def get_number_of_hauls(path):
+    # path: /home/kaz/PycharmProjects/ddh/dl_files/11-22-33-44-55-66
     ls_lid = len(glob.glob('{}/*.lid'.format(path)))
+    ls_lip = len(glob.glob('{}/*.lip'.format(path)))
+    ls_bin = len(glob.glob('{}/moana*.bin'.format(path)))
+    mask = '???'
     if ls_lid:
-        return 'lid'
-    ls_bin = len(glob.glob('{}/*.bin'.format(path)))
-    if ls_bin:
-        return 'bin'
-    print('I dont know what files to search for')
-    return ''
+        # for DO loggers
+        mask = f'{path}/*_DissolvedOxygen.csv'
+    elif ls_lip:
+        mask = f'{path}/*_TAP.csv'
+    elif ls_bin:
+        # NOT this mask but logger files' one
+        # mask = f'{path}/MOANA*.csv'
+        mask = f'{path}/moana*_Pressure.csv'
+
+    n = len(glob.glob(mask))
+    print(f'found {n} files mask {mask}')
+    return n
 
 
 def ddh_get_absolute_application_path():

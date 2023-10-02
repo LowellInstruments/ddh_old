@@ -31,8 +31,8 @@ def graph_get_fol_list() -> list:
     return []
 
 
-# get GRAPH_REQ_JSON_FILE containing the FULL ABSOLUTE folder path to plot
-def graph_get_fol_req_file():
+# read GRAPH_REQ_JSON_FILE, it has the FULL ABSOLUTE folder path to plot
+def graph_get_abs_fol_req_file():
     # file written by DDS when requesting a graph
     with open(GRAPH_REQ_JSON_FILE) as f:
         fol = f.read().strip()
