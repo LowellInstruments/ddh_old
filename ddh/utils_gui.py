@@ -26,7 +26,6 @@ from mat.ble.ble_mat_utils import DDH_GUI_UDP_PORT
 from mat.utils import linux_is_rpi
 import subprocess as sp
 from settings import ctx
-from settings.ctx import g_graph_test_mode
 from utils.ddh_shared import (
     dds_get_json_vessel_name,
     STATE_DDS_BLE_SCAN,
@@ -72,7 +71,7 @@ from utils.ddh_shared import (
     STATE_DDS_BLE_SCAN_FIRST_EVER,
     ddh_get_db_plots_file,
     STATE_DDS_BLE_ERROR_MOANA_PLUGIN, STATE_DDS_BLE_DOWNLOAD_ERROR_GDO, STATE_DDS_BLE_ERROR_RUN,
-    STATE_DDS_REQUEST_GRAPH, ddh_get_absolute_application_path,
+    STATE_DDS_REQUEST_GRAPH, ddh_get_absolute_application_path, g_graph_test_mode,
 )
 from utils.logs import lg_gui as lg
 
@@ -170,7 +169,7 @@ def gui_manage_graph_test_files():
     t1 = a + '/tests/11-22-33-44-55-66'
     shutil.rmtree(d0, ignore_errors=True)
     shutil.rmtree(d1, ignore_errors=True)
-    if g_graph_test_mode:
+    if g_graph_test_mode():
         shutil.copytree(t0, d0)
         shutil.copytree(t1, d1)
 
@@ -237,7 +236,7 @@ def gui_ddh_populate_graph_dropdown_sn(my_app):
     a = my_app
     a.cb_g_sn.clear()
 
-    if g_graph_test_mode:
+    if g_graph_test_mode():
         a.cb_g_sn.addItem('SN00')
         a.cb_g_sn.addItem('SN11')
         return

@@ -1,14 +1,11 @@
 from functools import lru_cache
 from glob import glob
 import os
-
-from settings.ctx import g_graph_test_mode
 from utils.logs import lg_gra as lg
 import pandas as pd
 import dateutil.parser as dp
 from os.path import basename
-from utils.ddh_shared import ddh_get_absolute_application_path
-
+from utils.ddh_shared import ddh_get_absolute_application_path, g_graph_test_mode
 
 # this contains the full path to mac folder to plot
 GRAPH_REQ_JSON_FILE = '/tmp/graph_req.json'
@@ -25,7 +22,7 @@ def graph_get_fol_list() -> list:
     get list of absolute paths of "dl_files/<mac>" folders
     """
     d = ddh_get_absolute_application_path() + '/dl_files'
-    if g_graph_test_mode:
+    if g_graph_test_mode():
         fol_ls = [
             d + '/11-22-33-44-55-66',
             d + '/00-00-00-00-00-00',
@@ -42,7 +39,7 @@ def graph_get_fol_list() -> list:
 
 # read GRAPH_REQ_JSON_FILE, it has the FULL ABSOLUTE folder path to plot
 def graph_get_abs_fol_req_file():
-    if g_graph_test_mode:
+    if g_graph_test_mode():
         return
 
     # file written by DDS_BLE when requesting a graph
@@ -56,13 +53,13 @@ def graph_get_abs_fol_req_file():
 
 
 def graph_check_fol_req_file():
-    if g_graph_test_mode:
+    if g_graph_test_mode():
         return
     return os.path.exists(GRAPH_REQ_JSON_FILE)
 
 
 def graph_delete_fol_req_file():
-    if g_graph_test_mode:
+    if g_graph_test_mode():
         return
     try:
         os.unlink(GRAPH_REQ_JSON_FILE)
@@ -71,7 +68,7 @@ def graph_delete_fol_req_file():
 
 
 def graph_set_fol_req_file(mac):
-    if g_graph_test_mode:
+    if g_graph_test_mode():
         return
     try:
         with open(GRAPH_REQ_JSON_FILE, "w") as f:

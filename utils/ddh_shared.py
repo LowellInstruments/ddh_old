@@ -464,6 +464,12 @@ def ddh_get_absolute_application_path():
     return home + app + '/ddh'
 
 
+GRAPH_TEST_MODE_FILE = '/tmp/ddh_graph_test_mode.json'
+
+def g_graph_test_mode():
+    return os.path.exists(GRAPH_TEST_MODE_FILE)
+
+
 def main():
     print(ddh_get_folder_path_root())
 

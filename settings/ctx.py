@@ -17,10 +17,6 @@ plt_units_depth = None
 span_dict = None
 
 
-# new graph stuff
-g_graph_test_mode = False
-
-
 # AWS / SQS enabled or not
 aws_en = True
 sqs_en = True
