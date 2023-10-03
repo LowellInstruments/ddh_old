@@ -81,7 +81,7 @@ def graph_set_fol_req_file(mac):
         lg.a("error: graph_set_fol_req_file() {}".format(ex))
 
 
-@lru_cache
+@lru_cache(maxsize=256)
 def graph_get_data_csv(fol, h, hi) -> dict:
     global _g_ff_t, _g_ff_p, _g_ff_do
 
