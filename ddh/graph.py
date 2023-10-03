@@ -8,7 +8,7 @@ from pyqtgraph import LinearRegionItem
 from ddh.utils_graph import graph_get_abs_fol_req_file, graph_get_fol_list, graph_get_data_csv, graph_check_fol_req_file, \
     graph_delete_fol_req_file
 from utils.ddh_shared import dds_get_json_mac_dns, dds_get_mac_from_sn_from_json_file, get_dl_folder_path_from_mac, \
-    ddh_get_absolute_application_path, get_number_of_hauls
+    ddh_get_absolute_application_path, get_number_of_hauls, dds_get_json_vessel_name
 from utils.logs import lg_gra as lg
 
 # to be able to zoom in RPi
@@ -304,7 +304,17 @@ def _graph_embed(a, r=''):
 def graph_embed(a, r=''):
     # wrapper so exception-safe
     try:
-        _graph_embed(a, r)
+        # debug: while we develop this
+        v = dds_get_json_vessel_name()
+        if v.lower() in (
+            'joaquim',
+            'greenfeet',
+            'redfeet',
+            'cubefarm'
+        ):
+            _graph_embed(a, r)
+        else:
+            lg.a('warning: this DDH does no new graphs yet :)')
     except GraphException as e:
         a.g.setTitle(e, color="red", size="15pt")
     except (Exception,) as ex:
