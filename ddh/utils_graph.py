@@ -1,3 +1,4 @@
+import time
 from functools import lru_cache
 from glob import glob
 import os
@@ -131,25 +132,32 @@ def graph_get_data_csv(fol, h, hi) -> dict:
             'metric': '',
         }
 
-    # grab values
+    # summary of what we are going to graph
+    rv: dict
+    x = []
     s = "graphing\n\tmetric {}\n\tfolder {}\n\thauls {}\n\thi {}"
     lg.a(s.format(met, basename(fol), h, hi))
+
+    # time this data-grabbing procedure
+    start_ts = time.perf_counter()
+
+    # graph values from source depending on metric
     if met == 'TP':
-        x, t, p = [], [], []
+        t, p = [], []
         for f in _g_ff_t:
-            lg.a('graph: reading T file {}'.format(basename(f)))
+            lg.a('reading T file {}'.format(basename(f)))
             df = pd.read_csv(f)
             # grab Time (x) values from here
             x += list(df['ISO 8601 Time'])
             t += list(df['Temperature (C)'])
         for f in _g_ff_p:
-            lg.a('graph: reading P file {}'.format(basename(f)))
+            lg.a('reading P file {}'.format(basename(f)))
             df = pd.read_csv(f)
             p += list(df['Pressure (dbar)'])
 
         # convert 2018-11-11T13:00:00.000 --> epoch seconds
         x = [dp.parse('{}Z'.format(i)).timestamp() for i in x]
-        return {
+        rv = {
             'metric': met,
             'ISO 8601 Time': x,
             'Temperature (C)': t,
@@ -157,9 +165,9 @@ def graph_get_data_csv(fol, h, hi) -> dict:
         }
 
     elif met == 'DO':
-        x, doc, dot = [], [], []
+        doc, dot = [], []
         for f in _g_ff_do:
-            lg.a('graph: reading DO file {}'.format(basename(f)))
+            lg.a('reading DO file {}'.format(basename(f)))
             df = pd.read_csv(f)
             x += list(df['ISO 8601 Time'])
             doc += list(df['Dissolved Oxygen (mg/l)'])
@@ -170,7 +178,7 @@ def graph_get_data_csv(fol, h, hi) -> dict:
 
         # convert 2018-11-11T13:00:00.000 --> epoch seconds
         x = [dp.parse('{}Z'.format(i)).timestamp() for i in x]
-        return {
+        rv = {
             'metric': met,
             'ISO 8601 Time': x,
             'DO Concentration (mg/l)': doc,
@@ -178,7 +186,7 @@ def graph_get_data_csv(fol, h, hi) -> dict:
         }
 
     elif met == 'TAP':
-        x, tap_t, tap_p, tap_ax, tap_ay, tap_az = [], [], [], [], [], []
+        tap_t, tap_p, tap_ax, tap_ay, tap_az = [], [], [], [], []
         for f in _g_ff_tap:
             lg.a('reading TAP file {}'.format(basename(f)))
             df = pd.read_csv(f, sep=',')
@@ -194,7 +202,7 @@ def graph_get_data_csv(fol, h, hi) -> dict:
 
         # convert 2018-11-11T13:00:00.000 --> epoch seconds
         x = [dp.parse('{}Z'.format(i)).timestamp() for i in x]
-        return {
+        rv = {
             'metric': met,
             'ISO 8601 Time': x,
             'Temperature (C)': tap_t,
@@ -206,4 +214,11 @@ def graph_get_data_csv(fol, h, hi) -> dict:
 
     else:
         lg.a('error: graph_get_all_csv() unknown metric {}'.format(met))
-        assert False
+        rv = {}
+
+    # display number of points
+    end_ts = time.perf_counter()
+    el_ts = int((end_ts - start_ts) * 1000)
+    lg.a(f'data-grabbing {len(x)} {met} points, took {el_ts} ms')
+
+    return rv

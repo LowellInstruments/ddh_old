@@ -1,4 +1,5 @@
 import glob
+import time
 from datetime import datetime
 from PyQt5.QtCore import QTime
 import pyqtgraph as pg
@@ -126,6 +127,9 @@ def _graph_embed(a, r=''):
     # passed app, get graph
     g = a.g
 
+    # time this thing
+    start_ts = time.perf_counter()
+
     # fol_ls: list of absolute local 'dl_files/<mac>' folders
     fol_ls = graph_get_fol_list()
 
@@ -148,7 +152,7 @@ def _graph_embed(a, r=''):
         mac = dds_get_mac_from_sn_from_json_file(sn).replace(':', '-')
         if not has_this_mac_any_dl_files(mac, fol_ls):
             raise GraphException(f'error: no files for sn {sn} mac {mac}')
-        lg.a('graphing: dropdown sn {} mac {}'.format(sn, mac))
+        lg.a('selected dropdown sn {} mac {}'.format(sn, mac))
         fol = get_dl_folder_path_from_mac(mac)
         # fol: 'dl_files/<mac>, is not absolute, make it so
         fol = str(ddh_get_absolute_application_path()) + '/' + str(fol)
@@ -156,7 +160,7 @@ def _graph_embed(a, r=''):
         if not graph_check_fol_req_file():
             raise GraphException('error: no BLE requested folder to graph')
         fol = graph_get_abs_fol_req_file()
-        lg.a('graphing: last BLE download {}'.format(fol))
+        lg.a('selected last BLE download {}'.format(fol))
         graph_delete_fol_req_file()
 
     # -----------------
@@ -301,6 +305,11 @@ def _graph_embed(a, r=''):
         g.addItem(reg_do_m)
         g.addItem(reg_do_h)
         g.addItem(reg_do_g)
+
+    # display number of points
+    end_ts = time.perf_counter()
+    el_ts = int((end_ts - start_ts) * 1000)
+    lg.a(f'displaying {len(x)} {met} points, took {el_ts} ms')
 
 
 def graph_embed(a, r=''):
