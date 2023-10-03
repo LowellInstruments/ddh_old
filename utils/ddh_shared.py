@@ -451,7 +451,7 @@ def get_number_of_hauls(path):
         mask = f'{path}/moana*_Pressure.csv'
 
     n = len(glob.glob(mask))
-    print(f'found {n} files mask {mask}')
+    # print(f'found {n} files mask {mask}')
     return n
 
 
@@ -465,6 +465,7 @@ def ddh_get_absolute_application_path():
 
 
 GRAPH_TEST_MODE_FILE = '/tmp/ddh_graph_test_mode.json'
+
 
 def g_graph_test_mode():
     return os.path.exists(GRAPH_TEST_MODE_FILE)

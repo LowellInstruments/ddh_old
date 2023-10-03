@@ -92,6 +92,7 @@ def graph_get_data_csv(fol, h, hi) -> dict:
     # type of haul to plot
     met = ''
     if _g_ff_t:
+        met = 'TP'
         if h == 'all':
             _g_ff_t = _g_ff_t
         elif h == 'last':
@@ -99,6 +100,7 @@ def graph_get_data_csv(fol, h, hi) -> dict:
         else:
             _g_ff_t = [_g_ff_t[hi]]
     if _g_ff_p:
+        met = 'TP'
         if h == 'all':
             _g_ff_p = _g_ff_p
         elif h == 'last':
@@ -135,13 +137,13 @@ def graph_get_data_csv(fol, h, hi) -> dict:
     if met == 'TP':
         x, t, p = [], [], []
         for f in _g_ff_t:
-            lg.a('\tgraph: reading T file {}'.format(basename(f)))
+            lg.a('graph: reading T file {}'.format(basename(f)))
             df = pd.read_csv(f)
             # grab Time (x) values from here
             x += list(df['ISO 8601 Time'])
             t += list(df['Temperature (C)'])
         for f in _g_ff_p:
-            lg.a('\tgraph: reading P file {}'.format(basename(f)))
+            lg.a('graph: reading P file {}'.format(basename(f)))
             df = pd.read_csv(f)
             p += list(df['Pressure (dbar)'])
 
@@ -157,7 +159,7 @@ def graph_get_data_csv(fol, h, hi) -> dict:
     elif met == 'DO':
         x, doc, dot = [], [], []
         for f in _g_ff_do:
-            lg.a('\tgraph: reading DO file {}'.format(basename(f)))
+            lg.a('graph: reading DO file {}'.format(basename(f)))
             df = pd.read_csv(f)
             x += list(df['ISO 8601 Time'])
             doc += list(df['Dissolved Oxygen (mg/l)'])

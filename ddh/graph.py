@@ -159,7 +159,9 @@ def _graph_embed(a, r=''):
         lg.a('graphing: last BLE download {}'.format(fol))
         graph_delete_fol_req_file()
 
+    # -----------------
     # number of hauls
+    # -----------------
     nh = get_number_of_hauls(fol)
 
     if r == 'ble':
@@ -310,7 +312,8 @@ def graph_embed(a, r=''):
             'joaquim',
             'greenfeet',
             'redfeet',
-            'cubefarm'
+            'cubefarm',
+            'archer22'
         ):
             _graph_embed(a, r)
         else:
