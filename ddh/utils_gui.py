@@ -5,7 +5,7 @@ import shlex
 import socket
 import threading
 import time
-from os.path import basename
+import shutil
 import yaml
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QPixmap, QIcon
@@ -20,13 +20,13 @@ from gpiozero import Button
 from ddh.db.db_his import DBHis
 from ddh import utils_plt
 from ddh.graph import graph_embed
-from ddh.utils_graph import graph_get_abs_fol_req_file, graph_get_fol_list
 from ddh.utils_net import net_get_my_current_wlan_ssid
 from dds.ble_utils_dds import ble_get_cc26x2_recipe_file_rerun_flag
 from mat.ble.ble_mat_utils import DDH_GUI_UDP_PORT
 from mat.utils import linux_is_rpi
 import subprocess as sp
 from settings import ctx
+from settings.ctx import g_graph_test_mode
 from utils.ddh_shared import (
     dds_get_json_vessel_name,
     STATE_DDS_BLE_SCAN,
@@ -72,7 +72,7 @@ from utils.ddh_shared import (
     STATE_DDS_BLE_SCAN_FIRST_EVER,
     ddh_get_db_plots_file,
     STATE_DDS_BLE_ERROR_MOANA_PLUGIN, STATE_DDS_BLE_DOWNLOAD_ERROR_GDO, STATE_DDS_BLE_ERROR_RUN,
-    STATE_DDS_REQUEST_GRAPH,
+    STATE_DDS_REQUEST_GRAPH, ddh_get_absolute_application_path,
 )
 from utils.logs import lg_gui as lg
 
@@ -162,6 +162,19 @@ def gui_center_window(my_app):
     a.setFixedHeight(768)
 
 
+def gui_manage_graph_test_files():
+    a = ddh_get_absolute_application_path()
+    d0 = a + '/dl_files/00-00-00-00-00-00'
+    d1 = a + '/dl_files/11-22-33-44-55-66'
+    t0 = a + '/tests/00-00-00-00-00-00'
+    t1 = a + '/tests/11-22-33-44-55-66'
+    shutil.rmtree(d0, ignore_errors=True)
+    shutil.rmtree(d1, ignore_errors=True)
+    if g_graph_test_mode:
+        shutil.copytree(t0, d0)
+        shutil.copytree(t1, d1)
+
+
 def gui_populate_history(my_app):
     """fills history tab"""
 
@@ -223,6 +236,11 @@ def gui_ddh_populate_graph_dropdown_sn(my_app):
 
     a = my_app
     a.cb_g_sn.clear()
+
+    if g_graph_test_mode:
+        a.cb_g_sn.addItem('SN00')
+        a.cb_g_sn.addItem('SN11')
+        return
 
     j = dds_get_serial_number_of_macs_from_json_file()
     for each in j:

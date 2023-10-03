@@ -39,7 +39,7 @@ from ddh.utils_gui import (
     gui_hide_advanced_tab,
     gui_show_advanced_tab,
     gui_hide_graph_tab,
-    gui_show_graph_tab, gui_ddh_populate_graph_dropdown_sn,
+    gui_show_graph_tab, gui_ddh_populate_graph_dropdown_sn, gui_manage_graph_test_files,
 )
 
 from dds.emolt import this_box_has_grouped_s3_uplink, GROUPED_S3_FILE_FLAG
@@ -147,6 +147,9 @@ class DDH(QMainWindow, d_m.Ui_MainWindow):
         self.g.setBackground('w')
         self.btn_g_next_haul.setEnabled(False)
         self.btn_g_next_haul.setVisible(False)
+
+        # graph test mode
+        gui_manage_graph_test_files()
 
         # timer to update GUI fields
         self.tg = QTimer()

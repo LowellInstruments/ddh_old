@@ -73,6 +73,8 @@ def _aws_s3_sync_process():
             '--include "*.lid" '
             '--include "*.bin" '
             '--include "*.txt" {}'
+            '--exclude "test_*.csv'
+            '--exclude "test_*.lid'
         )
         c = c.format(_k, _s, _bin, m,
                      _n, um, dr)
@@ -96,6 +98,8 @@ def _aws_s3_sync_process():
                 '--include "*.lid" '
                 '--include "*.bin" '
                 '--include "*.txt" {}'
+                '--exclude "test_*.csv'
+                '--exclude "test_*.lid'
             )
 
             c = c.format(_k, _s, _bin, m,

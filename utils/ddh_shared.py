@@ -11,6 +11,7 @@ import subprocess as sp
 from mat.ble.ble_mat_utils import DDH_GUI_UDP_PORT
 from mat.utils import linux_is_rpi
 
+
 STATE_DDS_NOTIFY_BOAT_NAME = "boat_name"
 STATE_DDS_NOTIFY_GPS = "gps"
 STATE_DDS_NOTIFY_GPS_CLOCK = "gps_clock_time_sync"
@@ -243,6 +244,11 @@ def dds_get_serial_number_of_macs_from_json_file():
 
 
 def dds_get_mac_from_sn_from_json_file(sn):
+    # this happens while testing graph mode
+    d = {'00': '00:00:00:00:00:00', '11': '11:22:33:44:55:66'}
+    if sn in d:
+        return d[sn]
+
     j = str(ddh_get_settings_json_file())
     try:
         with open(j) as f:
@@ -252,7 +258,7 @@ def dds_get_mac_from_sn_from_json_file(sn):
             return inv[sn].lower()
 
     except (Exception,) as ex:
-        print("error json_get_sn()", ex)
+        print("error json_get_mac()", ex)
 
 
 def ddh_get_json_plot_type():
