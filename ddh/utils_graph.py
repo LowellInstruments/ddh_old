@@ -155,6 +155,14 @@ def graph_get_data_csv(fol, h, hi) -> dict:
             df = pd.read_csv(f)
             p += list(df['Pressure (dbar)'])
 
+        # enable faster plotting
+        if len(x) > 600:
+            lg.a('faster plotting enabled for TP')
+            n = int(len(x) > 600)
+            x = x[::n]
+            t = t[::n]
+            p = p[::n]
+
         # convert 2018-11-11T13:00:00.000 --> epoch seconds
         x = [dp.parse('{}Z'.format(i)).timestamp() for i in x]
         rv = {
@@ -174,7 +182,15 @@ def graph_get_data_csv(fol, h, hi) -> dict:
             dot += list(df['DO Temperature (C)'])
 
         # convert dot Celsius to Fahrenheit
-        dot = [(c*9/5)+32 for c in dot]
+        dotf = [(c*9/5)+32 for c in dot]
+
+        # enable faster plotting
+        if len(x) > 600:
+            lg.a('faster plotting enabled for DOT')
+            n = int(len(x) > 600)
+            x = x[::n]
+            doc = doc[::n]
+            dotf = dot[::n]
 
         # convert 2018-11-11T13:00:00.000 --> epoch seconds
         x = [dp.parse('{}Z'.format(i)).timestamp() for i in x]
@@ -182,7 +198,7 @@ def graph_get_data_csv(fol, h, hi) -> dict:
             'metric': met,
             'ISO 8601 Time': x,
             'DO Concentration (mg/l)': doc,
-            'DO Temperature (F)': dot
+            'Temperature (F)': dotf
         }
 
     elif met == 'TAP':
@@ -199,6 +215,17 @@ def graph_get_data_csv(fol, h, hi) -> dict:
 
         # todo ---> add this when we are almost done to convert dot Celsius to Fahrenheit
         # tap_t = [(c*9/5)+32 for c in tap_t]
+
+        # enable faster plotting
+        if len(x) > 600:
+            lg.a('faster plotting enabled for TAP')
+            n = int(len(x) > 600)
+            x = x[::n]
+            tap_t = tap_t[::n]
+            tap_p = tap_p[::n]
+            tap_ax = tap_ax[::n]
+            tap_ay = tap_ay[::n]
+            tap_az = tap_az[::n]
 
         # convert 2018-11-11T13:00:00.000 --> epoch seconds
         x = [dp.parse('{}Z'.format(i)).timestamp() for i in x]
