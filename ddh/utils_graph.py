@@ -158,7 +158,7 @@ def graph_get_data_csv(fol, h, hi) -> dict:
         # enable faster plotting
         if len(x) > 600:
             lg.a('faster plotting enabled for TP')
-            n = int(len(x) > 600)
+            n = int(len(x) / 600)
             x = x[::n]
             t = t[::n]
             p = p[::n]
@@ -187,7 +187,7 @@ def graph_get_data_csv(fol, h, hi) -> dict:
         # enable faster plotting
         if len(x) > 600:
             lg.a('faster plotting enabled for DOT')
-            n = int(len(x) > 600)
+            n = int(len(x) / 600)
             x = x[::n]
             doc = doc[::n]
             dotf = dot[::n]
@@ -219,7 +219,7 @@ def graph_get_data_csv(fol, h, hi) -> dict:
         # enable faster plotting
         if len(x) > 600:
             lg.a('faster plotting enabled for TAP')
-            n = int(len(x) > 600)
+            n = int(len(x) / 600)
             x = x[::n]
             tap_t = tap_t[::n]
             tap_p = tap_p[::n]
