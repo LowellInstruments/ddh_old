@@ -7,7 +7,7 @@ import threading
 import time
 import shutil
 import yaml
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt, QCoreApplication
 from PyQt5.QtGui import QPixmap, QIcon
 from PyQt5.QtWidgets import (
     QDesktopWidget,
@@ -19,7 +19,7 @@ from PyQt5.QtWidgets import (
 from gpiozero import Button
 from ddh.db.db_his import DBHis
 from ddh import utils_plt
-from ddh.graph import graph_embed
+from ddh.graph import process_n_graph
 from ddh.utils_net import net_get_my_current_wlan_ssid
 from dds.ble_utils_dds import ble_get_cc26x2_recipe_file_rerun_flag
 from mat.ble.ble_mat_utils import DDH_GUI_UDP_PORT
@@ -601,7 +601,7 @@ def _parse_udp(my_app, s, ip="127.0.0.1"):
             return
 
         # GRAPH PROCESS
-        graph_embed(a)
+        process_n_graph(a)
 
     elif f == STATE_DDS_NOTIFY_PLOT_RESULT_OK:
         a.lbl_plt_bsy.setVisible(False)
@@ -685,6 +685,7 @@ def gui_timer_fxn(my_app):
     sym = ("·", "··", "···", " ")
     a.lbl_plt_bsy.setText(sym[i])
     a.lbl_date.setText(datetime.datetime.now().strftime("%b %d %H:%M:%S"))
+
     if a.boat_pressed > 0:
         a.boat_pressed += 1
     if a.commit_pressed > 0:

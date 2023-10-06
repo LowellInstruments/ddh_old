@@ -11,7 +11,7 @@ from PyQt5.QtCore import QTimer, Qt
 from PyQt5.QtWidgets import QMainWindow, QFileDialog
 import ddh.gui.designer_main as d_m
 from ddh.db.db_his import DBHis
-from ddh.graph import graph_embed
+from ddh.graph import process_n_graph
 from ddh.utils_gui import (
     gui_json_get_metrics,
     gui_hide_edit_tab,
@@ -147,6 +147,7 @@ class DDH(QMainWindow, d_m.Ui_MainWindow):
         self.g.setBackground('w')
         self.btn_g_next_haul.setEnabled(False)
         self.btn_g_next_haul.setVisible(False)
+        self.lbl_graph_busy.setVisible(False)
 
         # graph test mode
         gui_manage_graph_test_files()
@@ -619,19 +620,19 @@ class DDH(QMainWindow, d_m.Ui_MainWindow):
 
     def click_graph_btn_reset(self):
         self.g.getPlotItem().enableAutoRange()
-        graph_embed(self)
+        process_n_graph(self)
 
     def click_graph_listview_logger_sn(self, _):
-        graph_embed(self, r='logger_listview')
+        process_n_graph(self, r='logger_listview')
 
     def click_graph_btn_next_haul(self):
-        graph_embed(self, r='hauls_next')
+        process_n_graph(self, r='hauls_next')
 
     def click_graph_lbl_haul_types(self, _):
-        graph_embed(self, r='hauls_labels')
+        process_n_graph(self, r='hauls_labels')
 
     def click_graph_btn_paint_zones(self, _):
-        graph_embed(self, r='zones_toggle')
+        process_n_graph(self, r='zones_toggle')
 
 
 def on_ctrl_c(signal_num, _):

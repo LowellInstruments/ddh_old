@@ -1485,9 +1485,9 @@ font: 19pt &quot;DejaVu Sans&quot;;</string>
        <attribute name="title">
         <string> Graph</string>
        </attribute>
-       <layout class="QVBoxLayout" name="verticalLayout_7" stretch="1,8">
+       <layout class="QVBoxLayout" name="verticalLayout_7" stretch="1,0,8">
         <item>
-         <layout class="QHBoxLayout" name="lay_g_h1" stretch="1,1,1,1,1,1,1">
+         <layout class="QHBoxLayout" name="lay_g_h1" stretch="1,1,1,1,1,1">
           <property name="spacing">
            <number>18</number>
           </property>
@@ -1519,19 +1519,6 @@ font: 19pt &quot;DejaVu Sans&quot;;</string>
               <width>175</width>
               <height>16777215</height>
              </size>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QLabel" name="lbl_g_prog">
-            <property name="maximumSize">
-             <size>
-              <width>50</width>
-              <height>16777215</height>
-             </size>
-            </property>
-            <property name="text">
-             <string/>
             </property>
            </widget>
           </item>
@@ -1574,6 +1561,42 @@ font: 19pt &quot;DejaVu Sans&quot;;</string>
             </property>
             <property name="text">
              <string>&gt;</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <layout class="QHBoxLayout" name="lay_g_h1_2" stretch="0">
+          <property name="spacing">
+           <number>0</number>
+          </property>
+          <item>
+           <widget class="QLabel" name="lbl_graph_busy">
+            <property name="maximumSize">
+             <size>
+              <width>9000</width>
+              <height>200</height>
+             </size>
+            </property>
+            <property name="font">
+             <font>
+              <pointsize>48</pointsize>
+              <weight>50</weight>
+              <bold>false</bold>
+              <underline>false</underline>
+              <strikeout>false</strikeout>
+              <kerning>true</kerning>
+             </font>
+            </property>
+            <property name="styleSheet">
+             <string notr="true">color: rgb(0, 0, 255)</string>
+            </property>
+            <property name="text">
+             <string>LOADING...</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignCenter</set>
             </property>
            </widget>
           </item>

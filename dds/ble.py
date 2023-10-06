@@ -152,11 +152,15 @@ async def _ble_id_n_interact_logger(mac, info: str, h, g):
     # see how it went
     _ble_analyze_logger_result(rv, mac, lat, lon, sn)
 
+    # on GUI, all times are local, not UTC
+    dt_local = dt
+    print(dt_local)
+
     # do history things here
     if rv == 0:
-        _u("history/add&{}&ok&{}&{}&{}".format(sn, lat, lon, dt))
+        _u("history/add&{}&ok&{}&{}&{}".format(sn, lat, lon, dt_local))
     else:
-        _u("history/add&{}&error&{}&{}&{}".format(sn, lat, lon, dt))
+        _u("history/add&{}&error&{}&{}&{}".format(sn, lat, lon, dt_local))
         # works for RPi
         ble_mat_bluetoothctl_power_cycle()
         # works for laptop

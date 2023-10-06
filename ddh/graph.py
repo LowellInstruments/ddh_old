@@ -1,12 +1,13 @@
-import glob
 import time
 from datetime import datetime
-from PyQt5.QtCore import QTime
+from glob import glob
+
+from PyQt5.QtCore import QTime, QCoreApplication
 import pyqtgraph as pg
 from pyqtgraph.Qt import QtGui
 from os.path import basename
 from pyqtgraph import LinearRegionItem
-from ddh.utils_graph import graph_get_abs_fol_req_file, graph_get_fol_list, graph_get_data_csv, graph_check_fol_req_file, \
+from ddh.utils_graph import graph_get_abs_fol_req_file, graph_get_fol_list, process_graph_csv_data, graph_check_fol_req_file, \
     graph_delete_fol_req_file
 from utils.ddh_shared import dds_get_json_mac_dns, dds_get_mac_from_sn_from_json_file, get_dl_folder_path_from_mac, \
     ddh_get_absolute_application_path, get_number_of_hauls, dds_get_json_vessel_name
@@ -122,7 +123,27 @@ class FiniteLinearRegionItem(LinearRegionItem):
         return br
 
 
-def _graph_embed(a, r=''):
+def _graph_busy_sign_show(a):
+    a.lbl_graph_busy.setVisible(True)
+    QCoreApplication.processEvents()
+
+
+def _graph_busy_sign_hide(a):
+    a.lbl_graph_busy.setVisible(False)
+
+
+def _graph_calc_hash_filenames(fol):
+    _g_ff_t = sorted(glob("{}/{}".format(fol, "*_Temperature.csv")))
+    _g_ff_p = sorted(glob("{}/{}".format(fol, "*_Pressure.csv")))
+    _g_ff_do = sorted(glob("{}/{}".format(fol, "*_DissolvedOxygen.csv")))
+    _g_ff_tap = sorted(glob("{}/{}".format(fol, "*_TAP.csv")))
+
+    # so we can use cache
+    return '\n'.join(_g_ff_t) + '\n'.join(_g_ff_p) +\
+        '\n'.join(_g_ff_do) + '\n'.join(_g_ff_tap)
+
+
+def _process_n_graph(a, r=''):
 
     # passed app, get graph
     g = a.g
@@ -143,7 +164,9 @@ def _graph_embed(a, r=''):
     if a.g_haul_idx is None:
         a.g_haul_idx = -1
 
+    # --------------------
     # get folder to graph
+    # --------------------
     fol: str
     sn = a.cb_g_sn.currentText()
     if sn:
@@ -235,11 +258,12 @@ def _graph_embed(a, r=''):
     # -------------------------------------------
     # grab the folder's CSV data, filter by haul
     # -------------------------------------------
-    data = graph_get_data_csv(fol, _ht, a.g_haul_idx)
+    filenames_hash = _graph_calc_hash_filenames(fol)
+    data = process_graph_csv_data(fol, filenames_hash, _ht, a.g_haul_idx)
+    if not data:
+        raise GraphException(f'error: no data for {fol}')
     if 'ISO 8601 Time' not in data.keys():
-        e = 'error: no time data'
-        g.setTitle(e, color="red", size="15pt")
-        return
+        raise GraphException(f'error: no time data for {fol}')
 
     # x is the time and is already in seconds
     x = data['ISO 8601 Time']
@@ -268,7 +292,9 @@ def _graph_embed(a, r=''):
                                  **{"color": "blue", "font-size": "20px"})
     p1.getAxis('right').setTextPen('b')
 
+    # ---------
     # draw it
+    # ---------
     p1.plot(x, y1, pen='r')
     p2.addItem(pg.PlotCurveItem(x, y2, pen='b', hoverable=True))
 
@@ -312,7 +338,8 @@ def _graph_embed(a, r=''):
     lg.a(f'displaying {len(x)} {met} points, took {el_ts} ms')
 
 
-def graph_embed(a, r=''):
+def process_n_graph(a, r=''):
+
     # wrapper so exception-safe
     try:
         # debug: while we develop this
@@ -324,7 +351,9 @@ def graph_embed(a, r=''):
             'cubefarm',
             'archer22'
         ):
-            _graph_embed(a, r)
+            _graph_busy_sign_show(a)
+            _process_n_graph(a, r='')
+            _graph_busy_sign_hide(a)
         else:
             lg.a('warning: this DDH does no new graphs yet :)')
     except GraphException as e:

@@ -72,9 +72,9 @@ def _aws_s3_sync_process():
             '--include "*.gps" '
             '--include "*.lid" '
             '--include "*.bin" '
+            '--exclude "test_*.csv '
+            '--exclude "test_*.lid '
             '--include "*.txt" {}'
-            '--exclude "test_*.csv'
-            '--exclude "test_*.lid'
         )
         c = c.format(_k, _s, _bin, m,
                      _n, um, dr)
@@ -97,9 +97,9 @@ def _aws_s3_sync_process():
                 '--include "*.gps" '
                 '--include "*.lid" '
                 '--include "*.bin" '
+                '--exclude "test_*.csv '
+                '--exclude "test_*.lid '
                 '--include "*.txt" {}'
-                '--exclude "test_*.csv'
-                '--exclude "test_*.lid'
             )
 
             c = c.format(_k, _s, _bin, m,

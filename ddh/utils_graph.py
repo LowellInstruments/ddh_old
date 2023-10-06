@@ -2,6 +2,8 @@ import time
 from functools import lru_cache
 from glob import glob
 import os
+from math import ceil
+
 from utils.logs import lg_gra as lg
 import pandas as pd
 import dateutil.parser as dp
@@ -10,11 +12,6 @@ from utils.ddh_shared import ddh_get_absolute_application_path, g_graph_test_mod
 
 # this contains the full path to mac folder to plot
 GRAPH_REQ_JSON_FILE = '/tmp/graph_req.json'
-
-
-_g_ff_t = []
-_g_ff_p = []
-_g_ff_do = []
 
 
 # grab all mac folders
@@ -50,6 +47,7 @@ def graph_get_abs_fol_req_file():
         e = 'error: {} contains a non-existent graph folder {}'
         lg.a(e.format(GRAPH_REQ_JSON_FILE, fol))
         return
+
     return fol
 
 
@@ -81,10 +79,58 @@ def graph_set_fol_req_file(mac):
         lg.a("error: graph_set_fol_req_file() {}".format(ex))
 
 
-@lru_cache(maxsize=256)
-def graph_get_data_csv(fol, h, hi) -> dict:
-    global _g_ff_t, _g_ff_p, _g_ff_do
+def _data_build_dict_intervals(df, di) -> dict:
+    # shape: (rows, columns)
+    n = df.shape[0]
+    if n < 2:
+        print('discarding')
+        return di
+    a = df.at[0, 'ISO 8601 Time']
+    ta = dp.parse('{}Z'.format(a)).timestamp()
+    b = df.at[1, 'ISO 8601 Time']
+    tb = dp.parse('{}Z'.format(b)).timestamp()
+    delta = tb - ta
+    v = n
+    if delta in di.keys():
+        v = di[delta]
+        v += n
+    di[delta] = v
+    return di
 
+
+def _data_weight_intervals(di):
+    if len(di.items()) == 0:
+        print('cannot weight')
+        return
+    v = 0
+    n = 0
+    for i, w in di.items():
+        lg.a(f'weight: interval {i}, {w} points')
+        n += w
+        v += (i * w)
+    return v / n
+
+
+def _data_average_by_time_weight(d_i, w):
+    # d_i: data input
+    for i in d_i[::w]:
+        # todo ---> do this
+        print(i)
+
+
+def _data_get_prune_period(x, met):
+    if len(x) > 600:
+        lg.a('---------------------------------')
+        lg.a(f'faster plotting enabled for {met}')
+        lg.a('---------------------------------')
+        return int(len(x) / 600)
+    return 1
+
+
+@lru_cache(maxsize=256)
+def process_graph_csv_data(fol, filenames_hash, h, hi) -> dict:
+
+    # 'filenames_hash' is ignored, only use for lru_cache
     _g_ff_t = sorted(glob("{}/{}".format(fol, "*_Temperature.csv")))
     _g_ff_p = sorted(glob("{}/{}".format(fol, "*_Pressure.csv")))
     _g_ff_do = sorted(glob("{}/{}".format(fol, "*_DissolvedOxygen.csv")))
@@ -127,15 +173,13 @@ def graph_get_data_csv(fol, h, hi) -> dict:
 
     # check metric is set
     if not met:
-        lg.a('error: no metric keys for folder {}'.format(fol))
-        return {
-            'metric': '',
-        }
+        lg.a('error: no metric keys to graph folder {}'.format(fol))
+        return {}
 
     # summary of what we are going to graph
     rv: dict
     x = []
-    s = "graphing\n\tmetric {}\n\tfolder {}\n\thauls {}\n\thi {}"
+    s = "graph:\n\tmetric {}\n\tfolder {}\n\thauls {}\n\thi {}"
     lg.a(s.format(met, basename(fol), h, hi))
 
     # time this data-grabbing procedure
@@ -146,22 +190,22 @@ def graph_get_data_csv(fol, h, hi) -> dict:
         t, p = [], []
         for f in _g_ff_t:
             lg.a('reading T file {}'.format(basename(f)))
-            df = pd.read_csv(f)
+            df = pd.read_csv(f, engine="pyarrow")
             # grab Time (x) values from here
             x += list(df['ISO 8601 Time'])
             t += list(df['Temperature (C)'])
         for f in _g_ff_p:
             lg.a('reading P file {}'.format(basename(f)))
-            df = pd.read_csv(f)
+            df = pd.read_csv(f, engine="pyarrow")
             p += list(df['Pressure (dbar)'])
 
-        # enable faster plotting
-        if len(x) > 600:
-            lg.a('faster plotting enabled for TP')
-            n = int(len(x) / 600)
-            x = x[::n]
-            t = t[::n]
-            p = p[::n]
+        # --------------------------------------
+        # data optimization for faster plotting
+        # --------------------------------------
+        n = _data_get_prune_period(x, met)
+        x = x[::n]
+        t = t[::n]
+        p = p[::n]
 
         # convert 2018-11-11T13:00:00.000 --> epoch seconds
         x = [dp.parse('{}Z'.format(i)).timestamp() for i in x]
@@ -174,26 +218,52 @@ def graph_get_data_csv(fol, h, hi) -> dict:
 
     elif met == 'DO':
         doc, dot = [], []
+        di = dict()
         for f in _g_ff_do:
             lg.a('reading DO file {}'.format(basename(f)))
-            df = pd.read_csv(f)
+            df = pd.read_csv(f, engine="pyarrow")
+            # --------------------
+            # build dict intervals
+            # --------------------
+            tst_di = _data_build_dict_intervals(df, di)
+            if not tst_di:
+                continue
+            di = tst_di
             x += list(df['ISO 8601 Time'])
             doc += list(df['Dissolved Oxygen (mg/l)'])
             dot += list(df['DO Temperature (C)'])
+        if not di:
+            lg.a('error: NO _data_build_dict_intervals')
+            return {}
+
+        # ---------------------
+        # weight dict intervals
+        # ---------------------
+        w = int(ceil(_data_weight_intervals(di)))
+        if not w:
+            lg.a('error: NO _data_weight_intervals')
+            return {}
+        lg.a(f'weight: result {w}')
 
         # convert dot Celsius to Fahrenheit
         dotf = [(c*9/5)+32 for c in dot]
 
-        # enable faster plotting
-        if len(x) > 600:
-            lg.a('faster plotting enabled for DOT')
-            n = int(len(x) / 600)
-            x = x[::n]
-            doc = doc[::n]
-            dotf = dot[::n]
-
         # convert 2018-11-11T13:00:00.000 --> epoch seconds
         x = [dp.parse('{}Z'.format(i)).timestamp() for i in x]
+
+        # --------------------------------------
+        # data averaging for less dots to plot
+        # --------------------------------------
+        # _data_average_by_time_weight(x, w)
+
+        # --------------------------------------
+        # data optimization for faster plotting
+        # --------------------------------------
+        n = _data_get_prune_period(x, met)
+        x = x[::n]
+        doc = doc[::n]
+        dotf = dot[::n]
+
         rv = {
             'metric': met,
             'ISO 8601 Time': x,
@@ -205,7 +275,7 @@ def graph_get_data_csv(fol, h, hi) -> dict:
         tap_t, tap_p, tap_ax, tap_ay, tap_az = [], [], [], [], []
         for f in _g_ff_tap:
             lg.a('reading TAP file {}'.format(basename(f)))
-            df = pd.read_csv(f, sep=',')
+            df = pd.read_csv(f, engine="pyarrow")
             x += list(df['ISO 8601 Time'])
             tap_t += list(df['Temperature (C)'])
             tap_p += list(df['Pressure (dbar)'])
@@ -216,16 +286,16 @@ def graph_get_data_csv(fol, h, hi) -> dict:
         # todo ---> add this when we are almost done to convert dot Celsius to Fahrenheit
         # tap_t = [(c*9/5)+32 for c in tap_t]
 
-        # enable faster plotting
-        if len(x) > 600:
-            lg.a('faster plotting enabled for TAP')
-            n = int(len(x) / 600)
-            x = x[::n]
-            tap_t = tap_t[::n]
-            tap_p = tap_p[::n]
-            tap_ax = tap_ax[::n]
-            tap_ay = tap_ay[::n]
-            tap_az = tap_az[::n]
+        # --------------------------------------
+        # data optimization for faster plotting
+        # --------------------------------------
+        n = _data_get_prune_period(x, met)
+        x = x[::n]
+        tap_t = tap_t[::n]
+        tap_p = tap_p[::n]
+        tap_ax = tap_ax[::n]
+        tap_ay = tap_ay[::n]
+        tap_az = tap_az[::n]
 
         # convert 2018-11-11T13:00:00.000 --> epoch seconds
         x = [dp.parse('{}Z'.format(i)).timestamp() for i in x]
