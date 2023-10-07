@@ -1,7 +1,7 @@
 import asyncio
 import datetime
 import os
-from ddh.utils_graph import graph_set_fol_req_file
+from ddh.utils_graph import utils_graph_set_fol_req_file
 from dds.lef import dds_create_file_lef
 from mat.ble.ble_mat_utils import (
     ble_mat_crc_local_vs_remote,
@@ -185,10 +185,6 @@ class BleTAPDownload:
         # plots
         if any_dl:
             _u("{}/{}".format(STATE_DDS_REQUEST_PLOT, mac))
-
-        # for the new graphing engine
-        # graph_set_fol_req_file(mac)
-        # _u(STATE_DDS_REQUEST_GRAPH)
 
         return 0
 

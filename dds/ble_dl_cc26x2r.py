@@ -1,8 +1,6 @@
 import asyncio
 import datetime
 import os
-
-from ddh.utils_graph import graph_set_fol_req_file
 from dds.lef import dds_create_file_lef
 from mat.ble.ble_mat_utils import (
     ble_mat_crc_local_vs_remote,
@@ -14,7 +12,7 @@ from dds.ble_utils_dds import ble_get_cc26x2_recipe_file_rerun_flag, ble_logger_
 from utils.ddh_shared import (
     send_ddh_udp_gui as _u,
     STATE_DDS_BLE_LOW_BATTERY,
-    STATE_DDS_BLE_RUN_STATUS, STATE_DDS_BLE_DOWNLOAD_ERROR_GDO, STATE_DDS_BLE_ERROR_RUN, STATE_DDS_REQUEST_GRAPH,
+    STATE_DDS_BLE_RUN_STATUS, STATE_DDS_BLE_DOWNLOAD_ERROR_GDO, STATE_DDS_BLE_ERROR_RUN,
 )
 from utils.logs import lg_dds as lg
 from utils.ddh_shared import (
@@ -40,12 +38,11 @@ class BleCC26X2Download:
 
         # initialize variables
         notes["battery_level"] = 0xFFFF
+        notes["DO_sensor_error"] = False
         simulation = ble_logger_is_cc26x2r_simulated(mac)
         rerun_flag = ble_get_cc26x2_recipe_file_rerun_flag()
         create_folder_logger_by_mac(mac)
 
-        # if ble_rfkill:
-        #     lg.a('debug: managing BLE rfkill')
         rv = await lc.connect(mac)
         _rae(rv, "connecting")
         lg.a("connected to {}".format(mac))
@@ -139,7 +136,6 @@ class BleCC26X2Download:
             lg.a("deleted file {}".format(name))
 
             # create LEF file with download info
-            # todo ---> test this
             lg.a("creating file LEF for {}".format(name))
             dds_create_file_lef(g, name)
 
@@ -164,6 +160,7 @@ class BleCC26X2Download:
             if bad_rv:
                 lg.a("GDO | error {}".format(rv))
                 _u(STATE_DDS_BLE_DOWNLOAD_ERROR_GDO)
+                notes["DO_sensor_error"] = True
                 await asyncio.sleep(5)
             _rae(bad_rv, "gdo")
             lg.a("GDO | {}".format(rv))
@@ -198,10 +195,6 @@ class BleCC26X2Download:
         # plots
         if any_dl and not simulation:
             _u("{}/{}".format(STATE_DDS_REQUEST_PLOT, mac))
-
-        # for the new graphing engine
-        # graph_set_fol_req_file(mac)
-        # _u(STATE_DDS_REQUEST_GRAPH)
 
         return 0
 

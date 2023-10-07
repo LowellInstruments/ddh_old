@@ -1,17 +1,17 @@
 import time
 from datetime import datetime
 from glob import glob
-
 from PyQt5.QtCore import QTime, QCoreApplication
 import pyqtgraph as pg
 from pyqtgraph.Qt import QtGui
 from os.path import basename
 from pyqtgraph import LinearRegionItem
-from ddh.utils_graph import graph_get_abs_fol_req_file, graph_get_fol_list, process_graph_csv_data, graph_check_fol_req_file, \
-    graph_delete_fol_req_file
+from ddh.utils_graph import utils_graph_read_fol_req_file, utils_graph_get_abs_fol_list, process_graph_csv_data, utils_graph_does_exist_fol_req_file, \
+    utils_graph_delete_fol_req_file
 from utils.ddh_shared import dds_get_json_mac_dns, dds_get_mac_from_sn_from_json_file, get_dl_folder_path_from_mac, \
     ddh_get_absolute_application_path, get_number_of_hauls, dds_get_json_vessel_name
 from utils.logs import lg_gra as lg
+
 
 # to be able to zoom in RPi
 pg.setConfigOption('leftButtonPan', False)
@@ -25,20 +25,6 @@ just_booted = True
 
 class GraphException(Exception):
     pass
-
-
-def has_this_mac_any_dl_files(mac, fol_ls):
-    for i in fol_ls:
-        if mac.lower() in i.lower():
-            return True
-    return False
-
-
-def graph_update_views():
-    # used when resizing
-    global p1, p2
-    p2.setGeometry(p1.vb.sceneBoundingRect())
-    p2.linkedViewChanged(p1.vb, p2.XAxis)
 
 
 class TimeAxisItem(pg.AxisItem):
@@ -123,6 +109,20 @@ class FiniteLinearRegionItem(LinearRegionItem):
         return br
 
 
+def _graph_check_mac_has_dl_files(mac, fol_ls):
+    for i in fol_ls:
+        if mac.lower() in i.lower():
+            return True
+    return False
+
+
+def _graph_update_views():
+    # used when resizing
+    global p1, p2
+    p2.setGeometry(p1.vb.sceneBoundingRect())
+    p2.linkedViewChanged(p1.vb, p2.XAxis)
+
+
 def _graph_busy_sign_show(a):
     a.lbl_graph_busy.setVisible(True)
     QCoreApplication.processEvents()
@@ -152,7 +152,7 @@ def _process_n_graph(a, r=''):
     start_ts = time.perf_counter()
 
     # fol_ls: list of absolute local 'dl_files/<mac>' folders
-    fol_ls = graph_get_fol_list()
+    fol_ls = utils_graph_get_abs_fol_list()
 
     # get current haul type
     _ht = a.cb_g_cycle_haul.currentText()
@@ -164,48 +164,38 @@ def _process_n_graph(a, r=''):
     if a.g_haul_idx is None:
         a.g_haul_idx = -1
 
-    # --------------------
-    # get folder to graph
-    # --------------------
+    # this will contain the absolute path to folder to plot
     fol: str
-    sn = a.cb_g_sn.currentText()
-    if sn:
+
+    # decide who asked for a graph
+    if r == 'BLE':
+        if not utils_graph_does_exist_fol_req_file():
+            raise GraphException('error: no BLE requested folder to graph')
+        fol = utils_graph_read_fol_req_file()
+        lg.a('selected last BLE download {}'.format(fol))
+        utils_graph_delete_fol_req_file()
+    else:
+        sn = a.cb_g_sn.currentText()
+        if not sn:
+            raise GraphException('seems no one asked for a graph?')
         if sn.startswith('SN'):
             sn = sn[2:]
         mac = dds_get_mac_from_sn_from_json_file(sn).replace(':', '-')
-        if not has_this_mac_any_dl_files(mac, fol_ls):
+        if not _graph_check_mac_has_dl_files(mac, fol_ls):
             raise GraphException(f'error: no files for sn {sn} mac {mac}')
         lg.a('selected dropdown sn {} mac {}'.format(sn, mac))
         fol = get_dl_folder_path_from_mac(mac)
         # fol: 'dl_files/<mac>, is not absolute, make it so
         fol = str(ddh_get_absolute_application_path()) + '/' + str(fol)
-    else:
-        if not graph_check_fol_req_file():
-            raise GraphException('error: no BLE requested folder to graph')
-        fol = graph_get_abs_fol_req_file()
-        lg.a('selected last BLE download {}'.format(fol))
-        graph_delete_fol_req_file()
 
-    # -----------------
     # number of hauls
-    # -----------------
     nh = get_number_of_hauls(fol)
-
-    if r == 'ble':
-        # in fact, do nothing
-        pass
-
-    if r == 'logger_listview':
-        # in fact, do nothing
-        pass
-
     if r == 'hauls_next':
-        # remember this button is only active on haul_text == 'single'
+        # remember this button only active on haul_text == 'single'
         if nh == 0:
             raise GraphException(f'error: no hauls for {fol}')
         a.g_haul_idx = (a.g_haul_idx + 1) % nh
         lg.a(f'button haul index = {a.g_haul_idx}')
-
     if r == 'hauls_labels':
         if _ht == 'single':
             a.btn_g_next_haul.setEnabled(True)
@@ -214,11 +204,9 @@ def _process_n_graph(a, r=''):
             a.btn_g_next_haul.setEnabled(False)
             a.btn_g_next_haul.setVisible(False)
 
-    if r == 'zones_toggle':
-        # in fact, do nothing
-        print(_zt)
-
-    # clear it
+    # ---------------
+    # let's clear it
+    # ---------------
     global p1
     global p2
     if p1:
@@ -227,7 +215,7 @@ def _process_n_graph(a, r=''):
         p2.clear()
     p1 = g.plotItem
 
-    # draw grid or not
+    # grid or not
     g.showGrid(x=True, y=False)
 
     # create the 2nd line
@@ -236,8 +224,8 @@ def _process_n_graph(a, r=''):
     p1.scene().addItem(p2)
     p1.getAxis('right').linkToView(p2)
     p2.setXLink(p1)
-    graph_update_views()
-    p1.vb.sigResized.connect(graph_update_views)
+    _graph_update_views()
+    p1.vb.sigResized.connect(_graph_update_views)
 
     # invert y on the right
     # p2.invertY(True)
@@ -255,9 +243,9 @@ def _process_n_graph(a, r=''):
     p1.getAxis("left").setStyle(tickFont=font)
     p1.getAxis("right").setStyle(tickFont=font)
 
-    # -------------------------------------------
-    # grab the folder's CSV data, filter by haul
-    # -------------------------------------------
+    # -----------------------
+    # grab folder's CSV data
+    # -----------------------
     filenames_hash = _graph_calc_hash_filenames(fol)
     data = process_graph_csv_data(fol, filenames_hash, _ht, a.g_haul_idx)
     if not data:
@@ -265,17 +253,35 @@ def _process_n_graph(a, r=''):
     if 'ISO 8601 Time' not in data.keys():
         raise GraphException(f'error: no time data for {fol}')
 
-    # x is the time and is already in seconds
+    # x: time
     x = data['ISO 8601 Time']
     met = data['metric']
 
-    # last 2 keys in order are the metrics
-    lbl1 = list(data.keys())[2]
-    lbl2 = list(data.keys())[3]
-    y1 = data[lbl1]
-    y2 = data[lbl2]
+    # data: {metric, time, DOC, DOT...}
+    if met == 'TP':
+        lbl1 = 'Temperature (C) MAT'
+        lbl2 = 'Pressure (dbar) MAT'
+        y1 = data[lbl1]
+        y2 = data[lbl2]
+    elif met == 'DO':
+        lbl1 = 'DO Concentration (mg/l) DO'
+        lbl2 = 'Temperature (C) DO'
+        y1 = data[lbl1]
+        y2 = data[lbl2]
+    elif met == 'TAP':
+        lbl1 = 'Temperature (C) TAP'
+        lbl2 = 'Pressure (dbar) TAP'
+        y1 = data[lbl1]
+        y2 = data[lbl2]
+        y3 = data['Ax TAP']
+        y4 = data['Ay TAP']
+        y5 = data['Az TAP']
 
-    # set the title
+    # ugly but meh
+    lbl1 = lbl1.replace(' MAT', '').replace(' DO', '').replace(' TAP', '')
+    lbl2 = lbl2.replace(' MAT', '').replace(' DO', '').replace(' TAP', '')
+
+    # title
     fmt = '%b %d %H:%M'
     t1 = datetime.utcfromtimestamp(x[0]).strftime(fmt)
     t2 = datetime.utcfromtimestamp(x[-1]).strftime(fmt)
@@ -284,7 +290,7 @@ def _process_n_graph(a, r=''):
     title = 'SN{} - {} to {}'.format(sn, t1, t2)
     g.setTitle(title, color="black", size="15pt")
 
-    # set the axes
+    # axes labels
     p1.setLabel("left", lbl1,
                 **{"color": "red", "font-size": "20px"})
     p1.getAxis('left').setTextPen('red')
@@ -292,13 +298,13 @@ def _process_n_graph(a, r=''):
                                  **{"color": "blue", "font-size": "20px"})
     p1.getAxis('right').setTextPen('b')
 
-    # ---------
-    # draw it
-    # ---------
+    # --------------
+    # let's draw it
+    # --------------
     p1.plot(x, y1, pen='r')
     p2.addItem(pg.PlotCurveItem(x, y2, pen='b', hoverable=True))
 
-    # avoid small glitch when re-zooming
+    # avoids small glitch when re-zooming
     g.getPlotItem().enableAutoRange()
 
     # common ranges
@@ -339,8 +345,6 @@ def _process_n_graph(a, r=''):
 
 
 def process_n_graph(a, r=''):
-
-    # wrapper so exception-safe
     try:
         # debug: while we develop this
         v = dds_get_json_vessel_name()
@@ -356,8 +360,8 @@ def process_n_graph(a, r=''):
             _graph_busy_sign_hide(a)
         else:
             lg.a('warning: this DDH does no new graphs yet :)')
+
     except GraphException as e:
         a.g.setTitle(e, color="red", size="15pt")
     except (Exception,) as ex:
-        # specific errors managed inside
         lg.a("error: graph_embed -> {}".format(ex))

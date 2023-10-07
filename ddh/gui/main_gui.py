@@ -623,7 +623,7 @@ class DDH(QMainWindow, d_m.Ui_MainWindow):
         process_n_graph(self)
 
     def click_graph_listview_logger_sn(self, _):
-        process_n_graph(self, r='logger_listview')
+        process_n_graph(self)
 
     def click_graph_btn_next_haul(self):
         process_n_graph(self, r='hauls_next')
@@ -632,7 +632,7 @@ class DDH(QMainWindow, d_m.Ui_MainWindow):
         process_n_graph(self, r='hauls_labels')
 
     def click_graph_btn_paint_zones(self, _):
-        process_n_graph(self, r='zones_toggle')
+        process_n_graph(self)
 
 
 def on_ctrl_c(signal_num, _):

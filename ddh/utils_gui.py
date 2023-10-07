@@ -601,7 +601,7 @@ def _parse_udp(my_app, s, ip="127.0.0.1"):
             return
 
         # GRAPH PROCESS
-        process_n_graph(a)
+        process_n_graph(a, r='BLE')
 
     elif f == STATE_DDS_NOTIFY_PLOT_RESULT_OK:
         a.lbl_plt_bsy.setVisible(False)

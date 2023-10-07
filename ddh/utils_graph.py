@@ -1,21 +1,20 @@
+import os
 import time
 from functools import lru_cache
 from glob import glob
-import os
 from math import ceil
-
-from utils.logs import lg_gra as lg
-import pandas as pd
-import dateutil.parser as dp
 from os.path import basename
+import dateutil.parser as dp
+import pandas as pd
 from utils.ddh_shared import ddh_get_absolute_application_path, g_graph_test_mode
+from utils.logs import lg_gra as lg
 
-# this contains the full path to mac folder to plot
+
+# this file contains full path to mac folder to plot
 GRAPH_REQ_JSON_FILE = '/tmp/graph_req.json'
 
 
-# grab all mac folders
-def graph_get_fol_list() -> list:
+def utils_graph_get_abs_fol_list() -> list:
     """
     get list of absolute paths of "dl_files/<mac>" folders
     """
@@ -35,8 +34,10 @@ def graph_get_fol_list() -> list:
     return []
 
 
-# read GRAPH_REQ_JSON_FILE, it has the FULL ABSOLUTE folder path to plot
-def graph_get_abs_fol_req_file():
+def utils_graph_read_fol_req_file():
+    """
+    reads GRAPH_REQ_JSON_FILE, it has the ABSOLUTE folder path to plot
+    """
     if g_graph_test_mode():
         return
 
@@ -51,13 +52,13 @@ def graph_get_abs_fol_req_file():
     return fol
 
 
-def graph_check_fol_req_file():
+def utils_graph_does_exist_fol_req_file():
     if g_graph_test_mode():
         return
     return os.path.exists(GRAPH_REQ_JSON_FILE)
 
 
-def graph_delete_fol_req_file():
+def utils_graph_delete_fol_req_file():
     if g_graph_test_mode():
         return
     try:
@@ -66,7 +67,7 @@ def graph_delete_fol_req_file():
         lg.a("error: graph_delete_fol_req_file() {}".format(ex))
 
 
-def graph_set_fol_req_file(mac):
+def utils_graph_set_fol_req_file(mac):
     if g_graph_test_mode():
         return
     try:
@@ -119,18 +120,23 @@ def _data_average_by_time_weight(d_i, w):
 
 
 def _data_get_prune_period(x, met):
-    if len(x) > 600:
-        lg.a('---------------------------------')
-        lg.a(f'faster plotting enabled for {met}')
-        lg.a('---------------------------------')
+    if len(x) > 10000:
+        lg.a('------------------------------------')
+        lg.a(f'data pruning -> faster plot for {met}')
+        lg.a('------------------------------------')
         return int(len(x) / 600)
     return 1
 
 
 @lru_cache(maxsize=256)
-def process_graph_csv_data(fol, filenames_hash, h, hi) -> dict:
+def cached_read_csv(f):
+    return pd.read_csv(f)
 
-    # 'filenames_hash' is ignored, only use for lru_cache
+
+@lru_cache(maxsize=256)
+def process_graph_csv_data(fol, _, h, hi) -> dict:
+
+    # 2nd parameter ignored, only use by lru_cache()
     _g_ff_t = sorted(glob("{}/{}".format(fol, "*_Temperature.csv")))
     _g_ff_p = sorted(glob("{}/{}".format(fol, "*_Pressure.csv")))
     _g_ff_do = sorted(glob("{}/{}".format(fol, "*_DissolvedOxygen.csv")))
@@ -171,64 +177,46 @@ def process_graph_csv_data(fol, filenames_hash, h, hi) -> dict:
         else:
             _g_ff_tap = [_g_ff_tap[hi]]
 
-    # check metric is set
+    # check
     if not met:
         lg.a('error: no metric keys to graph folder {}'.format(fol))
         return {}
 
-    # summary of what we are going to graph
+    # summary
     rv: dict
-    x = []
     s = "graph:\n\tmetric {}\n\tfolder {}\n\thauls {}\n\thi {}"
     lg.a(s.format(met, basename(fol), h, hi))
 
-    # time this data-grabbing procedure
+    # calculate time performance of data-grabbing procedure
     start_ts = time.perf_counter()
 
-    # graph values from source depending on metric
+    # ---------
+    # read CSV
+    # ---------
+    x = []
+    t, p = [], []
+    doc, dot = [], []
+    tap_t, tap_p, tap_ax, tap_ay, tap_az = [], [], [], [], []
     if met == 'TP':
-        t, p = [], []
         for f in _g_ff_t:
             lg.a('reading T file {}'.format(basename(f)))
-            df = pd.read_csv(f, engine="pyarrow")
-            # grab Time (x) values from here
+            df = cached_read_csv(f)
             x += list(df['ISO 8601 Time'])
             t += list(df['Temperature (C)'])
         for f in _g_ff_p:
             lg.a('reading P file {}'.format(basename(f)))
-            df = pd.read_csv(f, engine="pyarrow")
+            df = cached_read_csv(f)
             p += list(df['Pressure (dbar)'])
 
-        # --------------------------------------
-        # data optimization for faster plotting
-        # --------------------------------------
-        n = _data_get_prune_period(x, met)
-        x = x[::n]
-        t = t[::n]
-        p = p[::n]
-
-        # convert 2018-11-11T13:00:00.000 --> epoch seconds
-        x = [dp.parse('{}Z'.format(i)).timestamp() for i in x]
-        rv = {
-            'metric': met,
-            'ISO 8601 Time': x,
-            'Temperature (C)': t,
-            'Pressure (dbar)': p,
-        }
-
     elif met == 'DO':
-        doc, dot = [], []
         di = dict()
         for f in _g_ff_do:
             lg.a('reading DO file {}'.format(basename(f)))
-            df = pd.read_csv(f, engine="pyarrow")
-            # --------------------
-            # build dict intervals
-            # --------------------
-            tst_di = _data_build_dict_intervals(df, di)
-            if not tst_di:
+            df = cached_read_csv(f)
+            _ = _data_build_dict_intervals(df, di)
+            if not _:
                 continue
-            di = tst_di
+            di = _
             x += list(df['ISO 8601 Time'])
             doc += list(df['Dissolved Oxygen (mg/l)'])
             dot += list(df['DO Temperature (C)'])
@@ -236,46 +224,20 @@ def process_graph_csv_data(fol, filenames_hash, h, hi) -> dict:
             lg.a('error: NO _data_build_dict_intervals')
             return {}
 
-        # ---------------------
         # weight dict intervals
-        # ---------------------
         w = int(ceil(_data_weight_intervals(di)))
         if not w:
             lg.a('error: NO _data_weight_intervals')
             return {}
         lg.a(f'weight: result {w}')
 
-        # convert dot Celsius to Fahrenheit
-        dotf = [(c*9/5)+32 for c in dot]
-
-        # convert 2018-11-11T13:00:00.000 --> epoch seconds
-        x = [dp.parse('{}Z'.format(i)).timestamp() for i in x]
-
-        # --------------------------------------
-        # data averaging for less dots to plot
-        # --------------------------------------
+        # data averaging for fewer dots to plot
         # _data_average_by_time_weight(x, w)
 
-        # --------------------------------------
-        # data optimization for faster plotting
-        # --------------------------------------
-        n = _data_get_prune_period(x, met)
-        x = x[::n]
-        doc = doc[::n]
-        dotf = dot[::n]
-
-        rv = {
-            'metric': met,
-            'ISO 8601 Time': x,
-            'DO Concentration (mg/l)': doc,
-            'Temperature (F)': dotf
-        }
-
     elif met == 'TAP':
-        tap_t, tap_p, tap_ax, tap_ay, tap_az = [], [], [], [], []
         for f in _g_ff_tap:
             lg.a('reading TAP file {}'.format(basename(f)))
-            df = pd.read_csv(f, engine="pyarrow")
+            df = cached_read_csv(f)
             x += list(df['ISO 8601 Time'])
             tap_t += list(df['Temperature (C)'])
             tap_p += list(df['Pressure (dbar)'])
@@ -283,39 +245,50 @@ def process_graph_csv_data(fol, filenames_hash, h, hi) -> dict:
             tap_ay += list(df['Ay'])
             tap_az += list(df['Az'])
 
-        # todo ---> add this when we are almost done to convert dot Celsius to Fahrenheit
-        # tap_t = [(c*9/5)+32 for c in tap_t]
-
-        # --------------------------------------
-        # data optimization for faster plotting
-        # --------------------------------------
-        n = _data_get_prune_period(x, met)
-        x = x[::n]
-        tap_t = tap_t[::n]
-        tap_p = tap_p[::n]
-        tap_ax = tap_ax[::n]
-        tap_ay = tap_ay[::n]
-        tap_az = tap_az[::n]
-
-        # convert 2018-11-11T13:00:00.000 --> epoch seconds
-        x = [dp.parse('{}Z'.format(i)).timestamp() for i in x]
-        rv = {
-            'metric': met,
-            'ISO 8601 Time': x,
-            'Temperature (C)': tap_t,
-            'Pressure (dbar)': tap_p,
-            'Ax': tap_ax,
-            'Ay': tap_ay,
-            'Az': tap_az
-        }
-
-    else:
+    # simplify stuff
+    if not met:
         lg.a('error: graph_get_all_csv() unknown metric {}'.format(met))
-        rv = {}
+        return {}
 
-    # display number of points
+    n = _data_get_prune_period(x, met)
+    x = x[::n]
+    t = t[::n]
+    p = p[::n]
+    doc = doc[::n]
+    dot = dot[::n]
+    tap_t = tap_t[::n]
+    tap_p = tap_p[::n]
+    tap_ax = tap_ax[::n]
+    tap_ay = tap_ay[::n]
+    tap_az = tap_az[::n]
+
+    # Celsius to Fahrenheit
+    tf = [(c * 9 / 5) + 32 for c in t]
+    dotf = [(c * 9 / 5) + 32 for c in dot]
+    tap_tf = [(c * 9 / 5) + 32 for c in tap_t]
+
+    # convert 2018-11-11T13:00:00.000 --> seconds
+    x = [dp.parse('{}Z'.format(i)).timestamp() for i in x]
+
+    # display time performance of data-grabbing procedure
     end_ts = time.perf_counter()
     el_ts = int((end_ts - start_ts) * 1000)
     lg.a(f'data-grabbing {len(x)} {met} points, took {el_ts} ms')
 
-    return rv
+    # build output dictionary to graph
+    return {
+        'metric': met,
+        'ISO 8601 Time': x,
+        'Temperature (C) MAT': t,
+        'Temperature (F) MAT': tf,
+        'Pressure (dbar) MAT': p,
+        'DO Concentration (mg/l) DO': doc,
+        'Temperature (C) DO': dot,
+        'Temperature (F) DO': dotf,
+        'Temperature (C) TAP': tap_t,
+        'Temperature (F) TAP': tap_tf,
+        'Pressure (dbar) TAP': tap_p,
+        'Ax TAP': tap_ax,
+        'Ay TAP': tap_ay,
+        'Az TAP': tap_az
+    }
