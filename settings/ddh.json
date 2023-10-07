@@ -58,7 +58,7 @@
     },
     "units_temp": "C",
     "units_depth": "m",
-    "last_haul": 1,
+    "last_haul": 0,
     "moving_speed": {
         "min": 0.5,
         "max": 7
