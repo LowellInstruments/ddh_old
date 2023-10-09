@@ -16,7 +16,7 @@ from ddh.utils_gui import (
     gui_json_get_metrics,
     gui_hide_edit_tab,
     gui_hide_note_tab,
-    gui_populate_history,
+    gui_populate_history_tab,
     gui_plot_db_delete,
     gui_ddh_set_brightness,
     gui_setup_view,
@@ -125,7 +125,7 @@ class DDH(QMainWindow, d_m.Ui_MainWindow):
         gui_hide_edit_tab(self)
         gui_hide_advanced_tab(self)
         gui_hide_note_tab(self)
-        gui_populate_history(self)
+        gui_populate_history_tab(self)
         gui_plot_db_delete()
         gui_ddh_set_brightness(self)
         gui_ddh_populate_note_tab_dropdown(self)
@@ -390,7 +390,7 @@ class DDH(QMainWindow, d_m.Ui_MainWindow):
             path_db = ddh_get_db_history_file()
             db = DBHis(path_db)
             db.delete_all_records()
-        gui_populate_history(self)
+        gui_populate_history_tab(self)
 
     def click_btn_load_current_json_file(self):
         """updates EDIT tab from current 'ddh.json' file"""

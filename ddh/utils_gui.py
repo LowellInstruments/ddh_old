@@ -174,18 +174,18 @@ def gui_manage_graph_test_files():
         shutil.copytree(t1, d1)
 
 
-def gui_populate_history(my_app):
+def gui_populate_history_tab(my_app):
     """fills history tab"""
 
     a = my_app
     a.tbl_his.clear()
 
-    # 0 id, 1 mac, 2 name, 3 result, 4 lat, 5 lon, 6 sws_time
+    # 0 id, 1 mac, 2 SN, 3 result, 4 lat, 5 lon, 6 sws_time
     db = DBHis(ddh_get_db_history_file())
 
     r = db.get_recent_records()
     for i, h in enumerate(r):
-        mac, sn, ok = h[1], h[2], h[3]
+        mac, sn, e = h[1], h[2], h[3]
         lat, lon, ts = h[4], h[5], h[6]
 
         # column #0 -> SN
@@ -195,7 +195,7 @@ def gui_populate_history(my_app):
 
         # column #1 -> result
         # ts: was stored as datetime, returns as string
-        ok = "success" if ok == "ok" else "error"
+        e = "success" if e == "ok" else e
         # 2021/MM/DD 14:56:34 -> '2021/MM/DD 14:56'
         try:
             lat = "{:+6.4f}".format(float(lat))
@@ -203,7 +203,7 @@ def gui_populate_history(my_app):
             _ = datetime.datetime.strptime(ts[5:7], "%m")
             month, day, hh_mm = _.strftime("%b"), ts[8:10], ts[11:16]
             s = "{} {} {} at {}, {}".format(month, day, hh_mm, lat, lon)
-            s = "{} on {}".format(ok, s)
+            s = "{} on {}".format(e, s)
             a.tbl_his.setItem(i, 1, QTableWidgetItem(s))
 
         except (Exception,):
@@ -400,10 +400,10 @@ def gui_setup_buttons_rpi(my_app):
     a.button3.when_pressed = button3_pressed_cb
 
 
-def gui_add_to_history_database(mac, rv, lat, lon, t):
+def gui_add_to_history_database(mac, e, lat, lon, t):
     db = DBHis(ddh_get_db_history_file())
     sn = dds_get_json_mac_dns(mac)
-    db.safe_update(mac, sn, rv, lat, lon, t)
+    db.safe_update(mac, sn, e, lat, lon, t)
 
 
 def gui_confirm_by_user(s):
@@ -635,10 +635,10 @@ def _parse_udp(my_app, s, ip="127.0.0.1"):
 
     elif f == STATE_DDS_NOTIFY_HISTORY:
         if v.startswith("add"):
-            # history/add&{ok|error}&{mac}&{lat}&{lon}&{t}
+            # history/add&{mac}&{ok|error}&{lat}&{lon}&{t}
             v = v.split("&")
             gui_add_to_history_database(v[1], v[2], v[3], v[4], v[5])
-        gui_populate_history(a)
+        gui_populate_history_tab(a)
 
     elif f == STATE_DDS_BLE_LOW_BATTERY:
         # delay for image display specified in BLE recipe

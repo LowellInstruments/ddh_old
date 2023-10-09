@@ -31,7 +31,7 @@ from utils.ddh_shared import (
     STATE_DDS_BLE_DOWNLOAD_WARNING,
     get_dl_folder_path_from_mac,
     dds_get_json_mac_dns,
-    STATE_DDS_BLE_DOWNLOAD, dds_get_aws_has_something_to_do_via_gui_flag_file,
+    STATE_DDS_BLE_DOWNLOAD, dds_get_aws_has_something_to_do_via_gui_flag_file, STATE_DDS_NOTIFY_HISTORY,
 )
 from settings.ctx import hook_ble_purge_this_mac_dl_files_folder
 from utils.logs import lg_dds as lg
@@ -140,7 +140,7 @@ async def _ble_id_n_interact_logger(mac, info: str, h, g):
         return
 
     # allows speeding up discarding loggers
-    err_critical = False
+    err_sensor_oxygen = False
 
     # -------------------------
     # main logger interaction
@@ -148,7 +148,7 @@ async def _ble_id_n_interact_logger(mac, info: str, h, g):
     if _ble_logger_is_cc26x2r(info):
         rv, notes = await ble_interact_cc26x2(mac, info, g, hs)
         sqs_msg_notes_cc26x2r(notes, mac, sn, lat, lon)
-        err_critical = notes["DO_sensor_error"]
+        err_sensor_oxygen = notes["DO_sensor_error"]
 
     elif _ble_logger_is_tap(info):
         rv, notes = await ble_interact_tap(mac, info, g, hs)
@@ -164,7 +164,7 @@ async def _ble_id_n_interact_logger(mac, info: str, h, g):
             return
 
     # see how it went
-    _ble_analyze_logger_result(rv, mac, lat, lon, sn, err_critical)
+    _ble_analyze_logger_result(rv, mac, lat, lon, sn, err_sensor_oxygen)
 
     # on GUI, all times are local, not UTC
     tz_ddh = get_localzone()
@@ -172,10 +172,12 @@ async def _ble_id_n_interact_logger(mac, info: str, h, g):
     dt_local = dt.replace(tzinfo=tz_utc).astimezone(tz=tz_ddh)
 
     # do history things here
-    if rv == 0:
-        _u("history/add&{}&ok&{}&{}&{}".format(sn, lat, lon, dt_local))
-    else:
-        _u("history/add&{}&error&{}&{}&{}".format(sn, lat, lon, dt_local))
+    s = "{}/add&{}&{}&{}&{}&{}"
+    e = 'ok' if rv == 0 else 'error'
+    if err_sensor_oxygen:
+        e = 'err_sen_ox'
+    _u(s.format(STATE_DDS_NOTIFY_HISTORY, mac, e, lat, lon, dt_local))
+    if rv:
         # works for RPi
         ble_mat_bluetoothctl_power_cycle()
         # works for laptop
