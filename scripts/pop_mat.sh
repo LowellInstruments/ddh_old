@@ -34,3 +34,7 @@ if [ "$rv" -ne 0 ]; then echo "error: cannot get MAT local version"; fi
 if [ ${#COM_MAT_LOC} -ne 40 ]; then echo "error: bad MAT local version"; fi
 sudo echo "$COM_MAT_LOC" | sudo tee /etc/com_mat_loc.txt > /dev/null
 rv=$?; if [ $rv -ne 0 ]; then echo 'error: creating MAT commit file'; exit 1; fi
+
+
+echo "pop_mat -> done!"
+
