@@ -11,6 +11,6 @@ if [ -f "$FILE_GRAPH_TEST_MODE" ]; then
     echo 'graph test mode OFF'
 else
     touch "$FILE_GRAPH_TEST_MODE"
-    echo 'graph test mode ON'
+    echo 'graph test mode ENABLED'
 fi
 
