@@ -1,6 +1,11 @@
 import asyncio
-from dds.emolt import ddh_is_emolt_box, ddh_is_dev_platform
+from dds.emolt import ddh_is_dev_platform
 from utils.ddh_shared import send_ddh_udp_gui
+
+
+# ---------------------------------------------------------
+# this file allows for fine tweaking DDH software behavior
+# ---------------------------------------------------------
 
 
 # to send updates to GUI

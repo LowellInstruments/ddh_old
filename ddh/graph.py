@@ -356,7 +356,7 @@ def process_n_graph(a, r=''):
             'archer22'
         ):
             _graph_busy_sign_show(a)
-            _process_n_graph(a, r='')
+            _process_n_graph(a, r)
             _graph_busy_sign_hide(a)
         else:
             lg.a('warning: this DDH does no new graphs yet :)')

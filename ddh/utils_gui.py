@@ -7,7 +7,7 @@ import threading
 import time
 import shutil
 import yaml
-from PyQt5.QtCore import Qt, QCoreApplication
+from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QPixmap, QIcon
 from PyQt5.QtWidgets import (
     QDesktopWidget,
@@ -137,7 +137,7 @@ def gui_setup_view(my_win):
     dc = "version: {}".format(get_ddh_commit())
     a.lbl_commit.setText(dc)
 
-    # checkboxes
+    # checkboxes rerun flag
     rerun_flag = ble_get_cc26x2_recipe_file_rerun_flag()
     a.chk_rerun.setChecked(rerun_flag)
 
@@ -819,7 +819,7 @@ def gui_json_get_mac_n_name_pairs():
             # macs not lowered()
             return cfg["db_logger_macs"]
     except TypeError:
-        return "error json_get_macs()"
+        return "error json_get_mac_n_name_pairs()"
 
 
 def gui_ddh_set_brightness(a):

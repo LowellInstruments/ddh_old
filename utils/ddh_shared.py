@@ -244,21 +244,24 @@ def dds_get_serial_number_of_macs_from_json_file():
 
 
 def dds_get_mac_from_sn_from_json_file(sn):
-    # this happens while testing graph mode
     d = {'00': '00:00:00:00:00:00', '11': '11:22:33:44:55:66'}
     if sn in d:
+        # happens while testing graph mode
         return d[sn]
 
+    sn = sn.lower()
     j = str(ddh_get_settings_json_file())
     try:
         with open(j) as f:
             cfg = json.load(f)
             d = cfg["db_logger_macs"]
-            inv = {v: k for k, v in d.items()}
-            return inv[sn].lower()
+            # we switch here below, so
+            # inv: {"SN1234567": "mac"}
+            inv = {v.lower(): k for k, v in d.items()}
+            return inv[sn]
 
     except (Exception,) as ex:
-        print("error json_get_mac()", ex)
+        print("error json_get_mac_from_sn()", ex)
 
 
 def ddh_get_json_plot_type():
@@ -469,6 +472,7 @@ GRAPH_TEST_MODE_FILE = '/tmp/ddh_graph_test_mode.json'
 
 def g_graph_test_mode():
     return os.path.exists(GRAPH_TEST_MODE_FILE)
+
 
 
 def main():
