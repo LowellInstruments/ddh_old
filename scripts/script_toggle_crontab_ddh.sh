@@ -11,7 +11,7 @@ echo; echo;
 grep -q crontab_ddh.sh $CF
 rv=$?
 if [ $rv -eq 1 ]; then
-    # no "crontab_ddh/api.sh" string found in whole crontab, add it
+    # no string found in whole crontab, add it
     echo -e "* * * * * pi $DDH_STR\n" | sudo tee -a $CF
     echo "added DDH to empty crontab"
 fi
