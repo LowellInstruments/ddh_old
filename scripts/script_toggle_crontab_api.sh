@@ -14,6 +14,7 @@ if [ $rv -eq 1 ]; then
     # no string found in whole crontab, add it
     echo -e "* * * * * pi $API_STR\n" | sudo tee -a $CF
     echo "added API to empty crontab"
+    exit 0
 fi
 
 # detect the commented line
