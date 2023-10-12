@@ -360,8 +360,8 @@ def process_n_graph(a, r=''):
             'redfeet',
             'cubefarm',
             'archer22',
-            'HX_10',
-            'HX_11'
+            'hx_10',
+            'hx_11'
         ):
             _graph_busy_sign_show(a)
             _process_n_graph(a, r)
