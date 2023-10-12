@@ -25,11 +25,11 @@ sudo sed -i '/crontab_ddh/d' $CF
 
 if [ $rv -eq 0 ]; then
     echo "crontab DDH was OFF, trying toggle"
-    echo -e "* * * * * pi $DDH_STR\n" | sudo tee -a $CF
+    echo "* * * * * pi $DDH_STR" | sudo tee -a $CF
     echo "crontab DDH ON"
 else
     echo "crontab DDH was ON, disabling it..."
-    echo -e "#* * * * * pi $DDH_STR\n" | sudo tee -a $CF
+    echo "#* * * * * pi $DDH_STR" | sudo tee -a $CF
     echo "crontab DDH OFF"
 fi
 
