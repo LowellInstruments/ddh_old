@@ -7,14 +7,16 @@ CF=/etc/crontab
 
 
 echo; echo;
-grep crontab_ddh.sh $CF
+# -q: quiet output
+grep -q crontab_ddh.sh $CF
 rv=$?
 if [ $rv -eq 1 ]; then
     # no "crontab_ddh/api.sh" string found in whole crontab, add it
     echo -e "* * * * * pi $DDH_STR\n" | sudo tee -a $CF
     echo "added DDH to empty crontab"
 fi
-grep crontab_ddh.sh $CF | grep '#'
+grep -q crontab_ddh.sh $CF | grep '#'
+rv=$?
 if [ $rv -eq 0 ]; then
     # crontab_ddh is there disabled, we want to activate == uncomment it
     sudo sed -i '/crontab_ddh.sh/s/^#//g' $CF
@@ -24,3 +26,6 @@ else
     sudo sed -i '/crontab_ddh.sh/s/^/#/g' $CF
     echo "crontab DDH OFF"
 fi
+
+sudo systemctl restart crond.service
+echo "crontab service restarted"
