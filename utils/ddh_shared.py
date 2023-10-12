@@ -244,10 +244,14 @@ def dds_get_serial_number_of_macs_from_json_file():
 
 
 def dds_get_mac_from_sn_from_json_file(sn):
-    d = {'00': '00:00:00:00:00:00', '11': '11:22:33:44:55:66'}
-    if sn in d:
-        # happens while testing graph mode
-        return d[sn]
+    # happens while testing graph mode
+    test_graph_d = {
+        '00': '00:00:00:00:00:00',
+        '11': '11:22:33:44:55:66',
+        '99': '99:99:99:99:99:99'
+    }
+    if sn in test_graph_d:
+        return test_graph_d[sn]
 
     sn = sn.lower()
     j = str(ddh_get_settings_json_file())
@@ -438,7 +442,7 @@ def get_utc_offset():
 
 
 def get_number_of_hauls(path):
-    # path: /home/kaz/PycharmProjects/ddh/dl_files/11-22-33-44-55-66
+    # path: /home/kaz/PycharmProjects/ddh/dl_files/<mac>
     ls_lid = len(glob.glob('{}/*.lid'.format(path)))
     ls_lip = len(glob.glob('{}/*.lip'.format(path)))
     ls_bin = len(glob.glob('{}/moana*.bin'.format(path)))
@@ -451,7 +455,7 @@ def get_number_of_hauls(path):
     elif ls_bin:
         # NOT this mask but logger files' one
         # mask = f'{path}/MOANA*.csv'
-        mask = f'{path}/moana*_Pressure.csv'
+        mask = f'{path}/*_Pressure.csv'
 
     n = len(glob.glob(mask))
     # print(f'found {n} files mask {mask}')

@@ -185,7 +185,7 @@ def _process_n_graph(a, r=''):
         mac = dds_get_mac_from_sn_from_json_file(sn).replace(':', '-')
         if not _graph_check_mac_has_dl_files(mac, fol_ls):
             raise GraphException(f'error: no files for sn {sn} mac {mac}')
-        lg.a('selected dropdown sn {} mac {}'.format(sn, mac))
+        lg.a('selected dropdown sn {} / mac {}'.format(sn, mac))
         fol = get_dl_folder_path_from_mac(mac)
         # fol: 'dl_files/<mac>, is not absolute, make it so
         fol = str(ddh_get_absolute_application_path()) + '/' + str(fol)

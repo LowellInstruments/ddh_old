@@ -165,13 +165,18 @@ def gui_manage_graph_test_files():
     a = ddh_get_absolute_application_path()
     d0 = a + '/dl_files/00-00-00-00-00-00'
     d1 = a + '/dl_files/11-22-33-44-55-66'
+    d2 = a + '/dl_files/99-99-99-99-99-99'
     t0 = a + '/tests/00-00-00-00-00-00'
     t1 = a + '/tests/11-22-33-44-55-66'
+    t2 = a + '/tests/99-99-99-99-99-99'
     shutil.rmtree(d0, ignore_errors=True)
     shutil.rmtree(d1, ignore_errors=True)
+    shutil.rmtree(d2, ignore_errors=True)
     if g_graph_test_mode():
         shutil.copytree(t0, d0)
         shutil.copytree(t1, d1)
+        shutil.copytree(t2, d2)
+        lg.a('copied logger graph test folders')
 
 
 def gui_populate_history_tab(my_app):
@@ -239,6 +244,7 @@ def gui_ddh_populate_graph_dropdown_sn(my_app):
     if g_graph_test_mode():
         a.cb_g_sn.addItem('SN00')
         a.cb_g_sn.addItem('SN11')
+        a.cb_g_sn.addItem('SN99')
         return
 
     j = dds_get_serial_number_of_macs_from_json_file()

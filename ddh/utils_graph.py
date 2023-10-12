@@ -23,6 +23,7 @@ def utils_graph_get_abs_fol_list() -> list:
         fol_ls = [
             d + '/11-22-33-44-55-66',
             d + '/00-00-00-00-00-00',
+            d + '/99-99-99-99-99-99',
         ]
         return fol_ls
 
@@ -128,9 +129,12 @@ def _data_get_prune_period(x, met):
     return 1
 
 
-@lru_cache(maxsize=256)
+# todo ---> uncomment this
+#@lru_cache(maxsize=256)
 def cached_read_csv(f):
-    return pd.read_csv(f)
+    data = pd.read_csv(f)
+    lg.a('warning: no data for file {}'.format(f))
+    return data
 
 
 @lru_cache(maxsize=256)
