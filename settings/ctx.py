@@ -1,7 +1,5 @@
 import asyncio
-from dds.emolt import ddh_is_dev_platform
-from utils.ddh_shared import send_ddh_udp_gui
-
+from utils.ddh_shared import send_ddh_udp_gui, check_gps_dummy_mode
 
 # ---------------------------------------------------------
 # this file allows for fine tweaking DDH software behavior
@@ -30,7 +28,6 @@ sqs_en = True
 # BLE: enabled or not + switch capability
 ble_en = True
 sw_ble_en = True
-ble_rfkill = False
 
 
 # rockblocks: enabled or not
@@ -46,7 +43,7 @@ sms_en = False
 
 
 # debug hooks :)
-hook_gps_dummy_measurement = ddh_is_dev_platform()
+hook_gps_dummy_measurement = check_gps_dummy_mode()
 hook_gps_error_measurement_forced = False
 hook_ble_purge_black_macs_on_boot = False
 hook_ble_purge_this_mac_dl_files_folder = False

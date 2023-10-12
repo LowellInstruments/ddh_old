@@ -478,6 +478,13 @@ def g_graph_test_mode():
     return os.path.exists(GRAPH_TEST_MODE_FILE)
 
 
+GPS_DUMMY_MODE_FILE = '/tmp/gps_dummy_mode.json'
+
+
+def check_gps_dummy_mode():
+    return os.path.exists(GPS_DUMMY_MODE_FILE)
+
+
 
 def main():
     print(ddh_get_folder_path_root())
