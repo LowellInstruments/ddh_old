@@ -15,17 +15,23 @@ if [ $rv -eq 1 ]; then
     echo -e "* * * * * pi $DDH_STR\n" | sudo tee -a $CF
     echo "added DDH to empty crontab"
 fi
+
+# detect the commented line
 grep -q crontab_ddh.sh $CF | grep '#'
 rv=$?
+
+# delete any lines containing "crontab_ddh.sh"
+sudo sed -i '/crontab_ddh/d' $CF
+
 if [ $rv -eq 0 ]; then
-    # crontab_ddh is there disabled, we want to activate == uncomment it
-    sudo sed -i '/crontab_ddh.sh/s/^#//g' $CF
-    echo "crontab DDH enabled"
+    echo "crontab DDH was OFF, trying toggle"
+    echo -e "* * * * * pi $DDH_STR\n" | sudo tee -a $CF
+    echo "crontab DDH ON"
 else
-    # crontab_ddh is there enabled, we want to disable == comment it
-    sudo sed -i '/crontab_ddh.sh/s/^/#/g' $CF
+    echo "crontab DDH was ON, disabling it..."
+    echo -e "#* * * * * pi $DDH_STR\n" | sudo tee -a $CF
     echo "crontab DDH OFF"
 fi
 
-sudo systemctl restart crond.service
+sudo systemctl restart cron.service
 echo "crontab service restarted"
