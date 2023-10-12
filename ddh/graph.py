@@ -1,6 +1,8 @@
 import time
 from datetime import datetime
 from glob import glob
+
+from PyQt5 import QtCore
 from PyQt5.QtCore import QTime, QCoreApplication
 import pyqtgraph as pg
 from pyqtgraph.Qt import QtGui
@@ -291,18 +293,20 @@ def _process_n_graph(a, r=''):
     g.setTitle(title, color="black", size="15pt")
 
     # axes labels
-    p1.setLabel("left", lbl1,
-                **{"color": "red", "font-size": "20px"})
-    p1.getAxis('left').setTextPen('red')
-    p1.getAxis('right').setLabel(lbl2,
-                                 **{"color": "blue", "font-size": "20px"})
-    p1.getAxis('right').setTextPen('b')
+    lbl1 = lbl1 + ' ─'
+    lbl2 = lbl2 + ' - -'
+    p1.setLabel("left", lbl1, **{"color": "b", "font-size": "20px"})
+    p1.getAxis('left').setTextPen('b')
+    p1.getAxis('right').setLabel(lbl2, **{"color": "red", "font-size": "20px"})
+    p1.getAxis('right').setTextPen('r')
 
     # --------------
     # let's draw it
     # --------------
-    p1.plot(x, y1, pen='r')
-    p2.addItem(pg.PlotCurveItem(x, y2, pen='b', hoverable=True))
+    pen1 = pg.mkPen(color='b', width=2, style=QtCore.Qt.SolidLine)
+    pen2 = pg.mkPen(color='r', width=2, style=QtCore.Qt.DashLine)
+    p1.plot(x, y1, pen=pen1)
+    p2.addItem(pg.PlotCurveItem(x, y2, pen=pen2, hoverable=True))
 
     # avoids small glitch when re-zooming
     g.getPlotItem().enableAutoRange()
@@ -314,7 +318,8 @@ def _process_n_graph(a, r=''):
     # custom adjustments
     if met == 'DO':
         p1.setYRange(0, 10, padding=0)
-        alpha = 50
+        # alpha: the lower, the more transparent
+        alpha = 85
         if _zt != 'zones':
             return
         reg_do_l = FiniteLinearRegionItem(values=(0, 2),
@@ -346,14 +351,17 @@ def _process_n_graph(a, r=''):
 
 def process_n_graph(a, r=''):
     try:
-        # debug: while we develop this
         v = dds_get_json_vessel_name()
+        # todo ---> remove this restriction for new graphing :)
         if v.lower() in (
+            # lowell instruments machine names
             'joaquim',
             'greenfeet',
             'redfeet',
             'cubefarm',
-            'archer22'
+            'archer22',
+            'HX_10',
+            'HX_11'
         ):
             _graph_busy_sign_show(a)
             _process_n_graph(a, r)

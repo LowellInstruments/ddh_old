@@ -184,7 +184,10 @@ async def _ble_id_n_interact_logger(mac, info: str, h, g):
         if not linux_is_rpi():
             ble_mat_disconnect_all_devices_ll()
 
-    # make AWS do stuff
+    # make AWS do stuff if not on development machine
+    if not linux_is_rpi():
+        return
+
     try:
         flag = dds_get_aws_has_something_to_do_via_gui_flag_file()
         pathlib.Path(flag).touch()
