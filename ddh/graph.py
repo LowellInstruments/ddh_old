@@ -361,7 +361,8 @@ def process_n_graph(a, r=''):
             'cubefarm',
             'archer22',
             'hx_10',
-            'hx_11'
+            'hx_11',
+            'george_test'
         ):
             _graph_busy_sign_show(a)
             _process_n_graph(a, r)
