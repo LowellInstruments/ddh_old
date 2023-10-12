@@ -19,6 +19,12 @@ dds/macs/black/
 dds/macs/orange/
 .ruff_cache/
 
+# so test graph files are copied
+!tests/*
+!tests/00-00-00-00-00-00/*
+!tests/11-22-33-44-55-66/*
+!tests/99-99-99-99-99-99/*
+
 
 
 # Byte-compiled / optimized / DLL files
