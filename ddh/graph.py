@@ -370,6 +370,11 @@ def process_n_graph(a, r=''):
             lg.a('warning: this DDH does no new graphs yet :)')
 
     except GraphException as e:
+        # errors such as "did not find any file to graph"
         a.g.setTitle(e, color="red", size="15pt")
+
     except (Exception,) as ex:
+        # python errors such as IndexError
+        e = 'undefined error, see log'
+        a.g.setTitle(e, color="red", size="15pt")
         lg.a("error: graph_embed -> {}".format(ex))
