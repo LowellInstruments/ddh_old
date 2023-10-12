@@ -17,7 +17,7 @@ if [ $rv -eq 1 ]; then
 fi
 
 # detect the commented line
-grep -q crontab_ddh.sh $CF | grep '#'
+grep crontab_ddh.sh $CF | grep '#' > /dev/null
 rv=$?
 
 # delete any lines containing "crontab_ddh.sh"
