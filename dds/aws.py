@@ -145,7 +145,7 @@ def _aws_s3_sync_process():
     if ts:
         if delta > 0:
             if delta > PERIOD_ALARM_AWS_S3:
-                lg.a('error: too many bad S3, creating alarm')
+                lg.a('error: too many bad S3, creating alarm SQS file')
                 _touch_s3_ts()
                 sqs_msg_ddh_alarm_s3()
             else:
