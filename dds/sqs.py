@@ -150,6 +150,17 @@ def sqs_msg_ddh_booted(*args):
     _sqs_gen_file(OPCODE_SQS_DDH_BOOT, "", "", *args)
 
 
+def sqs_msg_ddh_alarm_s3():
+    # we do it here so old versions don't crash
+    # from liu.ddn_msg import OPCODE_SQS_SMS
+    mac = ''
+    lg_sn = ''
+    lat = ''
+    lon = ''
+    data = ''
+    _sqs_gen_file('DDH_ALARM_S3', mac, lg_sn, lat, lon, m_ver=1, data=data)
+
+
 def sqs_msg_ddh_alive(*args):
     if its_time_to("send_sqs_ddh_alive_msg", 3600 * 6):
         _sqs_gen_file(OPCODE_SQS_DDH_ALIVE, "", "", *args)
@@ -181,7 +192,7 @@ def sqs_msg_logger_low_battery(*args):
 
 def sqs_msg_sms():
     # we do it here so old versions don't crash
-    #from liu.ddn_msg import OPCODE_SQS_SMS
+    # from liu.ddn_msg import OPCODE_SQS_SMS
     mac = ''
     lg_sn = '6666666'
     lat = '0.000000'

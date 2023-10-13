@@ -482,6 +482,8 @@ GPS_DUMMY_MODE_FILE = '/tmp/gps_dummy_mode.json'
 
 
 def check_gps_dummy_mode():
+    if not linux_is_rpi():
+        return True
     return os.path.exists(GPS_DUMMY_MODE_FILE)
 
 

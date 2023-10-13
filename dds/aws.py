@@ -5,10 +5,12 @@ import multiprocessing
 import os
 import subprocess as sp
 import sys
+import time
 from multiprocessing import Process
 import setproctitle
 
 from dds.emolt import this_box_has_grouped_s3_uplink
+from dds.sqs import sqs_msg_ddh_alarm_s3
 from dds.timecache import its_time_to
 from liu.linux import linux_is_process_running
 from mat.utils import linux_is_rpi
@@ -25,7 +27,9 @@ from utils.ddh_shared import (
 from utils.logs import lg_aws as lg
 
 
+PATH_FILE_AWS_TS = get_ddh_folder_path_dl_files()
 PERIOD_AWS_S3_SECS = 3600 * 6
+PERIOD_ALARM_AWS_S3 = 86400 * 7
 AWS_S3_SYNC_PROC_NAME = "dds_aws_sync"
 dev = not linux_is_rpi()
 
@@ -33,6 +37,21 @@ dev = not linux_is_rpi()
 def _get_aws_bin_path():
     # requires $ sudo pip install awscli
     return "aws"
+
+
+def _touch_s3_ts():
+    name = str(PATH_FILE_AWS_TS) + '/.ts_aws.txt'
+    with open(name, 'w') as f:
+        f.write(str(int(time.time())))
+
+
+def _get_s3_ts():
+    name = str(PATH_FILE_AWS_TS) + '/.ts_aws.txt'
+    try:
+        with open(name, 'r') as f:
+            return f.readline()
+    except FileNotFoundError:
+        return
 
 
 def _aws_s3_sync_process():
@@ -112,12 +131,32 @@ def _aws_s3_sync_process():
             lg.a("error: {}".format(rv.stderr))
         all_rv += rv.returncode
 
-    # indicate result
+    # AWS S3 sync went OK
     _t = datetime.datetime.now()
     if all_rv == 0:
         _u(STATE_DDS_NOTIFY_CLOUD_OK)
         lg.a("success: cloud sync on {}".format(_t))
+        _touch_s3_ts()
         sys.exit(0)
+
+    # ERROR AWS S3 sync, check case bad enough for alarm
+    ts = _get_s3_ts()
+    delta = int(time.time()) - int(ts)
+    if ts:
+        if delta > 0:
+            if delta > PERIOD_ALARM_AWS_S3:
+                lg.a('error: too many bad S3, creating alarm')
+                _touch_s3_ts()
+                sqs_msg_ddh_alarm_s3()
+            else:
+                lg.a('warning: bad S3, but not critical yet')
+        else:
+            lg.a('error: negative S3 delta, fixing')
+            _touch_s3_ts()
+    else:
+        # not even file since it is first time ever
+        lg.a('warning: bad S3, monitoring next ones')
+        _touch_s3_ts()
 
     # something went wrong
     _u(STATE_DDS_NOTIFY_CLOUD_ERR)

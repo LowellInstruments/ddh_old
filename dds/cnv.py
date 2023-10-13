@@ -56,6 +56,9 @@ def _cnv(fol, suf) -> (bool, list):
     lid_files = linux_ls_by_ext(fol, "lid")
 
     for f in lid_files:
+        # do not convert test_files
+        if os.path.basename(f).startswith('test'):
+            continue
         # do not convert when already have CSV files for this LID file
         _ = "{}{}.csv".format(f.split(".")[0], suf)
         if pathlib.Path(_).is_file():
