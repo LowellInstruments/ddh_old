@@ -34,6 +34,8 @@ def _get_color_by_label(lbl):
         return 'red'
     if 'Pressure' in lbl:
         return 'blue'
+    if 'Depth' in lbl:
+        return 'blue'
     if 'DO Concentration' in lbl:
         return 'blue'
     return 'green'
@@ -247,12 +249,6 @@ def _process_n_graph(a, r=''):
     _graph_update_views()
     p1.vb.sigResized.connect(_graph_update_views)
 
-    # tick color and text color of both left and right
-    p1.getAxis('left').setTickPen('red')
-    p1.getAxis('right').setTickPen('blue')
-    p1.getAxis('bottom').setTickPen('black')
-    p1.getAxis('bottom').setTextPen('black')
-
     # size of axis ticks text
     font = QtGui.QFont()
     font.setPixelSize(15)
@@ -296,13 +292,15 @@ def _process_n_graph(a, r=''):
 
     # make americans happy
     lbl1 = lbl1.replace('(C)', '(F)')
-    lbl1 = lbl1.replace('(dBar)', '(f)')
     y1 = data[lbl1]
     lbl2 = lbl2.replace('(C)', '(F)')
-    lbl2 = lbl2.replace('(dBar)', '(f)')
     y2 = data[lbl2]
+    if 'Pressure (dbar)' in lbl1:
+        lbl1 = lbl1.replace('Pressure (dbar)', 'Depth (f)')
+        y1 = data[lbl1]
+        p1.invertY(True)
 
-    # ugly but meh
+    # lose the suffixes indicating logger type
     lbl1 = lbl1.replace(' MAT', '').replace(' DO', '').replace(' TAP', '')
     lbl2 = lbl2.replace(' MAT', '').replace(' DO', '').replace(' TAP', '')
 
@@ -327,16 +325,12 @@ def _process_n_graph(a, r=''):
     p1.getAxis('right').setLabel(lbl2, **{"color": c2, "font-size": "20px", "font-weight": "bold"})
     p1.getAxis('right').setTextPen(c2)
 
-    # invert pressure
-    if 'Pressure' in lbl1:
-        p1.invertY(True)
-
     # --------------
     # let's draw it
     # --------------
     pen1 = pg.mkPen(color='b', width=2, style=QtCore.Qt.SolidLine)
     pen2 = pg.mkPen(color='r', width=2, style=QtCore.Qt.DashLine)
-    p1.plot(x, y1, pen=pen1)
+    p1.plot(x, y1, pen=pen1, hoverable=True)
     p2.addItem(pg.PlotCurveItem(x, y2, pen=pen2, hoverable=True))
 
     # avoids small glitch when re-zooming
@@ -377,6 +371,10 @@ def _process_n_graph(a, r=''):
         g.addItem(reg_do_m)
         g.addItem(reg_do_h)
         g.addItem(reg_do_g)
+
+    if met == 'TP' or met == 'TAP':
+        if 'Depth (f)' in lbl1:
+            p1.setYRange(max(y1), 0, padding=0)
 
     # display number of points
     end_ts = time.perf_counter()

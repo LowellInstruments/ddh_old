@@ -201,9 +201,11 @@ def process_graph_csv_data(fol, _, h, hi) -> dict:
     # read CSV
     # ---------
     x = []
-    t, p, pf = [], [], []
+    t, p, pf, mpf = [], [], [], []
     doc, dot = [], []
     tap_t, tap_p, tap_ax, tap_ay, tap_az = [], [], [], [], []
+    is_moana = False
+
     if met == 'TP':
         for f in _g_ff_t:
             lg.a('reading T file {}'.format(basename(f)))
@@ -214,6 +216,7 @@ def process_graph_csv_data(fol, _, h, hi) -> dict:
             lg.a('reading P file {}'.format(basename(f)))
             df = cached_read_csv(f)
             p += list(df['Pressure (dbar)'])
+            is_moana = 'MOANA' in f or 'moana' in f
 
     elif met == 'DO':
         di = dict()
@@ -274,11 +277,17 @@ def process_graph_csv_data(fol, _, h, hi) -> dict:
     dotf = [(c * 9 / 5) + 32 for c in dot]
     tap_tf = [(c * 9 / 5) + 32 for c in tap_t]
 
-    # dbar to fathom
-    # f = (dbar - a) * 0.5468
-    # atm. pressure == 10.1325 dbar, make it variable in case more accurate in future
+    # Depth calculation, convert: f = (dbar - a) * 0.5468
+    # atm. pressure == 10.1325 dbar, make it variable for more accurate in future
     pf = [(d - CTT_ATM_PRESSURE_DBAR) * .5468 for d in p]
-    tap_pf = [(d - CTT_ATM_PRESSURE_DBAR) * .5468 for d in tap_p]
+    tap_pf = pf
+    mpf = [d * .5468 for d in p]
+    # Moana loggers pressure does not include atm. pressure
+    pf = pf if not is_moana else mpf
+
+    # debug
+    # for i, v in enumerate(p):
+    #     print(f'{v} dbar = {pf[i]} f')
 
     # convert 2018-11-11T13:00:00.000 --> seconds
     x = [dp.parse('{}Z'.format(i)).timestamp() for i in x]
@@ -295,14 +304,14 @@ def process_graph_csv_data(fol, _, h, hi) -> dict:
         'Temperature (C) MAT': t,
         'Temperature (F) MAT': tf,
         'Pressure (dbar) MAT': p,
-        'Pressure (f) MAT': pf,
+        'Depth (f) MAT': pf,
         'DO Concentration (mg/l) DO': doc,
         'Temperature (C) DO': dot,
         'Temperature (F) DO': dotf,
         'Temperature (C) TAP': tap_t,
         'Temperature (F) TAP': tap_tf,
         'Pressure (dbar) TAP': tap_p,
-        'Pressure (f) TAP': tap_pf,
+        'Depth (f) TAP': tap_pf,
         'Ax TAP': tap_ax,
         'Ay TAP': tap_ay,
         'Az TAP': tap_az
