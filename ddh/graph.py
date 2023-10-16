@@ -247,9 +247,6 @@ def _process_n_graph(a, r=''):
     _graph_update_views()
     p1.vb.sigResized.connect(_graph_update_views)
 
-    # invert y on the right
-    # p2.invertY(True)
-
     # tick color and text color of both left and right
     p1.getAxis('left').setTickPen('red')
     p1.getAxis('right').setTickPen('blue')
@@ -289,8 +286,8 @@ def _process_n_graph(a, r=''):
         y1 = data[lbl1]
         y2 = data[lbl2]
     elif met == 'TAP':
-        lbl1 = 'Temperature (C) TAP'
-        lbl2 = 'Pressure (dbar) TAP'
+        lbl1 = 'Pressure (dbar) MAT'
+        lbl2 = 'Temperature (C) MAT'
         y1 = data[lbl1]
         y2 = data[lbl2]
         y3 = data['Ax TAP']
@@ -299,8 +296,10 @@ def _process_n_graph(a, r=''):
 
     # make americans happy
     lbl1 = lbl1.replace('(C)', '(F)')
+    lbl1 = lbl1.replace('(dBar)', '(f)')
     y1 = data[lbl1]
     lbl2 = lbl2.replace('(C)', '(F)')
+    lbl2 = lbl2.replace('(dBar)', '(f)')
     y2 = data[lbl2]
 
     # ugly but meh
@@ -327,6 +326,10 @@ def _process_n_graph(a, r=''):
     p1.getAxis('left').setTextPen(c1)
     p1.getAxis('right').setLabel(lbl2, **{"color": c2, "font-size": "20px", "font-weight": "bold"})
     p1.getAxis('right').setTextPen(c2)
+
+    # invert pressure
+    if 'Pressure' in lbl1:
+        p1.invertY(True)
 
     # --------------
     # let's draw it

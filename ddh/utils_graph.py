@@ -10,6 +10,9 @@ from utils.ddh_shared import ddh_get_absolute_application_path, g_graph_test_mod
 from utils.logs import lg_gra as lg
 
 
+CTT_ATM_PRESSURE_DBAR = 10.1325
+
+
 # this file contains full path to mac folder to plot
 GRAPH_REQ_JSON_FILE = '/tmp/graph_req.json'
 
@@ -198,7 +201,7 @@ def process_graph_csv_data(fol, _, h, hi) -> dict:
     # read CSV
     # ---------
     x = []
-    t, p = [], []
+    t, p, pf = [], [], []
     doc, dot = [], []
     tap_t, tap_p, tap_ax, tap_ay, tap_az = [], [], [], [], []
     if met == 'TP':
@@ -271,6 +274,12 @@ def process_graph_csv_data(fol, _, h, hi) -> dict:
     dotf = [(c * 9 / 5) + 32 for c in dot]
     tap_tf = [(c * 9 / 5) + 32 for c in tap_t]
 
+    # dbar to fathom
+    # f = (dbar - a) * 0.5468
+    # atm. pressure == 10.1325 dbar, make it variable in case more accurate in future
+    pf = [(d - CTT_ATM_PRESSURE_DBAR) * .5468 for d in p]
+    tap_pf = [(d - CTT_ATM_PRESSURE_DBAR) * .5468 for d in tap_p]
+
     # convert 2018-11-11T13:00:00.000 --> seconds
     x = [dp.parse('{}Z'.format(i)).timestamp() for i in x]
 
@@ -286,12 +295,14 @@ def process_graph_csv_data(fol, _, h, hi) -> dict:
         'Temperature (C) MAT': t,
         'Temperature (F) MAT': tf,
         'Pressure (dbar) MAT': p,
+        'Pressure (f) MAT': pf,
         'DO Concentration (mg/l) DO': doc,
         'Temperature (C) DO': dot,
         'Temperature (F) DO': dotf,
         'Temperature (C) TAP': tap_t,
         'Temperature (F) TAP': tap_tf,
         'Pressure (dbar) TAP': tap_p,
+        'Pressure (f) TAP': tap_pf,
         'Ax TAP': tap_ax,
         'Ay TAP': tap_ay,
         'Az TAP': tap_az
