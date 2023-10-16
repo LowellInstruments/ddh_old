@@ -41,7 +41,7 @@
        </font>
       </property>
       <property name="currentIndex">
-       <number>5</number>
+       <number>6</number>
       </property>
       <widget class="QWidget" name="tab">
        <property name="sizePolicy">
@@ -1560,7 +1560,7 @@ font: 19pt &quot;DejaVu Sans&quot;;</string>
              </size>
             </property>
             <property name="text">
-             <string>&gt;</string>
+             <string>&lt;</string>
             </property>
            </widget>
           </item>

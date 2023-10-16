@@ -1,7 +1,7 @@
 import time
 from datetime import datetime
 from glob import glob
-
+import json
 from PyQt5 import QtCore
 from PyQt5.QtCore import QTime, QCoreApplication
 import pyqtgraph as pg
@@ -11,7 +11,7 @@ from pyqtgraph import LinearRegionItem
 from ddh.utils_graph import utils_graph_read_fol_req_file, utils_graph_get_abs_fol_list, process_graph_csv_data, utils_graph_does_exist_fol_req_file, \
     utils_graph_delete_fol_req_file
 from utils.ddh_shared import dds_get_json_mac_dns, dds_get_mac_from_sn_from_json_file, get_dl_folder_path_from_mac, \
-    ddh_get_absolute_application_path, get_number_of_hauls, dds_get_json_vessel_name
+    ddh_get_absolute_application_path, get_number_of_hauls, dds_get_json_vessel_name, ddh_get_settings_json_file
 from utils.logs import lg_gra as lg
 
 
@@ -27,6 +27,23 @@ just_booted = True
 
 class GraphException(Exception):
     pass
+
+
+def _get_color_by_label(lbl):
+    if 'Temperature' in lbl:
+        return 'red'
+    if 'Pressure' in lbl:
+        return 'blue'
+    if 'DO Concentration' in lbl:
+        return 'blue'
+    return 'green'
+
+
+def _graph_get_json_units():
+    j = str(ddh_get_settings_json_file())
+    with open(j) as f:
+        cfg = json.load(f)
+    return cfg["units_temp"], cfg["units_depth"]
 
 
 class TimeAxisItem(pg.AxisItem):
@@ -196,12 +213,13 @@ def _process_n_graph(a, r=''):
         # remember this button only active on haul_text == 'single'
         if nh == 0:
             raise GraphException(f'error: no hauls for {fol}')
-        a.g_haul_idx = (a.g_haul_idx + 1) % nh
+        a.g_haul_idx = (a.g_haul_idx - 1) % nh
         lg.a(f'button haul index = {a.g_haul_idx}')
     if r == 'hauls_labels':
         if _ht == 'single':
             a.btn_g_next_haul.setEnabled(True)
             a.btn_g_next_haul.setVisible(True)
+            a.g_haul_idx = -1
         else:
             a.btn_g_next_haul.setEnabled(False)
             a.btn_g_next_haul.setVisible(False)
@@ -261,8 +279,8 @@ def _process_n_graph(a, r=''):
 
     # data: {metric, time, DOC, DOT...}
     if met == 'TP':
-        lbl1 = 'Temperature (C) MAT'
-        lbl2 = 'Pressure (dbar) MAT'
+        lbl1 = 'Pressure (dbar) MAT'
+        lbl2 = 'Temperature (C) MAT'
         y1 = data[lbl1]
         y2 = data[lbl2]
     elif met == 'DO':
@@ -279,9 +297,19 @@ def _process_n_graph(a, r=''):
         y4 = data['Ay TAP']
         y5 = data['Az TAP']
 
+    # make americans happy
+    lbl1 = lbl1.replace('(C)', '(F)')
+    y1 = data[lbl1]
+    lbl2 = lbl2.replace('(C)', '(F)')
+    y2 = data[lbl2]
+
     # ugly but meh
     lbl1 = lbl1.replace(' MAT', '').replace(' DO', '').replace(' TAP', '')
     lbl2 = lbl2.replace(' MAT', '').replace(' DO', '').replace(' TAP', '')
+
+    # choose colors
+    c1 = _get_color_by_label(lbl1)
+    c2 = _get_color_by_label(lbl2)
 
     # title
     fmt = '%b %d %H:%M'
@@ -290,15 +318,15 @@ def _process_n_graph(a, r=''):
     mac = basename(fol).replace('-', ':')
     sn = dds_get_json_mac_dns(mac)
     title = 'SN{} - {} to {}'.format(sn, t1, t2)
-    g.setTitle(title, color="black", size="15pt")
+    g.setTitle(title, color="black", size="15pt", bold=True)
 
     # axes labels
     lbl1 = lbl1 + ' ─'
     lbl2 = lbl2 + ' - -'
-    p1.setLabel("left", lbl1, **{"color": "b", "font-size": "20px"})
-    p1.getAxis('left').setTextPen('b')
-    p1.getAxis('right').setLabel(lbl2, **{"color": "red", "font-size": "20px"})
-    p1.getAxis('right').setTextPen('r')
+    p1.setLabel("left", lbl1, **{"color": c1, "font-size": "20px", "font-weight": "bold"})
+    p1.getAxis('left').setTextPen(c1)
+    p1.getAxis('right').setLabel(lbl2, **{"color": c2, "font-size": "20px", "font-weight": "bold"})
+    p1.getAxis('right').setTextPen(c2)
 
     # --------------
     # let's draw it
@@ -364,6 +392,9 @@ def process_n_graph(a, r=''):
             'hx_11',
             'george_test'
         ):
+            # ----------
+            # graph it
+            # ----------
             _graph_busy_sign_show(a)
             _process_n_graph(a, r)
             _graph_busy_sign_hide(a)
