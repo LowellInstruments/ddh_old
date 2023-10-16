@@ -146,7 +146,6 @@ class Ui_MainWindow(object):
         self.lbl_net_txt.setFrameShape(QtWidgets.QFrame.NoFrame)
         self.lbl_net_txt.setText("")
         self.lbl_net_txt.setAlignment(QtCore.Qt.AlignLeading|QtCore.Qt.AlignLeft|QtCore.Qt.AlignVCenter)
-        self.lbl_net_txt.setWordWrap(True)
         self.lbl_net_txt.setObjectName("lbl_net_txt")
         self.horizontalLayout_4.addWidget(self.lbl_net_txt)
         spacerItem7 = QtWidgets.QSpacerItem(10, 20, QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Minimum)
@@ -693,7 +692,7 @@ class Ui_MainWindow(object):
         MainWindow.setCentralWidget(self.centralwidget)
 
         self.retranslateUi(MainWindow)
-        self.tabs.setCurrentIndex(0)
+        self.tabs.setCurrentIndex(6)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def retranslateUi(self, MainWindow):
