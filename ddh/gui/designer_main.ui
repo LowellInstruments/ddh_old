@@ -41,7 +41,7 @@
        </font>
       </property>
       <property name="currentIndex">
-       <number>6</number>
+       <number>0</number>
       </property>
       <widget class="QWidget" name="tab">
        <property name="sizePolicy">
@@ -335,6 +335,9 @@
               </property>
               <property name="text">
                <string/>
+              </property>
+              <property name="scaledContents">
+               <bool>true</bool>
               </property>
               <property name="alignment">
                <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
