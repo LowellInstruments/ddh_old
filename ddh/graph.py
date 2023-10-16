@@ -366,6 +366,10 @@ def _process_n_graph(a, r=''):
                                        limits=4,
                                        orientation="horizontal",
                                        brush=(176, 255, 66, alpha))
+        reg_do_l.setMovable(False)
+        reg_do_m.setMovable(False)
+        reg_do_h.setMovable(False)
+        reg_do_g.setMovable(False)
         g.addItem(reg_do_l)
         g.addItem(reg_do_m)
         g.addItem(reg_do_h)
