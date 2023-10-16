@@ -298,7 +298,9 @@ def _process_n_graph(a, r=''):
     if 'Pressure (dbar)' in lbl1:
         lbl1 = lbl1.replace('Pressure (dbar)', 'Depth (f)')
         y1 = data[lbl1]
-        p1.invertY(True)
+
+    # see if we need to invert or de-invert
+    p1.invertY('Pressure' in lbl1 or 'Depth' in lbl1)
 
     # lose the suffixes indicating logger type
     lbl1 = lbl1.replace(' MAT', '').replace(' DO', '').replace(' TAP', '')
