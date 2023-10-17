@@ -1,3 +1,4 @@
+import os
 import time
 from datetime import datetime
 from glob import glob
@@ -227,7 +228,7 @@ def _process_n_graph(a, r=''):
             a.btn_g_next_haul.setVisible(False)
 
     # ---------------
-    # let's clear it
+    # let's CLEAR it
     # ---------------
     global p1
     global p2
@@ -271,41 +272,29 @@ def _process_n_graph(a, r=''):
     x = data['ISO 8601 Time']
     met = data['metric']
 
-    # data: {metric, time, DOC, DOT...}
+    # default variables to show for each metric
+    lbl1, lbl2 = '', ''
     if met == 'TP':
-        lbl1 = 'Pressure (dbar) MAT'
-        lbl2 = 'Temperature (C) MAT'
-        y1 = data[lbl1]
-        y2 = data[lbl2]
+        lbl1 = 'Depth (f) TP'
+        lbl2 = 'Temperature (C) TP'
     elif met == 'DO':
         lbl1 = 'DO Concentration (mg/l) DO'
         lbl2 = 'Temperature (C) DO'
-        y1 = data[lbl1]
-        y2 = data[lbl2]
     elif met == 'TAP':
-        lbl1 = 'Pressure (dbar) MAT'
-        lbl2 = 'Temperature (C) MAT'
-        y1 = data[lbl1]
-        y2 = data[lbl2]
+        lbl1 = 'Depth (f) TAP'
+        lbl2 = 'Temperature (C) TAP'
         y3 = data['Ax TAP']
         y4 = data['Ay TAP']
         y5 = data['Az TAP']
-
-    # make americans happy
-    lbl1 = lbl1.replace('(C)', '(F)')
     y1 = data[lbl1]
-    lbl2 = lbl2.replace('(C)', '(F)')
     y2 = data[lbl2]
-    if 'Pressure (dbar)' in lbl1:
-        lbl1 = lbl1.replace('Pressure (dbar)', 'Depth (f)')
-        y1 = data[lbl1]
 
     # see if we need to invert or de-invert
-    p1.invertY('Pressure' in lbl1 or 'Depth' in lbl1)
+    p1.invertY('Depth' in lbl1)
 
     # lose the suffixes indicating logger type
-    lbl1 = lbl1.replace(' MAT', '').replace(' DO', '').replace(' TAP', '')
-    lbl2 = lbl2.replace(' MAT', '').replace(' DO', '').replace(' TAP', '')
+    lbl1 = lbl1.replace(' TP', '').replace(' DO', '').replace(' TAP', '')
+    lbl2 = lbl2.replace(' TP', '').replace(' DO', '').replace(' TAP', '')
 
     # choose colors
     c1 = _get_color_by_label(lbl1)
@@ -319,7 +308,7 @@ def _process_n_graph(a, r=''):
     sn = dds_get_json_mac_dns(mac)
     title = 'SN{} - {} to {}'.format(sn, t1, t2)
 
-    # add the prune information
+    # make title show the prune information
     if data['pruned']:
         title += ' (data trimmed)'
     g.setTitle(title, color="black", size="15pt", bold=True)
@@ -338,7 +327,7 @@ def _process_n_graph(a, r=''):
     p1.getAxis('bottom').setTextPen(c3)
 
     # --------------
-    # let's draw it
+    # let's DRAW it
     # --------------
     pen1 = pg.mkPen(color='b', width=2, style=QtCore.Qt.SolidLine)
     pen2 = pg.mkPen(color='r', width=2, style=QtCore.Qt.DashLine)
@@ -408,7 +397,7 @@ def process_n_graph(a, r=''):
             'hx_10',
             'hx_11',
             'george_test'
-        ):
+        ) or os.path.exists('/home/pi/.ddh_graph_enabler.json'):
             # ----------
             # graph it
             # ----------

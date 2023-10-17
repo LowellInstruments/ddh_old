@@ -280,16 +280,11 @@ def process_graph_csv_data(fol, _, h, hi) -> dict:
     tap_tf = [(c * 9 / 5) + 32 for c in tap_t]
 
     # Depth calculation, convert: f = (dbar - a) * 0.5468
-    # atm. pressure == 10.1325 dbar, make it variable for more accurate in future
     pf = [(d - CTT_ATM_PRESSURE_DBAR) * .5468 for d in p]
     tap_pf = pf
     mpf = [d * .5468 for d in p]
     # Moana loggers pressure does not include atm. pressure
     pf = pf if not is_moana else mpf
-
-    # debug
-    # for i, v in enumerate(p):
-    #     print(f'{v} dbar = {pf[i]} f')
 
     # convert 2018-11-11T13:00:00.000 --> seconds
     x = [dp.parse('{}Z'.format(i)).timestamp() for i in x]
@@ -303,10 +298,10 @@ def process_graph_csv_data(fol, _, h, hi) -> dict:
     return {
         'metric': met,
         'ISO 8601 Time': x,
-        'Temperature (C) MAT': t,
-        'Temperature (F) MAT': tf,
-        'Pressure (dbar) MAT': p,
-        'Depth (f) MAT': pf,
+        'Temperature (C) TP': t,
+        'Temperature (F) TP': tf,
+        'Pressure (dbar) TP': p,
+        'Depth (f) TP': pf,
         'DO Concentration (mg/l) DO': doc,
         'Temperature (C) DO': dot,
         'Temperature (F) DO': dotf,
