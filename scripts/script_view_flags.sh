@@ -12,7 +12,10 @@ GPS_DUMMY_MODE_FILE=/tmp/gps_dummy_mode.json
 
 
 echo; echo;
-echo 'this box'
+echo 'this DDH:'
+echo '---------'
+echo
+
 if [ -f "$EMOLT_FILE_FLAG" ]; then echo -e '\t emolt flag \t = 1'
 else echo -e '\t emolt flag \t = 0'; fi
 
