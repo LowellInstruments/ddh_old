@@ -27,6 +27,7 @@ def utils_graph_get_abs_fol_list() -> list:
             d + '/11-22-33-44-55-66',
             d + '/00-00-00-00-00-00',
             d + '/99-99-99-99-99-99',
+            d + '/55-55-55-55-55-55',
         ]
         return fol_ls
 
@@ -294,6 +295,10 @@ def process_graph_csv_data(fol, _, h, hi) -> dict:
     el_ts = int((end_ts - start_ts) * 1000)
     lg.a(f'data-grabbing {len(x)} {met} points, took {el_ts} ms')
 
+    # decide logger type
+    lg_t = met
+    lg_t = lg_t if not is_moana else 'Moana'
+
     # build output dictionary to graph
     return {
         'metric': met,
@@ -301,16 +306,17 @@ def process_graph_csv_data(fol, _, h, hi) -> dict:
         'Temperature (C) TP': t,
         'Temperature (F) TP': tf,
         'Pressure (dbar) TP': p,
-        'Depth (f) TP': pf,
+        'Depth (fathoms) TP': pf,
         'DO Concentration (mg/l) DO': doc,
         'Temperature (C) DO': dot,
         'Temperature (F) DO': dotf,
         'Temperature (C) TAP': tap_t,
         'Temperature (F) TAP': tap_tf,
         'Pressure (dbar) TAP': tap_p,
-        'Depth (f) TAP': tap_pf,
+        'Depth (fathoms) TAP': tap_pf,
         'Ax TAP': tap_ax,
         'Ay TAP': tap_ay,
         'Az TAP': tap_az,
-        'pruned': n != 1
+        'pruned': n != 1,
+        'logger_type': lg_t
     }

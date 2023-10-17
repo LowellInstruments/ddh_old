@@ -244,11 +244,12 @@ def dds_get_serial_number_of_macs_from_json_file():
 
 
 def dds_get_mac_from_sn_from_json_file(sn):
-    # happens while testing graph mode
+    # happens when g_graph_test_mode()
     test_graph_d = {
-        '00': '00:00:00:00:00:00',
-        '11': '11:22:33:44:55:66',
-        '99': '99:99:99:99:99:99'
+        'test000': '00:00:00:00:00:00',
+        'test111': '11:22:33:44:55:66',
+        'test999': '99:99:99:99:99:99',
+        'test555': '55:55:55:55:55:55'
     }
     if sn in test_graph_d:
         return test_graph_d[sn]
@@ -448,13 +449,16 @@ def get_number_of_hauls(path):
     ls_bin = len(glob.glob('{}/moana*.bin'.format(path)))
     mask = '???'
     if ls_lid:
-        # for DO loggers
-        mask = f'{path}/*_DissolvedOxygen.csv'
+        # for DO & TP loggers
+        mask_do = f'{path}/*_DissolvedOxygen.csv'
+        mask_tp = f'{path}/*_Pressure.csv'
+        n_do = len(glob.glob(mask_do))
+        n_tp = len(glob.glob(mask_tp))
+        mask = mask_do if n_do else mask_tp
     elif ls_lip:
         mask = f'{path}/*_TAP.csv'
     elif ls_bin:
-        # NOT this mask but logger files' one
-        # mask = f'{path}/MOANA*.csv'
+        # NOT MOANA*.csv but Lowell generated files
         mask = f'{path}/*_Pressure.csv'
 
     n = len(glob.glob(mask))
@@ -485,7 +489,6 @@ def check_gps_dummy_mode():
     if not linux_is_rpi():
         return True
     return os.path.exists(GPS_DUMMY_MODE_FILE)
-
 
 
 def main():

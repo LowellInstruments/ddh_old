@@ -275,14 +275,14 @@ def _process_n_graph(a, r=''):
     # default variables to show for each metric
     lbl1, lbl2 = '', ''
     if met == 'TP':
-        lbl1 = 'Depth (f) TP'
-        lbl2 = 'Temperature (C) TP'
+        lbl1 = 'Depth (fathoms) TP'
+        lbl2 = 'Temperature (F) TP'
     elif met == 'DO':
         lbl1 = 'DO Concentration (mg/l) DO'
-        lbl2 = 'Temperature (C) DO'
+        lbl2 = 'Temperature (F) DO'
     elif met == 'TAP':
-        lbl1 = 'Depth (f) TAP'
-        lbl2 = 'Temperature (C) TAP'
+        lbl1 = 'Depth (fathoms) TAP'
+        lbl2 = 'Temperature (F) TAP'
         y3 = data['Ax TAP']
         y4 = data['Ay TAP']
         y5 = data['Az TAP']
