@@ -251,14 +251,15 @@ def _process_n_graph(a, r=''):
 
     # size of axis ticks text
     font = QtGui.QFont()
-    font.setPixelSize(15)
+    font.setPixelSize(16)
+    font.setBold(True)
     p1.getAxis("bottom").setStyle(tickFont=font)
     p1.getAxis("left").setStyle(tickFont=font)
     p1.getAxis("right").setStyle(tickFont=font)
 
-    # -----------------------
-    # grab folder's CSV data
-    # -----------------------
+    # --------------------------
+    # PROCESS folder's CSV data
+    # --------------------------
     filenames_hash = _graph_calc_hash_filenames(fol)
     data = process_graph_csv_data(fol, filenames_hash, _ht, a.g_haul_idx)
     if not data:
@@ -317,15 +318,24 @@ def _process_n_graph(a, r=''):
     mac = basename(fol).replace('-', ':')
     sn = dds_get_json_mac_dns(mac)
     title = 'SN{} - {} to {}'.format(sn, t1, t2)
+
+    # add the prune information
+    if data['pruned']:
+        title += ' (data trimmed)'
     g.setTitle(title, color="black", size="15pt", bold=True)
 
-    # axes labels
+    # axes styles, sides
     lbl1 = lbl1 + ' ─'
     lbl2 = lbl2 + ' - -'
     p1.setLabel("left", lbl1, **{"color": c1, "font-size": "20px", "font-weight": "bold"})
     p1.getAxis('left').setTextPen(c1)
     p1.getAxis('right').setLabel(lbl2, **{"color": c2, "font-size": "20px", "font-weight": "bold"})
     p1.getAxis('right').setTextPen(c2)
+
+    # axes style, bottom
+    c3 = 'black'
+    p1.getAxis('bottom').setLabel('Time', **{"color": c3, "font-size": "20px", "font-weight": "bold"})
+    p1.getAxis('bottom').setTextPen(c3)
 
     # --------------
     # let's draw it

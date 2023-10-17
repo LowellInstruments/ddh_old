@@ -124,7 +124,7 @@ def _data_average_by_time_weight(d_i, w):
 
 
 def _data_get_prune_period(x, met):
-    if len(x) > 10000:
+    if len(x) > 8000:
         lg.a('------------------------------------')
         lg.a(f'data pruning -> faster plot for {met}')
         lg.a('------------------------------------')
@@ -132,8 +132,7 @@ def _data_get_prune_period(x, met):
     return 1
 
 
-# todo ---> uncomment this
-#@lru_cache(maxsize=256)
+@lru_cache(maxsize=256)
 def cached_read_csv(f):
     data = pd.read_csv(f)
     lg.a('warning: no data for file {}'.format(f))
@@ -260,6 +259,9 @@ def process_graph_csv_data(fol, _, h, hi) -> dict:
         lg.a('error: graph_get_all_csv() unknown metric {}'.format(met))
         return {}
 
+    # ----------------------
+    # prune data or not
+    # ----------------------
     n = _data_get_prune_period(x, met)
     x = x[::n]
     t = t[::n]
@@ -314,5 +316,6 @@ def process_graph_csv_data(fol, _, h, hi) -> dict:
         'Depth (f) TAP': tap_pf,
         'Ax TAP': tap_ax,
         'Ay TAP': tap_ay,
-        'Az TAP': tap_az
+        'Az TAP': tap_az,
+        'pruned': n != 1
     }
