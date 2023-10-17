@@ -3,7 +3,7 @@
 
 # script called by DDU-text utility, not used by DDU-gui
 
-GPS_DUMMY_MODE_FILE='/tmp/gps_dummy_mode.json'
+GPS_DUMMY_MODE_FILE=/tmp/gps_dummy_mode.json
 
 echo; echo;
 if [ -f "$GPS_DUMMY_MODE_FILE" ]; then
