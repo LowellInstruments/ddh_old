@@ -2,7 +2,8 @@
 from multiprocessing import Process
 import threading
 import time
-
+import os
+import getpass
 from dds.pubsub import pubsub_run_sub
 from dds.aws import aws_serve
 from dds.ble import ble_interact_all_loggers
@@ -68,6 +69,8 @@ import setproctitle
 
 def main_dds():
 
+    lg.a('user login is {}'.format(os.getlogin()))
+    lg.a('user effective is {}'.format(getpass.getuser()))
     dds_tell_software_update()
     dds_check_we_have_box_env_info()
     dds_ensure_proper_working_folder()

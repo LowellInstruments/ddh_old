@@ -15,11 +15,14 @@ from utils.ddh_shared import (
 )
 import setproctitle
 from utils.logs import lg_gui as lg
+import getpass
 
 
 def main_ddh():
     setproctitle.setproctitle(NAME_EXE_DDH)
     linux_app_write_pid_to_tmp(PID_FILE_DDH)
+    lg.a('user login is {}'.format(os.getlogin()))
+    lg.a('user effective is {}'.format(getpass.getuser()))
 
     assert sys.version_info >= (3, 7)
     signal.signal(signal.SIGINT, on_ctrl_c)
