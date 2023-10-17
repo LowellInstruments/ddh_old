@@ -463,7 +463,7 @@ def _parse_udp(my_app, s, ip="127.0.0.1"):
     # BLE service states
     # -------------------
     if f in (STATE_DDS_BLE_SCAN, STATE_DDS_BLE_SCAN_FIRST_EVER):
-        ct = "searching for sensors"
+        ct = "searching loggers"
         ci = "blue{}.png".format(i)
 
     elif f == STATE_DDS_SOFTWARE_UPDATED:
@@ -726,7 +726,7 @@ def gui_timer_fxn(my_app):
         a.tabs.setCurrentIndex(0)
 
     # animate BLE icon
-    if a.lbl_ble.text() == "searching for sensors":
+    if a.lbl_ble.text() == "searching loggers":
         ci = "blue{}.png".format(i)
         fol_res = str(ddh_get_folder_path_res())
         ci = "{}/{}".format(fol_res, ci)
