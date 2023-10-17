@@ -251,7 +251,7 @@ def dds_get_mac_from_sn_from_json_file(sn):
         'test999': '99:99:99:99:99:99',
         'test555': '55:55:55:55:55:55'
     }
-    if sn in test_graph_d:
+    if sn in test_graph_d.keys():
         return test_graph_d[sn]
 
     sn = sn.lower()
@@ -323,6 +323,16 @@ def _mac_dns_no_case(mac):
 
 def dds_get_json_mac_dns(mac):
     """returns non-case-sensitive logger name (known) or mac (unknown)"""
+
+    # happens when g_graph_test_mode()
+    test_graph_d = {
+        '00:00:00:00:00:00': 'test000',
+        '11:22:33:44:55:66': 'test111',
+        '99:99:99:99:99:99': 'test999',
+        '55:55:55:55:55:55': 'test555'
+    }
+    if mac in test_graph_d.keys():
+        return test_graph_d[mac]
 
     # check for both upper() and lower() cases
     name = _mac_dns_no_case(mac.lower())
