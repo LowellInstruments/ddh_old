@@ -1,0 +1,3 @@
+this tweak folder contains logger mac 'rst' files
+If certain file is put here, the next time the DDS finds it
+it will send it the RST command to make it reboot

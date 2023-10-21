@@ -31,7 +31,8 @@ from utils.ddh_shared import (
     STATE_DDS_BLE_DOWNLOAD_WARNING,
     get_dl_folder_path_from_mac,
     dds_get_json_mac_dns,
-    STATE_DDS_BLE_DOWNLOAD, dds_get_aws_has_something_to_do_via_gui_flag_file, STATE_DDS_NOTIFY_HISTORY,
+    STATE_DDS_BLE_DOWNLOAD, dds_get_aws_has_something_to_do_via_gui_flag_file,
+    STATE_DDS_NOTIFY_HISTORY,
 )
 from settings.ctx import hook_ble_purge_this_mac_dl_files_folder
 from utils.logs import lg_dds as lg
@@ -133,7 +134,7 @@ async def _ble_id_n_interact_logger(mac, info: str, h, g):
     # separate g
     lat, lon, dt, _ = g
 
-    # g can be not-whole here
+    # in case 'g' is NOT-WHOLE here
     if lat == "":
         lg.a("error: lat is empty for logger {}".format(sn))
         _u("history/add&{}&error&{}&{}&{}".format(sn, lat, lon, dt))
@@ -142,9 +143,9 @@ async def _ble_id_n_interact_logger(mac, info: str, h, g):
     # allows speeding up discarding loggers
     err_sensor_oxygen = False
 
-    # -------------------------
-    # main logger interaction
-    # -------------------------
+    # --------------------
+    # logger interaction
+    # --------------------
     if _ble_logger_is_cc26x2r(info):
         rv, notes = await ble_interact_cc26x2(mac, info, g, hs)
         sqs_msg_notes_cc26x2r(notes, mac, sn, lat, lon)
@@ -163,7 +164,7 @@ async def _ble_id_n_interact_logger(mac, info: str, h, g):
         if check_moana_plugin_is_missing(rv):
             return
 
-    # see how it went
+    # tell GUI how it went, also do MAC colors stuff
     _ble_analyze_logger_result(rv, mac, lat, lon, sn, err_sensor_oxygen)
 
     # on GUI, all times are local, not UTC
@@ -171,7 +172,7 @@ async def _ble_id_n_interact_logger(mac, info: str, h, g):
     tz_utc = datetime.timezone.utc
     dt_local = dt.replace(tzinfo=tz_utc).astimezone(tz=tz_ddh)
 
-    # do history things here
+    # so GUI can update its HISTORY tab
     s = "{}/add&{}&{}&{}&{}&{}"
     e = 'ok' if rv == 0 else 'error'
     if err_sensor_oxygen:
@@ -184,10 +185,12 @@ async def _ble_id_n_interact_logger(mac, info: str, h, g):
         if not linux_is_rpi():
             ble_mat_disconnect_all_devices_ll()
 
-    # make AWS do stuff if not on development machine
+    # only sync AWS when NOT on development machine
     if not linux_is_rpi():
         return
 
+    # this flag will be checked by DDS later, after
+    # ALL loggers are downloaded, not only current one
     try:
         flag = dds_get_aws_has_something_to_do_via_gui_flag_file()
         pathlib.Path(flag).touch()

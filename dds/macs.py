@@ -11,9 +11,9 @@ from utils.ddh_shared import (
 from utils.logs import lg_dds as lg
 
 
-# -------------------------------------------------------
-# small and file-based database of black and orange macs
-# -------------------------------------------------------
+# ---------------------------------------------
+# small file-based DB of black and orange macs
+# ---------------------------------------------
 
 
 PERIOD_MACS_ORANGE_SECS = 15

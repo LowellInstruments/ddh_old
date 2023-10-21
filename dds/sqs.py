@@ -29,10 +29,14 @@ from utils.ddh_shared import (
 )
 import warnings
 
-warnings.filterwarnings("ignore", category=FutureWarning, module="botocore.client")
+warnings.filterwarnings("ignore",
+                        category=FutureWarning,
+                        module="botocore.client")
 
 
-# new credential system
+# ------------------------------------
+# allows for double credential system
+# ------------------------------------
 sqs_key_id = os.getenv("DDH_AWS_KEY_ID")
 custom_sqs_key_id = os.getenv("DDH_CUSTOM_SQS_KEY_ID")
 if custom_sqs_key_id:
@@ -58,7 +62,7 @@ def dds_create_folder_sqs():
 
 def _sqs_gen_file_for_tests():
 
-    # build the message
+    # build DDN message
     d = DdnMsg()
     d.reason = OPCODE_SQS_LOGGER_LOW_BATTERY
     d.project = "DEF"
@@ -74,23 +78,23 @@ def _sqs_gen_file_for_tests():
     d.platform = "rpi6"
     d.msg_ver = "mv1"
     d.data = "data1234data"
+
+    # convert DDNMsg to dict
     d = d.as_dict()
 
-    # -----------------------------------
-    # generate a SQS file from test dict
-    # -----------------------------------
+    # generate a SQS FILE from dict, its content is JSON
     fol = str(get_ddh_folder_path_sqs())
     now = int(time.time())
     path = "{}/{}.sqs".format(fol, now)
     with open(path, "w") as f:
         json.dump(d, f)
 
-    print("done")
+    print("done _sqs_gen_file_for_test()")
 
 
 def _sqs_gen_file(desc, mac, lg_sn, lat, lon, m_ver=1, data=""):
 
-    # grab all variables
+    # grab all local info
     try:
         vn = dds_get_json_vessel_name()
     except (Exception,):
@@ -106,7 +110,7 @@ def _sqs_gen_file(desc, mac, lg_sn, lat, lon, m_ver=1, data=""):
     elif linux_is_rpi4():
         plat = "rpi4"
 
-    # build the message
+    # build DDN message w/ local info + parameters
     d = DdnMsg()
     d.reason = desc
     d.project = os.getenv("DDH_BOX_PROJECT_NAME")
@@ -122,26 +126,24 @@ def _sqs_gen_file(desc, mac, lg_sn, lat, lon, m_ver=1, data=""):
     d.platform = plat
     d.msg_ver = m_ver
     d.data = data
+
+    # convert DDN msg to dict
     d = d.as_dict()
 
-    # -----------------------------------------------
-    # create a SQS FILE from dict, content: JSON
-    # -----------------------------------------------
+    # generate a SQS FILE from dict, its content is JSON
     fol = str(get_ddh_folder_path_sqs())
     now = int(time.time_ns())
     path = "{}/{}.sqs".format(fol, now)
     with open(path, "w") as f:
         json.dump(d, f)
 
-    # log what kind of message was uploaded
+    # log the kind of generated file (logger / DDH)
     s = "generated file {}, details below"
     lg.a(s.format(path))
     if mac:
-        # message type is logger
         s = "{} for logger {} ({}) at {}, {}"
         lg.a(s.format(desc, lg_sn, mac, lat, lon))
     else:
-        # message type is DDH
         s = "{} at {}, {}"
         lg.a(s.format(desc, lat, lon))
 
@@ -151,8 +153,7 @@ def sqs_msg_ddh_booted(*args):
 
 
 def sqs_msg_ddh_alarm_s3():
-    # we do it here so old versions don't crash
-    # from liu.ddn_msg import OPCODE_SQS_SMS
+    # hardcoded opcode so deployed DDH w/ old LIU library don't crash
     mac = ''
     lg_sn = ''
     lat = ''
@@ -162,7 +163,7 @@ def sqs_msg_ddh_alarm_s3():
 
 
 def sqs_msg_ddh_alive(*args):
-    if its_time_to("send_sqs_ddh_alive_msg", 3600 * 6):
+    if its_time_to("send_sqs_ddh_alive_msg", 3600 * 12):
         _sqs_gen_file(OPCODE_SQS_DDH_ALIVE, "", "", *args)
 
 
@@ -235,15 +236,13 @@ def sqs_serve():
             os.unlink(_)
             continue
 
-        # loads JSON content from within SQS file
+        # reads local SQS file as JSON
         f = open(_, "r")
         j = json.load(f)
         lg.a("serving file {}".format(_))
 
         try:
-            # ------------------------------------------------
-            # send SQS files containing JSON uplink as string
-            # ------------------------------------------------
+            # ENQUEUES the JSON as string to SQS service
             m = json.dumps(j)
             rsp = sqs.send_message(
                 QueueUrl=os.getenv("DDH_SQS_QUEUE_NAME"),

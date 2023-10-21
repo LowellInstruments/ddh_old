@@ -4,10 +4,12 @@ from utils.ddh_shared import get_ddh_folder_path_lef, dds_get_json_vessel_name
 import os
 
 
-# ------------------------------------------------------
+# ----------------------------------------------------------
 # LEF: lowell event file
-# produced by module SQS, consumed by module utils/LOGS
-# ------------------------------------------------------
+# upon a BLE download, a .LEF file is created
+# the UTILS/LOGS module finds it, reads it and cats its
+# content in current 'track_*.gps' file w/ a '***' marker
+# ----------------------------------------------------------
 
 
 def dds_create_folder_lef():

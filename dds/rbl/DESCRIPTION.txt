@@ -1,0 +1,1 @@
+this RBL folder stores files that will be send uplink via satellite at a later time

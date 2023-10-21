@@ -1,7 +1,6 @@
 import datetime
 import subprocess as sp
 import time
-import json
 import serial
 from dds.sqs import sqs_msg_ddh_error_gps_hw
 from dds.timecache import its_time_to
@@ -48,7 +47,7 @@ PERIOD_GPS_POWER_CYCLE = 600
 def gps_ll_check_hat_out_stream():
     # ll: stands for 'low-level'
     def _check():
-        # give it time to accumulate GPS data
+        # give time to accumulate GPS data
         time.sleep(1)
         c = "cat {}".format(PORT_DATA)
         rv = sp.run(c, shell=True, stdout=sp.PIPE, stderr=sp.PIPE)
@@ -61,7 +60,7 @@ def gps_ll_check_hat_out_stream():
 
 
 def _gps_bu353s4_find_usb_port():
-    # it has 2 PIDs
+    # the GPS USB puck has 2 PIDs
     p = find_usb_port_automatically('067B:2303')
     if p:
         return p
@@ -75,7 +74,6 @@ if g_gps_is_external:
 
 def _coord_decode(coord: str):
     # src: stackoverflow 18442158 latitude format
-
     x = coord.split(".")
     head = x[0]
     deg = head[:-2]
@@ -86,7 +84,7 @@ def _coord_decode(coord: str):
 
 def _gps_parse_rmc_frame(data: bytes):
     """
-    grab a long comma-separated string, parse fields
+    parse fields in a RMC NMEA string
     """
 
     if b"GPRMC" not in data:
@@ -132,23 +130,23 @@ def _gps_parse_rmc_frame(data: bytes):
         return None
 
     # save to disk for other apps
-    #d = {
+    # d = {
     #    "lat": lat,
     #    "lon": lon,
     #    "gps_time": gps_time,
     #    "speed": speed
-    #}
-    #j = json.dumps(d)
-    #with open("/tmp/gps_last.json", "w") as outfile:
+    # }
+    # j = json.dumps(d)
+    # with open("/tmp/gps_last.json", "w") as outfile:
     #    outfile.write(j)
 
-    # everything went ok
+    # everything went OK
     return lat, lon, gps_time, speed
 
 
 def _gps_parse_gsv_frame(data: bytes, force_print=False):
     """
-    grab a long comma-separated string, parse fields
+    parse fields in a GSV NMEA string
     """
 
     # data: b'$GPGSV,...,$GPGGA,...' all mixed
@@ -194,16 +192,16 @@ def _gps_measure():
         lon = "{:+.6f}".format(-83.0)
         return lat, lon, datetime.datetime.utcnow(), 1
 
-    # ---------------------------------
+    # ------------------------------------
     # real GPS measure on serial port
     # exception controlled outside :)
-    # ---------------------------------
+    # in method name not starting w '_'
+    # ------------------------------------
     if g_gps_is_external:
         sp = serial.Serial(_g_bu353s4_port, 4800, timeout=0.2)
     else:
-        sp = serial.Serial(
-            PORT_DATA, baudrate=115200, timeout=0.2, rtscts=True, dsrdtr=True
-        )
+        sp = serial.Serial(PORT_DATA, baudrate=115200, timeout=0.2,
+                           rtscts=True, dsrdtr=True)
     sp.flushInput()
 
     global _g_ts_cached_gps_valid_for
@@ -224,7 +222,7 @@ def _gps_measure():
             break
 
         # --------------------------
-        # AVOID sp.readlines()
+        # AVOID using sp.readlines()
         # --------------------------
         b = sp.readall()
         g = []
@@ -236,6 +234,8 @@ def _gps_measure():
                 b.decode()
             except (Exception,):
                 continue
+
+            # detect and parse the type of GPS frame
             re_rmc = re.search(b"GPRMC(.*)\r\n", b)
             if re_rmc:
                 g = _gps_parse_rmc_frame(b"$GPRMC" + re_rmc.group(1))
@@ -249,11 +249,11 @@ def _gps_measure():
         if g:
             break
 
-    # close serial port
+    # close serial port when we are done
     if sp:
         sp.close()
 
-    # check we have a good frame
+    # check we properly parsed the frame
     if g:
         g = list(g)
         lat = "{:+.6f}".format(g[0])
@@ -267,11 +267,12 @@ def _gps_measure():
         return g
 
     # failed, and it's the first time ever
+    # this mostly happens when DDH is booting
     if _g_ts_cached_gps_valid_for == 0:
         lg.a("failed, and no cache ever yet")
         return
 
-    # failed, but we have GPS cache and is valid
+    # failed, but we have GPS cache and it's STILL VALID
     now = time.perf_counter()
     if now < _g_ts_cached_gps_valid_for:
         lat, lon, dt_utc, speed = _g_cached_gps
@@ -279,14 +280,14 @@ def _gps_measure():
         lg.a("using cached position {}, {}".format(lat, lon))
         return _g_cached_gps
 
-    # all failed
+    # failed, and also the cache is too OLD
     global _g_banner_cache_too_old
     if now > _g_banner_cache_too_old:
         lg.a("failed, and cache is too old")
         _g_banner_cache_too_old = now + 300
     _g_cached_gps = "", "", None, float(0)
 
-    # tell GUI
+    # tell GUI about the GPS error
     _u(STATE_DDS_BLE_APP_GPS_ERROR_POSITION)
 
 
@@ -343,7 +344,7 @@ def gps_clock_sync_if_so(dt_gps_utc) -> bool:
 def gps_wait_for_first_frame_at_boot():
 
     # Wikipedia: GPS-Time-To-First-Fix for cold start is typ.
-    # 2 to 4 minutes, warm <= 45 secs, hot <= 22 secs
+    # 2 to 5 minutes, warm <= 45 secs, hot <= 22 secs
 
     till = time.perf_counter() + PERIOD_GPS_AT_BOOT_SECS
     s = "boot: wait up to {} seconds"
@@ -388,9 +389,12 @@ def gps_tell_position_logger(g):
 
 def gps_hw_error_parse(e) -> bool:
     if e == 0:
+        # means no error
         return False
     if e == 2:
+        # case of too many errors
         sqs_msg_ddh_error_gps_hw("", "")
+    # e == 1 is ONE error
     return True
 
 
@@ -408,9 +412,7 @@ def gps_hw_error_get(g) -> int:
         lg.a("error: no GPS frame, examine further log messages")
         tell = 2
 
-    # ---------------------------
     # detect errors in GPS frame
-    # ---------------------------
     if not g:
         if tell:
             lg.a("error: no GPS frame, will not interact w/ loggers")
@@ -425,8 +427,8 @@ def gps_hw_error_get(g) -> int:
 def gps_print_trying_clock_sync_at_boot():
     if not hook_gps_dummy_measurement:
         lg.a("trying clock sync via GPS at boot")
-    else:
-        lg.a("warning: dummy GPS, not trying clock sync via GPS at boot")
+        return
+    lg.a("warning: dummy GPS, not syncing clock via GPS at boot")
 
 
 def gps_did_we_ever_clock_sync() -> bool:
@@ -440,9 +442,12 @@ def _gps_power_on_off_hat():
     lg.a("=== warning: power cycling hat, wait ~{} seconds ===".format(t))
     # GPIO26 controls the sixfab hat power rail
     _pin = LED(26)
-    # high means OFF
+
+    # on() means high-level, shutdowns power to hat
     _pin.on()
     time.sleep(5)
+
+    # off() means low-level, restores power to hat
     _pin.off()
     time.sleep(t)
     lg.a("=== warning: power cycling done, hat should be ON by now ===")
@@ -452,8 +457,7 @@ def gps_power_cycle_if_so(forced=False):
 
     # don't do this too often
     if not forced and not its_time_to(
-        "check_we_need_gps_power_cycle", PERIOD_GPS_POWER_CYCLE
-    ):
+            "check_we_need_gps_power_cycle", PERIOD_GPS_POWER_CYCLE):
         return
 
     if hook_gps_dummy_measurement:
@@ -464,9 +468,6 @@ def gps_power_cycle_if_so(forced=False):
         if its_time_to("show_debug_power_cycle_gps_puck", PERIOD_GPS_TELL_PUCK_NO_PC):
             lg.a("debug: no power cycle BU-353-S4 GPS puck")
         return
-
-    # this tells if we needed to power cycle
-    rv_did_power_cycle = False
 
     # -------------------------------
     # see if we need to power cycle
@@ -480,7 +481,7 @@ def gps_power_cycle_if_so(forced=False):
         sp.flushInput()
         sp.readall()
 
-        # query it about GPS status
+        # query hat about GPS enabled or not
         sp.write(b"AT+QGPS?\r")
         ans = sp.readall()
 
@@ -520,7 +521,6 @@ def gps_power_cycle_if_so(forced=False):
 
     # easy with next functions
     time.sleep(1)
-    return rv_did_power_cycle
 
 
 def gps_configure_shield():

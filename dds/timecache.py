@@ -3,7 +3,8 @@ import time
 
 
 TIM_CACHE_MAX_SIZE = 1024
-_g_timecache = Cache(maxsize=TIM_CACHE_MAX_SIZE, ttl=0, timer=time.time, default=None)
+_g_timecache = Cache(maxsize=TIM_CACHE_MAX_SIZE,
+                     ttl=0, timer=time.time, default=None)
 
 
 def its_time_to(k, t):

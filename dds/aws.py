@@ -39,7 +39,15 @@ def _get_aws_bin_path():
     return "aws"
 
 
+# ------------------------------------------
+# we use _ts() functions to track the
+# last time AWS sync went OK and
+# generate an alarm if too long w/o success
+# ------------------------------------------
+
+
 def _touch_s3_ts():
+    # ts: timestamp
     name = str(PATH_FILE_AWS_TS) + '/.ts_aws.txt'
     with open(name, 'w') as f:
         f.write(str(int(time.time())))
@@ -56,9 +64,7 @@ def _get_s3_ts():
 
 def _aws_s3_sync_process():
 
-    # -----------------------------------------------------
-    # sys.exit instead of return prevents zombie processes
-    # -----------------------------------------------------
+    # sys.exit() instead of return prevents zombie processes
     setproctitle.setproctitle(AWS_S3_SYNC_PROC_NAME)
     fol_dl_files = get_ddh_folder_path_dl_files()
     _k = os.getenv("DDH_AWS_KEY_ID")
@@ -81,7 +87,7 @@ def _aws_s3_sync_process():
     ms = [d for d in glob.glob(str(fol_dl_files) + '/*') if os.path.isdir(d)]
     all_rv = 0
     for m in ms:
-        # um: dl_files/ddh#red_feet
+        # um: dl_files/ddh#red_feet, we need to lose 'dl_files'
         um = m.replace('dl_files/', '')
         c = (
             "AWS_ACCESS_KEY_ID={} AWS_SECRET_ACCESS_KEY={} "
@@ -94,18 +100,15 @@ def _aws_s3_sync_process():
             '--exclude "test_*.csv '
             '--exclude "test_*.lid '
             '--include "*.txt" {}'
-        )
-        c = c.format(_k, _s, _bin, m,
-                     _n, um, dr)
+        ).format(_k, _s, _bin, m, _n, um, dr)
 
-        # mostly for CFA and emolt boxes
         if this_box_has_grouped_s3_uplink():
             v = dds_get_json_vessel_name()
             # v: "bailey's" --> BAYLEYS
             v = v.replace("'", "")
             v = v.replace(" ", "_")
             v = v.upper()
-            # um: dl_files/ddh#red_feet
+            # um: dl_files/ddh#red_feet, we lose dl_files and group
             y = datetime.datetime.utcnow().year
             um = m.replace('dl_files', "{}/{}".format(str(y), v))
             c = (
@@ -119,11 +122,11 @@ def _aws_s3_sync_process():
                 '--exclude "test_*.csv '
                 '--exclude "test_*.lid '
                 '--include "*.txt" {}'
-            )
+            ).format(_k, _s, _bin, m, _n, um, dr)
 
-            c = c.format(_k, _s, _bin, m,
-                         _n, um, dr)
-
+        # ---------------------------------------------------
+        # once formatted the proper AWS sync command, run it
+        # ---------------------------------------------------
         rv = sp.run(c, shell=True, stdout=sp.PIPE, stderr=sp.PIPE)
         if rv.stdout:
             lg.a(rv.stdout)
@@ -154,7 +157,7 @@ def _aws_s3_sync_process():
             lg.a('error: negative S3 delta, fixing')
             _touch_s3_ts()
     else:
-        # not even file since it is first time ever
+        # file does not even exist, probably first time ever
         lg.a('warning: bad S3, monitoring next ones')
         _touch_s3_ts()
 
@@ -171,10 +174,11 @@ def aws_serve():
     exists_flag_gui = os.path.exists(flag_gui)
 
     # nothing to do
-    if not its_time_to("aws_s3_sync", PERIOD_AWS_S3_SECS) and not exists_flag_gui:
+    if not its_time_to("aws_s3_sync", PERIOD_AWS_S3_SECS) \
+            and not exists_flag_gui:
         return
 
-    # explicitly don't do anything
+    # explicitly asked to not do anything
     if not ctx.aws_en:
         lg.a("warning: ctx.aws_en set as False")
         return
@@ -184,24 +188,28 @@ def aws_serve():
         lg.a("debug: aws_do_flag_gui is set")
         os.unlink(flag_gui)
     else:
-        lg.a("period elapsed, time to do some AWS S3")
+        lg.a("period elapsed, time for some AWS S3")
 
     # useful to remove zombie processes
     multiprocessing.active_children()
 
-    # don't run if already doing so, but would be bad :(
+    # don't run if already doing so
+    # which would be bad because means is taking too long
     if linux_is_process_running(AWS_S3_SYNC_PROC_NAME):
         s = "warning: seems last {} took a long time"
         lg.a(s.format(AWS_S3_SYNC_PROC_NAME))
         _u(STATE_DDS_NOTIFY_CLOUD_ERR)
         return
 
+    # --------------------------------------------
     # run as a different process for smoother GUI
+    # --------------------------------------------
     if dev:
         lg.a("warning: dev platform detected, AWS sync with --dryrun flag")
     p = Process(target=_aws_s3_sync_process)
     p.start()
 
 
+# test
 if __name__ == "__main__":
     aws_serve()

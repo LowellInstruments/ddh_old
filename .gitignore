@@ -3,6 +3,9 @@ logs/*
 # un-ignore so empty folders are copied
 !logs/.gitkeep
 !dl_files/.gitkeep
+!rbl/.gitkeep
+!lef/.gitkeep
+!sqs/.gitkeep
 *.db
 _macs_to_sn.*
 .idea/
@@ -11,8 +14,9 @@ _macs_to_sn.*
 *.csv
 *.gps
 *.lef
-dds/sqs/
-dds/rbl/
+*.sqs
+*.rbl
+# just in case there are more dl_files here
 dds/dl_files/
 bleak_moana.py
 dds/macs/black/

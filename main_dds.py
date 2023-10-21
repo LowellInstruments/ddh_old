@@ -4,7 +4,6 @@ import threading
 import time
 import os
 import getpass
-from dds.pubsub import pubsub_run_sub
 from dds.aws import aws_serve
 from dds.ble import ble_interact_all_loggers
 from dds.ble_scan import ble_scan
@@ -121,12 +120,9 @@ def main_dds():
                 break
         time.sleep(5)
 
-    # Rockblocks stuff is slow, do it concurrent
+    # Rockblocks stuff is slow, launch its loop as a thread
     th = threading.Thread(target=rbl_loop)
     th.start()
-
-    # PUBSUB stuff (beta)
-    # pubsub_run_sub()
 
     # =============
     # main loop
@@ -138,18 +134,13 @@ def main_dds():
         gps_power_cycle_if_so()
         gps_configure_shield()
 
-        # --------------
         # other stages
-        # --------------
-
         cnv_serve()
         aws_serve()
         sqs_serve()
         net_serve()
 
-        # ----------
         # GPS stage
-        # ----------
         gps_tell_vessel_name()
         g = gps_measure()
         _ge = gps_hw_error_get(g)
@@ -160,28 +151,21 @@ def main_dds():
         dds_log_tracking_add(lat, lon, tg)
         gps_clock_sync_if_so(tg)
 
-        # -----------------
-        # send our SQS ping
-        # -----------------
+        # send SQS ping
         sqs_msg_ddh_alive(lat, lon)
 
-        # ----------------
-        # Bluetooth stage
-        # ----------------
-
+        # check we do Bluetooth or not
         ble_tell_gui_antenna_type(h, h_d)
         if not ble_check_antenna_up_n_running(lat, lon, h):
             continue
+        if not ble_op_conditions_met(speed):
+            continue
 
-        if ble_op_conditions_met(speed):
-
-            # SCAN for BLE loggers around
-            args = [g, h, h_d]
-            det = ctx.ael.run_until_complete(ble_scan(*args))
-
-            # download detected loggers, if any known
-            args = [det, m_j, g, h, h_d]
-            ctx.ael.run_until_complete(ble_interact_all_loggers(*args))
+        # BLE stage
+        args = [g, h, h_d]
+        det = ctx.ael.run_until_complete(ble_scan(*args))
+        args = [det, m_j, g, h, h_d]
+        ctx.ael.run_until_complete(ble_interact_all_loggers(*args))
 
 
 def controller_main_dds():

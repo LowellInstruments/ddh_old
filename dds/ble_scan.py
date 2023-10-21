@@ -24,8 +24,6 @@ def _ble_is_supported_logger(s):
         "DO-1",
         "MOANA",
         "MAT-2W",
-        # keep DO-X for Maggie Sue
-        "DO-X",
         "MATP-2W",
         "TAP1"
     ]

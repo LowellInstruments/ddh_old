@@ -45,6 +45,8 @@ def ble_show_monitored_macs():
 def ble_logger_ccx26x2r_needs_a_reset(mac):
     mac = mac.replace(':', '-')
     r = get_ddh_folder_path_tweak()
+
+    # checks existence of 'tweak/<mac>.rst' file
     file_path = '{}/{}.rst'.format(r, mac)
     rv = os.path.exists(file_path)
     if rv:
@@ -70,7 +72,7 @@ def ble_op_conditions_met(knots) -> bool:
     l_h = ddh_get_json_app_type()
     speed_range = dds_get_json_moving_speed()
 
-    # case: lobster trap, no speed requirement
+    # case: lobster trap, that is, no speed requirement
     if not l_h:
         return True
 
@@ -99,7 +101,7 @@ def ble_tell_gui_antenna_type(_h, desc):
     if its_time_to(s, 60):
         _u("{}/{}".format(STATE_DDS_BLE_ANTENNA, desc))
 
-    # we only run this function once
+    # we only ever run this function once
     if _g_ant_ble != "undefined":
         return
 
@@ -137,7 +139,7 @@ def ble_check_antenna_up_n_running(lat, lon, h: int):
         if rv.returncode:
             lg.a('command {} returned error {}'.format(c, rv.stderr))
 
-    # check again!
+    # checking again the state of the bluetooth interface
     time.sleep(1)
     rv = sp.run(cr, shell=True, stdout=sp.PIPE, stderr=sp.PIPE)
     if rv.returncode == 0:
@@ -154,6 +156,7 @@ def ble_check_antenna_up_n_running(lat, lon, h: int):
 
 def dds_tell_software_update():
     # check for file created by DDH startup script
+    # we may have uncommented the updater in such script
     f = dds_get_ddh_got_an_update_flag_file()
     if os.path.exists(f):
         os.unlink(f)
