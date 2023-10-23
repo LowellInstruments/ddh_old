@@ -58,8 +58,7 @@ class BleTAPDownload:
         _rae(rv, "bat")
         lg.a("BAT | {} mV".format(b))
         notes["battery_level"] = b
-        if b < 1600:
-            # todo ---> check this battery level here and firmware
+        if b < 982:
             # give time to GUI to display
             _u("{}/{}".format(STATE_DDS_BLE_LOW_BATTERY, mac))
             await asyncio.sleep(3)

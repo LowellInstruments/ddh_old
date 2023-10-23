@@ -99,6 +99,11 @@ async def deploy_logger(mac, sn, flag_run, flag_sensor):
         if flag_sensor:
             _e(bad_rv, "gdo")
 
+        rv, b = await lc.cmd_bat()
+        bad_rv = not rv or rv == 1
+        _e(bad_rv, "bat")
+        print("\t\tBAT | {} mV".format(b))
+
         # -------------------------------
         # RUNs logger, depending on flag
         # -------------------------------

@@ -60,11 +60,12 @@ class BleCC26X2Download:
         _rae(rv, "utm")
         lg.a("UTM | {}".format(t))
 
+        # checking battery level for DO-x loggers
         rv, b = await lc.cmd_bat()
         _rae(rv, "bat")
         lg.a("BAT | {} mV".format(b))
         notes["battery_level"] = b
-        if b < 1800:
+        if b < 1500:
             # give time to GUI to display
             _u("{}/{}".format(STATE_DDS_BLE_LOW_BATTERY, mac))
             await asyncio.sleep(3)
