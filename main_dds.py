@@ -43,6 +43,8 @@ from mat.ble.ble_mat_utils import (
     ble_mat_get_antenna_type,
     ble_mat_bluetoothctl_power_cycle
 )
+from rpc.rpc_rx import th_srv_cmd
+from rpc.rpc_tx import th_cli_notify
 from utils.ddh_shared import (
     dds_check_conf_json_file,
     dds_get_macs_from_json_file,
@@ -67,6 +69,12 @@ import setproctitle
 
 
 def main_dds():
+
+    # testing RPC for DDS
+    # th_cli_notify()
+    th_srv_cmd()
+    while 1:
+        time.sleep(1)
 
     lg.a('user login is {}'.format(os.getlogin()))
     lg.a('user effective is {}'.format(getpass.getuser()))

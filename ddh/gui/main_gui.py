@@ -47,6 +47,8 @@ from dds.sqs import sqs_msg_sms
 from dds.timecache import its_time_to
 from liu.linux import linux_is_process_running
 from mat.utils import linux_is_rpi
+from rpc.rpc_rx import th_srv_notify
+from rpc.rpc_tx import th_cli_cmd
 from settings import ctx
 from utils.ddh_shared import (
     get_ddh_folder_path_dl_files,
@@ -176,6 +178,10 @@ class DDH(QMainWindow, d_m.Ui_MainWindow):
         file_flag = dds_get_ddh_got_an_update_flag_file()
         if os.path.exists(file_flag):
             send_ddh_udp_gui(STATE_DDS_SOFTWARE_UPDATED)
+
+        # new, run RPC threads for DDH GUI
+        # th_srv_notify()
+        th_cli_cmd()
 
     def _tg_fxn(self):
         gui_timer_fxn(self)
@@ -638,8 +644,9 @@ class DDH(QMainWindow, d_m.Ui_MainWindow):
 def on_ctrl_c(signal_num, _):
     p = ddh_get_gui_closed_flag_file()
     pathlib.Path.touch(p, exist_ok=True)
+    lg.a("closing DDS by ctrl + c")
     dds_kill_by_pid_file()
-    lg.a("closing by ctrl + c")
+    lg.a("closing DDH by ctrl + c")
     os._exit(signal_num)
 
 

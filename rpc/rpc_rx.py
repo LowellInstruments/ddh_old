@@ -1,9 +1,20 @@
 import json
+import os
 import socket
+import threading
 import time
 from threading import Thread
 
 from rpc.rpc_common import RPC_SIZE
+
+
+class DDHRPCCmdAns:
+    def __init__(self, v, type_of='a', uuid=1):
+        self.d = {
+            'type': type_of,
+            'uuid': uuid,
+            'value': v
+        }
 
 
 class _RPCServer:
@@ -14,6 +25,7 @@ class _RPCServer:
         self.port = port
         self.address = (host, port)
         self._methods = {}
+        self.type_of = ''
 
     def register_method(self, function) -> None:
         try:
@@ -57,7 +69,7 @@ class _RPCServer:
                             socket.SO_REUSEADDR, 1)
             sock.bind(self.address)
             sock.listen()
-            print(f'\nRPC server {self.address} launched')
+            print(f'\n{self.type_of} {self.address} launched')
 
             while True:
                 try:
@@ -72,31 +84,28 @@ class _RPCServer:
 class DDHRPCCmdServer(_RPCServer):
     def __init__(self):
         super().__init__(port=6900)
+        self.type_of = 'RPC CMD Server'
         self.register_method(self.file_touch)
         self.register_method(self.get_epoch)
+        self.register_method(self.get_work_dir)
 
     @staticmethod
     def file_touch(f):
-        d = {
-            'type': 'a',
-            'uuid': 1,
-            'v': f'created {f}'
-        }
-        return d
+        return DDHRPCCmdAns(f'created {f}').d
 
     @staticmethod
     def get_epoch():
-        d = {
-            'type': 'a',
-            'uuid': 1,
-            'v': str(int(time.time()))
-        }
-        return d
+        return DDHRPCCmdAns(str(int(time.time()))).d
+
+    @staticmethod
+    def get_work_dir():
+        return DDHRPCCmdAns(os.getcwd()).d
 
 
 class DDHRPCNotifyServer(_RPCServer):
     def __init__(self):
         super().__init__(port=6901)
+        self.type_of = 'RPC Notifications Server'
         self.register_method(self.put_event)
 
     @staticmethod
@@ -110,10 +119,24 @@ class DDHRPCNotifyServer(_RPCServer):
 
 
 def srv_cmd_fxn():
+    # DDS receives commands from remote DDH GUI
     s = DDHRPCCmdServer()
     s.run()
 
 
 def srv_notify_fxn():
+    # DDH GUI receives notifications from remote DDS
     s = DDHRPCNotifyServer()
     s.run()
+
+
+def th_srv_cmd():
+    while 1:
+        th_sc = threading.Thread(target=srv_cmd_fxn)
+        th_sc.start()
+        th_sc.join()
+
+
+def th_srv_notify():
+    th_sn = threading.Thread(target=srv_notify_fxn)
+    th_sn.start()

@@ -10,9 +10,10 @@ from os.path import exists
 
 GROUPED_S3_FILE_FLAG = '/home/pi/li/.ddt_this_box_has_grouped_s3_uplink.flag'
 
-# -------------------------------------------------------------------------
-# moana RAW CSV file --> emolt CSV file --> header-less file percentile 85
-# -------------------------------------------------------------------------
+# ----------------------------------------------------------------------
+# RAW CSV file -> emolt CSV file 'zt_*' -> header-less file %85 -> msg
+# msg :message for Rockblocks to send
+# ----------------------------------------------------------------------
 
 
 COL_NAME_T = "Temperature (C)"
