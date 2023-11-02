@@ -162,16 +162,6 @@ def sqs_msg_ddh_alarm_s3():
     _sqs_gen_file('DDH_ALARM_S3', mac, lg_sn, lat, lon, m_ver=1, data=data)
 
 
-def sqs_msg_ddh_alarm_crash(s):
-    # hardcoded opcode so deployed DDH w/ old LIU library don't crash
-    mac = ''
-    lg_sn = ''
-    lat = ''
-    lon = ''
-    data = f'sms/{s}'
-    _sqs_gen_file('DDH_ALARM_CRASH', mac, lg_sn, lat, lon, m_ver=1, data=data)
-
-
 def sqs_msg_ddh_alive(*args):
     if its_time_to("send_sqs_ddh_alive_msg", 3600 * 12):
         _sqs_gen_file(OPCODE_SQS_DDH_ALIVE, "", "", *args)
@@ -209,6 +199,16 @@ def sqs_msg_sms():
     lat = '0.000000'
     lon = '0.000000'
     data = 'sms'
+    _sqs_gen_file('OPCODE_SQS_SMS', mac, lg_sn, lat, lon, m_ver=1, data=data)
+
+
+def sqs_msg_ddh_alarm_crash(s):
+    # hardcoded opcode so deployed DDH w/ old LIU library don't crash
+    mac = ''
+    lg_sn = ''
+    lat = ''
+    lon = ''
+    data = f'sms/{s}'
     _sqs_gen_file('OPCODE_SQS_SMS', mac, lg_sn, lat, lon, m_ver=1, data=data)
 
 
