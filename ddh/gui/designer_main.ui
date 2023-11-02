@@ -1486,7 +1486,7 @@ font: 19pt &quot;DejaVu Sans&quot;;</string>
       </widget>
       <widget class="QWidget" name="tab_graph">
        <attribute name="title">
-        <string>Graphs</string>
+        <string> Graphs</string>
        </attribute>
        <layout class="QVBoxLayout" name="verticalLayout_7" stretch="1,0,8">
         <item>

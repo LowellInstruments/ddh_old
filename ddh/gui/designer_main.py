@@ -744,4 +744,4 @@ class Ui_MainWindow(object):
         self.cb_g_cycle_haul.setItemText(2, _translate("MainWindow", "single"))
         self.btn_g_next_haul.setText(_translate("MainWindow", "<"))
         self.lbl_graph_busy.setText(_translate("MainWindow", "LOADING..."))
-        self.tabs.setTabText(self.tabs.indexOf(self.tab_graph), _translate("MainWindow", "Graphs"))
+        self.tabs.setTabText(self.tabs.indexOf(self.tab_graph), _translate("MainWindow", " Graphs"))
