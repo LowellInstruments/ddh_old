@@ -28,7 +28,7 @@ from dds.sqs import (
     dds_create_folder_sqs,
     sqs_serve,
     sqs_msg_ddh_booted,
-    sqs_msg_ddh_alive
+    sqs_msg_ddh_alive, sqs_msg_ddh_alarm_crash
 )
 from dds.lef import dds_create_folder_lef
 from dds.ble_utils_dds import (
@@ -38,6 +38,7 @@ from dds.ble_utils_dds import (
     ble_tell_gui_antenna_type,
     ble_check_antenna_up_n_running, dds_tell_software_update, dds_check_bluez_version,
 )
+from dds.timecache import its_time_to
 from liu.linux import linux_app_write_pid_to_tmp, linux_is_process_running
 from mat.ble.ble_mat_utils import (
     ble_mat_get_antenna_type,
@@ -168,6 +169,13 @@ def main_dds():
         ctx.ael.run_until_complete(ble_interact_all_loggers(*args))
 
 
+def _alarm_dds_crash(n):
+    if n == 0:
+        return
+    if its_time_to('tell_dds_child_crash', 3600):
+        sqs_msg_ddh_alarm_crash('DDH just crashed, check it')
+
+
 def controller_main_dds():
     s = NAME_EXE_DDS_CONTROLLER
     p = PID_FILE_DDS_CONTROLLER
@@ -181,6 +189,7 @@ def controller_main_dds():
         p = Process(target=main_dds)
         p.start()
         p.join()
+        _alarm_dds_crash(p.exitcode)
         lg.a("=== {} waits child ===".format(s))
         time.sleep(5)
 

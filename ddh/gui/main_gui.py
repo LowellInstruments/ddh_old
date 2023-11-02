@@ -311,7 +311,7 @@ class DDH(QMainWindow, d_m.Ui_MainWindow):
         dds_kill_by_pid_file_only_child()
 
         # bye, bye DDH
-        lg.a("quit by save config button")
+        lg.a("closing by save config button")
         sys.stderr.close()
         os._exit(0)
 
@@ -647,6 +647,7 @@ def on_ctrl_c(signal_num, _):
     lg.a("closing DDS by ctrl + c")
     dds_kill_by_pid_file()
     lg.a("closing DDH by ctrl + c")
+    lg.a(f"received exactly signal number {signal_num}")
     os._exit(signal_num)
 
 
