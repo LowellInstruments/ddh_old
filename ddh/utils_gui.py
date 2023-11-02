@@ -334,7 +334,7 @@ def gui_hide_graph_tab(ui):
 
 def gui_show_graph_tab(ui):
     icon = QIcon("ddh/gui/res/icon_graph.ico")
-    ui.tabs.addTab(ui.tab_graph_wgt_ref, icon, " Graph")
+    ui.tabs.addTab(ui.tab_graph_wgt_ref, icon, " Graphs")
     p = ui.tabs.findChild(QWidget, "tab_graph")
     i = ui.tabs.indexOf(p)
     ui.tabs.setCurrentIndex(i)
