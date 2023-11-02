@@ -70,14 +70,6 @@ import setproctitle
 
 def main_dds():
 
-    # testing RPC for DDS
-    # th_cli_notify()
-    th_srv_cmd()
-    while 1:
-        time.sleep(1)
-
-    lg.a('user login is {}'.format(os.getlogin()))
-    lg.a('user effective is {}'.format(getpass.getuser()))
     dds_tell_software_update()
     dds_check_we_have_box_env_info()
     dds_ensure_proper_working_folder()

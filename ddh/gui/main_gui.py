@@ -181,7 +181,7 @@ class DDH(QMainWindow, d_m.Ui_MainWindow):
 
         # new, run RPC threads for DDH GUI
         # th_srv_notify()
-        th_cli_cmd()
+        # th_cli_cmd()
 
     def _tg_fxn(self):
         gui_timer_fxn(self)
