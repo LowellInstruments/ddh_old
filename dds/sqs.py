@@ -199,7 +199,7 @@ def sqs_msg_sms():
     lat = '0.000000'
     lon = '0.000000'
     data = 'sms'
-    _sqs_gen_file('OPCODE_SQS_SMS', mac, lg_sn, lat, lon, m_ver=1, data=data)
+    _sqs_gen_file('DDH_SMS_TEST', mac, lg_sn, lat, lon, m_ver=1, data=data)
 
 
 def sqs_msg_ddh_alarm_crash(s):
@@ -209,7 +209,7 @@ def sqs_msg_ddh_alarm_crash(s):
     lat = ''
     lon = ''
     data = f'sms/{s}'
-    _sqs_gen_file('OPCODE_SQS_SMS', mac, lg_sn, lat, lon, m_ver=1, data=data)
+    _sqs_gen_file('DDH_SMS_CRASH', mac, lg_sn, lat, lon, m_ver=1, data=data)
 
 
 def sqs_msg_notes_cc26x2r(*args):
