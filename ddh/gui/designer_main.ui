@@ -41,7 +41,7 @@
        </font>
       </property>
       <property name="currentIndex">
-       <number>0</number>
+       <number>6</number>
       </property>
       <widget class="QWidget" name="tab">
        <property name="sizePolicy">
@@ -1486,33 +1486,33 @@ font: 19pt &quot;DejaVu Sans&quot;;</string>
       </widget>
       <widget class="QWidget" name="tab_graph">
        <attribute name="title">
-        <string> Graph</string>
+        <string> Graphs</string>
        </attribute>
        <layout class="QVBoxLayout" name="verticalLayout_7" stretch="1,0,8">
         <item>
-         <layout class="QHBoxLayout" name="lay_g_h1" stretch="1,1,1,1,1,1">
+         <layout class="QHBoxLayout" name="lay_g_h1" stretch="1,2,2,1,1,1">
           <property name="spacing">
            <number>18</number>
           </property>
           <item>
-           <widget class="QComboBox" name="cb_g_paint_zones">
-            <item>
-             <property name="text">
-              <string>zones</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>zoom</string>
-             </property>
-            </item>
+           <widget class="QPushButton" name="btn_g_reset">
+            <property name="text">
+             <string>reset</string>
+            </property>
            </widget>
           </item>
           <item>
-           <widget class="QPushButton" name="btn_g_reset">
-            <property name="text">
-             <string>reset view</string>
-            </property>
+           <widget class="QComboBox" name="cb_g_paint_zones">
+            <item>
+             <property name="text">
+              <string>zones ON</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>zones OFF</string>
+             </property>
+            </item>
            </widget>
           </item>
           <item>

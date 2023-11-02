@@ -346,7 +346,7 @@ def _process_n_graph(a, r=''):
         p1.setYRange(0, 10, padding=0)
         # alpha: the lower, the more transparent
         alpha = 85
-        if _zt != 'zones':
+        if _zt == 'zones OFF':
             return
         reg_do_l = FiniteLinearRegionItem(values=(0, 2),
                                            limits=4,
@@ -397,7 +397,7 @@ def process_n_graph(a, r=''):
             'hx_10',
             'hx_11',
             'george_test'
-        ) or os.path.exists('/home/pi/.ddh_graph_enabler.json'):
+        ) or os.path.exists('/home/pi/li/.ddh_graph_enabler.json'):
             # ----------
             # graph it
             # ----------

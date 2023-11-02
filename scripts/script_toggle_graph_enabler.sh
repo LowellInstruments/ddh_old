@@ -3,7 +3,7 @@
 
 # script called by DDU-text utility, not used by DDU-gui
 
-FILE_GRAPH_ENABLER=/home/pi/.ddh_graph_enabler.json
+FILE_GRAPH_ENABLER=/home/pi/li/.ddh_graph_enabler.json
 
 echo; echo;
 if [ -f "$FILE_GRAPH_ENABLER" ]; then

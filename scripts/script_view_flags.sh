@@ -7,7 +7,7 @@ EMOLT_FILE_FLAG=/home/pi/li/.ddt_this_is_emolt_box.flag
 GROUPED_S3_FILE_FLAG=/home/pi/li/.ddt_this_box_has_grouped_s3_uplink.flag
 CF=/etc/crontab
 FILE_GRAPH_TEST_MODE=/tmp/ddh_graph_test_mode.json
-FILE_GRAPH_ENABLER=/home/pi/.ddh_graph_enabler.json
+FILE_GRAPH_ENABLER=/home/pi/li/.ddh_graph_enabler.json
 GPS_DUMMY_MODE_FILE=/tmp/gps_dummy_mode.json
 
 
