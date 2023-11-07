@@ -1,7 +1,6 @@
 import asyncio
 import datetime
 import os
-from ddh.utils_graph import utils_graph_set_fol_req_file
 from dds.lef import dds_create_file_lef
 from mat.ble.ble_mat_utils import (
     ble_mat_crc_local_vs_remote,
@@ -9,16 +8,18 @@ from mat.ble.ble_mat_utils import (
 )
 from mat.ble.bleak.cc26x2r import BleCC26X2
 from dds.ble_utils_dds import ble_get_cc26x2_recipe_file_rerun_flag, ble_logger_ccx26x2r_needs_a_reset
+from mat.tap import convert_tap_file
+from mat.utils import linux_is_rpi
 from utils.ddh_shared import (
     send_ddh_udp_gui as _u,
     STATE_DDS_BLE_LOW_BATTERY,
-    STATE_DDS_BLE_RUN_STATUS, STATE_DDS_BLE_ERROR_RUN, STATE_DDS_REQUEST_GRAPH,
+    STATE_DDS_BLE_RUN_STATUS, STATE_DDS_BLE_ERROR_RUN,
+    STATE_DDS_BLE_DOWNLOAD_ERROR_TP_SENSOR,
 )
 from utils.logs import lg_dds as lg
 from utils.ddh_shared import (
     get_dl_folder_path_from_mac,
     create_folder_logger_by_mac,
-    STATE_DDS_REQUEST_PLOT,
 )
 from settings.ctx import BLEAppException, ael
 
@@ -36,6 +37,7 @@ class BleTAPDownload:
         notes["battery_level"] = 0xFFFF
         rerun_flag = ble_get_cc26x2_recipe_file_rerun_flag()
         create_folder_logger_by_mac(mac)
+        dl_files = []
 
         rv = await lc.connect(mac)
         _rae(rv, "connecting")
@@ -75,12 +77,24 @@ class BleTAPDownload:
         _rae(rv, "stm")
         lg.a("STM | OK")
 
+        # disable log for lower power consumption
+        rv, v = await lc.cmd_log()
+        _rae(rv, "log")
+        if linux_is_rpi():
+            if v != 0:
+                rv, v = await lc.cmd_log()
+                _rae(rv, "log")
+        else:
+            # we want logs while developing
+            if v != 1:
+                rv, v = await lc.cmd_log()
+                _rae(rv, "log")
+
         rv, ls = await lc.cmd_dir()
         _rae(rv, "dir error " + str(rv))
         lg.a("DIR | {}".format(ls))
 
         # iterate files present in logger
-        any_dl = False
         for name, size in ls.items():
 
             # delete zero-bytes files
@@ -116,14 +130,15 @@ class BleTAPDownload:
                 f.write(file_data)
             lg.a("downloaded file {}".format(name))
 
+            # add to the output list
+            dl_files.append(path)
+
             # delete file in logger
             rv = await lc.cmd_del(name)
             _rae(rv, "del")
-            any_dl = True
             lg.a("deleted file {}".format(name))
 
             # create LEF file with download info
-            # todo ---> test this
             lg.a("creating file LEF for {}".format(name))
             dds_create_file_lef(g, name)
 
@@ -138,8 +153,8 @@ class BleTAPDownload:
         bad_rv = not rv or rv[0] == 1 or rv[1] == 0xFFFF or rv[1] == 0
         if bad_rv:
             lg.a('GST | error {}'.format(rv))
-            # _u(STATE_DDS_BLE_DOWNLOAD_ERROR_GDO)
-            # await asyncio.sleep(5)
+            _u(STATE_DDS_BLE_DOWNLOAD_ERROR_TP_SENSOR)
+            await asyncio.sleep(5)
         _rae(bad_rv, "gst")
 
         # check sensors measurement, Pressure
@@ -148,21 +163,18 @@ class BleTAPDownload:
         bad_rv = not rv or rv[0] == 1 or rv[1] == 0xFFFF or rv[1] == 0
         if bad_rv:
             lg.a('GSP | error {}'.format(rv))
-            # _u(STATE_DDS_BLE_DOWNLOAD_ERROR_GDO)
-            # await asyncio.sleep(5)
+            _u(STATE_DDS_BLE_DOWNLOAD_ERROR_TP_SENSOR)
+            await asyncio.sleep(5)
         _rae(bad_rv, "gsp")
 
-        # rv = await lc.cmd_acc()
+        # wake mode
+        if rerun_flag:
+            rv = await lc.cmd_wak("on")
+        else:
+            rv = await lc.cmd_wak("off")
+        _rae(rv, "wak")
+        lg.a("WAK | OK")
 
-#         # wake mode
-        # todo ---> do we hjave this on TAP loggers? I guess yes
-#         if rerun_flag:
-#             rv = await lc.cmd_wak("on")
-#         else:
-#             rv = await lc.cmd_wak("off")
-#         _rae(rv, "wak")
-#         lg.a("WAK | OK")
-#
         if rerun_flag:
             rv = await lc.cmd_rws(g)
             if rv:
@@ -181,11 +193,7 @@ class BleTAPDownload:
         # -----------------------
         await lc.disconnect()
 
-        # plots
-        if any_dl:
-            _u("{}/{}".format(STATE_DDS_REQUEST_PLOT, mac))
-
-        return 0
+        return 0, dl_files
 
 
 async def ble_interact_tap(mac, info, g, h):
@@ -197,9 +205,12 @@ async def ble_interact_tap(mac, info, g, h):
         # -------------------------
         # BLE connection done here
         # -------------------------
-        s = "interacting with TAP logger, info {}"
-        lg.a(s.format(info))
-        rv = await BleTAPDownload.download_recipe(lc, mac, info, g, notes)
+        lg.a(f"interacting TAP logger, info {info}")
+        rv, dl_files = await BleTAPDownload.download_recipe(lc, mac, info, g, notes)
+
+        # convert lix files
+        for f in dl_files:
+            convert_tap_file(f)
 
     except Exception as ex:
         lg.a("error dl_tap_exception {}".format(ex))

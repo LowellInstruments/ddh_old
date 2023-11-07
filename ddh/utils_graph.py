@@ -135,9 +135,10 @@ def _data_get_prune_period(x, met):
 
 @lru_cache(maxsize=256)
 def cached_read_csv(f):
-    data = pd.read_csv(f)
-    lg.a('warning: no data for file {}'.format(f))
-    return data
+    df = pd.read_csv(f)
+    if df.empty:
+        lg.a('warning: no data for file {}'.format(f))
+    return df
 
 
 @lru_cache(maxsize=256)
@@ -282,7 +283,7 @@ def process_graph_csv_data(fol, _, h, hi) -> dict:
 
     # Depth calculation, convert: f = (dbar - a) * 0.5468
     pf = [(d - CTT_ATM_PRESSURE_DBAR) * .5468 for d in p]
-    tap_pf = pf
+    tap_pf = [(d - CTT_ATM_PRESSURE_DBAR) * .5468 for d in tap_p]
     mpf = [d * .5468 for d in p]
     # Moana loggers pressure does not include atm. pressure
     pf = pf if not is_moana else mpf

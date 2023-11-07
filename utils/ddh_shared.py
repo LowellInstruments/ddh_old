@@ -26,6 +26,7 @@ STATE_DDS_BLE_DOWNLOAD = "state_dds_ble_download"
 STATE_DDS_BLE_DOWNLOAD_OK = "state_dds_ble_download_ok"
 STATE_DDS_BLE_DOWNLOAD_ERROR = "state_dds_ble_download_error"
 STATE_DDS_BLE_DOWNLOAD_ERROR_GDO = "state_dds_ble_download_error_gdo"
+STATE_DDS_BLE_DOWNLOAD_ERROR_TP_SENSOR = "state_dds_ble_download_error_tp_sensor"
 STATE_DDS_BLE_DOWNLOAD_WARNING = "state_dds_ble_download_warning"
 STATE_DDS_BLE_DOWNLOAD_PROGRESS = "state_dds_ble_download_progress"
 STATE_DDS_BLE_HARDWARE_ERROR = "state_dds_ble_hardware_error"
@@ -455,9 +456,9 @@ def get_utc_offset():
 def get_number_of_hauls(path):
     # path: /home/kaz/PycharmProjects/ddh/dl_files/<mac>
     ls_lid = len(glob.glob('{}/*.lid'.format(path)))
-    ls_lip = len(glob.glob('{}/*.lip'.format(path)))
     ls_bin = len(glob.glob('{}/moana*.bin'.format(path)))
-    mask = '???'
+    ls_tap = len(glob.glob('{}/*_TAP.csv'.format(path)))
+    mask = '__what__'
     if ls_lid:
         # for DO & TP loggers
         mask_do = f'{path}/*_DissolvedOxygen.csv'
@@ -465,14 +466,13 @@ def get_number_of_hauls(path):
         n_do = len(glob.glob(mask_do))
         n_tp = len(glob.glob(mask_tp))
         mask = mask_do if n_do else mask_tp
-    elif ls_lip:
+    elif ls_tap:
         mask = f'{path}/*_TAP.csv'
     elif ls_bin:
         # NOT MOANA*.csv but Lowell generated files
         mask = f'{path}/*_Pressure.csv'
 
     n = len(glob.glob(mask))
-    # print(f'found {n} files mask {mask}')
     return n
 
 

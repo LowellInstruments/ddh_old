@@ -212,12 +212,13 @@ def _process_n_graph(a, r=''):
 
     # number of hauls
     nh = get_number_of_hauls(fol)
+    lg.a(f'found {nh} hauls in folder {fol}')
     if r == 'hauls_next':
         # remember this button only active on haul_text == 'single'
         if nh == 0:
             raise GraphException(f'error: no hauls for {fol}')
         a.g_haul_idx = (a.g_haul_idx - 1) % nh
-        lg.a(f'button haul index = {a.g_haul_idx}')
+        lg.a(f'button haul index = {a.g_haul_idx} / {nh}')
     if r == 'hauls_labels':
         if _ht == 'single':
             a.btn_g_next_haul.setEnabled(True)
@@ -264,7 +265,7 @@ def _process_n_graph(a, r=''):
     filenames_hash = _graph_calc_hash_filenames(fol)
     data = process_graph_csv_data(fol, filenames_hash, _ht, a.g_haul_idx)
     if not data:
-        raise GraphException(f'error: no data for {fol}')
+        raise GraphException(f'error: no data in folder {fol}')
     if 'ISO 8601 Time' not in data.keys():
         raise GraphException(f'error: no time data for {fol}')
 
