@@ -168,12 +168,13 @@ class BleTAPDownload:
         _rae(bad_rv, "gsp")
 
         # wake mode
-        if rerun_flag:
-            rv = await lc.cmd_wak("on")
-        else:
-            rv = await lc.cmd_wak("off")
-        _rae(rv, "wak")
-        lg.a("WAK | OK")
+        # todo ---> reenable this
+        # if rerun_flag:
+        #     rv = await lc.cmd_wak("on")
+        # else:
+        #     rv = await lc.cmd_wak("off")
+        # _rae(rv, "wak")
+        # lg.a("WAK | OK")
 
         if rerun_flag:
             rv = await lc.cmd_rws(g)
