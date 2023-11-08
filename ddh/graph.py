@@ -301,10 +301,10 @@ def _process_n_graph(a, r=''):
     c1 = _get_color_by_label(lbl1)
     c2 = _get_color_by_label(lbl2)
 
-    # title
+    # title, choose utcfromtimestamp() / fromtimestamp()
     fmt = '%b %d %H:%M'
-    t1 = datetime.utcfromtimestamp(x[0]).strftime(fmt)
-    t2 = datetime.utcfromtimestamp(x[-1]).strftime(fmt)
+    t1 = datetime.fromtimestamp(x[0]).strftime(fmt)
+    t2 = datetime.fromtimestamp(x[-1]).strftime(fmt)
     mac = basename(fol).replace('-', ':')
     sn = dds_get_json_mac_dns(mac)
     title = 'SN{} - {} to {}'.format(sn, t1, t2)
@@ -404,7 +404,6 @@ def process_n_graph(a, r=''):
             # ----------
             _graph_busy_sign_show(a)
             _process_n_graph(a, r)
-            _graph_busy_sign_hide(a)
         else:
             lg.a('warning: this DDH does no new graphs yet :)')
 
@@ -417,3 +416,5 @@ def process_n_graph(a, r=''):
         e = 'undefined error, see log'
         a.g.setTitle(e, color="red", size="15pt")
         lg.a("error: graph_embed -> {}".format(ex))
+    finally:
+        _graph_busy_sign_hide(a)
