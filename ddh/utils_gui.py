@@ -326,6 +326,8 @@ def gui_hide_graph_tab(ui):
 
     if not linux_is_rpi():
         return
+    if os.path.exists('/home/pi/li/.ddh_graph_enabler.json'):
+        return
     # find tab ID, index and keep ref
     p = ui.tabs.findChild(QWidget, "tab_graph")
     i = ui.tabs.indexOf(p)
