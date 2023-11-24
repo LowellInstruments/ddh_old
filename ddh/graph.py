@@ -6,6 +6,7 @@ import json
 from PyQt5 import QtCore
 from PyQt5.QtCore import QTime, QCoreApplication
 import pyqtgraph as pg
+from PyQt5.QtGui import QFont
 from pyqtgraph.Qt import QtGui
 from os.path import basename
 from pyqtgraph import LinearRegionItem
@@ -23,6 +24,7 @@ pg.setConfigOption('leftButtonPan', False)
 # plot objects
 p1 = None
 p2 = None
+p3 = None
 just_booted = True
 
 
@@ -140,9 +142,13 @@ def _graph_check_mac_has_dl_files(mac, fol_ls):
 
 def _graph_update_views():
     # used when resizing
-    global p1, p2
+    global p1, p2, p3
+    # for the second line
     p2.setGeometry(p1.vb.sceneBoundingRect())
     p2.linkedViewChanged(p1.vb, p2.XAxis)
+    # for the 3+ line
+    # p3.setGeometry(p1.vb.sceneBoundingRect())
+    # p3.linkedViewChanged(p1.vb, p3.XAxis)
 
 
 def _graph_busy_sign_show(a):
@@ -233,10 +239,13 @@ def _process_n_graph(a, r=''):
     # ---------------
     global p1
     global p2
+    global p3
     if p1:
         p1.clear()
     if p2:
         p2.clear()
+    # if p3:
+    #     p3.clear()
     p1 = g.plotItem
 
     # grid or not
@@ -248,6 +257,19 @@ def _process_n_graph(a, r=''):
     p1.scene().addItem(p2)
     p1.getAxis('right').linkToView(p2)
     p2.setXLink(p1)
+
+    # create the 3rd line
+    # p3 = pg.ViewBox()
+    # ax3 = pg.AxisItem('right')
+    # p1.layout.addItem(ax3, 2, 3)
+    # p1.scene().addItem(p3)
+    # ax3.linkToView(p3)
+    # p3.setXLink(p1)
+    # ax3.setLabel('accel X', **{"color": 'green', "font-size": "20px", "font-weight": "bold"})
+    # my_font = QFont("Arial", 15, QFont.Bold)
+    # ax3.setTickFont(my_font)
+    # ax3.setTextPen('green')
+
     _graph_update_views()
     p1.vb.sigResized.connect(_graph_update_views)
 
@@ -284,6 +306,7 @@ def _process_n_graph(a, r=''):
     elif met == 'TAP':
         lbl1 = 'Depth (fathoms) TAP'
         lbl2 = 'Temperature (F) TAP'
+        lbl3 = 'Ax TAP'
         y3 = data['Ax TAP']
         y4 = data['Ay TAP']
         y5 = data['Az TAP']
@@ -296,10 +319,12 @@ def _process_n_graph(a, r=''):
     # lose the suffixes indicating logger type
     lbl1 = lbl1.replace(' TP', '').replace(' DO', '').replace(' TAP', '')
     lbl2 = lbl2.replace(' TP', '').replace(' DO', '').replace(' TAP', '')
+    # lbl3 = lbl2.replace(' TP', '').replace(' DO', '').replace(' TAP', '')
 
     # choose colors
     c1 = _get_color_by_label(lbl1)
     c2 = _get_color_by_label(lbl2)
+    # c3 = _get_color_by_label(lbl3)
 
     # title, choose utcfromtimestamp() / fromtimestamp()
     fmt = '%b %d %H:%M'
@@ -317,23 +342,26 @@ def _process_n_graph(a, r=''):
     # axes styles, sides
     lbl1 = lbl1 + ' ─'
     lbl2 = lbl2 + ' - -'
+    lbl3 = lbl3 + ' - -'
     p1.setLabel("left", lbl1, **{"color": c1, "font-size": "20px", "font-weight": "bold"})
     p1.getAxis('left').setTextPen(c1)
     p1.getAxis('right').setLabel(lbl2, **{"color": c2, "font-size": "20px", "font-weight": "bold"})
     p1.getAxis('right').setTextPen(c2)
 
     # axes style, bottom
-    c3 = 'black'
-    p1.getAxis('bottom').setLabel('Time', **{"color": c3, "font-size": "20px", "font-weight": "bold"})
-    p1.getAxis('bottom').setTextPen(c3)
+    cb = 'black'
+    p1.getAxis('bottom').setLabel('Time', **{"color": cb, "font-size": "20px", "font-weight": "bold"})
+    p1.getAxis('bottom').setTextPen(cb)
 
-    # --------------
-    # let's DRAW it
-    # --------------
+    # ---------------------
+    # let's DRAW the LINES
+    # ---------------------
     pen1 = pg.mkPen(color='b', width=2, style=QtCore.Qt.SolidLine)
     pen2 = pg.mkPen(color='r', width=2, style=QtCore.Qt.DashLine)
+    pen3 = pg.mkPen(color='green', width=2, style=QtCore.Qt.DashLine)
     p1.plot(x, y1, pen=pen1, hoverable=True)
     p2.addItem(pg.PlotCurveItem(x, y2, pen=pen2, hoverable=True))
+    # p3.addItem(pg.PlotCurveItem(x, y3, pen=pen3, hoverable=True))
 
     # avoids small glitch when re-zooming
     g.getPlotItem().enableAutoRange()
@@ -341,6 +369,7 @@ def _process_n_graph(a, r=''):
     # common ranges
     p1.setYRange(min(y1), max(y1), padding=0)
     p2.setYRange(min(y2), max(y2), padding=0)
+    # p3.setYRange(min(y3), max(y3), padding=0)
 
     # custom adjustments
     if met == 'DO':
