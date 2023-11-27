@@ -45,7 +45,7 @@ def ddh_is_dev_platform():
     return not linux_is_rpi()
 
 
-def file_moana_raw_csv_to_emolt_csv(path, lat, lon):
+def file_moana_raw_csv_to_emolt_zt_csv(path, lat, lon):
 
     # RAW: file after the moana decode() function is called
     path = path.replace(".bin", ".csv")
@@ -119,7 +119,7 @@ def file_rn4020_raw_to_emolt_csv(path):
     pass
 
 
-def file_emolt_csv_to_hl(path, logger_type):
+def file_emolt_zt_csv_to_emolt_hl(path, logger_type):
     path_hl = "{}.hl".format(path)
     print("emolt csv  file name:", path)
     print("headerless file name:", path_hl)
@@ -141,7 +141,7 @@ def file_emolt_csv_to_hl(path, logger_type):
     return path_hl
 
 
-def file_out_hl_process_xc_85(path) -> EmoltMsgShortHaul:
+def file_emolt_hl_csv_to_dict_xc85(path) -> EmoltMsgShortHaul:
 
     lg.a("processing header-less file: {}".format(path))
     df = pd.read_csv(path)
@@ -191,8 +191,8 @@ def file_out_hl_process_xc_85(path) -> EmoltMsgShortHaul:
 
 if __name__ == "__main__":
     MOANA_RAW_FILENAME = "{}/MOANA_0190_29.csv".format("/tmp")
-    emolt_csv_file = file_moana_raw_csv_to_emolt_csv(
+    emolt_csv_file = file_moana_raw_csv_to_emolt_zt_csv(
         MOANA_RAW_FILENAME, lat="4.444444", lon="5.555555"
     )
-    hl_csv_file = file_emolt_csv_to_hl(emolt_csv_file, logger_type="moana")
-    file_out_hl_process_xc_85(hl_csv_file)
+    hl_csv_file = file_emolt_zt_csv_to_emolt_hl(emolt_csv_file, logger_type="moana")
+    file_emolt_hl_csv_to_dict_xc85(hl_csv_file)

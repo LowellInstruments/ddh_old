@@ -1,6 +1,8 @@
 import asyncio
 import datetime
 import os
+
+from dds.csv_data import file_lowell_raw_csv_to_emolt_lt_csv
 from dds.lef import dds_create_file_lef
 from mat.ble.ble_mat_utils import (
     ble_mat_crc_local_vs_remote,
@@ -211,7 +213,9 @@ async def ble_interact_tap(mac, info, g, h):
 
         # convert lix files
         for f in dl_files:
-            convert_tap_file(f)
+            rv, _ = convert_tap_file(f)
+            # if rv == 0:
+            #     file_lowell_raw_csv_to_emolt_lt_csv(f)
 
     except Exception as ex:
         lg.a("error dl_tap_exception {}".format(ex))
