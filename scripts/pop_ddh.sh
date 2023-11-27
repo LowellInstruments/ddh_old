@@ -13,6 +13,13 @@ FTS=/tmp/ddh_stash
 FA=/home/pi/li/ddh
 
 
+# ensuring we have the latest DDT because we pull files from them
+echo -e "${C_B}\n>>> ensuring we have latest DDT\n${C_Z}"
+cd /home/pi/li/ddt || (echo -e "${C_R}error: no DDT folder${C_Z}"; exit 1)
+git reset --hard
+git pull
+
+
 
 echo -e "${C_B}\n>>> stashing current DDS configuration\n${C_Z}"
 rm -rf $FTS
