@@ -13,6 +13,7 @@ from ddh.utils_graph import utils_graph_read_fol_req_file, \
     utils_graph_get_abs_fol_list, process_graph_csv_data, \
     utils_graph_does_exist_fol_req_file, \
     utils_graph_delete_fol_req_file
+from mat.utils import linux_is_rpi
 from utils.ddh_shared import dds_get_json_mac_dns, \
     dds_get_mac_from_sn_from_json_file, \
     get_dl_folder_path_from_mac, \
@@ -318,7 +319,7 @@ def _process_n_graph(a, r=''):
     title = 'SN{} - {} to {}'.format(sn, t1, t2)
     if data['pruned']:
         title += ' (data trimmed)'
-    g.setTitle(title, color="black", size="15pt", bold=True)
+    # g.setTitle(title, color="black", size="15pt", bold=True)
 
     # default variables to show for each metric
     lbl1, lbl2, lbl3 = '', '', ''
@@ -357,9 +358,10 @@ def _process_n_graph(a, r=''):
     p1.getAxis('left').setTextPen(clr_1)
     p1.getAxis('right').setTextPen(clr_2)
 
-    # axes style, bottom
+    # axes style, BOTTOM
     cb = 'black'
-    p1.getAxis('bottom').setLabel('Time', **_sty(cb))
+    # p1.getAxis('bottom').setLabel('Time', **_sty(cb))
+    p1.getAxis('bottom').setLabel(title, **_sty(cb))
     p1.getAxis('bottom').setTextPen(cb)
 
     # ---------------------
@@ -418,13 +420,14 @@ def _process_n_graph(a, r=''):
             p1.setYRange(max(y1), 0, padding=0)
 
         # 3rd line: color axis title, ticks text, line, show it
-        p1.layout.addItem(ax3, 2, 3)
-        ax3.setStyle(tickFont=font)
-        pen3 = pg.mkPen(color=clr_3, width=2, style=QtCore.Qt.SolidLine)
-        ax3.setLabel(lbl3, **_sty(clr_3))
-        ax3.setTextPen(clr_3)
-        p3.addItem(pg.PlotCurveItem(x, y3, pen=pen3, hoverable=True))
-        p3.setYRange(min(y3), max(y3), padding=0)
+        if not linux_is_rpi():
+            p1.layout.addItem(ax3, 2, 3)
+            ax3.setStyle(tickFont=font)
+            pen3 = pg.mkPen(color=clr_3, width=2, style=QtCore.Qt.SolidLine)
+            ax3.setLabel(lbl3, **_sty(clr_3))
+            ax3.setTextPen(clr_3)
+            p3.addItem(pg.PlotCurveItem(x, y3, pen=pen3, hoverable=True))
+            p3.setYRange(min(y3), max(y3), padding=0)
 
     # statistics: display number of points
     end_ts = time.perf_counter()
