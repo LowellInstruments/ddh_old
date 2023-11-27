@@ -45,15 +45,15 @@ def _sty(color):
 def _get_color_by_label(lbl):
     # google for SVG 1.0 color names
     if 'Temperature' in lbl:
-        return 'orangered'
+        return 'red'
     if 'Pressure' in lbl:
-        return 'cornflowerblue'
+        return 'blue'
     if 'Depth' in lbl:
-        return 'cornflowerblue'
+        return 'blue'
     if 'DO Concentration' in lbl:
-        return 'cornflowerblue'
+        return 'blue'
     if 'Ax' in lbl:
-        return 'orchid'
+        return 'green'
     return 'green'
 
 
