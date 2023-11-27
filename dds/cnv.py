@@ -144,8 +144,7 @@ def _cnv_all_tap_files():
         if not f_tap.endswith('.lix'):
             continue
         if f_tap in _g_files_already_converted:
-            s = f"debug: skip conversion, file {f_tap} already exists"
-            lg.a(s)
+            lg.a(f"debug: skip conversion, file {f_tap} already exists")
             continue
         if f_tap in _g_files_we_cannot_convert:
             continue
@@ -157,7 +156,7 @@ def _cnv_all_tap_files():
         if rv == 0 and f_tap not in _g_files_already_converted:
             _g_files_already_converted.append(f_tap)
         if rv and f_tap not in _g_files_we_cannot_convert:
-            lg.a("warning: ignoring file {f_tap}from now on")
+            lg.a("warning: ignoring file {f_tap} from now on")
             _g_files_we_cannot_convert.append(f_tap)
         rv_all += rv
     return rv_all == 0
@@ -171,10 +170,10 @@ def _cnv_serve():
 
     # general banner
     fol = str(get_ddh_folder_path_dl_files())
-    lg.a('_' * 70)
-    s = "folder: {} | metrics: {}, {}, {}"
-    lg.a(s.format(fol, "_DissolvedOxygen", "_Temperature", "_Pressure"))
-    lg.a('_' * 70)
+    s = f'started conversion sequence folder {fol}'
+    lg.a('_' * len(s))
+    lg.a(s)
+    lg.a('_' * len(s))
 
     # error variable
     e = ""
