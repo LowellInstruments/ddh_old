@@ -9,10 +9,16 @@ import pyqtgraph as pg
 from pyqtgraph.Qt import QtGui
 from os.path import basename
 from pyqtgraph import LinearRegionItem
-from ddh.utils_graph import utils_graph_read_fol_req_file, utils_graph_get_abs_fol_list, process_graph_csv_data, utils_graph_does_exist_fol_req_file, \
+from ddh.utils_graph import utils_graph_read_fol_req_file, \
+    utils_graph_get_abs_fol_list, process_graph_csv_data, \
+    utils_graph_does_exist_fol_req_file, \
     utils_graph_delete_fol_req_file
-from utils.ddh_shared import dds_get_json_mac_dns, dds_get_mac_from_sn_from_json_file, get_dl_folder_path_from_mac, \
-    ddh_get_absolute_application_path, get_number_of_hauls, dds_get_json_vessel_name, ddh_get_settings_json_file
+from utils.ddh_shared import dds_get_json_mac_dns, \
+    dds_get_mac_from_sn_from_json_file, \
+    get_dl_folder_path_from_mac, \
+    ddh_get_absolute_application_path, \
+    get_number_of_hauls, dds_get_json_vessel_name, \
+    ddh_get_settings_json_file
 from utils.logs import lg_gra as lg
 
 
@@ -23,6 +29,7 @@ pg.setConfigOption('leftButtonPan', False)
 # plot objects
 p1 = None
 p2 = None
+p3 = None
 just_booted = True
 
 
@@ -30,15 +37,22 @@ class GraphException(Exception):
     pass
 
 
+def _sty(color):
+    return {"color": color, "font-size": "20px", "font-weight": "bold"}
+
+
 def _get_color_by_label(lbl):
+    # google for SVG 1.0 color names
     if 'Temperature' in lbl:
-        return 'red'
+        return 'orangered'
     if 'Pressure' in lbl:
-        return 'blue'
+        return 'cornflowerblue'
     if 'Depth' in lbl:
-        return 'blue'
+        return 'cornflowerblue'
     if 'DO Concentration' in lbl:
-        return 'blue'
+        return 'cornflowerblue'
+    if 'Ax' in lbl:
+        return 'orchid'
     return 'green'
 
 
@@ -140,9 +154,14 @@ def _graph_check_mac_has_dl_files(mac, fol_ls):
 
 def _graph_update_views():
     # used when resizing
-    global p1, p2
+    global p1, p2, p3
+    # for the second line
     p2.setGeometry(p1.vb.sceneBoundingRect())
     p2.linkedViewChanged(p1.vb, p2.XAxis)
+    # for the 3+ line
+    if p3:
+        p3.setGeometry(p1.vb.sceneBoundingRect())
+        p3.linkedViewChanged(p1.vb, p3.XAxis)
 
 
 def _graph_busy_sign_show(a):
@@ -170,7 +189,7 @@ def _process_n_graph(a, r=''):
     # passed app, get graph
     g = a.g
 
-    # time this thing
+    # time this graphing thing
     start_ts = time.perf_counter()
 
     # fol_ls: list of absolute local 'dl_files/<mac>' folders
@@ -186,10 +205,10 @@ def _process_n_graph(a, r=''):
     if a.g_haul_idx is None:
         a.g_haul_idx = -1
 
-    # this will contain the absolute path to folder to plot
+    # this will have the absolute path to folder to plot
     fol: str
 
-    # decide who asked for a graph
+    # show who asked for a graph
     if r == 'BLE':
         if not utils_graph_does_exist_fol_req_file():
             raise GraphException('error: no BLE requested folder to graph')
@@ -197,6 +216,7 @@ def _process_n_graph(a, r=''):
         lg.a('selected last BLE download {}'.format(fol))
         utils_graph_delete_fol_req_file()
     else:
+        # people pressing graph buttons
         sn = a.cb_g_sn.currentText()
         if not sn:
             raise GraphException('seems no one asked for a graph?')
@@ -233,25 +253,38 @@ def _process_n_graph(a, r=''):
     # ---------------
     global p1
     global p2
+    global p3
     if p1:
         p1.clear()
     if p2:
         p2.clear()
+    if p3:
+        p3.clear()
     p1 = g.plotItem
 
     # grid or not
     g.showGrid(x=True, y=False)
 
-    # create the 2nd line
+    # line: create the 2nd
     p2 = pg.ViewBox(enableMenu=True)
     p1.showAxis('right')
     p1.scene().addItem(p2)
     p1.getAxis('right').linkToView(p2)
     p2.setXLink(p1)
+
+    # line: create the 3rd, not show it yet
+    p3 = pg.ViewBox()
+    ax3 = pg.AxisItem('right')
+    p1.scene().addItem(p3)
+    ax3.linkToView(p3)
+    p3.setXLink(p1)
+    ax3.setZValue(-10000)
+
+    # connect the thing when resizing
     _graph_update_views()
     p1.vb.sigResized.connect(_graph_update_views)
 
-    # size of axis ticks text
+    # font: size of axis ticks text
     font = QtGui.QFont()
     font.setPixelSize(16)
     font.setBold(True)
@@ -273,8 +306,23 @@ def _process_n_graph(a, r=''):
     x = data['ISO 8601 Time']
     met = data['metric']
 
+    # ----------
+    # the title
+    # ----------
+    fmt = '%b %d %H:%M'
+    # choose utcfromtimestamp() / fromtimestamp()
+    t1 = datetime.fromtimestamp(x[0]).strftime(fmt)
+    t2 = datetime.fromtimestamp(x[-1]).strftime(fmt)
+    mac = basename(fol).replace('-', ':')
+    sn = dds_get_json_mac_dns(mac)
+    title = 'SN{} - {} to {}'.format(sn, t1, t2)
+    if data['pruned']:
+        title += ' (data trimmed)'
+    g.setTitle(title, color="black", size="15pt", bold=True)
+
     # default variables to show for each metric
-    lbl1, lbl2 = '', ''
+    lbl1, lbl2, lbl3 = '', '', ''
+    y1, y2, y3 = [], [], []
     if met == 'TP':
         lbl1 = 'Depth (fathoms) TP'
         lbl2 = 'Temperature (F) TP'
@@ -284,6 +332,7 @@ def _process_n_graph(a, r=''):
     elif met == 'TAP':
         lbl1 = 'Depth (fathoms) TAP'
         lbl2 = 'Temperature (F) TAP'
+        lbl3 = 'Ax TAP'
         y3 = data['Ax TAP']
         y4 = data['Ay TAP']
         y5 = data['Az TAP']
@@ -293,52 +342,38 @@ def _process_n_graph(a, r=''):
     # see if we need to invert or de-invert
     p1.invertY('Depth' in lbl1)
 
-    # lose the suffixes indicating logger type
+    # axes styles, sides
     lbl1 = lbl1.replace(' TP', '').replace(' DO', '').replace(' TAP', '')
     lbl2 = lbl2.replace(' TP', '').replace(' DO', '').replace(' TAP', '')
-
-    # choose colors
-    c1 = _get_color_by_label(lbl1)
-    c2 = _get_color_by_label(lbl2)
-
-    # title, choose utcfromtimestamp() / fromtimestamp()
-    fmt = '%b %d %H:%M'
-    t1 = datetime.fromtimestamp(x[0]).strftime(fmt)
-    t2 = datetime.fromtimestamp(x[-1]).strftime(fmt)
-    mac = basename(fol).replace('-', ':')
-    sn = dds_get_json_mac_dns(mac)
-    title = 'SN{} - {} to {}'.format(sn, t1, t2)
-
-    # make title show the prune information
-    if data['pruned']:
-        title += ' (data trimmed)'
-    g.setTitle(title, color="black", size="15pt", bold=True)
-
-    # axes styles, sides
+    lbl3 = lbl3.replace(' TP', '').replace(' DO', '').replace(' TAP', '')
+    clr_1 = _get_color_by_label(lbl1)
+    clr_2 = _get_color_by_label(lbl2)
+    clr_3 = _get_color_by_label(lbl3)
     lbl1 = lbl1 + ' ─'
     lbl2 = lbl2 + ' - -'
-    p1.setLabel("left", lbl1, **{"color": c1, "font-size": "20px", "font-weight": "bold"})
-    p1.getAxis('left').setTextPen(c1)
-    p1.getAxis('right').setLabel(lbl2, **{"color": c2, "font-size": "20px", "font-weight": "bold"})
-    p1.getAxis('right').setTextPen(c2)
+    lbl3 = lbl3 + ' ─'
+    p1.setLabel("left", lbl1, **_sty(clr_1))
+    p1.getAxis('right').setLabel(lbl2, **_sty(clr_2))
+    p1.getAxis('left').setTextPen(clr_1)
+    p1.getAxis('right').setTextPen(clr_2)
 
     # axes style, bottom
-    c3 = 'black'
-    p1.getAxis('bottom').setLabel('Time', **{"color": c3, "font-size": "20px", "font-weight": "bold"})
-    p1.getAxis('bottom').setTextPen(c3)
+    cb = 'black'
+    p1.getAxis('bottom').setLabel('Time', **_sty(cb))
+    p1.getAxis('bottom').setTextPen(cb)
 
-    # --------------
-    # let's DRAW it
-    # --------------
-    pen1 = pg.mkPen(color='b', width=2, style=QtCore.Qt.SolidLine)
-    pen2 = pg.mkPen(color='r', width=2, style=QtCore.Qt.DashLine)
+    # ---------------------
+    # DRAW the LINES
+    # ---------------------
+    pen1 = pg.mkPen(color=clr_1, width=2, style=QtCore.Qt.SolidLine)
+    pen2 = pg.mkPen(color=clr_2, width=2, style=QtCore.Qt.DashLine)
     p1.plot(x, y1, pen=pen1, hoverable=True)
     p2.addItem(pg.PlotCurveItem(x, y2, pen=pen2, hoverable=True))
 
     # avoids small glitch when re-zooming
     g.getPlotItem().enableAutoRange()
 
-    # common ranges
+    # axis ranges
     p1.setYRange(min(y1), max(y1), padding=0)
     p2.setYRange(min(y2), max(y2), padding=0)
 
@@ -374,11 +409,24 @@ def _process_n_graph(a, r=''):
         g.addItem(reg_do_h)
         g.addItem(reg_do_g)
 
-    if met == 'TP' or met == 'TAP':
+    if met == 'TP':
         if 'Depth (f)' in lbl1:
             p1.setYRange(max(y1), 0, padding=0)
 
-    # display number of points
+    if met == 'TAP':
+        if 'Depth (f)' in lbl1:
+            p1.setYRange(max(y1), 0, padding=0)
+
+        # 3rd line: color axis title, ticks text, line, show it
+        p1.layout.addItem(ax3, 2, 3)
+        ax3.setStyle(tickFont=font)
+        pen3 = pg.mkPen(color=clr_3, width=2, style=QtCore.Qt.SolidLine)
+        ax3.setLabel(lbl3, **_sty(clr_3))
+        ax3.setTextPen(clr_3)
+        p3.addItem(pg.PlotCurveItem(x, y3, pen=pen3, hoverable=True))
+        p3.setYRange(min(y3), max(y3), padding=0)
+
+    # statistics: display number of points
     end_ts = time.perf_counter()
     el_ts = int((end_ts - start_ts) * 1000)
     lg.a(f'displaying {len(x)} {met} points, took {el_ts} ms')
