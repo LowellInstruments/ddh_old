@@ -4,6 +4,7 @@ import pathlib
 from dds.timecache import its_time_to
 from mat.data_converter import default_parameters, DataConverter
 from mat.data_file_factory import load_data_file
+from mat.tap import convert_tap_file
 from mat.utils import linux_ls_by_ext
 from utils.logs import lg_cnv as lg
 from utils.ddh_shared import (
@@ -125,7 +126,44 @@ def _cnv_metric(m):
     return rv
 
 
-def cnv_serve():
+def _cnv_all_tap_files():
+    fol = str(get_ddh_folder_path_dl_files())
+    if not fol:
+        return []
+    if not os.path.isdir(fol):
+        return []
+
+    global _g_files_we_cannot_convert
+    global _g_files_already_converted
+    wildcard = fol + '/**/*.lix'
+    ff = glob.glob(wildcard, recursive=True)
+    rv_all = 0
+    for f_tap in ff:
+
+        # cases no conversion needed
+        if not f_tap.endswith('.lix'):
+            continue
+        if f_tap in _g_files_already_converted:
+            s = f"debug: skip conversion, file {f_tap} already exists"
+            lg.a(s)
+            continue
+        if f_tap in _g_files_we_cannot_convert:
+            continue
+
+        # try to convert it
+        rv, _ = convert_tap_file(f_tap, verbose=False)
+
+        # populate lists
+        if rv == 0 and f_tap not in _g_files_already_converted:
+            _g_files_already_converted.append(f_tap)
+        if rv and f_tap not in _g_files_we_cannot_convert:
+            lg.a("warning: ignoring file {f_tap}from now on")
+            _g_files_we_cannot_convert.append(f_tap)
+        rv_all += rv
+    return rv_all == 0
+
+
+def _cnv_serve():
 
     # this function does not run always, only from time to time
     if not its_time_to("do_some_conversions", PERIOD_CNV_SECS):
@@ -133,8 +171,10 @@ def cnv_serve():
 
     # general banner
     fol = str(get_ddh_folder_path_dl_files())
+    lg.a('_' * 70)
     s = "folder: {} | metrics: {}, {}, {}"
     lg.a(s.format(fol, "_DissolvedOxygen", "_Temperature", "_Pressure"))
+    lg.a('_' * 70)
 
     # error variable
     e = ""
@@ -144,26 +184,40 @@ def cnv_serve():
     m = "_DissolvedOxygen"
     rv = _cnv_metric(m)
     if not rv:
-        e += "O"
+        e += "O_"
         lg.a(s.format(m))
 
     m = "_Temperature"
     rv = _cnv_metric(m)
     if not rv:
-        e += "T"
+        e += "T_"
         lg.a(s.format(m))
 
     m = "_Pressure"
     rv = _cnv_metric(m)
     if not rv:
-        e += "P"
+        e += "P_"
         lg.a(s.format(m))
+
+    rv = _cnv_all_tap_files()
+    if not rv:
+        e += 'TAP_'
+        lg.a(s.format('_TAP'))
 
     # GUI update
     if e:
         _u("{}/{}".format(STATE_DDS_NOTIFY_CONVERSION_ERR, e))
     else:
         _u("{}/OK".format(STATE_DDS_NOTIFY_CONVERSION_OK))
+
+
+def cnv_serve():
+    try:
+        _cnv_serve()
+    except (Exception, ) as ex:
+        e = 'error: conversion exception ex ->'
+        if its_time_to(e, 3600 * 6):
+            lg.a(f'{e} {ex}')
 
 
 if __name__ == '__main__':
