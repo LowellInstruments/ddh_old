@@ -43,5 +43,5 @@ else echo -e '\t graph test \t = 0'; fi
 if [ -f "$FILE_GRAPH_ENABLER" ]; then echo -e '\t graph enabler \t = 1'
 else echo -e '\t graph enabler \t = 0'; fi
 
-if [ -f "$GPS_DUMMY_MODE_FILE" ]; then echo -e '\t GPS dummy \t = 0'
+if [ -f "$GPS_DUMMY_MODE_FILE" ]; then echo -e '\t GPS dummy \t = 1'
 else echo -e '\t GPS dummy \t = 0'; fi
