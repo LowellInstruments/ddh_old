@@ -47,7 +47,8 @@ app = FastAPI()
 async def ep_ping():
     d = {
         EP_PING: "OK",
-        "ip": get_ip_vpn(),
+        "ip_vpn": get_ip_vpn(),
+        "ip_wlan": get_ip_wlan(),
         "vessel": dds_get_json_vessel_name()
     }
     return d
