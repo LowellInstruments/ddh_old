@@ -173,7 +173,7 @@ def _cnv_serve():
     # general banner
     fol = str(get_ddh_folder_path_dl_files())
     s = f'conversion sequence started'
-    lg.a('_' * len(s))
+    lg.a('-' * len(s))
     lg.a(s)
 
     # error variable
@@ -206,7 +206,7 @@ def _cnv_serve():
 
     s = f'conversion sequence finished'
     lg.a(s)
-    lg.a('_' * len(s))
+    lg.a('-' * len(s))
 
     # GUI update
     if e:
