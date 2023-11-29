@@ -3,8 +3,7 @@ from multiprocessing import Process
 import threading
 import time
 import os
-import getpass
-
+import uuid
 from api.api_utils import get_ip_vpn
 from dds.aws import aws_serve
 from dds.ble import ble_interact_all_loggers
@@ -177,8 +176,9 @@ def _alarm_dds_crash(n):
         box_sn = os.getenv("DDH_BOX_SERIAL_NUMBER")
         prj = os.getenv("DDH_BOX_PROJECT_NAME")
         ip_vpn = get_ip_vpn()
+        u = str(uuid.uuid4())[:5]
         s = f'DDH just crashed, check it: '
-        s += f'BOAT {vs} PRJ {prj} SN{box_sn} IP_VPN {ip_vpn} CODE {n}'
+        s += f'BOAT {vs} PRJ {prj} SN{box_sn} IP_VPN {ip_vpn} CODE {n} ID {u}'
         sqs_msg_ddh_alarm_crash(s)
 
 
