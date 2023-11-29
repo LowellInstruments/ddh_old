@@ -178,7 +178,7 @@ def _alarm_dds_crash(n):
         prj = os.getenv("DDH_BOX_PROJECT_NAME")
         ip_vpn = get_ip_vpn()
         s = f'DDH just crashed, check it: '
-        s += f'BOAT {vs} PRJ {prj} SN{box_sn} IP {ip_vpn} CODE {n}'
+        s += f'BOAT {vs} PRJ {prj} SN{box_sn} IP_VPN {ip_vpn} CODE {n}'
         sqs_msg_ddh_alarm_crash(s)
 
 
