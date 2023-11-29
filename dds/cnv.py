@@ -134,16 +134,20 @@ def _cnv_all_tap_files():
         return []
 
     global _g_files_we_cannot_convert
+    global _g_files_already_converted
     wildcard = fol + '/**/*.lix'
     ff = glob.glob(wildcard, recursive=True)
     rv_all = 0
-    for f_tap in ff:
 
+    wildcard = fol + '/**/*TAP.csv'
+    _g_files_already_converted = glob.glob(wildcard, recursive=True)
+
+    for f_tap in ff:
         # cases no conversion needed
         if not f_tap.endswith('.lix'):
             continue
         f_csv = f_tap[:-4] + '_TAP.csv'
-        if os.path.isfile(f_csv):
+        if f_csv in _g_files_already_converted:
             lg.a(f"debug: skip conversion, file {f_csv} already exists")
             continue
         if f_tap in _g_files_we_cannot_convert:
