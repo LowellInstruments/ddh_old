@@ -171,7 +171,6 @@ def _cnv_serve():
         return
 
     # general banner
-    fol = str(get_ddh_folder_path_dl_files())
     s = f'conversion sequence started'
     lg.a('-' * len(s))
     lg.a(s)
