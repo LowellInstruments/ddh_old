@@ -120,7 +120,6 @@ def _data_weight_intervals(di):
 def _data_average_by_time_weight(d_i, w):
     # d_i: data input
     for i in d_i[::w]:
-        # todo ---> do this
         print(i)
 
 

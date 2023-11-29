@@ -114,11 +114,6 @@ def file_moana_raw_csv_to_emolt_zt_csv(path, lat, lon):
     return ofn
 
 
-def file_rn4020_raw_to_emolt_csv(path):
-    # todo --> do this
-    pass
-
-
 def file_emolt_zt_csv_to_emolt_hl(path, logger_type):
     path_hl = "{}.hl".format(path)
     print("emolt csv  file name:", path)
@@ -131,12 +126,6 @@ def file_emolt_zt_csv_to_emolt_hl(path, logger_type):
                 # get rid of the Moana file header
                 for i in il[8:]:
                     fp.write(i)
-
-    elif logger_type == "rn4020":
-        # todo ----> do this
-        pass
-    else:
-        assert False
 
     return path_hl
 

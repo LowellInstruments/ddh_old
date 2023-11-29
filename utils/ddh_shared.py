@@ -383,7 +383,7 @@ def get_ddh_folder_path_settings() -> Path:
     return Path("settings")
 
 
-def get_ddh_folder_path_tweak()  -> Path:
+def get_ddh_folder_path_tweak() -> Path:
     return Path("dds/tweak")
 
 

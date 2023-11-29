@@ -15,7 +15,6 @@ from utils.ddh_shared import (
 )
 import setproctitle
 from utils.logs import lg_gui as lg
-import getpass
 
 
 def main_ddh():

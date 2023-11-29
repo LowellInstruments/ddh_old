@@ -4,8 +4,6 @@ import datetime
 import pathlib
 import re
 import shutil
-import threading
-
 import time
 import setproctitle
 from api.api_utils import get_git_commit_mat_local, \

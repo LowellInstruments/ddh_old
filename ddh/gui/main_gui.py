@@ -39,7 +39,7 @@ from ddh.utils_gui import (
     gui_hide_advanced_tab,
     gui_show_advanced_tab,
     gui_hide_graph_tab,
-    gui_show_graph_tab, gui_ddh_populate_graph_dropdown_sn, gui_manage_graph_test_files,
+    gui_show_graph_tab, gui_ddh_populate_graph_dropdown_sn, gui_manage_graph_test_files, gui_hide_plots_tab,
 )
 
 from dds.emolt import this_box_has_grouped_s3_uplink, GROUPED_S3_FILE_FLAG
@@ -114,6 +114,7 @@ class DDH(QMainWindow, d_m.Ui_MainWindow):
         self.tab_graph_hide = True
         self.tab_edit_wgt_ref = None
         self.tab_note_wgt_ref = None
+        self.tab_plots_wgt_ref = None
         self.tab_recipe_wgt_ref = None
         self.tab_graph_wgt_ref = None
         self.key_pressed = None
@@ -124,6 +125,7 @@ class DDH(QMainWindow, d_m.Ui_MainWindow):
         self.datetime_pressed = 0
         self.lbl_net_pressed = 0
         gui_json_set_plot_units()
+        gui_hide_plots_tab(self)
         gui_hide_edit_tab(self)
         gui_hide_advanced_tab(self)
         gui_hide_note_tab(self)

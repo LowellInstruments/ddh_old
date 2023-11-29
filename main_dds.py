@@ -4,6 +4,8 @@ import threading
 import time
 import os
 import getpass
+
+from api.api_utils import get_ip_vpn
 from dds.aws import aws_serve
 from dds.ble import ble_interact_all_loggers
 from dds.ble_scan import ble_scan
@@ -56,7 +58,7 @@ from utils.ddh_shared import (
     dds_check_we_have_box_env_info,
     PID_FILE_DDS_CONTROLLER,
     NAME_EXE_DDS_CONTROLLER,
-    NAME_EXE_DDS,
+    NAME_EXE_DDS, dds_get_json_vessel_name,
 )
 from settings import ctx
 from utils.logs import (
@@ -65,8 +67,6 @@ from utils.logs import (
     dds_log_core_start_at_boot
 )
 import setproctitle
-
-# todo ---> test DDH updating feature
 
 
 def main_dds():
@@ -173,7 +173,13 @@ def _alarm_dds_crash(n):
     if n == 0:
         return
     if its_time_to('tell_dds_child_crash', 3600):
-        sqs_msg_ddh_alarm_crash('DDH just crashed, check it')
+        vs = dds_get_json_vessel_name()
+        box_sn = os.getenv("DDH_BOX_SERIAL_NUMBER")
+        prj = os.getenv("DDH_BOX_PROJECT_NAME")
+        ip_vpn = get_ip_vpn()
+        s = f'DDH just crashed, check it: '
+        s += f'BOAT {vs} PRJ {prj} SN{box_sn} IP {ip_vpn} CODE {n}'
+        sqs_msg_ddh_alarm_crash(s)
 
 
 def controller_main_dds():
