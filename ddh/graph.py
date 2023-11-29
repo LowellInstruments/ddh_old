@@ -437,26 +437,11 @@ def _process_n_graph(a, r=''):
 
 def process_n_graph(a, r=''):
     try:
-        v = dds_get_json_vessel_name()
-        # todo ---> remove this restriction for new graphing :)
-        if v.lower() in (
-            # lowell instruments machine names
-            'joaquim',
-            'greenfeet',
-            'redfeet',
-            'cubefarm',
-            'archer22',
-            'hx_10',
-            'hx_11',
-            'george_test'
-        ) or os.path.exists('/home/pi/li/.ddh_graph_enabler.json'):
-            # ----------
-            # graph it
-            # ----------
-            _graph_busy_sign_show(a)
-            _process_n_graph(a, r)
-        else:
-            lg.a('warning: this DDH does no new graphs yet :)')
+        # ----------
+        # graph it
+        # ----------
+        _graph_busy_sign_show(a)
+        _process_n_graph(a, r)
 
     except GraphException as e:
         # errors such as "did not find any file to graph"

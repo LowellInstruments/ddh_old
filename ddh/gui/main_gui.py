@@ -142,7 +142,6 @@ class DDH(QMainWindow, d_m.Ui_MainWindow):
         # -----------
         # graph tab
         # -----------
-        gui_hide_graph_tab(self)
         self.g = pg.PlotWidget(axisItems={'bottom': pg.DateAxisItem()})
         self.g_haul_idx = None
 
