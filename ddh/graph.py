@@ -310,13 +310,13 @@ def _process_n_graph(a, r=''):
     # ----------
     # the title
     # ----------
-    fmt = '%b %d %H:%M'
+    fmt = '%b %d %Y %H:%M'
     # choose utcfromtimestamp() / fromtimestamp()
     t1 = datetime.fromtimestamp(x[0]).strftime(fmt)
     t2 = datetime.fromtimestamp(x[-1]).strftime(fmt)
     mac = basename(fol).replace('-', ':')
     sn = dds_get_json_mac_dns(mac)
-    title = 'SN{} - {} to {}'.format(sn, t1, t2)
+    title = '{} to {}'.format(t1, t2)
     if data['pruned']:
         title += ' (data trimmed)'
     # g.setTitle(title, color="black", size="15pt", bold=True)
