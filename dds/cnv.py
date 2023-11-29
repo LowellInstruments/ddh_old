@@ -134,7 +134,6 @@ def _cnv_all_tap_files():
         return []
 
     global _g_files_we_cannot_convert
-    global _g_files_already_converted
     wildcard = fol + '/**/*.lix'
     ff = glob.glob(wildcard, recursive=True)
     rv_all = 0
@@ -143,8 +142,9 @@ def _cnv_all_tap_files():
         # cases no conversion needed
         if not f_tap.endswith('.lix'):
             continue
-        if f_tap in _g_files_already_converted:
-            lg.a(f"debug: skip conversion, file {f_tap} already exists")
+        f_csv = f_tap[:-4] + '_TAP.csv'
+        if os.path.isfile(f_csv):
+            lg.a(f"debug: skip conversion, file {f_csv} already exists")
             continue
         if f_tap in _g_files_we_cannot_convert:
             continue
@@ -153,8 +153,6 @@ def _cnv_all_tap_files():
         rv, _ = convert_tap_file(f_tap, verbose=False)
 
         # populate lists
-        if rv == 0 and f_tap not in _g_files_already_converted:
-            _g_files_already_converted.append(f_tap)
         if rv and f_tap not in _g_files_we_cannot_convert:
             lg.a("warning: ignoring file {f_tap} from now on")
             _g_files_we_cannot_convert.append(f_tap)
@@ -170,10 +168,9 @@ def _cnv_serve():
 
     # general banner
     fol = str(get_ddh_folder_path_dl_files())
-    s = f'started conversion sequence folder {fol}'
+    s = f'conversion sequence started'
     lg.a('_' * len(s))
     lg.a(s)
-    lg.a('_' * len(s))
 
     # error variable
     e = ""
@@ -202,6 +199,10 @@ def _cnv_serve():
     if not rv:
         e += 'TAP_'
         lg.a(s.format('_TAP'))
+
+    s = f'conversion sequence finished'
+    lg.a(s)
+    lg.a('_' * len(s))
 
     # GUI update
     if e:
