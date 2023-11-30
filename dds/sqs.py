@@ -5,7 +5,7 @@ import uuid
 import boto3
 import time
 import json
-from ddn_msg import (
+from dds.ddn_msg import (
     DdnMsg,
     OPCODE_SQS_LOGGER_LOW_BATTERY,
     OPCODE_SQS_DDH_ALIVE,

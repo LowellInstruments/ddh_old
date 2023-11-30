@@ -137,7 +137,7 @@ async def _ble_id_n_interact_logger(mac, info: str, h, g):
     # in case 'g' is NOT-WHOLE here
     if lat == "":
         lg.a("error: lat is empty for logger {}".format(sn))
-        _u("history/add&{}&error&{}&{}&{}".format(sn, lat, lon, dt))
+        _u("history/add&{}&error&{}&{}&{}".format(mac, lat, lon, dt))
         return
 
     # allows speeding up discarding loggers

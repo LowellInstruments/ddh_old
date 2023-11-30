@@ -178,6 +178,11 @@ def _rbl_find_usb_port():
     return find_usb_port_automatically('0403:6001')
 
 
+def rbl_find_usb_port():
+    # allow external access :)
+    return _rbl_find_usb_port()
+
+
 # _ck means check
 def _ck(cond, rv, s):
     if not cond:

@@ -12,6 +12,7 @@ from api.api_utils import get_git_commit_mat_local, \
     set_crontab, \
     get_git_commit_ddh_local, \
     get_ble_state, get_gps, get_logger_mac_reset_files, get_versions, get_boat_project
+from dds.rbl import rbl_find_usb_port
 from mat.linux import linux_app_write_pid_to_tmp, linux_is_process_running
 from mat.utils import linux_is_rpi
 from utils.ddh_shared import NAME_EXE_API_CONTROLLER, \
@@ -73,6 +74,7 @@ async def api_get_info():
         "ip_wlan": _th(get_ip_wlan),
         "ip_cell": _th(get_ip_cell),
         "gps": _th(get_gps),
+        "rockblocks": _th(rbl_find_usb_port),
         "ble_state": _th(get_ble_state),
         "boat_prj": _th(get_boat_project),
         "boat_sn": _th(get_boat_sn),

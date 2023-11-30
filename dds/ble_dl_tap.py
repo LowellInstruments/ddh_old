@@ -212,7 +212,7 @@ async def ble_interact_tap(mac, info, g, h):
 
         # convert lix files
         for f in dl_files:
-            rv, _ = convert_tap_file(f)
+            rv, _ = convert_tap_file(f, verbose=False)
             # if rv == 0:
             #     file_lowell_raw_csv_to_emolt_lt_csv(f)
 
