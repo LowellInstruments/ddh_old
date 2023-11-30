@@ -13,12 +13,13 @@ from api.api_utils import get_git_commit_mat_local, \
     get_git_commit_ddh_local, \
     get_ble_state, get_gps, get_logger_mac_reset_files, get_versions, get_boat_project
 from liu.ddh_api_ep import EP_LOGS_GET, EP_PING, EP_INFO, EP_UPDATE_DDH, EP_UPDATE_MAT, EP_UPDATE_DDT, EP_KILL_DDH, \
-    EP_KILL_API, EP_CRON_ENA, EP_CRON_DIS, EP_CONF_GET, LIST_CONF_FILES, EP_CONF_SET, EP_MAC_LOGGER_RESET, EP_UPDATE_LIU
+    EP_KILL_API, EP_CRON_ENA, EP_CRON_DIS, EP_CONF_GET, LIST_CONF_FILES, EP_CONF_SET, EP_MAC_LOGGER_RESET, \
+    EP_UPDATE_LIU, EP_DL_FILES_GET
 from liu.linux import linux_app_write_pid_to_tmp, linux_is_process_running
 from mat.utils import linux_is_rpi
 from utils.ddh_shared import NAME_EXE_API_CONTROLLER, \
     PID_FILE_API_CONTROLLER, \
-    dds_get_json_vessel_name, NAME_EXE_API, PID_FILE_API
+    dds_get_json_vessel_name, NAME_EXE_API, PID_FILE_API, get_ddh_folder_path_dl_files
 from utils.logs import (
     lg_api as lg,
 )
@@ -121,6 +122,25 @@ async def ep_conf_get():
     # zip it, -o flag overwrites if already exists
     p = '/tmp/' + file_name
     c = 'zip -o {} {}'.format(p, s)
+    rv = shell(c)
+
+    # send it as response
+    if rv.returncode == 0:
+        return FileResponse(path=p, filename=file_name)
+
+
+@app.get("/" + EP_DL_FILES_GET)
+async def ep_dl_files_get():
+    vn = dds_get_json_vessel_name()
+    vn = vn.replace(' ', '')
+    file_name = 'dl_files_{}.zip'.format(vn)
+
+    # zip it, -o flag overwrites if already exists
+    s = get_ddh_folder_path_dl_files()
+    print('pwd', os.getcwd())
+    print('getting files from', s)
+    p = '/tmp/' + file_name
+    c = 'zip -ro {} {}'.format(p, s)
     rv = shell(c)
 
     # send it as response
