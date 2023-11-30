@@ -8,11 +8,10 @@ import sys
 import time
 from multiprocessing import Process
 import setproctitle
-
 from dds.emolt import this_box_has_grouped_s3_uplink
 from dds.sqs import sqs_msg_ddh_alarm_s3
 from dds.timecache import its_time_to
-from liu.linux import linux_is_process_running
+from mat.linux import linux_is_process_running
 from mat.utils import linux_is_rpi
 from settings import ctx
 from utils.ddh_shared import (

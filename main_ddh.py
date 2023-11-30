@@ -5,7 +5,7 @@ import time
 from multiprocessing import Process
 from PyQt5.QtWidgets import QApplication
 from ddh.gui.main_gui import DDH, on_ctrl_c
-from liu.linux import linux_app_write_pid_to_tmp, linux_is_process_running
+from mat.linux import linux_app_write_pid_to_tmp, linux_is_process_running
 from utils.ddh_shared import (
     PID_FILE_DDH,
     NAME_EXE_DDH_CONTROLLER,

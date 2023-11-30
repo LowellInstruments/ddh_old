@@ -5,7 +5,7 @@ import uuid
 import boto3
 import time
 import json
-from liu.ddn_msg import (
+from ddn_msg import (
     DdnMsg,
     OPCODE_SQS_LOGGER_LOW_BATTERY,
     OPCODE_SQS_DDH_ALIVE,
@@ -80,7 +80,7 @@ def _sqs_gen_file_for_tests():
     d.data = "data1234data"
 
     # convert DDNMsg to dict
-    d = d.as_dict()
+    d = vars(d)
 
     # generate a SQS FILE from dict, its content is JSON
     fol = str(get_ddh_folder_path_sqs())
@@ -128,7 +128,7 @@ def _sqs_gen_file(desc, mac, lg_sn, lat, lon, m_ver=1, data=""):
     d.data = data
 
     # convert DDN msg to dict
-    d = d.as_dict()
+    d = vars(d)
 
     # generate a SQS FILE from dict, its content is JSON
     fol = str(get_ddh_folder_path_sqs())

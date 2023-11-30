@@ -12,10 +12,7 @@ from api.api_utils import get_git_commit_mat_local, \
     set_crontab, \
     get_git_commit_ddh_local, \
     get_ble_state, get_gps, get_logger_mac_reset_files, get_versions, get_boat_project
-from liu.ddh_api_ep import EP_LOGS_GET, EP_PING, EP_INFO, EP_UPDATE_DDH, EP_UPDATE_MAT, EP_UPDATE_DDT, EP_KILL_DDH, \
-    EP_KILL_API, EP_CRON_ENA, EP_CRON_DIS, EP_CONF_GET, LIST_CONF_FILES, EP_CONF_SET, EP_MAC_LOGGER_RESET, \
-    EP_UPDATE_LIU, EP_DL_FILES_GET
-from liu.linux import linux_app_write_pid_to_tmp, linux_is_process_running
+from mat.linux import linux_app_write_pid_to_tmp, linux_is_process_running
 from mat.utils import linux_is_rpi
 from utils.ddh_shared import NAME_EXE_API_CONTROLLER, \
     PID_FILE_API_CONTROLLER, \
@@ -39,13 +36,22 @@ import concurrent.futures
 # ---------------------------------------------------------------------
 
 
+LIST_CONF_FILES = {
+    'settings/ddh.json',
+    'settings/ctx.py',
+    'run_dds.sh',
+    'settings/_li_all_macs_to_sn.yml',
+    '/etc/crontab'
+}
+
+
 app = FastAPI()
 
 
-@app.get('/' + EP_PING)
+@app.get('/ping')
 async def ep_ping():
     d = {
-        EP_PING: "OK",
+        'ping': "OK",
         "ip_vpn": get_ip_vpn(),
         "ip_wlan": get_ip_wlan(),
         "vessel": dds_get_json_vessel_name()
@@ -53,7 +59,7 @@ async def ep_ping():
     return d
 
 
-@app.get('/' + EP_INFO)
+@app.get('/info')
 async def api_get_info():
     def _th(cb):
         # src: stackoverflow 6893968
@@ -62,7 +68,7 @@ async def api_get_info():
             return future.result()
 
     d = {
-        EP_INFO: "OK",
+        'info': "OK",
         "ip_vpn": _th(get_ip_vpn),
         "ip_wlan": _th(get_ip_wlan),
         "ip_cell": _th(get_ip_cell),
@@ -81,7 +87,7 @@ async def api_get_info():
     return d
 
 
-@app.get('/' + EP_LOGS_GET)
+@app.get('/logs_get')
 async def ep_logs_get():
     now = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
     vn = dds_get_json_vessel_name()
@@ -99,7 +105,7 @@ async def ep_logs_get():
             return fr
 
 
-@app.put("/" + EP_MAC_LOGGER_RESET + "/{mac}")
+@app.put("/mac_logger_reset/{mac}")
 async def api_logger_reset_mac_set(mac: str):
     mac = mac.replace(':', '-')
     # security: check this is a MAC address and not a malformed path
@@ -107,11 +113,11 @@ async def api_logger_reset_mac_set(mac: str):
     if r1:
         path_file = 'api/{}.rst'.format(mac)
         pathlib.Path(path_file).touch()
-        return {EP_MAC_LOGGER_RESET: "OK"}
-    return {EP_MAC_LOGGER_RESET: "error"}
+        return {'mac_logger_reset': "OK"}
+    return {'mac_logger_reset': "error"}
 
 
-@app.get("/" + EP_CONF_GET)
+@app.get("/conf_get")
 async def ep_conf_get():
     # prepare the zip file name
     s = ' '.join([f for f in LIST_CONF_FILES])
@@ -129,7 +135,7 @@ async def ep_conf_get():
         return FileResponse(path=p, filename=file_name)
 
 
-@app.get("/" + EP_DL_FILES_GET)
+@app.get("/dl_files_get")
 async def ep_dl_files_get():
     vn = dds_get_json_vessel_name()
     vn = vn.replace(' ', '')
@@ -148,12 +154,12 @@ async def ep_dl_files_get():
         return FileResponse(path=p, filename=file_name)
 
 
-@app.post("/" + EP_CONF_SET)
+@app.post("/conf_set")
 async def api_conf_set(file: UploadFile = File(...)):
     if not file.filename.startswith('conf_'):
-        return {EP_CONF_SET: 'error_name'}
+        return {'conf_set': 'error_name'}
     if not file.filename.endswith('.zip'):
-        return {EP_CONF_SET: 'error_name'}
+        return {'conf_set': 'error_name'}
 
     # clean any remains from conf_get() method
     c = 'rm /tmp/conf_*.zip'
@@ -165,7 +171,7 @@ async def api_conf_set(file: UploadFile = File(...)):
         with open(dst_zip, "wb") as buf:
             shutil.copyfileobj(file.file, buf)
     except (Exception, ):
-        return {EP_CONF_SET: 'error_saving'}
+        return {'conf_set': 'error_saving'}
 
     # clean the /tmp folder where we will unzip
     dst_fol = dst_zip.replace('.zip', '')
@@ -173,22 +179,22 @@ async def api_conf_set(file: UploadFile = File(...)):
         c = 'rm -rf {}'.format(dst_fol)
         rv = shell(c)
         if rv.returncode:
-            return {EP_CONF_SET: 'error_deleting'}
+            return {'conf_set': 'error_deleting'}
 
     # unzip
     c = 'cd /tmp && unzip {}'.format(file.filename)
     rv = shell(c)
     if rv.returncode:
-        return {EP_CONF_SET: 'error_unzipping'}
+        return {'conf_set': 'error_unzipping'}
 
     # overwrite DDH configuration
     c = 'cp -r {}/* .'.format(dst_fol)
     rv = shell(c)
     if rv.returncode:
-        return {EP_CONF_SET: 'error_installing'}
+        return {'conf_set': 'error_installing'}
 
     # response back
-    return {EP_CONF_SET: 'OK'}
+    return {'conf_set': 'OK'}
 
 
 def _ep_update(ep, c):
@@ -199,27 +205,27 @@ def _ep_update(ep, c):
     return {ep: a}
 
 
-@app.get("/" + EP_UPDATE_DDT)
+@app.get("/" + 'update_ddt')
 async def ep_update_ddt():
-    return _ep_update(EP_UPDATE_DDT, 'cd ../ddt && git pull')
+    return _ep_update('update_ddt', 'cd ../ddt && git pull')
 
 
-@app.get("/" + EP_UPDATE_DDH)
+@app.get("/" + 'update_ddh')
 async def ep_update_ddh():
-    return _ep_update(EP_UPDATE_DDH, 'cd scripts && ./pop_ddh.sh')
+    return _ep_update('update_ddh', 'cd scripts && ./pop_ddh.sh')
 
 
-@app.get("/" + EP_UPDATE_MAT)
+@app.get("/" + 'update_mat')
 async def ep_update_mat():
-    return _ep_update(EP_UPDATE_MAT, 'cd scripts && ./pop_mat.sh')
+    return _ep_update('update_mat', 'cd scripts && ./pop_mat.sh')
 
 
-@app.get("/" + EP_UPDATE_LIU)
+@app.get("/" + 'update_liu')
 async def ep_update_mat():
-    return _ep_update(EP_UPDATE_LIU, 'cd scripts && ./pop_liu.sh')
+    return _ep_update('update_liu', 'cd scripts && ./pop_liu.sh')
 
 
-@app.get("/" + EP_KILL_DDH)
+@app.get("/" + 'kill_ddh')
 async def ep_kill_ddh():
     rv_h = shell("killall main_ddh")
     rv_s = shell("killall main_dds")
@@ -229,31 +235,31 @@ async def ep_kill_ddh():
     ans_s = rv_s.stderr.decode().replace('\n', '')
     if rv_s.returncode == 0:
         ans_s = 'OK'
-    return {EP_KILL_DDH: {'ddh': ans_h, 'dds': ans_s}}
+    return {'kill_ddh': {'ddh': ans_h, 'dds': ans_s}}
 
 
-@app.get("/" + EP_KILL_API)
+@app.get("/" + 'kill_api')
 async def ep_kill_api():
     shell('killall main_api_controller')
     shell('killall main_api')
     # does not matter, won't answer
-    return {EP_KILL_API: 'OK'}
+    return {'kill_api': 'OK'}
 
 
-@app.get("/" + EP_CRON_ENA)
+@app.get("/" + 'cron_ena')
 async def ep_crontab_enable():
     if not linux_is_rpi():
-        return {EP_CRON_ENA: 'not RPi, not enabling crontab'}
+        return {'cron_ena': 'not RPi, not enabling crontab'}
     set_crontab(1)
-    return {EP_CRON_ENA: get_crontab_ddh()}
+    return {'cron_ena': get_crontab_ddh()}
 
 
-@app.get("/" + EP_CRON_DIS)
+@app.get("/" + 'cron_dis')
 async def ep_crontab_disable():
     if not linux_is_rpi():
-        return {EP_CRON_DIS: 'not RPi, not disabling crontab'}
+        return {'cron_dis': 'not RPi, not disabling crontab'}
     set_crontab(0)
-    return {EP_CRON_DIS: get_crontab_ddh()}
+    return {'cron_dis': get_crontab_ddh()}
 
 
 def main_api():

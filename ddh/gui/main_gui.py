@@ -45,7 +45,7 @@ from ddh.utils_gui import (
 from dds.emolt import this_box_has_grouped_s3_uplink, GROUPED_S3_FILE_FLAG
 from dds.sqs import sqs_msg_sms
 from dds.timecache import its_time_to
-from liu.linux import linux_is_process_running
+from mat.linux import linux_is_process_running
 from mat.utils import linux_is_rpi
 from rpc.rpc_rx import th_srv_notify
 from rpc.rpc_tx import th_cli_cmd
