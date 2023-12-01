@@ -29,7 +29,7 @@ from dds.sqs import (
     dds_create_folder_sqs,
     sqs_serve,
     sqs_msg_ddh_booted,
-    sqs_msg_ddh_alive, sqs_msg_ddh_alarm_crash
+    sqs_msg_ddh_alive, sqs_msg_ddh_alarm_crash, sqs_msg_ddh_needs_update
 )
 from dds.lef import dds_create_folder_lef
 from dds.ble_utils_dds import (
@@ -112,6 +112,8 @@ def main_dds():
 
     # do nothing if we never had a GPS clock sync
     gps_print_trying_clock_sync_at_boot()
+    lat = ''
+    lon = ''
     while not gps_did_we_ever_clock_sync():
         g = gps_measure()
         if g:
@@ -119,6 +121,12 @@ def main_dds():
             if gps_clock_sync_if_so(tg):
                 break
         time.sleep(5)
+
+    if sqs_msg_ddh_needs_update(lat, lon):
+        s = 'warning: this DDH needs an update'
+        lg.a('-' * len(s))
+        lg.a(s)
+        lg.a('-' * len(s))
 
     # Rockblocks stuff is slow, launch its loop as a thread
     th = threading.Thread(target=rbl_loop)

@@ -169,14 +169,6 @@ class BleTAPDownload:
             await asyncio.sleep(5)
         _rae(bad_rv, "gsp")
 
-        # wake mode
-        if rerun_flag:
-            rv = await lc.cmd_wak("on")
-        else:
-            rv = await lc.cmd_wak("off")
-        _rae(rv, "wak")
-        lg.a("WAK | OK")
-
         if rerun_flag:
             rv = await lc.cmd_rws(g)
             if rv:
@@ -189,6 +181,15 @@ class BleTAPDownload:
             _u("{}/{}".format(STATE_DDS_BLE_RUN_STATUS, "off"))
             # give time to GUI to display
             await asyncio.sleep(5)
+
+        # wake mode
+        await asyncio.sleep(1)
+        if rerun_flag:
+            rv = await lc.cmd_wak("on")
+        else:
+            rv = await lc.cmd_wak("off")
+        _rae(rv, "wak")
+        lg.a("WAK | OK")
 
         # -----------------------
         # bye, bye to this logger
@@ -213,8 +214,8 @@ async def ble_interact_tap(mac, info, g, h):
         # convert lix files
         for f in dl_files:
             rv, _ = convert_tap_file(f, verbose=False)
-            # if rv == 0:
-            #     file_lowell_raw_csv_to_emolt_lt_csv(f)
+            if rv == 0:
+                file_lowell_raw_csv_to_emolt_lt_csv(f)
 
     except Exception as ex:
         lg.a("error dl_tap_exception {}".format(ex))

@@ -22,7 +22,23 @@ def main_test_rbl():
     print(m_lg_sn)
 
 
+def main_test_ver():
+    import subprocess as sp
+    s = '.ddh_version'
+    # get local version
+    with open(s, 'r') as f:
+        vl = f.readline().replace('\n', '')
+
+    # get github version
+    c = f'wget https://raw.githubusercontent.com/LowellInstruments/ddh/master/{s}'
+    c += f' -O /tmp/{s}'
+    rv = sp.run(c, shell=True, stdout=sp.PIPE, stderr=sp.PIPE)
+    if rv.returncode == 0:
+        with open(f'/tmp/{s}', 'r') as f:
+            vg = f.readline().replace('\n', '')
+
+    if vl < vg:
+        print('needs update')
+
 if __name__ == '__main__':
-    # main_test_aws()
-    main_test_rbl()
-    pass
+    main_test_ver()

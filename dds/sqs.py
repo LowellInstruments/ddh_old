@@ -14,7 +14,7 @@ from dds.ddn_msg import (
     OPCODE_SQS_DDH_ERROR_GPS_HW,
     OPCODE_SQS_LOGGER_DL_OK,
     OPCODE_SQS_LOGGER_MAX_ERRORS,
-    OPCODE_SQS_LOGGER_ERROR_OXYGEN
+    OPCODE_SQS_LOGGER_ERROR_OXYGEN, OPCODE_SQS_DDH_NEEDS_UPDATE
 )
 
 from dds.timecache import its_time_to
@@ -150,6 +150,30 @@ def _sqs_gen_file(desc, mac, lg_sn, lat, lon, m_ver=1, data=""):
 
 def sqs_msg_ddh_booted(*args):
     _sqs_gen_file(OPCODE_SQS_DDH_BOOT, "", "", *args)
+
+
+def sqs_msg_ddh_needs_update(*args):
+
+    try:
+        s = '.ddh_version'
+        # get local version
+        with open(s, 'r') as f:
+            vl = f.readline().replace('\n', '')
+
+        # get github version
+        c = f'wget https://raw.githubusercontent.com/LowellInstruments/ddh/master/{s}'
+        c += f' -O /tmp/{s}'
+        rv = sp.run(c, shell=True, stdout=sp.PIPE, stderr=sp.PIPE)
+        if rv.returncode == 0:
+            with open(f'/tmp/{s}', 'r') as f:
+                vg = f.readline().replace('\n', '')
+
+        if vl < vg:
+            _sqs_gen_file(OPCODE_SQS_DDH_NEEDS_UPDATE, "", "", *args)
+            return 1
+
+    except (Exception, ) as ex:
+        lg.a(f'error: sqs_msg_ddh_needs_update -> {ex}')
 
 
 def sqs_msg_ddh_alarm_s3():

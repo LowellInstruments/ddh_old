@@ -76,9 +76,8 @@ def _ble_analyze_logger_result(rv, mac, lat, lon, sn, err_critical):
     if _g_logger_errors[mac] >= 10:
         rm_mac_orange(mac)
         add_mac_black(mac)
-        lg.a("error: logger {}/{} totally failed".format(mac, sn))
-        if err_critical:
-            lg.a("error: logger {}/{} critical error".format(mac, sn))
+        e = "error: logger {}/{} totally failed, critical = {}"
+        lg.a(e.format(mac, sn, err_critical))
         _u("{}/{}".format(STATE_DDS_BLE_DOWNLOAD_ERROR, mac))
         sqs_msg_logger_error_max_retries(mac, sn, lat, lon)
         _g_logger_errors[mac] = 0
