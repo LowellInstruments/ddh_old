@@ -139,6 +139,7 @@ def _aws_s3_sync_process():
         _u(STATE_DDS_NOTIFY_CLOUD_OK)
         lg.a("success: cloud sync on {}".format(_t))
         _touch_s3_ts()
+        # AWS it's a separate process, can exit here
         sys.exit(0)
 
     # ERROR AWS S3 sync, check case bad enough for alarm

@@ -649,7 +649,7 @@ def on_ctrl_c(signal_num, _):
     dds_kill_by_pid_file()
     lg.a("closing DDH by ctrl + c")
     lg.a(f"received exactly signal number {signal_num}")
-    os._exit(signal_num)
+    os._exit(0)
 
 
 class MplCanvas(FigureCanvasQTAgg):
