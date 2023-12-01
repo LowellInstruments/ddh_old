@@ -417,9 +417,7 @@ def _process_n_graph(a, r=''):
 
     if met == 'TAP':
         if 'Depth (f)' in lbl1:
-            # inverted, so max should be 0
-            # p1.setYRange(max(y1), 0, padding=0)
-            p1.setYRange(0, max(y1), padding=0)
+            p1.setYRange(max(y1), 0, padding=0)
 
         # 3rd line: color axis title, ticks text, line, show it
         if not linux_is_rpi():
