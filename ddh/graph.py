@@ -417,7 +417,9 @@ def _process_n_graph(a, r=''):
 
     if met == 'TAP':
         if 'Depth (f)' in lbl1:
-            p1.setYRange(max(y1), 0, padding=0)
+            # inverted, so max should be 0
+            # p1.setYRange(max(y1), 0, padding=0)
+            p1.setYRange(0, max(y1), padding=0)
 
         # 3rd line: color axis title, ticks text, line, show it
         if not linux_is_rpi():
@@ -442,6 +444,9 @@ def process_n_graph(a, r=''):
         # ----------
         _graph_busy_sign_show(a)
         _process_n_graph(a, r)
+
+        # remove any past error
+        a.g.setTitle('')
 
     except GraphException as e:
         # errors such as "did not find any file to graph"
