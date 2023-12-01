@@ -54,6 +54,10 @@ class BleTAPDownload:
         _rae(rv, "sws")
         lg.a("SWS | OK")
 
+        rv = await lc.cmd_wak("off")
+        _rae(rv, "wak")
+        lg.a("WAK | off OK")
+
         rv, t = await lc.cmd_utm()
         _rae(rv, "utm")
         lg.a("UTM | {}".format(t))
@@ -169,6 +173,15 @@ class BleTAPDownload:
             await asyncio.sleep(5)
         _rae(bad_rv, "gsp")
 
+        # wake mode
+        if rerun_flag:
+            rv = await lc.cmd_wak("on")
+        else:
+            rv = await lc.cmd_wak("off")
+        _rae(rv, "wak")
+        lg.a("WAK | OK")
+        await asyncio.sleep(1)
+
         if rerun_flag:
             rv = await lc.cmd_rws(g)
             if rv:
@@ -181,15 +194,6 @@ class BleTAPDownload:
             _u("{}/{}".format(STATE_DDS_BLE_RUN_STATUS, "off"))
             # give time to GUI to display
             await asyncio.sleep(5)
-
-        # wake mode
-        await asyncio.sleep(1)
-        if rerun_flag:
-            rv = await lc.cmd_wak("on")
-        else:
-            rv = await lc.cmd_wak("off")
-        _rae(rv, "wak")
-        lg.a("WAK | OK")
 
         # -----------------------
         # bye, bye to this logger
