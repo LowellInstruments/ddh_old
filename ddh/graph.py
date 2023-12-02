@@ -1,8 +1,11 @@
 import os
+import random
 import time
 from datetime import datetime
 from glob import glob
 import json
+
+import numpy as np
 from PyQt5 import QtCore
 from PyQt5.QtCore import QTime, QCoreApplication
 import pyqtgraph as pg
@@ -53,7 +56,7 @@ def _get_color_by_label(lbl):
     if 'DO Concentration' in lbl:
         return 'blue'
     if 'Ax' in lbl:
-        return 'green'
+        return 'limegreen'
     return 'green'
 
 
@@ -423,11 +426,20 @@ def _process_n_graph(a, r=''):
         if not linux_is_rpi():
             p1.layout.addItem(ax3, 2, 3)
             ax3.setStyle(tickFont=font)
-            pen3 = pg.mkPen(color=clr_3, width=2, style=QtCore.Qt.SolidLine)
+            pen3 = pg.mkPen(color=clr_3, width=1, style=QtCore.Qt.SolidLine)
             ax3.setLabel(lbl3, **_sty(clr_3))
             ax3.setTextPen(clr_3)
-            p3.addItem(pg.PlotCurveItem(x, y3, pen=pen3, hoverable=True))
-            p3.setYRange(min(y3), max(y3), padding=0)
+
+            # build the arrows arrays
+            # todo ----> do not plot point by point but arrays so faster
+            for i in range(1, len(x), int(len(x) / 40)):
+                sym_i = (i % 3) + 1
+                p3.addItem(pg.PlotDataItem(
+                    [x[i]], [y3[i] + 50],
+                    pen=pen3, hoverable=True, symbol='t' + str(sym_i),
+                    symbolBrush=clr_3,
+                    symbolSize=14))
+            p3.setYRange(0, max(y3), padding=0)
 
     # statistics: display number of points
     end_ts = time.perf_counter()
