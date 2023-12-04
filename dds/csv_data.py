@@ -5,7 +5,12 @@ from utils.ddh_shared import dds_get_json_vessel_name, get_ddh_folder_path_dl_fi
 from utils.logs import lg_cnv as lg
 
 
-def _file_lowell_raw_csv_to_emolt_lt_csv(raw_csv_file):
+def _file_lowell_raw_csv_to_emolt_lt_csv(filename):
+
+    # be sure of extensions
+    raw_csv_file = filename
+    if raw_csv_file.endswith('.lix'):
+        raw_csv_file = filename[:-4] + '_TAP.csv'
 
     # CSV RAW data file: get start time and end time
     lg.a(f'generating trawling for input file {raw_csv_file}')
@@ -58,9 +63,9 @@ def _file_lowell_raw_csv_to_emolt_lt_csv(raw_csv_file):
     lg.a(f'OK: generated trawling output file {out_filename}')
 
 
-def file_lowell_raw_csv_to_emolt_lt_csv(raw_csv_file):
+def file_lowell_raw_csv_to_emolt_lt_csv(filename):
     try:
-        _file_lowell_raw_csv_to_emolt_lt_csv(raw_csv_file)
+        _file_lowell_raw_csv_to_emolt_lt_csv(filename)
     except (Exception, ) as ex:
         lg.a(f'error: file_lowell_raw_csv_to_emolt_lt_csv: {ex}')
 
