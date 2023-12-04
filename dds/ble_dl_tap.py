@@ -217,9 +217,11 @@ async def ble_interact_tap(mac, info, g, h):
 
         # convert lix files
         for f in dl_files:
-            rv_cnv, _ = convert_tap_file(f, verbose=False)
+            rv_cnv, e = convert_tap_file(f, verbose=False)
             if rv_cnv == 0:
                 file_lowell_raw_csv_to_emolt_lt_csv(f)
+            else:
+                lg.a(f'error: DDH converting TAP file {f} -> {e}')
 
     except Exception as ex:
         lg.a("error dl_tap_exception {}".format(ex))
