@@ -44,6 +44,7 @@ def _file_lowell_raw_csv_to_emolt_lt_csv(filename):
     raw_basename = os.path.basename(raw_csv_file)
     out_filename = 'lt_' + raw_basename
     out_file = raw_csv_file.replace(raw_basename, out_filename)
+    out_file = out_file[:-4] + '.cst'
     with open(out_file, 'w') as f:
         # headers first
         hh = lr[0].replace('\n', '') + ',lat,lon\n'
