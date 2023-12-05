@@ -456,7 +456,8 @@ def get_utc_offset():
 def get_number_of_hauls(path):
     # path: /home/kaz/PycharmProjects/ddh/dl_files/<mac>
     ls_lid = len(glob.glob('{}/*.lid'.format(path)))
-    ls_bin = len(glob.glob('{}/moana*.bin'.format(path)))
+    ls_bin = len(glob.glob('{}/moana*.bin'.format(path))) + \
+             len(glob.glob('{}/MOANA*.bin'.format(path)))
     ls_tap = len(glob.glob('{}/*_TAP.csv'.format(path)))
     mask = '__what__'
     if ls_lid:
