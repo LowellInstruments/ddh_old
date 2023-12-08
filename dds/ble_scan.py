@@ -94,8 +94,13 @@ async def ble_scan(g, _h: int, _h_desc, t=5.0):
 
         # we need some research and activate this :)
         if _g_use_ble_exp:
+            # https://github.com/hbldh/bleak/issues/1433
             args = BlueZScannerArgs(
-               or_patterns=[OrPattern(0, AdvertisementDataType.COMPLETE_LOCAL_NAME, b"TAP1")]
+                or_patterns=[OrPattern(0, AdvertisementDataType.COMPLETE_LOCAL_NAME, b"ZT-MOANA"),
+                             OrPattern(0, AdvertisementDataType.COMPLETE_LOCAL_NAME, b"TAP1"),
+                             OrPattern(0, AdvertisementDataType.COMPLETE_LOCAL_NAME, b"DO-1"),
+                             OrPattern(0, AdvertisementDataType.COMPLETE_LOCAL_NAME, b"DO-2"),
+                             ]
             )
             scanner = BleakScanner(_scan_cb, None, adapter=ad,
                                    scanning_mode=_g_ble_scan_mode,
