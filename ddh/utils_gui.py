@@ -3,7 +3,6 @@ import json
 import os
 import shlex
 import socket
-import threading
 import time
 import shutil
 import yaml
@@ -18,14 +17,12 @@ from PyQt5.QtWidgets import (
 )
 from gpiozero import Button
 from ddh.db.db_his import DBHis
-from ddh import utils_plt
 from ddh.graph import process_n_graph
 from ddh.utils_net import net_get_my_current_wlan_ssid
 from dds.ble_utils_dds import ble_get_cc26x2_recipe_file_rerun_flag
 from mat.ble.ble_mat_utils import DDH_GUI_UDP_PORT
 from mat.utils import linux_is_rpi
 import subprocess as sp
-from settings import ctx
 from utils.ddh_shared import (
     dds_get_json_vessel_name,
     STATE_DDS_BLE_SCAN,
@@ -49,11 +46,6 @@ from utils.ddh_shared import (
     STATE_DDS_NOTIFY_CLOUD_ERR,
     STATE_DDS_NOTIFY_CONVERSION_ERR,
     STATE_DDS_NOTIFY_CONVERSION_OK,
-    STATE_DDS_REQUEST_PLOT,
-    get_ddh_folder_path_dl_files,
-    get_dl_folder_path_from_mac,
-    STATE_DDS_NOTIFY_PLOT_RESULT_OK,
-    STATE_DDS_NOTIFY_PLOT_RESULT_ERR,
     STATE_DDS_NOTIFY_BOAT_NAME,
     STATE_DDS_NOTIFY_GPS,
     STATE_DDS_GPS_POWER_CYCLE,
@@ -69,16 +61,11 @@ from utils.ddh_shared import (
     get_ddh_commit,
     dds_get_serial_number_of_macs_from_json_file,
     STATE_DDS_BLE_SCAN_FIRST_EVER,
-    ddh_get_db_plots_file,
     STATE_DDS_BLE_ERROR_MOANA_PLUGIN, STATE_DDS_BLE_DOWNLOAD_ERROR_GDO, STATE_DDS_BLE_ERROR_RUN,
     STATE_DDS_REQUEST_GRAPH, ddh_get_absolute_application_path, g_graph_test_mode,
     STATE_DDS_BLE_DOWNLOAD_ERROR_TP_SENSOR,
 )
 from utils.logs import lg_gui as lg
-
-# from PyQt5.QtWebEngineWidgets import QWebEngineView
-from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT as NavigationToolbar
-
 
 STR_NOTE_PURGE_BLACKLIST = "Purge all loggers' lock-out time?"
 STR_NOTE_GPS_BAD = "Skipping logger until valid GPS fix is obtained"
@@ -95,8 +82,6 @@ def gui_setup_view(my_win):
     a = my_win
     a.setupUi(a)
     a.setWindowTitle("Lowell Instruments' Deck Data Hub")
-    a.lbl_plt_bsy.setVisible(False)
-    a.lbl_plt_msg.setVisible(False)
     a.tabs.setTabIcon(0, QIcon("ddh/gui/res/icon_info.png"))
     a.tabs.setTabIcon(1, QIcon("ddh/gui/res/icon_graph.ico"))
     a.tabs.setTabIcon(3, QIcon("ddh/gui/res/icon_setup.png"))
@@ -112,16 +97,6 @@ def gui_setup_view(my_win):
     a.lbl_boat_txt.setText(ship)
     a.setCentralWidget(a.tabs)
     a.tabs.setCurrentIndex(0)
-
-    # old plotting
-    toolbar = NavigationToolbar(a.plt_cnv, a)
-    unwanted_buttons = ["Pan", "Subplots", "Customize", "Save"]
-    for x in toolbar.actions():
-        # print(x.text())
-        if x.text() in unwanted_buttons:
-            toolbar.removeAction(x)
-    a.vl_3.addWidget(toolbar)
-    a.vl_3.addWidget(a.plt_cnv)
 
     # info: lat, lon, time
     fmt = "{}\n{}"
@@ -366,13 +341,6 @@ def gui_hide_note_tab(ui):
     ui.tabs.removeTab(i)
 
 
-def gui_hide_plots_tab(ui):
-    p = ui.tabs.findChild(QWidget, "tab_plots")
-    i = ui.tabs.indexOf(p)
-    ui.tab_plots_wgt_ref = ui.tabs.widget(i)
-    ui.tabs.removeTab(i)
-
-
 def gui_show_note_tab_delete_black_macs(ui):
     icon = QIcon("ddh/gui/res/icon_exclamation.png")
     ui.tabs.addTab(ui.tab_note_wgt_ref, icon, " Note")
@@ -596,31 +564,8 @@ def _parse_udp(my_app, s, ip="127.0.0.1"):
         a.lbl_cnv.setText("cnv_ok")
 
     # -----------
-    # PLOT fields
+    # GRAPH fields
     # -----------
-    elif f == STATE_DDS_REQUEST_PLOT:
-        if ip != "127.0.0.1":
-            lg.a("not plotting remote downloads")
-            return
-
-        a.lbl_plt_bsy.setVisible(True)
-        if v:
-            # for requests from BLE core
-            d = str(get_ddh_folder_path_dl_files())
-            a.plt_fol_list = gui_refresh_dl_folder_list(d)
-            v = v.replace(":", "-")
-            a.plt_fol = str(get_dl_folder_path_from_mac(v))
-
-            # build info for plot thread
-            ctx.g_p_d = a.plt_fol
-            ctx.g_p_ax = a.plt_cnv.axes
-            ctx.g_p_ts = "h"
-            ctx.g_p_met = gui_json_get_metrics()
-
-        # PLOT THREAD
-        _th = threading.Thread(target=utils_plt.gui_plot_all_set_of_metrics)
-        _th.start()
-
     elif f == STATE_DDS_REQUEST_GRAPH:
         if ip != "127.0.0.1":
             lg.a("not graphing remote downloads")
@@ -628,15 +573,6 @@ def _parse_udp(my_app, s, ip="127.0.0.1"):
 
         # GRAPH PROCESS
         process_n_graph(a, r='BLE')
-
-    elif f == STATE_DDS_NOTIFY_PLOT_RESULT_OK:
-        a.lbl_plt_bsy.setVisible(False)
-
-    elif f == STATE_DDS_NOTIFY_PLOT_RESULT_ERR:
-        a.lbl_plt_bsy.setVisible(False)
-        a.lbl_plt_msg.setText(v)
-        a.lbl_plt_msg.setVisible(True)
-        a.tp.start(5000)
 
     # ----------------------------------
     # other fields that are not states
@@ -708,8 +644,6 @@ def gui_timer_fxn(my_app):
     a = my_app
 
     i = int(time.perf_counter()) % 4
-    sym = ("·", "··", "···", " ")
-    a.lbl_plt_bsy.setText(sym[i])
     a.lbl_date.setText(datetime.datetime.now().strftime("%b %d %H:%M:%S"))
 
     if a.boat_pressed > 0:
@@ -818,21 +752,13 @@ def gui_json_get_forget_time_secs():
         return rv
 
 
-def gui_json_set_plot_units():
+def gui_json_set_graph_units():
     j = str(ddh_get_settings_json_file())
     with open(j) as f:
         cfg = json.load(f)
     assert cfg["units_temp"] in "FC"
     assert cfg["units_depth"] in "fm"
     return cfg["units_temp"], cfg["units_depth"]
-
-
-def gui_json_get_metrics():
-    j = str(ddh_get_settings_json_file())
-    with open(j) as f:
-        cfg = json.load(f)
-        assert 0 < len(cfg["metrics"]) <= 2
-        return cfg["metrics"]
 
 
 def gui_json_get_mac_n_name_pairs():
@@ -888,14 +814,6 @@ def gui_refresh_dl_folder_list(d):
         return f_l
     else:
         os.makedirs(d, exist_ok=True)
-
-
-def gui_plot_db_delete():
-    """removes plot database file"""
-    f = ddh_get_db_plots_file()
-    if os.path.exists(f):
-        lg.a("PLT | deleting plot DB upon boot")
-        os.remove(f)
 
 
 class ButtonPressEvent:

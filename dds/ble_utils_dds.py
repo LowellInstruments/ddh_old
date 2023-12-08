@@ -15,7 +15,7 @@ from utils.ddh_shared import (
     ddh_get_disabled_ble_flag_file,
     STATE_DDS_BLE_DISABLED,
     ddh_get_app_override_flag_file,
-    ddh_get_json_app_type,
+    ddh_get_json_gear_type,
     dds_get_json_moving_speed,
     STATE_DDS_BLE_APP_GPS_ERROR_SPEED,
     STATE_DDS_BLE_ANTENNA,
@@ -69,7 +69,7 @@ def ble_op_conditions_met(knots) -> bool:
         os.unlink(flag)
         return True
 
-    l_h = ddh_get_json_app_type()
+    l_h = ddh_get_json_gear_type()
     speed_range = dds_get_json_moving_speed()
 
     # case: lobster trap, that is, no speed requirement

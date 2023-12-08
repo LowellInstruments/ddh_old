@@ -6,24 +6,20 @@ import os
 import pathlib
 import shutil
 import sys
-import matplotlib
 from PyQt5.QtCore import QTimer, Qt
 from PyQt5.QtWidgets import QMainWindow, QFileDialog
 import ddh.gui.designer_main as d_m
 from ddh.db.db_his import DBHis
 from ddh.graph import process_n_graph
 from ddh.utils_gui import (
-    gui_json_get_metrics,
     gui_hide_edit_tab,
     gui_hide_note_tab,
     gui_populate_history_tab,
-    gui_plot_db_delete,
     gui_ddh_set_brightness,
     gui_setup_view,
     gui_setup_buttons,
     gui_center_window,
     gui_setup_buttons_rpi,
-    gui_refresh_dl_folder_list,
     gui_yaml_load_pairs,
     gui_json_get_mac_n_name_pairs,
     dict_from_list_view,
@@ -35,11 +31,11 @@ from ddh.utils_gui import (
     gui_show_note_tab_delete_black_macs,
     gui_timer_fxn,
     gui_ddh_populate_note_tab_dropdown,
-    gui_json_set_plot_units,
+    gui_json_set_graph_units,
     gui_hide_advanced_tab,
     gui_show_advanced_tab,
     gui_hide_graph_tab,
-    gui_show_graph_tab, gui_ddh_populate_graph_dropdown_sn, gui_manage_graph_test_files, gui_hide_plots_tab,
+    gui_show_graph_tab, gui_ddh_populate_graph_dropdown_sn, gui_manage_graph_test_files
 )
 
 from dds.emolt import this_box_has_grouped_s3_uplink, GROUPED_S3_FILE_FLAG
@@ -52,7 +48,6 @@ from rpc.rpc_tx import th_cli_cmd
 from settings import ctx
 from utils.ddh_shared import (
     get_ddh_folder_path_dl_files,
-    ddh_get_json_plot_type,
     ddh_get_settings_json_file,
     ddh_get_gui_closed_flag_file,
     dds_kill_by_pid_file,
@@ -65,19 +60,15 @@ from utils.ddh_shared import (
     dds_get_mac_from_sn_from_json_file,
     get_ddh_folder_path_settings,
     ddh_get_app_override_flag_file,
-    STATE_DDS_REQUEST_PLOT,
     dds_get_aws_has_something_to_do_via_gui_flag_file,
     ble_get_cc26x2_recipe_flags_from_json,
     ble_set_cc26x2r_recipe_flags_to_file,
     STATE_DDS_BLE_SERVICE_INACTIVE,
     dds_get_ddh_got_an_update_flag_file,
     STATE_DDS_SOFTWARE_UPDATED,
-    dds_kill_by_pid_file_only_child
+    dds_kill_by_pid_file_only_child, ddh_get_json_gear_type
 )
 
-matplotlib.use("Qt5Agg")
-from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg  # noqa: E402
-from matplotlib.figure import Figure  # noqa: E402
 from utils.logs import lg_gui as lg  # noqa: E402
 import subprocess as sp  # noqa: E402
 
@@ -85,7 +76,6 @@ import subprocess as sp  # noqa: E402
 class DDH(QMainWindow, d_m.Ui_MainWindow):
     def __init__(self):
         super(DDH, self).__init__()
-        self.plt_cnv = MplCanvas(self, width=5, height=3, dpi=100)
         gui_setup_view(self)
         gui_setup_buttons(self)
         gui_center_window(self)
@@ -97,24 +87,14 @@ class DDH(QMainWindow, d_m.Ui_MainWindow):
         lg.are_enabled(True)
 
         # gui: appearance
-        dl_fol = str(get_ddh_folder_path_dl_files())
-        self.plt_fol_list = gui_refresh_dl_folder_list(dl_fol)
-        self.plt_fol_idx = 0
-        self.plt_fol = None
-        self.plt_time_spans = ("h", "d", "w", "m", "y")
-        self.plt_ts = self.plt_time_spans[0]
-        self.plt_ts_idx = 0
-        self.cb_plot_type.addItems(["fixed", "mobile"])
+        self.cbox_gear_type.addItems(["fixed", "mobile"])
         self.cb_s3_uplink_type.addItems(["raw", "group"])
-        self.plt_metrics = gui_json_get_metrics()
-        self.gear_type = ddh_get_json_plot_type()
         self.bright_idx = 2
         self.tab_edit_hide = True
         self.tab_advanced_hide = True
         self.tab_graph_hide = True
         self.tab_edit_wgt_ref = None
         self.tab_note_wgt_ref = None
-        self.tab_plots_wgt_ref = None
         self.tab_recipe_wgt_ref = None
         self.tab_graph_wgt_ref = None
         self.key_pressed = None
@@ -124,13 +104,11 @@ class DDH(QMainWindow, d_m.Ui_MainWindow):
         self.commit_pressed = 0
         self.datetime_pressed = 0
         self.lbl_net_pressed = 0
-        gui_json_set_plot_units()
-        gui_hide_plots_tab(self)
+        gui_json_set_graph_units()
         gui_hide_edit_tab(self)
         gui_hide_advanced_tab(self)
         gui_hide_note_tab(self)
         gui_populate_history_tab(self)
-        gui_plot_db_delete()
         gui_ddh_set_brightness(self)
         gui_ddh_populate_note_tab_dropdown(self)
         gui_ddh_populate_graph_dropdown_sn(self)
@@ -170,10 +148,6 @@ class DDH(QMainWindow, d_m.Ui_MainWindow):
         self.tb = QTimer()
         self.tb.timeout.connect(self._tb_fxn)
         self.tb.start(30000)
-
-        # timer PLT message
-        self.tp = QTimer()
-        self.tp.timeout.connect(self._tp_fxn)
 
         # check if we had an update, also done at DDS
         file_flag = dds_get_ddh_got_an_update_flag_file()
@@ -222,10 +196,6 @@ class DDH(QMainWindow, d_m.Ui_MainWindow):
             if its_time_to('tell_BLE_dead', 1800):
                 lg.a("warning: BLE service seems dead")
             send_ddh_udp_gui(STATE_DDS_BLE_SERVICE_INACTIVE)
-
-    def _tp_fxn(self):
-        self.tp.stop()
-        self.lbl_plt_msg.setVisible(False)
 
     def click_btn_clear_known_mac_list(self):
         self.lst_mac_org.clear()
@@ -291,8 +261,8 @@ class DDH(QMainWindow, d_m.Ui_MainWindow):
         # input: vessel name
         ves = self.lne_vessel.text()
 
-        # last haul plot type
-        lhf = self.cb_plot_type.currentIndex()
+        # last haul graph type
+        lhf = self.cbox_gear_type.currentIndex()
 
         if t < 600:
             self.lbl_setup_result.setText("bad forget_time")
@@ -376,9 +346,6 @@ class DDH(QMainWindow, d_m.Ui_MainWindow):
             if "dl_files" not in str(d):
                 return
             shutil.rmtree(str(d), ignore_errors=True)
-            self.plt_fol_list = gui_refresh_dl_folder_list(d)
-            self.plt_fol_idx = 0
-            self.plt_fol = None
         except OSError as e:
             lg.a("error {} : {}".format(d, e))
 
@@ -404,11 +371,11 @@ class DDH(QMainWindow, d_m.Ui_MainWindow):
 
         ves = dds_get_json_vessel_name()
         f_t = gui_json_get_forget_time_secs()
-        lhf = ddh_get_json_plot_type()
+        lhf = ddh_get_json_gear_type()
         self.lne_vessel.setText(ves)
         self.lne_forget.setText(str(f_t))
         # set index of the JSON dropdown list
-        self.cb_plot_type.setCurrentIndex(lhf)
+        self.cbox_gear_type.setCurrentIndex(lhf)
 
     def click_btn_note_yes_specific(self):
         s = self.lbl_note.text()
@@ -503,26 +470,11 @@ class DDH(QMainWindow, d_m.Ui_MainWindow):
             lg.a("warning: unknown keypress {}".format(ev.key()))
             return
 
-        # update the folder list
-        d = str(get_ddh_folder_path_dl_files())
-        self.plt_fol_list = gui_refresh_dl_folder_list(d)
-
-        # prevent div by zero
-        plot_keys = (Qt.Key_1, Qt.Key_3)
-        if ev.key() in plot_keys and not self.plt_fol_list:
-            lg.a("warning: empty local list of plot folders")
-            self.lbl_plt_msg.setText("no folders to plot")
-            return
-
         # -----------------------
         # identify key pressed
         # -----------------------
         if ev.key() == Qt.Key_1:
-            # button to change logger being plotted
             lg.a("debug: main_gui detect pressed button 1")
-            self.plt_fol_idx += 1
-            self.plt_fol_idx %= len(self.plt_fol_list)
-            self.plt_fol = self.plt_fol_list[self.plt_fol_idx]
 
         elif ev.key() == Qt.Key_2:
             lg.a("debug: main_gui detect pressed button 2")
@@ -532,14 +484,6 @@ class DDH(QMainWindow, d_m.Ui_MainWindow):
 
         elif ev.key() == Qt.Key_3:
             lg.a("debug: main_gui detect pressed button 3")
-            # button to change plot span
-            if not self.plt_fol:
-                lg.a("warning: no plot to set span for")
-                return
-
-            self.plt_ts_idx += 1
-            self.plt_ts_idx %= len(self.plt_time_spans)
-            self.plt_ts = self.plt_time_spans[self.plt_ts_idx]
 
         elif ev.key() == Qt.Key_M:
             self.key_pressed = "m"
@@ -558,14 +502,6 @@ class DDH(QMainWindow, d_m.Ui_MainWindow):
 
         elif ev.key() == Qt.Key_W:
             self.key_pressed = "w"
-
-        # button press -> plot
-        if ev.key() in plot_keys:
-            ctx.g_p_d = self.plt_fol
-            ctx.g_p_ax = self.plt_cnv.axes
-            ctx.g_p_ts = self.plt_ts
-            ctx.g_p_met = self.plt_metrics
-            send_ddh_udp_gui(STATE_DDS_REQUEST_PLOT)
 
     def click_lbl_boat_pressed(self, _):
         self.boat_pressed = 1
@@ -650,10 +586,3 @@ def on_ctrl_c(signal_num, _):
     lg.a("closing DDH by ctrl + c")
     lg.a(f"received exactly signal number {signal_num}")
     os._exit(0)
-
-
-class MplCanvas(FigureCanvasQTAgg):
-    def __init__(self, parent=None, width=5, height=4, dpi=100):
-        fig = Figure(figsize=(width, height), dpi=dpi)
-        self.axes = fig.add_subplot(111)
-        super(MplCanvas, self).__init__(fig)

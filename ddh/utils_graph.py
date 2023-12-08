@@ -13,7 +13,7 @@ from utils.logs import lg_gra as lg
 CTT_ATM_PRESSURE_DBAR = 10.1325
 
 
-# this file contains full path to mac folder to plot
+# this file contains full path to mac folder to graph
 GRAPH_REQ_JSON_FILE = '/tmp/graph_req.json'
 
 
@@ -41,7 +41,7 @@ def utils_graph_get_abs_fol_list() -> list:
 
 def utils_graph_read_fol_req_file():
     """
-    reads GRAPH_REQ_JSON_FILE to get ABSOLUTE folder path to plot
+    reads GRAPH_REQ_JSON_FILE to get ABSOLUTE folder path to graph
     """
     if g_graph_test_mode():
         return
@@ -125,9 +125,9 @@ def _data_average_by_time_weight(d_i, w):
 
 def _data_get_prune_period(x, met):
     if len(x) > 8000:
-        lg.a('------------------------------------')
-        lg.a(f'data pruning -> faster plot for {met}')
-        lg.a('------------------------------------')
+        lg.a('--------------------------------------')
+        lg.a(f'data pruning -> faster graph for {met}')
+        lg.a('--------------------------------------')
         return int(len(x) / 600)
     return 1
 
@@ -149,7 +149,7 @@ def process_graph_csv_data(fol, _, h, hi) -> dict:
     _g_ff_do = sorted(glob("{}/{}".format(fol, "*_DissolvedOxygen.csv")))
     _g_ff_tap = sorted(glob("{}/{}".format(fol, "*_TAP.csv")))
 
-    # type of haul to plot
+    # type of haul to graph
     met = ''
     if _g_ff_t:
         met = 'TP'
@@ -241,7 +241,7 @@ def process_graph_csv_data(fol, _, h, hi) -> dict:
             return {}
         lg.a(f'weight: result {w}')
 
-        # data averaging for fewer dots to plot
+        # data averaging for fewer dots to graph
         # _data_average_by_time_weight(x, w)
 
     elif met == 'TAP':

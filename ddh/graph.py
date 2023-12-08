@@ -1,11 +1,7 @@
-import os
-import random
 import time
 from datetime import datetime
 from glob import glob
 import json
-
-import numpy as np
 from PyQt5 import QtCore
 from PyQt5.QtCore import QTime, QCoreApplication
 import pyqtgraph as pg
@@ -21,7 +17,7 @@ from utils.ddh_shared import dds_get_json_mac_dns, \
     dds_get_mac_from_sn_from_json_file, \
     get_dl_folder_path_from_mac, \
     ddh_get_absolute_application_path, \
-    get_number_of_hauls, dds_get_json_vessel_name, \
+    get_number_of_hauls, \
     ddh_get_settings_json_file
 from utils.logs import lg_gra as lg
 
@@ -209,7 +205,7 @@ def _process_n_graph(a, r=''):
     if a.g_haul_idx is None:
         a.g_haul_idx = -1
 
-    # this will have the absolute path to folder to plot
+    # this will have the absolute path to folder to graph
     fol: str
 
     # show who asked for a graph

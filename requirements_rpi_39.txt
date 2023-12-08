@@ -1,12 +1,10 @@
 bleak==0.20.2
 boto3==1.26.69
 cacheout==0.14.1
-contourpy==1.0.6
 GitPython==3.1.30
 h5py==3.8.0
 humanize==4.6.0
 iso8601==1.1.0
-matplotlib==3.6.3
 numpy==1.24.2
 pandas==1.5.3
 psutil==5.8.0

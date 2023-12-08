@@ -5,7 +5,6 @@ from mat import data_file_factory
 from mat.ble.bleak.rn4020 import BleRN4020
 from utils.ddh_shared import (
     send_ddh_udp_gui as _u,
-    STATE_DDS_REQUEST_PLOT,
     get_dl_folder_path_from_mac,
     create_folder_logger_by_mac,
 )
@@ -111,9 +110,9 @@ class BleRN4020Download(BleRN4020):
         # bluetooth bye
         await self.cli.disconnect()
 
-        # plots
-        if any_dl:
-            _u("{}/{}".format(STATE_DDS_REQUEST_PLOT, mac))
+        # graph
+        # if any_dl:
+        # we can request a graph here
 
         return 0
 

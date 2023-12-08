@@ -52,10 +52,7 @@ STATE_DDS_NOTIFY_CONVERSION_ERR = "conversion_error"
 STATE_DDS_NOTIFY_CONVERSION_OK = "conversion_ok"
 
 
-STATE_DDS_REQUEST_PLOT = "plot_request"
 STATE_DDS_REQUEST_GRAPH = "graph_request"
-STATE_DDS_NOTIFY_PLOT_RESULT_OK = "state_dds_notify_plot_result_ok"
-STATE_DDS_NOTIFY_PLOT_RESULT_ERR = "state_dds_notify_plot_result_err"
 
 
 STATE_DDS_SOFTWARE_UPDATED = "software_updated"
@@ -155,10 +152,6 @@ def dds_get_aws_has_something_to_do_via_gui_flag_file() -> str:
 
 def ddh_get_db_history_file() -> str:
     return "ddh/db/db_his.db"
-
-
-def ddh_get_db_plots_file() -> str:
-    return "ddh/db/db_plt.db"
 
 
 def dds_check_we_have_box_env_info():
@@ -270,21 +263,13 @@ def dds_get_mac_from_sn_from_json_file(sn):
         print("error json_get_mac_from_sn()", ex)
 
 
-def ddh_get_json_plot_type():
+def ddh_get_json_gear_type():
     j = str(ddh_get_settings_json_file())
     with open(j) as f:
         cfg = json.load(f)
         v = cfg["last_haul"]
         assert v in (0, 1)
         return v
-
-
-def ddh_get_is_last_haul():
-    return ddh_get_json_plot_type()
-
-
-def ddh_get_json_app_type():
-    return ddh_get_json_plot_type()
 
 
 def dds_get_json_vessel_name():

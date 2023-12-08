@@ -10,16 +10,6 @@ from utils.ddh_shared import send_ddh_udp_gui, check_gps_dummy_mode
 _u = send_ddh_udp_gui
 
 
-# plot stuff
-g_p_d = ""
-g_p_ax = None
-g_p_ts = ""
-g_p_met = []
-plt_units_temp = None
-plt_units_depth = None
-span_dict = None
-
-
 # AWS / SQS enabled or not
 aws_en = True
 sqs_en = True

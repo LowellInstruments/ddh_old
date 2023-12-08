@@ -18,7 +18,6 @@ from utils.logs import lg_dds as lg
 from utils.ddh_shared import (
     get_dl_folder_path_from_mac,
     create_folder_logger_by_mac,
-    STATE_DDS_REQUEST_PLOT,
 )
 from settings.ctx import BLEAppException, ael
 import json
@@ -193,9 +192,9 @@ class BleCC26X2Download:
         # -----------------------
         await lc.disconnect()
 
-        # plots
-        if any_dl and not simulation:
-            _u("{}/{}".format(STATE_DDS_REQUEST_PLOT, mac))
+        # graph
+        # if any_dl and not simulation:
+        # we can request a graph here
 
         return 0
 
