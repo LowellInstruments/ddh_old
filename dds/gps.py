@@ -41,10 +41,10 @@ PERIOD_GPS_TELL_VESSEL_SECS = 30
 PERIOD_GPS_AT_BOOT_SECS = 300
 PERIOD_GPS_TELL_GPS_HW_ERROR_SECS = 3600 * 3
 PERIOD_GPS_TELL_PUCK_NO_PC = 3600 * 6
-PERIOD_GPS_POWER_CYCLE = 600
+PERIOD_GPS_POWER_CYCLE = 300
 
 
-def gps_ll_check_hat_out_stream():
+def _gps_ll_check_hat_out_stream():
     # ll: stands for 'low-level'
     def _check():
         # give time to accumulate GPS data
@@ -56,7 +56,7 @@ def gps_ll_check_hat_out_stream():
     try:
         return _check()
     except Exception as ex:
-        lg.a("error: USB output GPS stream -> {}".format(ex))
+        lg.a("error: gps_ll_check_hat_out_stream() -> {}".format(ex))
 
 
 def _gps_bu353s4_find_usb_port():
@@ -84,7 +84,7 @@ def _coord_decode(coord: str):
 
 def _gps_parse_rmc_frame(data: bytes):
     """
-    parse fields in a RMC NMEA string
+    parse fields in an RMC NMEA string
     """
 
     if b"GPRMC" not in data:
@@ -192,11 +192,7 @@ def _gps_measure():
         lon = "{:+.6f}".format(-83.0)
         return lat, lon, datetime.datetime.utcnow(), 1
 
-    # ------------------------------------
-    # real GPS measure on serial port
-    # exception controlled outside :)
-    # in method name not starting w '_'
-    # ------------------------------------
+    # open serial port
     if g_gps_is_external:
         sp = serial.Serial(_g_bu353s4_port, 4800, timeout=0.2)
     else:
@@ -207,7 +203,6 @@ def _gps_measure():
     global _g_ts_cached_gps_valid_for
     global _g_cached_gps
     now = time.perf_counter()
-    till = time.perf_counter() + 2
 
     # try to flush stuff
     sp.readall()
@@ -217,15 +212,18 @@ def _gps_measure():
     # =============================
     # loop waiting for GPS frames
     # =============================
+    till = time.perf_counter() + 2
     while 1:
         if time.perf_counter() > till:
             break
 
         # --------------------------
-        # AVOID using sp.readlines()
+        # do NOT use sp.readlines()
         # --------------------------
-        b = sp.readall()
         g = []
+        b = sp.readall()
+
+        # USB GPS puck
         if g_gps_is_external:
             if not b:
                 continue
@@ -242,6 +240,8 @@ def _gps_measure():
             re_gsv = re.search(b"GPGSV(.*)\r\n", b)
             if re_gsv:
                 _gps_parse_gsv_frame(b"$GPGSV" + re_gsv.group(1))
+
+        # GPS shield
         else:
             _gps_parse_gsv_frame(b)
             g = _gps_parse_rmc_frame(b)
@@ -249,11 +249,11 @@ def _gps_measure():
         if g:
             break
 
-    # close serial port when we are done
+    # close serial port
     if sp:
         sp.close()
 
-    # check we properly parsed the frame
+    # OK frame
     if g:
         g = list(g)
         lat = "{:+.6f}".format(g[0])
@@ -287,7 +287,7 @@ def _gps_measure():
         _g_banner_cache_too_old = now + 300
     _g_cached_gps = "", "", None, float(0)
 
-    # tell GUI about the GPS error
+    # tell GUI about GPS error
     _u(STATE_DDS_BLE_APP_GPS_ERROR_POSITION)
 
 
@@ -296,7 +296,8 @@ def gps_measure():
         g = _gps_measure()
         if g:
             return g
-        # cache may be filled or empty
+
+        # at this point, cache may be valid or just empty
         return _g_cached_gps
 
     except (Exception,) as ex:
@@ -389,11 +390,12 @@ def gps_tell_position_logger(g):
 
 def gps_hw_error_parse(e) -> bool:
     if e == 0:
-        # means no error
+        # no error
         return False
     if e == 2:
-        # case of too many errors
+        # too many errors
         sqs_msg_ddh_error_gps_hw("", "")
+
     # e == 1 is ONE error
     return True
 
@@ -438,8 +440,8 @@ def gps_did_we_ever_clock_sync() -> bool:
 
 def _gps_power_on_off_hat():
     _u("{}".format(STATE_DDS_GPS_POWER_CYCLE))
-    t = 60
-    lg.a("=== warning: power cycling hat, wait ~{} seconds ===".format(t))
+    t = 75
+    lg.a("=== warning: power-cycling hat, wait ~{} seconds ===".format(t))
     # GPIO26 controls the sixfab hat power rail
     _pin = LED(26)
 
@@ -450,7 +452,7 @@ def _gps_power_on_off_hat():
     # off() means low-level, restores power to hat
     _pin.off()
     time.sleep(t)
-    lg.a("=== warning: power cycling done, hat should be ON by now ===")
+    lg.a("=== warning: power-cycling done, hat should be ON by now ===")
 
 
 def gps_power_cycle_if_so(forced=False):
@@ -469,9 +471,9 @@ def gps_power_cycle_if_so(forced=False):
             lg.a("debug: no power cycle BU-353-S4 GPS puck")
         return
 
-    # -------------------------------
-    # see if we need to power cycle
-    # -------------------------------
+    # ------------------------
+    # see need to power cycle
+    # ------------------------
     sp = None
     try:
         # open serial port
@@ -481,17 +483,18 @@ def gps_power_cycle_if_so(forced=False):
         sp.flushInput()
         sp.readall()
 
-        # query hat about GPS enabled or not
+        # query hat about GPS output stream
         sp.write(b"AT+QGPS?\r")
         ans = sp.readall()
 
-        # hat's GPS seems OK, but be sure
+        # output stream seems OK
         if b"\r\n+QGPS: 1\r\n\r\nOK\r\n" in ans:
-            if not gps_ll_check_hat_out_stream():
+            # be really sure hat is OK
+            if not _gps_ll_check_hat_out_stream():
                 lg.a("error: power-cycle needed, no GPS OUT stream")
                 _gps_power_on_off_hat()
 
-        # hat's GPS output stream needs to be enabled
+        # output stream answers but not enabled, enable it
         elif b"\r\n+QGPS: 0\r\n\r\nOK\r\n" in ans:
             sp.readall()
             sp.write(b"AT+QGPS=1\r")
@@ -502,16 +505,16 @@ def gps_power_cycle_if_so(forced=False):
                 e = "error: power check, cannot set to 1 -> {}"
                 lg.a(e.format(ans))
 
-        # oh, oh :(
+        # output stream not even there, but at least port answers
         elif not ans:
             lg.a("warning: power-cycle needed, hat not answering")
             _gps_power_on_off_hat()
 
         else:
-            lg.a("warning: power-cycle, this case should never happen")
+            lg.a("warning: power-cycle, this should never happen")
 
     except (Exception,) as ex:
-        # when we do not even have a USB port /dev/ttyUSBx
+        # port does not even answer at /dev/ttyUSBx
         lg.a("error: failed gps_power_cycle -> {}".format(ex))
         _gps_power_on_off_hat()
 
@@ -543,6 +546,9 @@ def gps_configure_shield():
         _sp.write(b"AT+QGPS?\r")
         ans = _sp.readall()
 
+        # ------------------------------------
+        # check GPS output stream is enabled
+        # ------------------------------------
         if b"\r\n+QGPS: 0\r\n\r\nOK\r\n" in ans:
             _sp.write(b"AT+QGPS=1\r")
             ans = _sp.readall()

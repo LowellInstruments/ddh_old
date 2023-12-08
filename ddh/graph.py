@@ -322,6 +322,8 @@ def _process_n_graph(a, r=''):
     title = '{} to {}'.format(t1, t2)
     if data['pruned']:
         title += ' (data trimmed)'
+
+    # removed title removed for more graphing room, now title used for errors
     # g.setTitle(title, color="black", size="15pt", bold=True)
 
     # default variables to show for each metric
@@ -459,13 +461,16 @@ def process_n_graph(a, r=''):
         a.g.setTitle('')
 
     except GraphException as e:
-        # errors such as "did not find any file to graph"
+        # errors such as "no data files to graph"
         a.g.setTitle(e, color="red", size="15pt")
+        a.g.getAxis('bottom').setLabel("")
 
     except (Exception,) as ex:
-        # python errors such as IndexError
+        # not GraphException, but python errors such as IndexError
         e = 'undefined error, see log'
         a.g.setTitle(e, color="red", size="15pt")
         lg.a("error: graph_embed -> {}".format(ex))
+        a.g.getAxis('bottom').setLabel("")
+
     finally:
         _graph_busy_sign_hide(a)

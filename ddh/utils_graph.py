@@ -41,7 +41,7 @@ def utils_graph_get_abs_fol_list() -> list:
 
 def utils_graph_read_fol_req_file():
     """
-    reads GRAPH_REQ_JSON_FILE, it has the ABSOLUTE folder path to plot
+    reads GRAPH_REQ_JSON_FILE to get ABSOLUTE folder path to plot
     """
     if g_graph_test_mode():
         return
