@@ -26,13 +26,16 @@ _g_json_macs = dds_get_macs_from_json_file()
 _g_ble_scan_early_leave = False
 
 
+# to activate BLE experimental features you need:
+# bluez >= v5.65
+# sudo nano /lib/systemd/system/bluetooth.service
+# ExecStart=/usr/local/libexec/bluetooth/bluetoothd --experimental
+_g_use_ble_exp = False
+
 # see https://github.com/hbldh/bleak/issues/1433
-_g_ble_experimental = False
-_g_ble_scan_mode = "active"
 _gbv = ble_mat_get_bluez_version()
-if _gbv >= '5.66':
-    _g_ble_scan_mode = "passive"
-if _g_ble_experimental:
+_g_ble_scan_mode = "passive" if _gbv >= '5.65' else "active"
+if _g_use_ble_exp:
     lg.a(f'bluez v.{_gbv} -> BLE scan mode {_g_ble_scan_mode}')
 
 
@@ -90,7 +93,7 @@ async def ble_scan(g, _h: int, _h_desc, t=5.0):
         ad = "hci{}".format(_h)
 
         # we need some research and activate this :)
-        if _g_ble_experimental:
+        if _g_use_ble_exp:
             args = BlueZScannerArgs(
                or_patterns=[OrPattern(0, AdvertisementDataType.COMPLETE_LOCAL_NAME, b"TAP1")]
             )
