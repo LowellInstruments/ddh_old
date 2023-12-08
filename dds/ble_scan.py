@@ -1,5 +1,9 @@
 import asyncio
 from math import ceil
+
+from bleak.assigned_numbers import AdvertisementDataType
+from bleak.backends.bluezdbus.advertisement_monitor import OrPattern
+
 from dds.sqs import sqs_msg_ddh_error_ble_hw
 from dds.timecache import its_time_to
 from mat.ble.ble_mat_utils import ble_mat_get_bluez_version
@@ -11,6 +15,7 @@ from utils.ddh_shared import (
     STATE_DDS_BLE_SCAN, STATE_DDS_BLE_HARDWARE_ERROR,
 )
 from bleak import BleakScanner, BleakError
+from bleak.backends.bluezdbus.scanner import BlueZScannerArgs
 from bleak.backends.device import BLEDevice
 from utils.logs import lg_dds as lg
 
@@ -22,11 +27,11 @@ _g_ble_scan_early_leave = False
 
 
 # see https://github.com/hbldh/bleak/issues/1433
-_g_ble_scan_mode = "active"
-_gbv = ble_mat_get_bluez_version()
-if _gbv >= '5.66':
-    _g_ble_scan_mode = "passive"
-lg.a(f'bluez versions {_gbv} -> scan mode {_g_ble_scan_mode}')
+# _g_ble_scan_mode = "active"
+# _gbv = ble_mat_get_bluez_version()
+# if _gbv >= '5.66':
+#     _g_ble_scan_mode = "passive"
+# lg.a(f'bluez versions {_gbv} -> BLE scan mode {_g_ble_scan_mode}')
 
 
 def _ble_is_supported_logger(s):
@@ -81,7 +86,16 @@ async def ble_scan(g, _h: int, _h_desc, t=5.0):
 
         # convert hci format integer to string
         ad = "hci{}".format(_h)
-        scanner = BleakScanner(_scan_cb, None, adapter=ad, scanning_mode=_g_ble_scan_mode)
+
+        # we need some research and activate this :)
+        # args = BlueZScannerArgs(
+        #    or_patterns=[OrPattern(0, AdvertisementDataType.COMPLETE_LOCAL_NAME, b"TAP1")]
+        # )
+        # scanner = BleakScanner(_scan_cb, None, adapter=ad,
+        #                        scanning_mode=_g_ble_scan_mode,
+        #                        bluez=args)
+
+        scanner = BleakScanner(_scan_cb, None, adapter=ad)
         await scanner.start()
         for i in range(ceil(t) * 10):
             # * 10 to be able to sleep 100 ms
