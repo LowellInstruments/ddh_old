@@ -23,8 +23,10 @@ _g_ble_scan_early_leave = False
 
 # see https://github.com/hbldh/bleak/issues/1433
 _g_ble_scan_mode = "active"
-if ble_mat_get_bluez_version() >= '5.66':
+_gbv = ble_mat_get_bluez_version()
+if _gbv >= '5.66':
     _g_ble_scan_mode = "passive"
+lg.a(f'bluez versions {_gbv} -> scan mode {_g_ble_scan_mode}')
 
 
 def _ble_is_supported_logger(s):
