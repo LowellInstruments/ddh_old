@@ -70,7 +70,7 @@ async def ble_scan(g, _h: int, _h_desc, t=5.0):
         await scanner.stop()
 
         # do not stress BLE
-        await asyncio.sleep(1)
+        await asyncio.sleep(.1)
 
         # _our_devs: {'60:77:71:22:ca:6d': 'DO-2', ...}
         if len(_all_devs) > 15:

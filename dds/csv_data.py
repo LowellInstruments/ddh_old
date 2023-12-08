@@ -40,7 +40,7 @@ def _file_lowell_raw_csv_to_emolt_lt_csv(filename):
         with open(i) as f:
             dbt += f.readlines()
 
-    # OUT: new lowell file lt_*.csv
+    # OUT: new lowell file lt_*.cst
     raw_basename = os.path.basename(raw_csv_file)
     out_filename = 'lt_' + raw_basename
     out_file = raw_csv_file.replace(raw_basename, out_filename)

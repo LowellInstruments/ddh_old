@@ -156,11 +156,17 @@ def ddh_get_db_history_file() -> str:
 
 def dds_check_we_have_box_env_info():
     if not os.getenv("DDH_BOX_SERIAL_NUMBER"):
-        print("fatal error: we need a box serial number")
+        e = "fatal error: we need a box serial number"
+        print('*' * len(e))
+        print(e)
+        print('*' * len(e))
         os._exit(1)
 
     if not os.getenv("DDH_BOX_PROJECT_NAME"):
-        print("fatal error: we need a box project name")
+        e = "fatal error: we need a box project name"
+        print('*' * len(e))
+        print(e)
+        print('*' * len(e))
         os._exit(1)
 
 

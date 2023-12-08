@@ -216,7 +216,8 @@ async def ble_interact_tap(mac, info, g, h):
         rv, dl_files = await BleTAPDownload.download_recipe(lc, mac, info, g, notes)
 
         # convert lix files
-        for f in dl_files:
+        dl_lix_files = [f for f in dl_files if f.endswith(".lix")]
+        for f in dl_lix_files:
             rv_cnv, e = convert_tap_file(f, verbose=False)
             if rv_cnv == 0:
                 file_lowell_raw_csv_to_emolt_lt_csv(f)
