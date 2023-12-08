@@ -27,11 +27,13 @@ _g_ble_scan_early_leave = False
 
 
 # see https://github.com/hbldh/bleak/issues/1433
-# _g_ble_scan_mode = "active"
-# _gbv = ble_mat_get_bluez_version()
-# if _gbv >= '5.66':
-#     _g_ble_scan_mode = "passive"
-# lg.a(f'bluez versions {_gbv} -> BLE scan mode {_g_ble_scan_mode}')
+_g_ble_experimental = False
+_g_ble_scan_mode = "active"
+_gbv = ble_mat_get_bluez_version()
+if _gbv >= '5.66':
+    _g_ble_scan_mode = "passive"
+if _g_ble_experimental:
+    lg.a(f'bluez v.{_gbv} -> BLE scan mode {_g_ble_scan_mode}')
 
 
 def _ble_is_supported_logger(s):
@@ -88,14 +90,17 @@ async def ble_scan(g, _h: int, _h_desc, t=5.0):
         ad = "hci{}".format(_h)
 
         # we need some research and activate this :)
-        # args = BlueZScannerArgs(
-        #    or_patterns=[OrPattern(0, AdvertisementDataType.COMPLETE_LOCAL_NAME, b"TAP1")]
-        # )
-        # scanner = BleakScanner(_scan_cb, None, adapter=ad,
-        #                        scanning_mode=_g_ble_scan_mode,
-        #                        bluez=args)
+        if _g_ble_experimental:
+            args = BlueZScannerArgs(
+               or_patterns=[OrPattern(0, AdvertisementDataType.COMPLETE_LOCAL_NAME, b"TAP1")]
+            )
+            scanner = BleakScanner(_scan_cb, None, adapter=ad,
+                                   scanning_mode=_g_ble_scan_mode,
+                                   bluez=args)
+        else:
+            scanner = BleakScanner(_scan_cb, None, adapter=ad)
 
-        scanner = BleakScanner(_scan_cb, None, adapter=ad)
+        # start scanning procedure
         await scanner.start()
         for i in range(ceil(t) * 10):
             # * 10 to be able to sleep 100 ms
