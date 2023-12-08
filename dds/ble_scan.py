@@ -1,6 +1,8 @@
 import asyncio
+from math import ceil
 from dds.sqs import sqs_msg_ddh_error_ble_hw
 from dds.timecache import its_time_to
+from mat.ble.ble_mat_utils import ble_mat_get_bluez_version
 from settings import ctx
 from utils.ddh_shared import (
     send_ddh_udp_gui as _u,
@@ -16,6 +18,13 @@ from utils.logs import lg_dds as lg
 PERIOD_BLE_TELL_HW_ERR_SECS = 600
 _g_first_ble_scan_ever = True
 _g_json_macs = dds_get_macs_from_json_file()
+_g_ble_scan_early_leave = False
+
+
+# see https://github.com/hbldh/bleak/issues/1433
+_g_ble_scan_mode = "active"
+if ble_mat_get_bluez_version() >= '5.66':
+    _g_ble_scan_mode = "passive"
 
 
 def _ble_is_supported_logger(s):
@@ -51,6 +60,9 @@ async def ble_scan(g, _h: int, _h_desc, t=5.0):
         if _ble_is_supported_logger(d.name):
             _our_devs[d.address.lower()] = d.name
         _all_devs[d.address.lower()] = d.name
+        # allows scan to end faster
+        global _g_ble_scan_early_leave
+        _g_ble_scan_early_leave = len(_our_devs) == len(_g_json_macs)
 
     # classify devs
     _our_devs = {}
@@ -62,11 +74,18 @@ async def ble_scan(g, _h: int, _h_desc, t=5.0):
         return {"11:22:33:44:55:66": "DO-2"}
 
     try:
+        # trick to go faster
+        _g_ble_scan_early_leave = False
+
         # convert hci format integer to string
         ad = "hci{}".format(_h)
-        scanner = BleakScanner(_scan_cb, None, adapter=ad)
+        scanner = BleakScanner(_scan_cb, None, adapter=ad, scanning_mode=_g_ble_scan_mode)
         await scanner.start()
-        await asyncio.sleep(t)
+        for i in range(ceil(t) * 10):
+            # * 10 to be able to sleep 100 ms
+            await asyncio.sleep(.1)
+            if _g_ble_scan_early_leave:
+                break
         await scanner.stop()
 
         # do not stress BLE
