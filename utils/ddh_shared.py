@@ -151,7 +151,7 @@ def dds_get_aws_has_something_to_do_via_gui_flag_file() -> str:
 
 
 def ddh_get_db_history_file() -> str:
-    return "ddh/db/db_his.db"
+    return "ddh/db/db_his.json"
 
 
 def dds_check_we_have_box_env_info():

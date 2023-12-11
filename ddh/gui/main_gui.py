@@ -52,7 +52,6 @@ from utils.ddh_shared import (
     ddh_get_gui_closed_flag_file,
     dds_kill_by_pid_file,
     dds_get_json_vessel_name,
-    ddh_get_db_history_file,
     get_ddh_folder_path_macs_black,
     NAME_EXE_DDS,
     send_ddh_udp_gui,
@@ -66,7 +65,7 @@ from utils.ddh_shared import (
     STATE_DDS_BLE_SERVICE_INACTIVE,
     dds_get_ddh_got_an_update_flag_file,
     STATE_DDS_SOFTWARE_UPDATED,
-    dds_kill_by_pid_file_only_child, ddh_get_json_gear_type
+    dds_kill_by_pid_file_only_child, ddh_get_json_gear_type, ddh_get_db_history_file
 )
 
 from utils.logs import lg_gui as lg  # noqa: E402
@@ -361,9 +360,8 @@ class DDH(QMainWindow, d_m.Ui_MainWindow):
 
         s = "sure to purge history?"
         if gui_confirm_by_user(s):
-            path_db = ddh_get_db_history_file()
-            db = DBHis(path_db)
-            db.delete_all_records()
+            db = DBHis(ddh_get_db_history_file())
+            db.delete_all()
         gui_populate_history_tab(self)
 
     def click_btn_load_current_json_file(self):

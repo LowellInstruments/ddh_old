@@ -29,7 +29,7 @@ cp $FA/settings/ddh.json $FTS
 cp $FA/settings/ctx.py $FTS
 cp $FA/settings/_li_all_macs_to_sn.yml $FTS
 cp $FA/scripts/script_logger_do_deploy_cfg.json $FTS
-cp $FA/ddh/db/db_his.db $FTS
+cp $FA/ddh/db/db_his.json $FTS
 
 
 
@@ -48,6 +48,9 @@ if [ $rv -ne 0 ]; then
 fi
 
 
+echo -e "${C_B}\n>>> ensure we have latest requirements installed\n${C_Z}"
+pip install -r $FA/requirements_rpi_39.txt
+
 
 echo -e "${C_B}\n>>> un-stashing DDS configuration\n${C_Z}"
 cp $FTS/run_dds.sh $FA
@@ -55,7 +58,7 @@ cp $FTS/ddh.json $FA/settings
 cp $FTS/ctx.py $FA/settings
 cp $FTS/_li_all_macs_to_sn.yml $FA/settings
 cp $FTS/script_logger_do_deploy_cfg.json $FA/scripts
-cp $FTS/db_his.db $FA/ddh/db
+cp $FTS/db_his.json $FA/ddh/db
 
 
 

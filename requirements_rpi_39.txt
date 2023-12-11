@@ -16,3 +16,4 @@ tzlocal==4.2
 setproctitle==1.3.2
 ieee754==0.2
 pyqtgraph==0.13.3
+pysondb==1.6.7

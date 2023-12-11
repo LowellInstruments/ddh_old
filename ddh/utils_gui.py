@@ -16,6 +16,7 @@ from PyQt5.QtWidgets import (
     QHeaderView,
 )
 from gpiozero import Button
+
 from ddh.db.db_his import DBHis
 from ddh.graph import process_n_graph
 from ddh.utils_net import net_get_my_current_wlan_ssid
@@ -56,14 +57,13 @@ from utils.ddh_shared import (
     STATE_DDS_BLE_RUN_STATUS,
     ddh_get_folder_path_res,
     ddh_get_settings_json_file,
-    ddh_get_db_history_file,
     dds_get_json_mac_dns,
     get_ddh_commit,
     dds_get_serial_number_of_macs_from_json_file,
     STATE_DDS_BLE_SCAN_FIRST_EVER,
     STATE_DDS_BLE_ERROR_MOANA_PLUGIN, STATE_DDS_BLE_DOWNLOAD_ERROR_GDO, STATE_DDS_BLE_ERROR_RUN,
     STATE_DDS_REQUEST_GRAPH, ddh_get_absolute_application_path, g_graph_test_mode,
-    STATE_DDS_BLE_DOWNLOAD_ERROR_TP_SENSOR,
+    STATE_DDS_BLE_DOWNLOAD_ERROR_TP_SENSOR, ddh_get_db_history_file,
 )
 from utils.logs import lg_gui as lg
 
@@ -160,35 +160,27 @@ def gui_manage_graph_test_files():
 
 
 def gui_populate_history_tab(my_app):
-    """fills history tab"""
+    """
+    fills history table on history tab
+    """
 
     a = my_app
     a.tbl_his.clear()
-
-    # 0 id, 1 mac, 2 SN, 3 result, 4 lat, 5 lon, 6 sws_time
     db = DBHis(ddh_get_db_history_file())
+    r = db.get_all(15)
 
-    r = db.get_recent_records()
     for i, h in enumerate(r):
-        mac, sn, e = h[1], h[2], h[3]
-        lat, lon, ts = h[4], h[5], h[6]
-
-        # column #0 -> SN
-        it = QTableWidgetItem(sn)
-        it.setToolTip(mac)
-        a.tbl_his.setItem(i, 0, it)
-
-        # column #1 -> result
-        # ts: was stored as datetime, returns as string
+        e = h["e"]
         e = "success" if e == "ok" else e
-        # 2021/MM/DD 14:56:34 -> '2021/MM/DD 14:56'
         try:
-            lat = "{:+6.4f}".format(float(lat))
-            lon = "{:+6.4f}".format(float(lon))
-            _ = datetime.datetime.strptime(ts[5:7], "%m")
-            month, day, hh_mm = _.strftime("%b"), ts[8:10], ts[11:16]
-            s = "{} {} {} at {}, {}".format(month, day, hh_mm, lat, lon)
-            s = "{} on {}".format(e, s)
+            lat = "{:+6.4f}".format(float(h["lat"]))
+            lon = "{:+6.4f}".format(float(h["lon"]))
+            dt = datetime.datetime.fromtimestamp(int(h["sws_time"]))
+            t = dt.strftime("%b %d %H:%M")
+            s = "{} on {} at {}, {}".format(e, t, lat, lon)
+
+            # set values to cells
+            a.tbl_his.setItem(i, 0, QTableWidgetItem(str(h["SN"])))
             a.tbl_his.setItem(i, 1, QTableWidgetItem(s))
 
         except (Exception,):
@@ -390,9 +382,9 @@ def gui_setup_buttons_rpi(my_app):
 
 
 def gui_add_to_history_database(mac, e, lat, lon, t):
-    db = DBHis(ddh_get_db_history_file())
     sn = dds_get_json_mac_dns(mac)
-    db.safe_update(mac, sn, e, lat, lon, t)
+    db = DBHis(ddh_get_db_history_file())
+    db.add(mac, sn, e, lat, lon, t)
 
 
 def gui_confirm_by_user(s):
@@ -597,7 +589,7 @@ def _parse_udp(my_app, s, ip="127.0.0.1"):
 
     elif f == STATE_DDS_NOTIFY_HISTORY:
         if v.startswith("add"):
-            # history/add&{mac}&{ok|error}&{lat}&{lon}&{t}
+            # history/add&{mac}&{ok|error}&{lat}&{lon}&{t_epoch}
             v = v.split("&")
             gui_add_to_history_database(v[1], v[2], v[3], v[4], v[5])
         gui_populate_history_tab(a)

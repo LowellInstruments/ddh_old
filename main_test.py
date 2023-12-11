@@ -1,6 +1,10 @@
+import datetime
 import os
+
+from ddh.db.db_his import *
 from dds.aws import _aws_s3_sync_process
 from dds.rbl import _rbl_send, rbl_decode
+from utils.ddh_shared import ddh_get_db_history_file
 
 
 # ----------------------------------------------
@@ -40,5 +44,20 @@ def main_test_ver():
     if vl < vg:
         print('needs update')
 
+
+# test
+def main_test_db_his():
+    db = DBHis(ddh_get_db_history_file())
+    db.delete_all()
+    now = datetime.datetime.now()
+    later = now + datetime.timedelta(minutes=10)
+    db.add("12:34", 12345, "ok", "1.111111", "2.222222", later)
+    db.add("55:55", 55555, "ok", "3.333333", "4.444444", now)
+    db.add("55:55", 55555, "error", "5.555555", "6.666666", now)
+    for r in db.get_all(400):
+        t = r["sws_time"]
+        print(datetime.datetime.fromtimestamp(t))
+
+
 if __name__ == '__main__':
-    main_test_ver()
+    main_test_db_his()

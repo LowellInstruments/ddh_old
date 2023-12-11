@@ -176,11 +176,12 @@ async def _ble_id_n_interact_logger(mac, info: str, h, g):
     e = 'ok' if rv == 0 else 'error'
     if err_sensor_oxygen:
         e = 'err_sen_ox'
-    _u(s.format(STATE_DDS_NOTIFY_HISTORY, mac, e, lat, lon, dt_local))
+    epoch_time = int(dt_local.timestamp())
+    _u(s.format(STATE_DDS_NOTIFY_HISTORY, mac, e, lat, lon, epoch_time))
     if rv:
-        # works for RPi
+        # for RPi
         ble_mat_bluetoothctl_power_cycle()
-        # works for laptop
+        # for laptop
         if not linux_is_rpi():
             ble_mat_disconnect_all_devices_ll()
 

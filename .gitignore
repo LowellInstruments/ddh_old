@@ -6,6 +6,7 @@ logs/*
 !rbl/.gitkeep
 !lef/.gitkeep
 !sqs/.gitkeep
+db_his.json*
 *.db
 _macs_to_sn.*
 .idea/
