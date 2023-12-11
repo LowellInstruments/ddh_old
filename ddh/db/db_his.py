@@ -1,5 +1,3 @@
-import os
-
 from pysondb import getDb
 from pysondb.errors import DataNotFoundError
 
@@ -8,7 +6,6 @@ class DBHis:
 
     def __init__(self, hf):
         # hf: path to history file
-        print(f'--------hf is {hf} cwd is {os.getcwd()}')
         self.db = getDb(hf)
 
     def add(self, mac, sn, e, lat, lon, sws_time):
