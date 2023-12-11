@@ -40,19 +40,6 @@ If your release year is 2022, your DDH will accept BLE external dongles v4.2.
 If your release year is 2023, your DDH will accept BLE external dongles v4.2 and 5.x.
 
 
-## Changelog
-
-23/12/11 - moved history database from sqlite to pysondb
-
-23/12/10 - dropped the plots tab in favor of graphs tab
-
-23/12/09 - implemented new Bluetooth passive scan mode
-
-23/12/01 - implemented new DDH remote API
-
-23/12/01 - implemented support for TAP logger
-
-
 ## License
 
 This project is licensed under GPL License - see COPYING file for details
