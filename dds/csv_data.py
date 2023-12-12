@@ -41,27 +41,30 @@ def _file_lowell_raw_csv_to_emolt_lt_csv(filename):
             dbt += f.readlines()
 
     # OUT: new lowell file lt_*.cst
-    raw_basename = os.path.basename(raw_csv_file)
-    out_filename = 'lt_' + raw_basename
-    out_file = raw_csv_file.replace(raw_basename, out_filename)
-    out_file = out_file[:-4] + '.cst'
-    with open(out_file, 'w') as f:
+    bn = os.path.basename(raw_csv_file)
+    cst_filename = os.path.dirname(raw_csv_file) + '/lt_' + bn[:-4] + '.cst'
+    with open(cst_filename, 'w') as f:
         # headers first
         hh = lr[0].replace('\n', '') + ',lat,lon\n'
         f.write(hh)
+
         # to each input raw line, add lat, lon from big database
         for ir in lr[1:]:
             t = ir.split(',')[0].replace('.000', 'Z')
             # database: get nearest index for this RAW time
             i = bisect.bisect_left(dbt, t) - 1
             i = i if i >= 0 else 0
-            # get rid of any LEF marker
+
+            # get rid of any LEF marker, take care of newline
             x = dbt[i].split('***')[0]
+            if not x.endswith('\n'):
+                x += '\n'
+
             # database: get lat, lon for such index found
             _, lat, lon = x.split(',')
             ol = '{},{},{}'.format(ir.replace('\n', ''), lat, lon)
             f.write(ol)
-    lg.a(f'OK: generated trawling CST file {out_filename}')
+    lg.a(f'OK: generated trawling CST file {cst_filename}')
 
 
 def file_lowell_raw_csv_to_emolt_lt_csv(filename):
