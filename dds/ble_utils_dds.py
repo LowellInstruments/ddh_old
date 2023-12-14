@@ -22,6 +22,7 @@ from utils.ddh_shared import (
     dds_get_ddh_got_an_update_flag_file,
     STATE_DDS_SOFTWARE_UPDATED,
     get_ddh_folder_path_macs_black, STATE_DDS_BLE_HARDWARE_ERROR, get_ddh_folder_path_tweak,
+    STATE_DDS_BLE_NO_ASSIGNED_LOGGERS,
 )
 from settings.ctx import hook_ble_purge_black_macs_on_boot
 from utils.logs import lg_dds as lg
@@ -71,6 +72,12 @@ def ble_op_conditions_met(knots) -> bool:
 
     l_h = ddh_get_json_gear_type()
     speed_range = dds_get_json_moving_speed()
+
+    # case: forgot to assign loggers
+    if not dds_get_macs_from_json_file():
+        _u(STATE_DDS_BLE_NO_ASSIGNED_LOGGERS)
+        time.sleep(5)
+        return False
 
     # case: lobster trap, that is, no speed requirement
     if not l_h:

@@ -63,7 +63,7 @@ from utils.ddh_shared import (
     STATE_DDS_BLE_SCAN_FIRST_EVER,
     STATE_DDS_BLE_ERROR_MOANA_PLUGIN, STATE_DDS_BLE_DOWNLOAD_ERROR_GDO, STATE_DDS_BLE_ERROR_RUN,
     STATE_DDS_REQUEST_GRAPH, ddh_get_absolute_application_path, g_graph_test_mode,
-    STATE_DDS_BLE_DOWNLOAD_ERROR_TP_SENSOR, ddh_get_db_history_file,
+    STATE_DDS_BLE_DOWNLOAD_ERROR_TP_SENSOR, ddh_get_db_history_file, STATE_DDS_BLE_NO_ASSIGNED_LOGGERS,
 )
 from utils.logs import lg_gui as lg
 
@@ -595,15 +595,17 @@ def _parse_udp(my_app, s, ip="127.0.0.1"):
         gui_populate_history_tab(a)
 
     elif f == STATE_DDS_BLE_LOW_BATTERY:
-        # delay for image display specified in BLE recipe
         ct = "low battery!"
         ci = "low_battery.png"
 
     elif f == STATE_DDS_BLE_RUN_STATUS:
-        # delay for image display specified in BLE recipe
         if v == "off":
             ct = "logger stopped & auto-wake OFF"
             ci = "attention.png"
+
+    elif f == STATE_DDS_BLE_NO_ASSIGNED_LOGGERS:
+        ct = "no loggers assigned"
+        ci = "attention.png"
 
     else:
         lg.a("UDP | unknown state: {}".format(f))

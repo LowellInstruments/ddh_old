@@ -37,6 +37,7 @@ STATE_DDS_BLE_SERVICE_INACTIVE = "state_dds_ble_service_inactive"
 STATE_DDS_BLE_ANTENNA = "state_dds_ble_antenna_is"
 STATE_DDS_BLE_LOW_BATTERY = "state_dds_ble_low_battery"
 STATE_DDS_BLE_RUN_STATUS = "state_dds_ble_run_status"
+STATE_DDS_BLE_NO_ASSIGNED_LOGGERS = "state_dds_ble_no_assigned_loggers"
 STATE_DDS_BLE_ERROR_MOANA_PLUGIN = "state_dds_ble_error_moana_plugin"
 STATE_DDS_BLE_ERROR_RUN = "state_dds_ble_error_run"
 
