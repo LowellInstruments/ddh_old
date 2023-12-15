@@ -11,15 +11,17 @@ cred_aws_custom_sqs_access_key = ""
 [behavior]
 ship_name = "FV_DDH_401"
 forget_time = 86400
-gear_type = 1
+gear_type = 0
 moving_speed = [ 0.5, 7.0,]
 ddh_version = "3.6.00"
 
 [monitored_macs]
 11-22-33-44-55-66 = "1234567"
+99-88-77-66-55-44 = "9876543"
 
 [all_macs]
 11-22-33-44-55-66 = "1234567"
+99-88-77-66-55-44 = "9876543"
 
 [flags]
 aws_en = 1
@@ -33,4 +35,3 @@ hook_gps_error_measurement_forced = 0
 hook_ble_purge_black_macs_on_boot = 0
 hook_ble_purge_this_mac_dl_files_folder = 0
 hook_ble_scan_cc26x2r_sim = 0
-rerun_logger = 0

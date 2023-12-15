@@ -194,6 +194,18 @@ def get_ddh_folder_path_lef() -> Path:
     return Path("dds/lef")
 
 
+def get_ddh_rerun_flag() -> bool:
+    return os.path.exists('settings/.rerun_flag')
+
+
+def set_ddh_rerun_flag(v):
+    p = 'settings/.rerun_flag'
+    if v:
+        Path(p).touch()
+    else:
+        os.unlink(p)
+
+
 def get_ddh_folder_path_rbl() -> Path:
     return Path("dds/rbl")
 

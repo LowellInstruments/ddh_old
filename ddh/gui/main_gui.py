@@ -7,7 +7,7 @@ import pathlib
 import shutil
 import sys
 from PyQt5.QtCore import QTimer, Qt
-from PyQt5.QtWidgets import QMainWindow, QFileDialog
+from PyQt5.QtWidgets import QMainWindow
 import ddh.gui.designer_main as d_m
 from ddh.db.db_his import DBHis
 from ddh.graph import process_n_graph
@@ -20,11 +20,8 @@ from ddh.utils_gui import (
     gui_setup_buttons,
     gui_center_window,
     gui_setup_buttons_rpi,
-    gui_yaml_load_pairs,
-    gui_json_get_mac_n_name_pairs,
     dict_from_list_view,
     gui_show_edit_tab,
-    gui_gen_ddh_json_content,
     gui_json_get_forget_time_secs,
     STR_NOTE_PURGE_BLACKLIST,
     gui_confirm_by_user,
@@ -44,9 +41,9 @@ from mat.linux import linux_is_process_running
 from mat.utils import linux_is_rpi
 from rpc.rpc_rx import th_srv_notify
 from rpc.rpc_tx import th_cli_cmd
-from settings import ctx
-from utils.ddh_config import dds_get_json_vessel_name, dds_get_flag_rerun, dds_get_mac_from_sn_from_json_file, \
-    ddh_get_json_gear_type, cfg_load, dds_ble_set_cc26x2r_recipe_flags_to_file, dds_get_flag_ble_en, cfg_save
+from utils.ddh_config import dds_get_json_vessel_name, dds_get_mac_from_sn_from_json_file, \
+    ddh_get_json_gear_type, cfg_load, dds_get_flag_ble_en, cfg_save, dds_get_mac_n_sn_monitored_pairs_from_json_file, \
+    dds_get_all_macs
 from utils.ddh_shared import (
     get_ddh_folder_path_dl_files,
     ddh_get_gui_closed_flag_file,
@@ -55,13 +52,12 @@ from utils.ddh_shared import (
     NAME_EXE_DDS,
     send_ddh_udp_gui,
     ddh_get_disabled_ble_flag_file,
-    get_ddh_folder_path_settings,
     ddh_get_app_override_flag_file,
     dds_get_aws_has_something_to_do_via_gui_flag_file,
     STATE_DDS_BLE_SERVICE_INACTIVE,
     dds_get_ddh_got_an_update_flag_file,
     STATE_DDS_SOFTWARE_UPDATED,
-    ddh_get_db_history_file
+    ddh_get_db_history_file, set_ddh_rerun_flag
 )
 
 from utils.logs import lg_gui as lg  # noqa: E402
@@ -203,14 +199,8 @@ class DDH(QMainWindow, d_m.Ui_MainWindow):
         """loads (mac, name) pairs from yaml file"""
 
         self.lst_mac_org.clear()
-        fol = str(get_ddh_folder_path_settings())
-        f = QFileDialog.getOpenFileName(
-            QFileDialog(), "Choose file", fol, "YAML files (*.yml)"
-        )
-        pairs = gui_yaml_load_pairs(f)
-        if not pairs:
-            return
-        for m, n in pairs.items():
+        pp = dds_get_all_macs()
+        for m, n in pp.items():
             s = "{}  {}".format(m, n)
             self.lst_mac_org.addItem(s)
 
@@ -218,8 +208,8 @@ class DDH(QMainWindow, d_m.Ui_MainWindow):
         """loads (mac, name) pairs in ddh.json file"""
 
         self.lst_mac_org.clear()
-        pairs = gui_json_get_mac_n_name_pairs()
-        for m, n in pairs.items():
+        pp = dds_get_mac_n_sn_monitored_pairs_from_json_file()
+        for m, n in pp.items():
             s = "{}  {}".format(m, n)
             self.lst_mac_org.addItem(s)
 
@@ -559,8 +549,7 @@ class DDH(QMainWindow, d_m.Ui_MainWindow):
         lg.a("clicked cloud icon")
 
     def click_chk_rerun(self, _):
-        v = self.chk_rerun.isChecked()
-        dds_ble_set_cc26x2r_recipe_flags_to_file(v)
+        set_ddh_rerun_flag(self.chk_rerun.isChecked())
 
     def click_graph_btn_reset(self):
         self.g.getPlotItem().enableAutoRange()

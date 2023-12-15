@@ -19,8 +19,7 @@ from dds.ddn_msg import (
 
 from dds.timecache import its_time_to
 from mat.utils import linux_is_rpi3, linux_is_rpi4
-from settings import ctx
-from utils.ddh_config import dds_get_json_vessel_name
+from utils.ddh_config import dds_get_json_vessel_name, dds_get_flag_sqs_en
 from utils.logs import lg_sqs as lg
 from utils.ddh_shared import (
     get_ddh_folder_path_sqs,
@@ -249,7 +248,7 @@ def sqs_serve():
     if not its_time_to("sqs_serve", 600):
         return
 
-    if not ctx.sqs_en:
+    if not dds_get_flag_sqs_en():
         lg.a("warning: ctx.sqs_en is False")
         return
 

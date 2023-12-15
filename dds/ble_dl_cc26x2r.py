@@ -8,11 +8,12 @@ from mat.ble.ble_mat_utils import (
 )
 from mat.ble.bleak.cc26x2r import BleCC26X2
 from mat.ble.bleak.cc26x2r_sim import BleCC26X2Sim, ble_logger_is_cc26x2r_simulated
-from dds.ble_utils_dds import ble_get_cc26x2_recipe_file_rerun_flag, ble_logger_ccx26x2r_needs_a_reset
+from dds.ble_utils_dds import ble_logger_ccx26x2r_needs_a_reset
 from utils.ddh_shared import (
     send_ddh_udp_gui as _u,
     STATE_DDS_BLE_LOW_BATTERY,
     STATE_DDS_BLE_RUN_STATUS, STATE_DDS_BLE_DOWNLOAD_ERROR_GDO, STATE_DDS_BLE_ERROR_RUN, BLEAppException, ael,
+    get_ddh_rerun_flag,
 )
 from utils.logs import lg_dds as lg
 from utils.ddh_shared import (
@@ -38,7 +39,7 @@ class BleCC26X2Download:
         notes["battery_level"] = 0xFFFF
         notes["DO_sensor_error"] = False
         simulation = ble_logger_is_cc26x2r_simulated(mac)
-        rerun_flag = ble_get_cc26x2_recipe_file_rerun_flag()
+        rerun_flag = get_ddh_rerun_flag()
         create_folder_logger_by_mac(mac)
 
         rv = await lc.connect(mac)

@@ -3,7 +3,8 @@ import glob
 import os
 import time
 import serial
-from settings import ctx
+
+from utils.ddh_config import dds_get_flag_rbl_en
 from utils.ddh_shared import get_ddh_folder_path_rbl
 from utils.logs import lg_rbl as lg
 from ieee754 import IEEE754
@@ -335,7 +336,7 @@ def rbl_serve():
 
 
 def rbl_loop():
-    if not ctx.rbl_en:
+    if not dds_get_flag_rbl_en():
         lg.a("warning: rbl_en disabled")
         return
 

@@ -7,7 +7,6 @@ from bleak.backends.bluezdbus.advertisement_monitor import OrPattern
 from dds.sqs import sqs_msg_ddh_error_ble_hw
 from dds.timecache import its_time_to
 from mat.ble.ble_mat_utils import ble_mat_get_bluez_version
-from settings import ctx
 from utils.ddh_config import dds_get_macs_from_json_file
 from utils.ddh_shared import (
     send_ddh_udp_gui as _u,

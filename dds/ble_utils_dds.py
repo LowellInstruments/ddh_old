@@ -8,7 +8,7 @@ from dds.sqs import sqs_msg_ddh_error_ble_hw
 from dds.timecache import its_time_to
 from mat.ble.ble_mat_utils import ble_mat_get_bluez_version
 from mat.utils import linux_is_rpi
-from utils.ddh_config import dds_get_flag_rerun, dds_get_macs_from_json_file, dds_get_flag_ble_purge_black_macs_on_boot, \
+from utils.ddh_config import dds_get_macs_from_json_file, dds_get_flag_ble_purge_black_macs_on_boot, \
     ddh_get_json_gear_type, dds_get_moving_speed
 from utils.ddh_shared import (
     send_ddh_udp_gui as _u,
@@ -27,10 +27,6 @@ import subprocess as sp
 
 
 _g_ant_ble = "undefined"
-
-
-def ble_get_cc26x2_recipe_file_rerun_flag() -> int:
-    return dds_get_flag_rerun()
 
 
 def ble_show_monitored_macs():

@@ -47,7 +47,7 @@ from mat.ble.ble_mat_utils import (
 )
 from rpc.rpc_rx import th_srv_cmd
 from rpc.rpc_tx import th_cli_notify
-from utils.ddh_config import dds_get_json_vessel_name, dds_check_we_have_box_env_info, cfg_load, \
+from utils.ddh_config import dds_get_json_vessel_name, dds_check_we_have_box_env_info, \
     dds_get_macs_from_json_file
 from utils.ddh_shared import (
     PID_FILE_DDS,
@@ -56,9 +56,8 @@ from utils.ddh_shared import (
     dds_ensure_proper_working_folder,
     PID_FILE_DDS_CONTROLLER,
     NAME_EXE_DDS_CONTROLLER,
-    NAME_EXE_DDS,
+    NAME_EXE_DDS, ael,
 )
-from settings import ctx
 from utils.logs import (
     lg_dds as lg,
     dds_log_tracking_add,
@@ -68,7 +67,6 @@ import setproctitle
 
 
 def main_dds():
-    cfg_load()
     dds_tell_software_update()
     dds_check_we_have_box_env_info()
     dds_ensure_proper_working_folder()
@@ -169,9 +167,9 @@ def main_dds():
 
         # BLE stage
         args = [g, h, h_d]
-        det = ctx.ael.run_until_complete(ble_scan(*args))
+        det = ael.run_until_complete(ble_scan(*args))
         args = [det, m_j, g, h, h_d]
-        ctx.ael.run_until_complete(ble_interact_all_loggers(*args))
+        ael.run_until_complete(ble_interact_all_loggers(*args))
 
 
 def _alarm_dds_crash(n):

@@ -171,7 +171,7 @@ def _cnv_serve():
         return
 
     # general banner
-    s = f'conversion sequence started'
+    s = 'debug: conversion sequence started'
     lg.a('-' * len(s))
     lg.a(s)
 
@@ -203,7 +203,7 @@ def _cnv_serve():
         e += 'TAP_'
         lg.a(s.format('_TAP'))
 
-    s = f'conversion sequence finished'
+    s = 'conversion sequence finished'
     lg.a(s)
     lg.a('-' * len(s))
 
