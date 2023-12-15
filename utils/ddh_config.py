@@ -11,10 +11,23 @@ else:
     PATH_FILE_CFG = '../settings/config.toml'
 
 
+def _check_cfg(c):
+    for k in c['monitored_macs'].keys():
+        if '-' in k:
+            print('error: "-" symbol in monitored macs, use ":"')
+            os._exit(1)
+    for k in c['all_macs'].keys():
+        if '-' in k:
+            print('error: "-" symbol in monitored macs, use ":"')
+            os._exit(1)
+
+
 def cfg_load(p=PATH_FILE_CFG):
     try:
         with open(p, 'r') as f:
-            return toml.load(f)
+            c = toml.load(f)
+            _check_cfg(c)
+            return c
     except (Exception, ) as ex:
         print('error: toml_cfg_read_file: ', ex)
         os._exit(1)
