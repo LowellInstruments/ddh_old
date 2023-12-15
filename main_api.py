@@ -39,11 +39,7 @@ import concurrent.futures
 
 
 LIST_CONF_FILES = {
-    'settings/ddh.json',
-    'settings/ctx.py',
-    'run_dds.sh',
-    'settings/_li_all_macs_to_sn.yml',
-    '/etc/crontab'
+    'settings/config.toml',
 }
 
 

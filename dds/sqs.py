@@ -249,7 +249,7 @@ def sqs_serve():
         return
 
     if not dds_get_flag_sqs_en():
-        lg.a("warning: ctx.sqs_en is False")
+        lg.a("warning: sqs_en is False")
         return
 
     # ---------------------------------

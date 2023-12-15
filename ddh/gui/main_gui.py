@@ -205,7 +205,7 @@ class DDH(QMainWindow, d_m.Ui_MainWindow):
             self.lst_mac_org.addItem(s)
 
     def click_btn_see_macs_in_current_json_file(self):
-        """loads (mac, name) pairs in ddh.json file"""
+        """loads (mac, name) pairs from config file"""
 
         self.lst_mac_org.clear()
         pp = dds_get_mac_n_sn_monitored_pairs_from_json_file()
@@ -234,7 +234,7 @@ class DDH(QMainWindow, d_m.Ui_MainWindow):
             self.lst_mac_dst.addItem(s)
 
     def click_btn_apply_write_json_file(self):
-        """creates a user ddh.json file"""
+        """creates a config file"""
 
         l_v = self.lst_mac_dst
         pairs = dict_from_list_view(l_v)
@@ -360,7 +360,7 @@ class DDH(QMainWindow, d_m.Ui_MainWindow):
         gui_populate_history_tab(self)
 
     def click_btn_load_current_json_file(self):
-        """updates EDIT tab from current 'ddh.json' file"""
+        """updates EDIT tab from current config file"""
 
         ves = dds_get_json_vessel_name()
         f_t = gui_json_get_forget_time_secs()
