@@ -13,7 +13,6 @@ ship_name = "FV_DDH_401"
 forget_time = 86400
 gear_type = 0
 moving_speed = [ 0.5, 7.0,]
-ddh_version = "3.6.00"
 
 [monitored_macs]
 "d0:2e:ab:d9:29:48" = "bread12"
