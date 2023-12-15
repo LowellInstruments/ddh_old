@@ -70,6 +70,7 @@ def get_git_commit_liu_remote():
 
 
 def get_boat_sn():
+    # todo ---> do this new syntax toml
     c = 'cat run_dds.sh | grep DDH_BOX_SERIAL_NUMBER'
     rv = shell(c)
     sn = ''
@@ -79,6 +80,7 @@ def get_boat_sn():
 
 
 def get_boat_project():
+    # todo ---> do this new syntax toml
     c = 'cat run_dds.sh | grep DDH_BOX_PROJECT_NAME'
     rv = shell(c)
     prj = ''

@@ -196,7 +196,7 @@ class DDH(QMainWindow, d_m.Ui_MainWindow):
         self.lst_mac_dst.clear()
 
     def click_btn_clear_see_all_macs(self):
-        """loads (mac, name) pairs from yaml file"""
+        """loads (mac, name) pairs from all macs config section"""
 
         self.lst_mac_org.clear()
         pp = dds_get_all_macs()

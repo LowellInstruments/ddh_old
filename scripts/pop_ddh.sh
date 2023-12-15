@@ -24,10 +24,7 @@ git pull
 echo -e "${C_B}\n>>> stashing current DDS configuration\n${C_Z}"
 rm -rf $FTS
 mkdir $FTS
-cp $FA/run_dds.sh $FTS
-cp $FA/settings/ddh.json $FTS
-cp $FA/settings/ctx.py $FTS
-cp $FA/settings/_li_all_macs_to_sn.yml $FTS
+cp $FA/settings/config.toml $FTS
 cp $FA/scripts/script_logger_do_deploy_cfg.json $FTS
 cp $FA/ddh/db/db_his.json $FTS
 
@@ -53,10 +50,7 @@ pip install -r $FA/requirements_rpi_39_extra.txt
 
 
 echo -e "${C_B}\n>>> un-stashing DDS configuration\n${C_Z}"
-cp $FTS/run_dds.sh $FA
-cp $FTS/ddh.json $FA/settings
-cp $FTS/ctx.py $FA/settings
-cp $FTS/_li_all_macs_to_sn.yml $FA/settings
+cp $FTS/config.toml $FA/settings
 cp $FTS/script_logger_do_deploy_cfg.json $FA/scripts
 cp $FTS/db_his.json $FA/ddh/db
 

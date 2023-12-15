@@ -1,9 +1,8 @@
 #!/usr/bin/env python3
 import asyncio
-
 import sys
 import subprocess as sp
-import yaml
+import toml
 import os
 from mat.utils import PrintColors as PC
 from script_logger_do_deploy_utils import (
@@ -44,37 +43,28 @@ def _check_cwd():
         assert False
 
 
-def _get_macs_to_sn_file_path():
-    p = os.getcwd()
-    p = p + "/../settings/_li_all_macs_to_sn.yml"
-    return p
-
-
 def _list_monitored_macs():
-    p = _get_macs_to_sn_file_path()
-    with open(p, "r") as f:
-        lines = f.readlines()
-        for n, i in enumerate(lines):
-            if n == 0:
-                print("\nmonitored macs\n--------------\n", p)
-            if i.startswith("#") or len(i) < 5:
-                continue
-            if ":" in i:
-                print(i.replace("\n", ""))
+    with open('../settings/config.toml', 'r') as f:
+        _c = toml.load(f)
+        macs = _c['all_macs']
+    i = 0
+    for k, v in macs.items():
+        if k.startswith("#") or len(k) < 5:
+            continue
+        if i == 0:
+            print("\nmonitored macs\n--------------\n")
+        print(f'{i}) {k}')
+        i += 1
 
 
 def _menu_build(_sr: dict, n: int):
-
     # -------------------------------------------------
     # dictionary <- import macs from '_macs_to_sn.yml'
     # -------------------------------------------------
-    ddh_d = {}
-    try:
-        path = _get_macs_to_sn_file_path()
-        with open(path) as f:
-            ddh_d = yaml.load(f, Loader=yaml.FullLoader)
-    except FileNotFoundError as ex:
-        print(ex)
+    # todo ---> test this
+    with open('../settings/config.toml', 'r') as f:
+        _c = toml.load(f)
+        ddh_d = _c['all_macs']
 
     # detect errors
     if not ddh_d:
