@@ -1,0 +1,29 @@
+# old file run_ddh.sh
+[credentials]
+cred_aws_bucket = ""
+cred_aws_key_id = ""
+cred_aws_secret = ""
+cred_aws_sqs_queue_name = "ddw_in.fifo"
+cred_ddh_serial_number = ""
+cred_ddh_project_name = "lab"
+# next 2 only used when SQS and S3 need different keys
+cred_aws_custom_sqs_key_id = ""
+cred_aws_custom_sqs_access_key = ""
+
+# old file ddh.json
+[behavior]
+    ship_name = "FV_DDH_401"
+    forget_time = 86400
+    app_type = "trawling"
+    moving_speed = [0.5, 7.0]
+    monitored_macs = {
+        11-22-33-44-55-66 = 1234567
+    }
+
+# li_all_macs.yml
+# ctx.py
+# recipe_cc26x2r.json
+# ddh version
+
+# src: https://www.geeksforgeeks.org/read-and-write-toml-files-using-python/
+
