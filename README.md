@@ -28,6 +28,17 @@ hci1:   Type: Primary  Bus: USB
 
 Release year 2022 accepts BLE dongles v4.2. Release year 2023 accepts BLE external dongles v4.2 and 5.x.
 
+## GUI shortcuts
+
+To enable / disable Bluetooth, press 'b' key, release it and click main icon text.
+To show / hide edit tab, press 'e' key, release it and click main icon text.
+To show / hide edit tab, you can also hold the boat icon for 5 seconds.
+To minimize GUI, press 'm' key, release it and click main icon text.
+To minimize GUI, you can also hold the GUI field containing the datetime for 5 seconds.
+To show / hide recipe tab, you can hold the GUI field containing the version for 5 seconds. 
+To force a cloud sync, you can click the cloud icon.
+To quit DDH, press 'q' key, release it and click main icon text.
+
 ## License
 
 This project is licensed under GPL License - see COPYING file for details

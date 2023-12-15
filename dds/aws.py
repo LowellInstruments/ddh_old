@@ -13,7 +13,7 @@ from dds.sqs import sqs_msg_ddh_alarm_s3
 from dds.timecache import its_time_to
 from mat.linux import linux_is_process_running
 from mat.utils import linux_is_rpi
-from settings import ctx
+from utils.ddh_config import dds_get_json_vessel_name, dds_get_aws_en
 from utils.ddh_shared import (
     send_ddh_udp_gui as _u,
     get_ddh_folder_path_dl_files,
@@ -21,7 +21,7 @@ from utils.ddh_shared import (
     STATE_DDS_NOTIFY_CLOUD_BUSY,
     STATE_DDS_NOTIFY_CLOUD_ERR,
     STATE_DDS_NOTIFY_CLOUD_OK,
-    dds_get_aws_has_something_to_do_via_gui_flag_file, dds_get_json_vessel_name,
+    dds_get_aws_has_something_to_do_via_gui_flag_file,
 )
 from utils.logs import lg_aws as lg
 
@@ -179,8 +179,8 @@ def aws_serve():
         return
 
     # explicitly asked to not do anything
-    if not ctx.aws_en:
-        lg.a("warning: ctx.aws_en set as False")
+    if not dds_get_aws_en():
+        lg.a("warning: aws_en is disabled")
         return
 
     # tell why we do AWS

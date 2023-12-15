@@ -20,11 +20,11 @@ from dds.ddn_msg import (
 from dds.timecache import its_time_to
 from mat.utils import linux_is_rpi3, linux_is_rpi4
 from settings import ctx
+from utils.ddh_config import dds_get_json_vessel_name
 from utils.logs import lg_sqs as lg
 from utils.ddh_shared import (
     get_ddh_folder_path_sqs,
     get_ddh_commit,
-    dds_get_json_vessel_name,
     get_utc_offset
 )
 import warnings

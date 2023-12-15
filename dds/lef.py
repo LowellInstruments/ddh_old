@@ -1,6 +1,8 @@
 import glob
 import json
-from utils.ddh_shared import get_ddh_folder_path_lef, dds_get_json_vessel_name
+
+from utils.ddh_config import dds_get_json_vessel_name
+from utils.ddh_shared import get_ddh_folder_path_lef
 import os
 
 

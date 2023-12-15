@@ -1,8 +1,9 @@
 from collections import namedtuple
 
 from mat.utils import linux_is_rpi
+from utils.ddh_config import dds_get_json_vessel_name
 from utils.logs import lg_emo as lg
-from utils.ddh_shared import dds_get_is_emolt_box_flag_file, dds_get_json_vessel_name
+from utils.ddh_shared import dds_get_is_emolt_box_flag_file
 import pandas as pd
 import os
 from os.path import exists

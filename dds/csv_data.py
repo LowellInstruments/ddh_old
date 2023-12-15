@@ -1,7 +1,9 @@
 import bisect
 import glob
 import os.path
-from utils.ddh_shared import dds_get_json_vessel_name, get_ddh_folder_path_dl_files
+
+from utils.ddh_config import dds_get_json_vessel_name
+from utils.ddh_shared import get_ddh_folder_path_dl_files
 from utils.logs import lg_cnv as lg
 
 

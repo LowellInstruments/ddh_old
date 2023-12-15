@@ -31,7 +31,6 @@ from ddh.utils_gui import (
     gui_show_note_tab_delete_black_macs,
     gui_timer_fxn,
     gui_ddh_populate_note_tab_dropdown,
-    gui_json_set_graph_units,
     gui_hide_advanced_tab,
     gui_show_advanced_tab,
     gui_hide_graph_tab,
@@ -46,35 +45,36 @@ from mat.utils import linux_is_rpi
 from rpc.rpc_rx import th_srv_notify
 from rpc.rpc_tx import th_cli_cmd
 from settings import ctx
+from utils.ddh_config import dds_get_json_vessel_name, dds_get_flag_rerun, dds_get_mac_from_sn_from_json_file, \
+    ddh_get_json_gear_type, cfg_load, dds_ble_set_cc26x2r_recipe_flags_to_file, dds_get_flag_ble_en, cfg_save
 from utils.ddh_shared import (
     get_ddh_folder_path_dl_files,
-    ddh_get_settings_json_file,
     ddh_get_gui_closed_flag_file,
     dds_kill_by_pid_file,
-    dds_get_json_vessel_name,
     get_ddh_folder_path_macs_black,
     NAME_EXE_DDS,
     send_ddh_udp_gui,
     ddh_get_disabled_ble_flag_file,
-    dds_get_mac_from_sn_from_json_file,
     get_ddh_folder_path_settings,
     ddh_get_app_override_flag_file,
     dds_get_aws_has_something_to_do_via_gui_flag_file,
-    ble_get_cc26x2_recipe_flags_from_json,
-    ble_set_cc26x2r_recipe_flags_to_file,
     STATE_DDS_BLE_SERVICE_INACTIVE,
     dds_get_ddh_got_an_update_flag_file,
     STATE_DDS_SOFTWARE_UPDATED,
-    dds_kill_by_pid_file_only_child, ddh_get_json_gear_type, ddh_get_db_history_file
+    ddh_get_db_history_file
 )
 
 from utils.logs import lg_gui as lg  # noqa: E402
 import subprocess as sp  # noqa: E402
 
 
+_g_flag_ble_en = dds_get_flag_ble_en()
+
+
 class DDH(QMainWindow, d_m.Ui_MainWindow):
     def __init__(self):
         super(DDH, self).__init__()
+        cfg_load()
         gui_setup_view(self)
         gui_setup_buttons(self)
         gui_center_window(self)
@@ -103,7 +103,6 @@ class DDH(QMainWindow, d_m.Ui_MainWindow):
         self.commit_pressed = 0
         self.datetime_pressed = 0
         self.lbl_net_pressed = 0
-        gui_json_set_graph_units()
         gui_hide_edit_tab(self)
         gui_hide_advanced_tab(self)
         gui_hide_note_tab(self)
@@ -273,12 +272,17 @@ class DDH(QMainWindow, d_m.Ui_MainWindow):
         # we seem good to go
         s = "restarting DDH..."
         self.lbl_setup_result.setText(s)
-        j = gui_gen_ddh_json_content(pairs, ves, t, lhf)
-        with open(str(ddh_get_settings_json_file()), "w") as f:
-            f.write(j)
+
+        # update configuration with these GUI values
+        cfg = cfg_load()
+        cfg['behavior']["forget_time"] = t
+        cfg['behavior']['ship_name'] = ves
+        cfg['behavior']['gear_type'] = lhf
+        cfg['monitored_macs'] = pairs
+        cfg_save(cfg)
 
         # bye, bye DDS
-        dds_kill_by_pid_file_only_child()
+        dds_kill_by_pid_file(only_child=True)
 
         # bye, bye DDH
         lg.a("closing by save config button")
@@ -295,11 +299,12 @@ class DDH(QMainWindow, d_m.Ui_MainWindow):
             self.showMinimized()
 
         elif k == "b":
-            ctx.ble_en = not ctx.ble_en
-            s = "enabled" if ctx.ble_en else "disabled"
+            global _g_flag_ble_en
+            _g_flag_ble_en ^= 1
+            s = "enabled" if _g_flag_ble_en else "disabled"
             lg.a("BLE {} by keypress".format(s))
             flag = ddh_get_disabled_ble_flag_file()
-            if ctx.ble_en:
+            if _g_flag_ble_en:
                 pathlib.Path(flag).touch()
             else:
                 if os.path.isfile(flag):
@@ -555,9 +560,7 @@ class DDH(QMainWindow, d_m.Ui_MainWindow):
 
     def click_chk_rerun(self, _):
         v = self.chk_rerun.isChecked()
-        j = ble_get_cc26x2_recipe_flags_from_json()
-        j["rerun"] = int(v)
-        ble_set_cc26x2r_recipe_flags_to_file(j)
+        dds_ble_set_cc26x2r_recipe_flags_to_file(v)
 
     def click_graph_btn_reset(self):
         self.g.getPlotItem().enableAutoRange()

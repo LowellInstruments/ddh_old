@@ -6,7 +6,9 @@ from math import ceil
 from os.path import basename
 import dateutil.parser as dp
 import pandas as pd
-from utils.ddh_shared import ddh_get_absolute_application_path, g_graph_test_mode
+
+from utils.ddh_config import dds_get_flag_graph_test_mode
+from utils.ddh_shared import ddh_get_absolute_application_path
 from utils.logs import lg_gra as lg
 
 
@@ -22,7 +24,7 @@ def utils_graph_get_abs_fol_list() -> list:
     get list of absolute paths of "dl_files/<mac>" folders
     """
     d = ddh_get_absolute_application_path() + '/dl_files'
-    if g_graph_test_mode():
+    if dds_get_flag_graph_test_mode():
         fol_ls = [
             d + '/11-22-33-44-55-66',
             d + '/00-00-00-00-00-00',
@@ -43,7 +45,7 @@ def utils_graph_read_fol_req_file():
     """
     reads GRAPH_REQ_JSON_FILE to get ABSOLUTE folder path to graph
     """
-    if g_graph_test_mode():
+    if dds_get_flag_graph_test_mode():
         return
 
     # file written by DDS_BLE when requesting a graph
@@ -58,13 +60,13 @@ def utils_graph_read_fol_req_file():
 
 
 def utils_graph_does_exist_fol_req_file():
-    if g_graph_test_mode():
+    if dds_get_flag_graph_test_mode():
         return
     return os.path.exists(GRAPH_REQ_JSON_FILE)
 
 
 def utils_graph_delete_fol_req_file():
-    if g_graph_test_mode():
+    if dds_get_flag_graph_test_mode():
         return
     try:
         os.unlink(GRAPH_REQ_JSON_FILE)
@@ -73,7 +75,7 @@ def utils_graph_delete_fol_req_file():
 
 
 def utils_graph_set_fol_req_file(mac):
-    if g_graph_test_mode():
+    if dds_get_flag_graph_test_mode():
         return
     try:
         with open(GRAPH_REQ_JSON_FILE, "w") as f:

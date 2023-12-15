@@ -6,22 +6,18 @@ from dds.sqs import sqs_msg_ddh_error_gps_hw
 from dds.timecache import its_time_to
 from mat.gps import PORT_CTRL, PORT_DATA
 from mat.utils import linux_is_rpi, linux_set_datetime
-from settings.ctx import (
-    hook_gps_dummy_measurement,
-    g_gps_is_external,
-    hook_gps_error_measurement_forced,
-)
 from tzlocal import get_localzone
+
+from utils.ddh_config import dds_get_json_vessel_name, dds_get_flag_gps_external, dds_get_flag_gps_error_forced
 from utils.ddh_shared import (
     send_ddh_udp_gui as _u,
-    dds_get_json_vessel_name,
     STATE_DDS_NOTIFY_GPS,
     STATE_DDS_BLE_APP_GPS_ERROR_POSITION,
     STATE_DDS_NOTIFY_GPS_NUM_SAT,
     STATE_DDS_NOTIFY_GPS_BOOT,
     STATE_DDS_NOTIFY_BOAT_NAME,
     STATE_DDS_NOTIFY_GPS_CLOCK,
-    STATE_DDS_GPS_POWER_CYCLE,
+    STATE_DDS_GPS_POWER_CYCLE, check_gps_dummy_mode,
 )
 from utils.logs import lg_gps as lg
 import re
@@ -43,6 +39,8 @@ PERIOD_GPS_TELL_GPS_HW_ERROR_SECS = 3600 * 3
 PERIOD_GPS_TELL_PUCK_NO_PC = 3600 * 6
 PERIOD_GPS_POWER_CYCLE = 300
 
+
+# todo -=--> move check_gps_dummy_mode() here and only check once
 
 def _gps_ll_check_hat_out_stream():
     # ll: stands for 'low-level'
@@ -68,7 +66,7 @@ def _gps_bu353s4_find_usb_port():
     return find_usb_port_automatically('067B:23A3')
 
 
-if g_gps_is_external:
+if dds_get_flag_gps_external():
     _g_bu353s4_port = _gps_bu353s4_find_usb_port()
 
 
@@ -180,12 +178,12 @@ def _gps_measure():
     global _g_bu353s4_port
 
     # hooks
-    if hook_gps_error_measurement_forced:
+    if dds_get_flag_gps_error_forced():
         _u(STATE_DDS_BLE_APP_GPS_ERROR_POSITION)
         lg.a("debug: HOOK_GPS_ERROR_MEASUREMENT_FORCED")
         return
 
-    if hook_gps_dummy_measurement:
+    if check_gps_dummy_mode():
         # lg.a('debug: HOOK_GPS_DUMMY_MEASUREMENT')
         time.sleep(0.5)
         lat = "{:+.6f}".format(38.000000000)
@@ -193,7 +191,7 @@ def _gps_measure():
         return lat, lon, datetime.datetime.utcnow(), 1
 
     # open serial port
-    if g_gps_is_external:
+    if dds_get_flag_gps_external():
         sp = serial.Serial(_g_bu353s4_port, 4800, timeout=0.2)
     else:
         sp = serial.Serial(PORT_DATA, baudrate=115200, timeout=0.2,
@@ -224,7 +222,7 @@ def _gps_measure():
         b = sp.readall()
 
         # USB GPS puck
-        if g_gps_is_external:
+        if dds_get_flag_gps_external():
             if not b:
                 continue
             try:
@@ -427,7 +425,7 @@ def gps_hw_error_get(g) -> int:
 
 
 def gps_print_trying_clock_sync_at_boot():
-    if not hook_gps_dummy_measurement:
+    if not check_gps_dummy_mode():
         lg.a("trying clock sync via GPS at boot")
         return
     lg.a("warning: dummy GPS, not syncing clock via GPS at boot")
@@ -462,11 +460,11 @@ def gps_power_cycle_if_so(forced=False):
             "check_we_need_gps_power_cycle", PERIOD_GPS_POWER_CYCLE):
         return
 
-    if hook_gps_dummy_measurement:
+    if check_gps_dummy_mode():
         lg.a("debug: no power cycle dummy GPS")
         return
 
-    if g_gps_is_external:
+    if dds_get_flag_gps_external():
         if its_time_to("show_debug_power_cycle_gps_puck", PERIOD_GPS_TELL_PUCK_NO_PC):
             lg.a("debug: no power cycle BU-353-S4 GPS puck")
         return
@@ -528,10 +526,10 @@ def gps_power_cycle_if_so(forced=False):
 
 def gps_configure_shield():
 
-    if hook_gps_dummy_measurement:
+    if check_gps_dummy_mode():
         return
 
-    if g_gps_is_external:
+    if dds_get_flag_gps_external():
         return
 
     did_configure_ok = False
@@ -574,10 +572,10 @@ def gps_configure_shield():
 
 def gps_know_hat_firmware_version():
 
-    if hook_gps_dummy_measurement:
+    if check_gps_dummy_mode():
         return
 
-    if g_gps_is_external:
+    if dds_get_flag_gps_external():
         return
 
     sp = None
@@ -615,7 +613,7 @@ def gps_know_hat_firmware_version():
 
 
 if __name__ == "__main__":
-    if not g_gps_is_external:
+    if not dds_get_flag_gps_external():
         gps_configure_shield()
     while 1:
         m = gps_measure()

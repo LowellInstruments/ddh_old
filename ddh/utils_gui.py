@@ -24,8 +24,10 @@ from dds.ble_utils_dds import ble_get_cc26x2_recipe_file_rerun_flag
 from mat.ble.ble_mat_utils import DDH_GUI_UDP_PORT
 from mat.utils import linux_is_rpi
 import subprocess as sp
+
+from utils.ddh_config import dds_get_json_vessel_name, dds_get_serial_number_of_macs_from_json_file, \
+    dds_get_flag_graph_test_mode, dds_get_json_mac_dns, dds_json_get_forget_time_secs, dds_get_monitored_macs
 from utils.ddh_shared import (
-    dds_get_json_vessel_name,
     STATE_DDS_BLE_SCAN,
     STATE_DDS_SOFTWARE_UPDATED,
     STATE_DDS_BLE_DOWNLOAD,
@@ -56,14 +58,10 @@ from utils.ddh_shared import (
     STATE_DDS_BLE_LOW_BATTERY,
     STATE_DDS_BLE_RUN_STATUS,
     ddh_get_folder_path_res,
-    ddh_get_settings_json_file,
-    dds_get_json_mac_dns,
-    get_ddh_commit,
-    dds_get_serial_number_of_macs_from_json_file,
     STATE_DDS_BLE_SCAN_FIRST_EVER,
     STATE_DDS_BLE_ERROR_MOANA_PLUGIN, STATE_DDS_BLE_DOWNLOAD_ERROR_GDO, STATE_DDS_BLE_ERROR_RUN,
-    STATE_DDS_REQUEST_GRAPH, ddh_get_absolute_application_path, g_graph_test_mode,
-    STATE_DDS_BLE_DOWNLOAD_ERROR_TP_SENSOR, ddh_get_db_history_file, STATE_DDS_BLE_NO_ASSIGNED_LOGGERS,
+    STATE_DDS_REQUEST_GRAPH, ddh_get_absolute_application_path,
+    STATE_DDS_BLE_DOWNLOAD_ERROR_TP_SENSOR, ddh_get_db_history_file, STATE_DDS_BLE_NO_ASSIGNED_LOGGERS, get_ddh_commit,
 )
 from utils.logs import lg_gui as lg
 
@@ -151,7 +149,7 @@ def gui_manage_graph_test_files():
     shutil.rmtree(d1, ignore_errors=True)
     shutil.rmtree(d2, ignore_errors=True)
     shutil.rmtree(d3, ignore_errors=True)
-    if g_graph_test_mode():
+    if dds_get_flag_graph_test_mode():
         shutil.copytree(t0, d0)
         shutil.copytree(t1, d1)
         shutil.copytree(t2, d2)
@@ -213,7 +211,7 @@ def gui_ddh_populate_graph_dropdown_sn(my_app):
     a = my_app
     a.cb_g_sn.clear()
 
-    if g_graph_test_mode():
+    if dds_get_flag_graph_test_mode():
         a.cb_g_sn.addItem('SNtest000')
         a.cb_g_sn.addItem('SNtest111')
         a.cb_g_sn.addItem('SNtest999')
@@ -739,31 +737,15 @@ def gui_gen_ddh_json_content(known, v, f_t, lh):
 
 
 def gui_json_get_forget_time_secs():
-    j = str(ddh_get_settings_json_file())
-    with open(j) as f:
-        rv = int(json.load(f)["forget_time"])
-        assert rv >= 600
-        return rv
-
-
-def gui_json_set_graph_units():
-    j = str(ddh_get_settings_json_file())
-    with open(j) as f:
-        cfg = json.load(f)
-    assert cfg["units_temp"] in "FC"
-    assert cfg["units_depth"] in "fm"
-    return cfg["units_temp"], cfg["units_depth"]
+    t = dds_json_get_forget_time_secs()
+    assert t >= 600
+    return t
 
 
 def gui_json_get_mac_n_name_pairs():
     """gets list of pairs {mac, names} in ddh.json file"""
-
-    j = str(ddh_get_settings_json_file())
     try:
-        with open(j) as f:
-            cfg = json.load(f)
-            # macs not lowered()
-            return cfg["db_logger_macs"]
+        return dds_get_monitored_macs()
     except TypeError:
         return "error json_get_mac_n_name_pairs()"
 

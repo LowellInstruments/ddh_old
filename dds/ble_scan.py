@@ -8,9 +8,9 @@ from dds.sqs import sqs_msg_ddh_error_ble_hw
 from dds.timecache import its_time_to
 from mat.ble.ble_mat_utils import ble_mat_get_bluez_version
 from settings import ctx
+from utils.ddh_config import dds_get_macs_from_json_file
 from utils.ddh_shared import (
     send_ddh_udp_gui as _u,
-    dds_get_macs_from_json_file,
     STATE_DDS_BLE_SCAN_FIRST_EVER,
     STATE_DDS_BLE_SCAN, STATE_DDS_BLE_HARDWARE_ERROR,
 )
@@ -80,10 +80,6 @@ async def ble_scan(g, _h: int, _h_desc, t=5.0):
     _our_devs = {}
     _all_devs = {}
     _ble_scan_banner(_h, _h_desc)
-
-    # yep, simulated scan hook
-    if ctx.hook_ble_scan_cc26x2r_sim:
-        return {"11:22:33:44:55:66": "DO-2"}
 
     try:
         # trick to go faster

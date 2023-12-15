@@ -15,9 +15,10 @@ from api.api_utils import get_git_commit_mat_local, \
 from dds.rbl import rbl_find_usb_port
 from mat.linux import linux_app_write_pid_to_tmp, linux_is_process_running
 from mat.utils import linux_is_rpi
+from utils.ddh_config import dds_get_json_vessel_name
 from utils.ddh_shared import NAME_EXE_API_CONTROLLER, \
     PID_FILE_API_CONTROLLER, \
-    dds_get_json_vessel_name, NAME_EXE_API, PID_FILE_API, get_ddh_folder_path_dl_files
+    NAME_EXE_API, PID_FILE_API, get_ddh_folder_path_dl_files
 from utils.logs import (
     lg_api as lg,
 )

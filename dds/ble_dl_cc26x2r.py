@@ -12,14 +12,13 @@ from dds.ble_utils_dds import ble_get_cc26x2_recipe_file_rerun_flag, ble_logger_
 from utils.ddh_shared import (
     send_ddh_udp_gui as _u,
     STATE_DDS_BLE_LOW_BATTERY,
-    STATE_DDS_BLE_RUN_STATUS, STATE_DDS_BLE_DOWNLOAD_ERROR_GDO, STATE_DDS_BLE_ERROR_RUN,
+    STATE_DDS_BLE_RUN_STATUS, STATE_DDS_BLE_DOWNLOAD_ERROR_GDO, STATE_DDS_BLE_ERROR_RUN, BLEAppException, ael,
 )
 from utils.logs import lg_dds as lg
 from utils.ddh_shared import (
     get_dl_folder_path_from_mac,
     create_folder_logger_by_mac,
 )
-from settings.ctx import BLEAppException, ael
 import json
 
 

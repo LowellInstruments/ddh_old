@@ -2,9 +2,10 @@ import glob
 import os
 import pathlib
 import time
+
+from utils.ddh_config import dds_json_get_forget_time_secs
 from utils.ddh_shared import (
     get_dds_folder_path_macs,
-    get_ddh_loggers_forget_time,
     get_ddh_folder_path_macs_black,
     get_ddh_folder_path_macs_orange,
 )
@@ -62,7 +63,7 @@ def macs_orange():
 
 def _add_mac(c, mac):
     assert c in ("orange", "black")
-    ft = get_ddh_loggers_forget_time()
+    ft = dds_json_get_forget_time_secs()
     if c == "orange":
         ft = PERIOD_MACS_ORANGE_SECS
     t = int(time.time()) + ft

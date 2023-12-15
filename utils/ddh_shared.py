@@ -1,3 +1,4 @@
+import asyncio
 import datetime
 import glob
 import time
@@ -77,6 +78,14 @@ PID_FILE_API_CONTROLLER = "/tmp/{}.pid".format(NAME_EXE_API_CONTROLLER)
 _sk = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
 
+# for asynchronous Bleak BLE
+ael = asyncio.get_event_loop()
+
+
+class BLEAppException(Exception):
+    pass
+
+
 def send_ddh_udp_gui(s, ip="127.0.0.1", port=DDH_GUI_UDP_PORT):
     if "/" not in s:
         s += "/"
@@ -91,17 +100,14 @@ def send_ddh_udp_gui(s, ip="127.0.0.1", port=DDH_GUI_UDP_PORT):
 
 
 # used by GUI on upper-X, 'q', clicking uptime and ctrl+c
-def dds_kill_by_pid_file():
-    print("[ KILL ] killing father and child DDS processes")
-    c = "pkill -F {}".format(PID_FILE_DDS)
-    sp.run(c, shell=True)
-    c = "pkill -F {}".format(PID_FILE_DDS_CONTROLLER)
-    sp.run(c, shell=True)
-
-
-def dds_kill_by_pid_file_only_child():
+def dds_kill_by_pid_file(only_child=False):
     print("[ KILL ] killing child DDS process")
     c = "pkill -F {}".format(PID_FILE_DDS)
+    sp.run(c, shell=True)
+    if only_child:
+        return
+    print("[ KILL ] killing controller DDS process")
+    c = "pkill -F {}".format(PID_FILE_DDS_CONTROLLER)
     sp.run(c, shell=True)
 
 
@@ -117,14 +123,6 @@ def dds_ensure_proper_working_folder():
 
 def ddh_get_folder_path_res() -> Path:
     return Path("ddh/gui/res")
-
-
-def ddh_get_settings_json_file() -> Path:
-    return Path("settings/ddh.json")
-
-
-def ddh_get_cc26x2r_recipe_json_file() -> Path:
-    return Path("settings/recipe_cc26x2r.json")
 
 
 def ddh_get_gui_closed_flag_file() -> Path:
@@ -155,184 +153,13 @@ def ddh_get_db_history_file() -> str:
     return "ddh/db/db_his.json"
 
 
-def dds_check_we_have_box_env_info():
-    if not os.getenv("DDH_BOX_SERIAL_NUMBER"):
-        e = "fatal error: we need a box serial number"
-        print('*' * len(e))
-        print(e)
-        print('*' * len(e))
-        os._exit(1)
-
-    if not os.getenv("DDH_BOX_PROJECT_NAME"):
-        e = "fatal error: we need a box project name"
-        print('*' * len(e))
-        print(e)
-        print('*' * len(e))
-        os._exit(1)
-
-
-def dds_check_conf_json_file():
+def get_ddh_commit():
     try:
-        j = str(ddh_get_settings_json_file())
-        with open(j) as f:
-            cfg = json.load(f)
-            del cfg["db_logger_macs"]
-            del cfg["ship_name"]
-            del cfg["forget_time"]
-            del cfg["metrics"]
-            del cfg["span_dict"]
-            del cfg["units_temp"]
-            del cfg["units_depth"]
-            del cfg["last_haul"]
-            del cfg["moving_speed"]
-            del cfg["comment-1"]
-            assert cfg == {}
-
-    except KeyError as ke:
-        print("ddh.json misses key {}".format(ke))
-        os._exit(1)
-
-    except AssertionError:
-        print("ddh.json has unknown key")
-        os._exit(1)
-
-    except (Exception,) as ex:
-        print(ex)
-        os._exit(1)
-
-
-def dds_get_macs_from_json_file():
-    j = str(ddh_get_settings_json_file())
-    try:
-        with open(j) as f:
-            cfg = json.load(f)
-            known = cfg["db_logger_macs"].keys()
-            return [x.lower() for x in known]
-    except (Exception, ) as ex:
-        print("error json_get_macs()", ex)
-        return {}
-
-
-def ble_get_cc26x2_recipe_flags_from_json():
-    j = str(ddh_get_cc26x2r_recipe_json_file())
-    try:
-        with open(j) as f:
-            return json.load(f)
-    except (Exception,):
-        print("error json_get_cc26x2r_recipe()")
-        return {}
-
-
-def ble_set_cc26x2r_recipe_flags_to_file(j):
-    path = str(ddh_get_cc26x2r_recipe_json_file())
-    try:
-        with open(path, "w") as f:
-            f.write(json.dumps(j))
-    except (Exception,):
-        print("error json_set_cc26x2r_recipe()")
-
-
-def dds_get_serial_number_of_macs_from_json_file():
-    j = str(ddh_get_settings_json_file())
-    try:
-        with open(j) as f:
-            cfg = json.load(f)
-            known = cfg["db_logger_macs"].values()
-            return [x.lower() for x in known]
-    except (Exception,) as ex:
-        print("error json_get_sn()", ex)
-        return []
-
-
-def dds_get_mac_from_sn_from_json_file(sn):
-    # happens when g_graph_test_mode()
-    test_graph_d = {
-        'test000': '00:00:00:00:00:00',
-        'test111': '11:22:33:44:55:66',
-        'test999': '99:99:99:99:99:99',
-        'test555': '55:55:55:55:55:55'
-    }
-    if sn in test_graph_d.keys():
-        return test_graph_d[sn]
-
-    sn = sn.lower()
-    j = str(ddh_get_settings_json_file())
-    try:
-        with open(j) as f:
-            cfg = json.load(f)
-            d = cfg["db_logger_macs"]
-            # we switch here below, so
-            # inv: {"SN1234567": "mac"}
-            inv = {v.lower(): k for k, v in d.items()}
-            return inv[sn]
-
-    except (Exception,) as ex:
-        print("error json_get_mac_from_sn()", ex)
-
-
-def ddh_get_json_gear_type():
-    j = str(ddh_get_settings_json_file())
-    with open(j) as f:
-        cfg = json.load(f)
-        v = cfg["last_haul"]
-        assert v in (0, 1)
-        return v
-
-
-def dds_get_json_vessel_name():
-    j = str(ddh_get_settings_json_file())
-    try:
-        with open(j) as f:
-            cfg = json.load(f)
-            return cfg["ship_name"]
-    except (Exception,):
-        return "Unnamed ship"
-
-
-def dds_get_json_moving_speed() -> list:
-    j = str(ddh_get_settings_json_file())
-    try:
-        with open(j) as f:
-            cfg = json.load(f)
-            max_n_min = list(cfg["moving_speed"].values())
-            assert len(max_n_min) == 2
-            assert max_n_min[0] <= max_n_min[1]
-            return max_n_min
-    except (Exception,) as ex:
-        print("error json_get_moving_speed()", ex)
-
-
-def _mac_dns_no_case(mac):
-    """returns logger name from its mac, not case-sensitive"""
-
-    j = str(ddh_get_settings_json_file())
-    try:
-        with open(j) as f:
-            cfg = json.load(f)
-            return cfg["db_logger_macs"][mac]
-    except (FileNotFoundError, TypeError, KeyError):
-        return None
-
-
-def dds_get_json_mac_dns(mac):
-    """returns non-case-sensitive logger name (known) or mac (unknown)"""
-
-    # happens when g_graph_test_mode()
-    test_graph_d = {
-        '00:00:00:00:00:00': 'test000',
-        '11:22:33:44:55:66': 'test111',
-        '99:99:99:99:99:99': 'test999',
-        '55:55:55:55:55:55': 'test555'
-    }
-    if mac in test_graph_d.keys():
-        return test_graph_d[mac]
-
-    # check for both upper() and lower() cases
-    name = _mac_dns_no_case(mac.lower())
-    if not name:
-        name = _mac_dns_no_case(mac.upper())
-    rv = name if name else mac
-    return rv
+        _r = git.Repo(".")
+        c = _r.head.commit
+        return str(c)[:5]
+    except InvalidGitRepositoryError:
+        return "none"
 
 
 def get_ddh_folder_path_dl_files() -> Path:
@@ -379,19 +206,6 @@ def get_ddh_folder_path_tweak() -> Path:
     return Path("dds/tweak")
 
 
-def get_ddh_loggers_forget_time() -> int:
-    j = str(ddh_get_settings_json_file())
-    try:
-        with open(j) as f:
-            cfg = json.load(f)
-            return cfg["forget_time"]
-
-    except (FileNotFoundError, TypeError, KeyError) as ex:
-        e = "error get_ddh_loggers_forget_time {}"
-        print(e.format(ex))
-        os.exit(1)
-
-
 def get_mac_from_folder_path(fol):
     """returns '11:22:33' from 'dl_files/11-22-33'"""
 
@@ -426,15 +240,6 @@ def dds_create_folder_dl_files():
 def dds_create_folder_logs():
     r = get_ddh_folder_path_logs()
     os.makedirs(r, exist_ok=True)
-
-
-def get_ddh_commit():
-    try:
-        _r = git.Repo(".")
-        c = _r.head.commit
-        return str(c)[:5]
-    except InvalidGitRepositoryError:
-        return "none"
 
 
 def get_utc_offset():
@@ -476,13 +281,6 @@ def ddh_get_absolute_application_path():
     else:
         app = '/PycharmProjects'
     return home + app + '/ddh'
-
-
-GRAPH_TEST_MODE_FILE = '/tmp/ddh_graph_test_mode.json'
-
-
-def g_graph_test_mode():
-    return os.path.exists(GRAPH_TEST_MODE_FILE)
 
 
 GPS_DUMMY_MODE_FILE = '/tmp/gps_dummy_mode.json'

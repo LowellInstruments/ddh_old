@@ -4,11 +4,9 @@ from datetime import datetime
 from mat import data_file_factory
 from mat.ble.bleak.rn4020 import BleRN4020
 from utils.ddh_shared import (
-    send_ddh_udp_gui as _u,
     get_dl_folder_path_from_mac,
-    create_folder_logger_by_mac,
+    create_folder_logger_by_mac, BLEAppException, ael,
 )
-from settings.ctx import BLEAppException, ael
 from utils.logs import lg_dds as lg
 
 

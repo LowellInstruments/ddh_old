@@ -3,9 +3,9 @@ import glob
 import os
 from pathlib import Path
 from dds.timecache import its_time_to
+from utils.ddh_config import dds_get_json_vessel_name
 from utils.ddh_shared import (
     get_ddh_folder_path_logs,
-    dds_get_json_vessel_name,
     get_ddh_folder_path_dl_files, get_ddh_folder_path_lef,
 )
 from mat.utils import PrintColors as PC

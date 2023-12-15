@@ -8,15 +8,13 @@ from dds.sqs import sqs_msg_ddh_error_ble_hw
 from dds.timecache import its_time_to
 from mat.ble.ble_mat_utils import ble_mat_get_bluez_version
 from mat.utils import linux_is_rpi
+from utils.ddh_config import dds_get_flag_rerun, dds_get_macs_from_json_file, dds_get_flag_ble_purge_black_macs_on_boot, \
+    ddh_get_json_gear_type, dds_get_moving_speed
 from utils.ddh_shared import (
     send_ddh_udp_gui as _u,
-    ble_get_cc26x2_recipe_flags_from_json,
-    dds_get_macs_from_json_file,
     ddh_get_disabled_ble_flag_file,
     STATE_DDS_BLE_DISABLED,
     ddh_get_app_override_flag_file,
-    ddh_get_json_gear_type,
-    dds_get_json_moving_speed,
     STATE_DDS_BLE_APP_GPS_ERROR_SPEED,
     STATE_DDS_BLE_ANTENNA,
     dds_get_ddh_got_an_update_flag_file,
@@ -24,7 +22,6 @@ from utils.ddh_shared import (
     get_ddh_folder_path_macs_black, STATE_DDS_BLE_HARDWARE_ERROR, get_ddh_folder_path_tweak,
     STATE_DDS_BLE_NO_ASSIGNED_LOGGERS,
 )
-from settings.ctx import hook_ble_purge_black_macs_on_boot
 from utils.logs import lg_dds as lg
 import subprocess as sp
 
@@ -33,8 +30,7 @@ _g_ant_ble = "undefined"
 
 
 def ble_get_cc26x2_recipe_file_rerun_flag() -> int:
-    rf = ble_get_cc26x2_recipe_flags_from_json()
-    return rf["rerun"]
+    return dds_get_flag_rerun()
 
 
 def ble_show_monitored_macs():
@@ -71,7 +67,7 @@ def ble_op_conditions_met(knots) -> bool:
         return True
 
     l_h = ddh_get_json_gear_type()
-    speed_range = dds_get_json_moving_speed()
+    speed_range = dds_get_moving_speed()
 
     # case: forgot to assign loggers
     if not dds_get_macs_from_json_file():
@@ -174,7 +170,7 @@ def dds_tell_software_update():
 
 
 def ble_apply_debug_hooks_at_boot():
-    if hook_ble_purge_black_macs_on_boot:
+    if dds_get_flag_ble_purge_black_macs_on_boot():
         lg.a("debug: HOOK_PURGE_BLACK_MACS_ON_BOOT")
         p = pathlib.Path(get_ddh_folder_path_macs_black())
         shutil.rmtree(str(p), ignore_errors=True)

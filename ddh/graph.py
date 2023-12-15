@@ -13,12 +13,10 @@ from ddh.utils_graph import utils_graph_read_fol_req_file, \
     utils_graph_does_exist_fol_req_file, \
     utils_graph_delete_fol_req_file
 from mat.utils import linux_is_rpi
-from utils.ddh_shared import dds_get_json_mac_dns, \
-    dds_get_mac_from_sn_from_json_file, \
-    get_dl_folder_path_from_mac, \
+from utils.ddh_config import dds_get_json_mac_dns, dds_get_mac_from_sn_from_json_file
+from utils.ddh_shared import get_dl_folder_path_from_mac, \
     ddh_get_absolute_application_path, \
-    get_number_of_hauls, \
-    ddh_get_settings_json_file
+    get_number_of_hauls
 from utils.logs import lg_gra as lg
 
 
@@ -54,13 +52,6 @@ def _get_color_by_label(lbl):
     if 'Ax' in lbl:
         return 'limegreen'
     return 'green'
-
-
-def _graph_get_json_units():
-    j = str(ddh_get_settings_json_file())
-    with open(j) as f:
-        cfg = json.load(f)
-    return cfg["units_temp"], cfg["units_depth"]
 
 
 class TimeAxisItem(pg.AxisItem):

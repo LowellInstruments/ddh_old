@@ -47,17 +47,16 @@ from mat.ble.ble_mat_utils import (
 )
 from rpc.rpc_rx import th_srv_cmd
 from rpc.rpc_tx import th_cli_notify
+from utils.ddh_config import dds_get_json_vessel_name, dds_check_we_have_box_env_info, cfg_load, \
+    dds_get_macs_from_json_file
 from utils.ddh_shared import (
-    dds_check_conf_json_file,
-    dds_get_macs_from_json_file,
     PID_FILE_DDS,
     dds_create_folder_dl_files,
     dds_create_folder_logs,
     dds_ensure_proper_working_folder,
-    dds_check_we_have_box_env_info,
     PID_FILE_DDS_CONTROLLER,
     NAME_EXE_DDS_CONTROLLER,
-    NAME_EXE_DDS, dds_get_json_vessel_name,
+    NAME_EXE_DDS,
 )
 from settings import ctx
 from utils.logs import (
@@ -69,7 +68,7 @@ import setproctitle
 
 
 def main_dds():
-
+    cfg_load()
     dds_tell_software_update()
     dds_check_we_have_box_env_info()
     dds_ensure_proper_working_folder()
@@ -79,7 +78,6 @@ def main_dds():
     dds_create_folder_dl_files()
     dds_create_folder_logs()
     dds_log_core_start_at_boot()
-    dds_check_conf_json_file()
     dds_macs_color_show_at_boot()
     m_j = dds_get_macs_from_json_file()
     dds_check_bluez_version()
