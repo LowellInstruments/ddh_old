@@ -158,6 +158,20 @@ def dds_get_flag_sqs_en():
     return cfg['flags']['sqs_en']
 
 
+def dds_get_aws_credential(k):
+    assert k in cfg['credentials'].keys() \
+           and k.startswith("cred_aws_")
+    return cfg['credentials'][k]
+
+
+def dds_get_box_sn():
+    return cfg["credentials"]["cred_ddh_serial_number"]
+
+
+def dds_get_box_project():
+    return cfg["credentials"]["cred_ddh_project_name"]
+
+
 if __name__ == '__main__':
     print('vessel_name', dds_get_json_vessel_name())
     print('aws_en', dds_get_aws_en())

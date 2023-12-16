@@ -10,14 +10,11 @@ cred_aws_custom_sqs_access_key = ""
 
 [behavior]
 ship_name = "FV_DDH_401"
-forget_time = 86400
+forget_time = 36000
 gear_type = 0
 moving_speed = [ 0.5, 7.0,]
 
 [monitored_macs]
-"d0:2e:ab:d9:29:48" = "bread12"
-"11:22:33:44:55:66" = "1234567"
-"99:88:77:66:55:44" = "9876543"
 
 [all_macs]
 "11:22:33:44:55:66" = "1234567"

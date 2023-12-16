@@ -1,7 +1,7 @@
 from collections import namedtuple
 
 from mat.utils import linux_is_rpi
-from utils.ddh_config import dds_get_json_vessel_name
+from utils.ddh_config import dds_get_json_vessel_name, dds_get_box_sn
 from utils.logs import lg_emo as lg
 from utils.ddh_shared import dds_get_is_emolt_box_flag_file
 import pandas as pd
@@ -69,7 +69,7 @@ def file_moana_raw_csv_to_emolt_zt_csv(path, lat, lon):
     # build output filename 'zt...csv'
     # ---------------------------------
     vn = dds_get_json_vessel_name()
-    vnum = os.getenv("DDH_BOX_SERIAL_NUMBER")
+    vnum = dds_get_box_sn()
     lg_sn = os.path.basename(path).split("_")[1]
     ofn = "zt_" + lg_sn + "_" + yyyy + day + mon + "_"
     ofn += hh + mm + ss + "_" + vn + ".csv"

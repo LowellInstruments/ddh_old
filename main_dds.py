@@ -48,7 +48,7 @@ from mat.ble.ble_mat_utils import (
 from rpc.rpc_rx import th_srv_cmd
 from rpc.rpc_tx import th_cli_notify
 from utils.ddh_config import dds_get_json_vessel_name, dds_check_we_have_box_env_info, \
-    dds_get_macs_from_json_file
+    dds_get_macs_from_json_file, dds_get_box_sn, dds_get_box_project
 from utils.ddh_shared import (
     PID_FILE_DDS,
     dds_create_folder_dl_files,
@@ -177,8 +177,8 @@ def _alarm_dds_crash(n):
         return
     if its_time_to('tell_dds_child_crash', 3600):
         vs = dds_get_json_vessel_name()
-        box_sn = os.getenv("DDH_BOX_SERIAL_NUMBER")
-        prj = os.getenv("DDH_BOX_PROJECT_NAME")
+        box_sn = dds_get_box_sn()
+        prj = dds_get_box_project()
         ip_vpn = get_ip_vpn()
         u = str(uuid.uuid4())[:5]
         s = f'DDH just crashed, check it: '

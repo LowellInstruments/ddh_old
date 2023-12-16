@@ -4,6 +4,7 @@ import os
 from ddh.db.db_his import *
 from dds.aws import _aws_s3_sync_process
 from dds.rbl import _rbl_send, rbl_decode
+from utils.ddh_config import dds_get_box_sn
 from utils.ddh_shared import ddh_get_db_history_file
 
 
@@ -21,7 +22,7 @@ def main_test_aws():
 
 def main_test_rbl():
     # _rbl_send(b'\x11\x22', fmt='bin')
-    sn = os.getenv("DDH_BOX_SERIAL_NUMBER") or "123456f"
+    sn = dds_get_box_sn() or "123456f"
     m_lg_sn = "{:08x}".format(int(sn, 16))
     print(m_lg_sn)
 

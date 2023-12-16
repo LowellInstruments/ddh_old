@@ -4,7 +4,7 @@ import os
 import time
 import serial
 
-from utils.ddh_config import dds_get_flag_rbl_en
+from utils.ddh_config import dds_get_flag_rbl_en, dds_get_box_sn
 from utils.ddh_shared import get_ddh_folder_path_rbl
 from utils.logs import lg_rbl as lg
 from ieee754 import IEEE754
@@ -71,7 +71,7 @@ def rbl_build_emolt_msg_as_str(lat,
     m_std_t_df_85 = float_to_bcd_str(x85.std_t_df_85)
     # todo ---> need to do haul_duration
     m_haul_duration = "{:06x}".format(0x00)
-    sn = os.getenv("DDH_BOX_SERIAL_NUMBER")
+    sn = dds_get_box_sn()
     m_lg_sn = "{:08x}".format(int(sn, 16))
     m_lg_man_id = "{:02x}".format(1)
     m_lg_rssi = "{:02x}".format(0x70)
