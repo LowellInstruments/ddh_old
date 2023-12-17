@@ -22,9 +22,9 @@ from mat.ble.ble_mat_utils import DDH_GUI_UDP_PORT
 from mat.utils import linux_is_rpi
 import subprocess as sp
 
-from utils.ddh_config import dds_get_json_vessel_name, dds_get_serial_number_of_macs_from_json_file, \
-    dds_get_flag_graph_test_mode, dds_get_json_mac_dns, dds_json_get_forget_time_secs, dds_get_macs_from_json_file, \
-    dds_get_mac_n_sn_monitored_pairs_from_json_file
+from utils.ddh_config import dds_get_json_vessel_name, dds_get_monitored_serial_numbers, \
+    dds_get_flag_graph_test_mode, dds_get_json_mac_dns, dds_json_get_forget_time_secs, dds_get_monitored_macs, \
+    dds_get_monitored_pairs
 
 from utils.ddh_shared import (
     STATE_DDS_BLE_SCAN,
@@ -200,7 +200,7 @@ def gui_ddh_populate_note_tab_dropdown(my_app):
     a = my_app
     a.lst_macs_note_tab.clear()
 
-    j = dds_get_serial_number_of_macs_from_json_file()
+    j = dds_get_monitored_serial_numbers()
     for each in j:
         a.lst_macs_note_tab.addItem(each)
 
@@ -218,7 +218,7 @@ def gui_ddh_populate_graph_dropdown_sn(my_app):
         a.cb_g_sn.addItem('SNtest555')
         return
 
-    j = dds_get_serial_number_of_macs_from_json_file()
+    j = dds_get_monitored_serial_numbers()
     for each in j:
         a.cb_g_sn.addItem('SN' + each)
 

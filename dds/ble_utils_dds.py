@@ -8,7 +8,7 @@ from dds.sqs import sqs_msg_ddh_error_ble_hw
 from dds.timecache import its_time_to
 from mat.ble.ble_mat_utils import ble_mat_get_bluez_version
 from mat.utils import linux_is_rpi
-from utils.ddh_config import dds_get_macs_from_json_file, dds_get_flag_ble_purge_black_macs_on_boot, \
+from utils.ddh_config import dds_get_monitored_macs, dds_get_flag_ble_purge_black_macs_on_boot, \
     ddh_get_json_gear_type, dds_get_moving_speed
 from utils.ddh_shared import (
     send_ddh_udp_gui as _u,
@@ -30,7 +30,7 @@ _g_ant_ble = "undefined"
 
 
 def ble_show_monitored_macs():
-    mm = dds_get_macs_from_json_file()
+    mm = dds_get_monitored_macs()
     for i in mm:
         lg.a("debug: monitored mac {}".format(i))
 
@@ -66,7 +66,7 @@ def ble_op_conditions_met(knots) -> bool:
     speed_range = dds_get_moving_speed()
 
     # case: forgot to assign loggers
-    if not dds_get_macs_from_json_file():
+    if not dds_get_monitored_macs():
         _u(STATE_DDS_BLE_NO_ASSIGNED_LOGGERS)
         time.sleep(5)
         return False

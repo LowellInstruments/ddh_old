@@ -48,7 +48,7 @@ from mat.ble.ble_mat_utils import (
 from rpc.rpc_rx import th_srv_cmd
 from rpc.rpc_tx import th_cli_notify
 from utils.ddh_config import dds_get_json_vessel_name, dds_check_we_have_box_env_info, \
-    dds_get_macs_from_json_file, dds_get_box_sn, dds_get_box_project
+    dds_get_monitored_macs, dds_get_box_sn, dds_get_box_project
 from utils.ddh_shared import (
     PID_FILE_DDS,
     dds_create_folder_dl_files,
@@ -77,7 +77,7 @@ def main_dds():
     dds_create_folder_logs()
     dds_log_core_start_at_boot()
     dds_macs_color_show_at_boot()
-    m_j = dds_get_macs_from_json_file()
+    m_j = dds_get_monitored_macs()
     dds_check_bluez_version()
 
     ble_show_monitored_macs()

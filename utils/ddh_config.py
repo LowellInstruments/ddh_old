@@ -65,15 +65,15 @@ def dds_get_flag_gps_error_forced():
     return cfg['flags']['hook_gps_error_measurement_forced']
 
 
-def dds_get_serial_number_of_macs_from_json_file():
+def dds_get_monitored_serial_numbers():
     return list(cfg['monitored_macs'].values())
 
 
-def dds_get_macs_from_json_file():
+def dds_get_monitored_macs():
     return list(cfg['monitored_macs'].keys())
 
 
-def dds_get_mac_n_sn_monitored_pairs_from_json_file():
+def dds_get_monitored_pairs():
     return cfg['monitored_macs']
 
 
@@ -83,8 +83,9 @@ def dds_get_all_macs():
 
 def dds_get_json_mac_dns(mac):
 
-    # happens when g_graph_test_mode()
     mac = mac.lower()
+
+    # happens when g_graph_test_mode()
     test_graph_d = {
         '00:00:00:00:00:00': 'test000',
         '11:22:33:44:55:66': 'test111',
@@ -94,7 +95,10 @@ def dds_get_json_mac_dns(mac):
     if mac in test_graph_d.keys():
         return test_graph_d[mac]
 
-    return cfg['monitored_macs'][mac]
+    # do it like this to avoid case errors
+    for k, v in cfg['monitored_macs'].items():
+        if mac == k.lower():
+            return v.lower()
 
 
 def dds_json_get_forget_time_secs():
@@ -102,6 +106,8 @@ def dds_json_get_forget_time_secs():
 
 
 def dds_get_mac_from_sn_from_json_file(sn):
+
+    sn = sn.lower()
 
     # happens when g_graph_test_mode()
     test_graph_d = {
@@ -113,10 +119,10 @@ def dds_get_mac_from_sn_from_json_file(sn):
     if sn in test_graph_d.keys():
         return test_graph_d[sn]
 
+    # do it like this to avoid case errors
     for k, v in cfg['monitored_macs'].items():
-        if v.lower() == sn.lower():
+        if sn == v.lower():
             return k.lower()
-    return None
 
 
 def ddh_get_json_gear_type():
@@ -178,10 +184,10 @@ if __name__ == '__main__':
     print('flag_graph_test', dds_get_flag_graph_test_mode())
     print('flag_gps_external', dds_get_flag_gps_external())
     print('flag_gps_error_forced', dds_get_flag_gps_error_forced())
-    print('ls_sn_macs', dds_get_serial_number_of_macs_from_json_file())
+    print('ls_sn_macs', dds_get_monitored_serial_numbers())
     print('json_mac_dns', dds_get_json_mac_dns("11-22-33-44-55-66"))
     print('ft', dds_json_get_forget_time_secs())
-    print('monitored_macs', dds_get_macs_from_json_file())
+    print('monitored_macs', dds_get_monitored_macs())
     print('flag_re_run', get_ddh_rerun_flag())
     print('mac_from_sn_json_file', dds_get_mac_from_sn_from_json_file('1234567'))
     print('gear_type', ddh_get_json_gear_type())

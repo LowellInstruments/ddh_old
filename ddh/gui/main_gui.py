@@ -42,7 +42,7 @@ from mat.utils import linux_is_rpi
 from rpc.rpc_rx import th_srv_notify
 from rpc.rpc_tx import th_cli_cmd
 from utils.ddh_config import dds_get_json_vessel_name, dds_get_mac_from_sn_from_json_file, \
-    ddh_get_json_gear_type, cfg_load, dds_get_flag_ble_en, cfg_save, dds_get_mac_n_sn_monitored_pairs_from_json_file, \
+    ddh_get_json_gear_type, cfg_load, dds_get_flag_ble_en, cfg_save, dds_get_monitored_pairs, \
     dds_get_all_macs
 from utils.ddh_shared import (
     get_ddh_folder_path_dl_files,
@@ -208,7 +208,7 @@ class DDH(QMainWindow, d_m.Ui_MainWindow):
         """loads (mac, name) pairs from config file"""
 
         self.lst_mac_org.clear()
-        pp = dds_get_mac_n_sn_monitored_pairs_from_json_file()
+        pp = dds_get_monitored_pairs()
         for m, n in pp.items():
             s = "{}  {}".format(m, n)
             self.lst_mac_org.addItem(s)

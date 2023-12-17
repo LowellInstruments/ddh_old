@@ -7,7 +7,7 @@ from bleak.backends.bluezdbus.advertisement_monitor import OrPattern
 from dds.sqs import sqs_msg_ddh_error_ble_hw
 from dds.timecache import its_time_to
 from mat.ble.ble_mat_utils import ble_mat_get_bluez_version
-from utils.ddh_config import dds_get_macs_from_json_file
+from utils.ddh_config import dds_get_monitored_macs
 from utils.ddh_shared import (
     send_ddh_udp_gui as _u,
     STATE_DDS_BLE_SCAN_FIRST_EVER,
@@ -21,7 +21,7 @@ from utils.logs import lg_dds as lg
 
 PERIOD_BLE_TELL_HW_ERR_SECS = 600
 _g_first_ble_scan_ever = True
-_g_json_macs = dds_get_macs_from_json_file()
+_g_json_macs = dds_get_monitored_macs()
 _g_ble_scan_early_leave = False
 
 
