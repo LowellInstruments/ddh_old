@@ -1,8 +1,6 @@
 #!/usr/bin/env python3
 
 import datetime
-import pathlib
-import re
 import shutil
 import time
 import setproctitle
@@ -37,10 +35,7 @@ import concurrent.futures
 #     In parameters app.main:app --reload --port 5000
 # ---------------------------------------------------------------------
 
-
-LIST_CONF_FILES = {
-    'settings/config.toml',
-}
+DDH_CONFIG_FILE = '/home/pi/li/ddh/settings/config.toml'
 
 
 app = FastAPI()
@@ -49,12 +44,40 @@ app = FastAPI()
 @app.get('/ping')
 async def ep_ping():
     d = {
-        'ping': "OK",
+        "ping": "OK",
         "ip_vpn": get_ip_vpn(),
         "ip_wlan": get_ip_wlan(),
         "vessel": dds_get_json_vessel_name()
     }
     return d
+
+
+ep = 'upload_conf'
+
+
+@app.post(f"/{ep}")
+async def api_upload_conf(file: UploadFile = File(...)):
+    if not file.filename == 'config.toml':
+        return {ep: 'error_name'}
+
+    # accept the upload and save it to /tmp folder
+    uploaded_name = f'/tmp/{file.filename}'
+    try:
+        with open(uploaded_name, "wb") as buf:
+            shutil.copyfileobj(file.file, buf)
+    except (Exception, ):
+        return {ep: 'error_uploading'}
+
+    # overwrite DDH configuration
+    if not linux_is_rpi():
+        return {ep: 'no_install_not_Rpi'}
+
+    rv = shell(f'cp {uploaded_name} {DDH_CONFIG_FILE}')
+    if rv.returncode:
+        return {ep: 'error_installing'}
+
+    # response back
+    return {ep: 'OK'}
 
 
 @app.get('/info')
@@ -104,30 +127,16 @@ async def ep_logs_get():
             return fr
 
 
-@app.put("/mac_logger_reset/{mac}")
-async def api_logger_reset_mac_set(mac: str):
-    mac = mac.replace(':', '-')
-    # security: check this is a MAC address and not a malformed path
-    r1 = re.search("^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$", mac)
-    if r1:
-        path_file = 'api/{}.rst'.format(mac)
-        pathlib.Path(path_file).touch()
-        return {'mac_logger_reset': "OK"}
-    return {'mac_logger_reset': "error"}
-
-
 @app.get("/conf_get")
 async def ep_conf_get():
     # prepare the zip file name
-    s = ' '.join([f for f in LIST_CONF_FILES])
     vn = dds_get_json_vessel_name()
     vn = vn.replace(' ', '')
     file_name = 'conf_{}.zip'.format(vn)
 
     # zip it, -o flag overwrites if already exists
-    p = '/tmp/' + file_name
-    c = 'zip -o {} {}'.format(p, s)
-    rv = shell(c)
+    p = '/tmp/{file_name}'
+    rv = shell(f'zip -o {p} {DDH_CONFIG_FILE}')
 
     # send it as response
     if rv.returncode == 0:
@@ -153,58 +162,29 @@ async def ep_dl_files_get():
         return FileResponse(path=p, filename=file_name)
 
 
-@app.post("/upload_file")
-async def api_conf_set(file: UploadFile = File(...)):
-    if not file.filename == 'config.toml':
-        return {'upload_file': 'error_name'}
-
-    # accept the upload and save it to /tmp folder
-    try:
-        with open(f'/tmp/{file.filename}', "wb") as buf:
-            shutil.copyfileobj(file.file, buf)
-    except (Exception, ):
-        return {'upload_file': 'error_saving'}
-
-    # overwrite DDH configuration
-    # todo ---> test this with DDR
-    # c = 'cp -r {}/* .'.format(dst_fol)
-    # rv = shell(c)
-    # if rv.returncode:
-    #     return {'conf_set': 'error_installing'}
-
-    # response back
-    return {'upload_file': 'OK'}
-
-
-def _ep_update(ep, c):
+def _ep_update(_ep, c):
     if not linux_is_rpi():
         return {ep: 'not RPi, not updating DDH'}
     rv = shell(c)
-    a = 'OK' if rv.returncode == 0 else 'error'
-    return {ep: a}
+    return {_ep: 'OK' if rv.returncode == 0 else 'error'}
 
 
-@app.get("/" + 'update_ddt')
+@app.get('/update_ddt')
 async def ep_update_ddt():
     return _ep_update('update_ddt', 'cd ../ddt && git pull')
 
 
-@app.get("/" + 'update_ddh')
+@app.get('/update_ddh')
 async def ep_update_ddh():
     return _ep_update('update_ddh', 'cd scripts && ./pop_ddh.sh')
 
 
-@app.get("/" + 'update_mat')
+@app.get('/update_mat')
 async def ep_update_mat():
     return _ep_update('update_mat', 'cd scripts && ./pop_mat.sh')
 
 
-@app.get("/" + 'update_liu')
-async def ep_update_mat():
-    return _ep_update('update_liu', 'cd scripts && ./pop_liu.sh')
-
-
-@app.get("/" + 'kill_ddh')
+@app.get('/kill_ddh')
 async def ep_kill_ddh():
     rv_h = shell("killall main_ddh")
     rv_s = shell("killall main_dds")
@@ -217,7 +197,7 @@ async def ep_kill_ddh():
     return {'kill_ddh': {'ddh': ans_h, 'dds': ans_s}}
 
 
-@app.get("/" + 'kill_api')
+@app.get('/kill_api')
 async def ep_kill_api():
     shell('killall main_api_controller')
     shell('killall main_api')
@@ -225,7 +205,7 @@ async def ep_kill_api():
     return {'kill_api': 'OK'}
 
 
-@app.get("/" + 'cron_ena')
+@app.get("/cron_ena")
 async def ep_crontab_enable():
     if not linux_is_rpi():
         return {'cron_ena': 'not RPi, not enabling crontab'}
@@ -233,7 +213,7 @@ async def ep_crontab_enable():
     return {'cron_ena': get_crontab_ddh()}
 
 
-@app.get("/" + 'cron_dis')
+@app.get("/cron_dis")
 async def ep_crontab_disable():
     if not linux_is_rpi():
         return {'cron_dis': 'not RPi, not disabling crontab'}
@@ -266,7 +246,6 @@ def controller_main_api():
 
 
 if __name__ == "__main__":
-
     if not linux_is_process_running(NAME_EXE_API_CONTROLLER):
         controller_main_api()
     else:
