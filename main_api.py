@@ -153,47 +153,27 @@ async def ep_dl_files_get():
         return FileResponse(path=p, filename=file_name)
 
 
-@app.post("/conf_set")
+@app.post("/upload_file")
 async def api_conf_set(file: UploadFile = File(...)):
-    if not file.filename.startswith('conf_'):
-        return {'conf_set': 'error_name'}
-    if not file.filename.endswith('.zip'):
-        return {'conf_set': 'error_name'}
-
-    # clean any remains from conf_get() method
-    c = 'rm /tmp/conf_*.zip'
-    shell(c)
+    if not file.filename == 'config.toml':
+        return {'upload_file': 'error_name'}
 
     # accept the upload and save it to /tmp folder
-    dst_zip = '/tmp/' + file.filename
     try:
-        with open(dst_zip, "wb") as buf:
+        with open(f'/tmp/{file.filename}', "wb") as buf:
             shutil.copyfileobj(file.file, buf)
     except (Exception, ):
-        return {'conf_set': 'error_saving'}
-
-    # clean the /tmp folder where we will unzip
-    dst_fol = dst_zip.replace('.zip', '')
-    if os.path.exists(dst_fol):
-        c = 'rm -rf {}'.format(dst_fol)
-        rv = shell(c)
-        if rv.returncode:
-            return {'conf_set': 'error_deleting'}
-
-    # unzip
-    c = 'cd /tmp && unzip {}'.format(file.filename)
-    rv = shell(c)
-    if rv.returncode:
-        return {'conf_set': 'error_unzipping'}
+        return {'upload_file': 'error_saving'}
 
     # overwrite DDH configuration
-    c = 'cp -r {}/* .'.format(dst_fol)
-    rv = shell(c)
-    if rv.returncode:
-        return {'conf_set': 'error_installing'}
+    # todo ---> test this with DDR
+    # c = 'cp -r {}/* .'.format(dst_fol)
+    # rv = shell(c)
+    # if rv.returncode:
+    #     return {'conf_set': 'error_installing'}
 
     # response back
-    return {'conf_set': 'OK'}
+    return {'upload_file': 'OK'}
 
 
 def _ep_update(ep, c):
