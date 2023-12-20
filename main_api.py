@@ -36,9 +36,15 @@ import concurrent.futures
 # ---------------------------------------------------------------------
 
 DDH_CONFIG_FILE = '/home/pi/li/ddh/settings/config.toml'
-
+DDH_PORT_API = 8000
 
 app = FastAPI()
+
+
+# todo ---> move this to DDN
+@app.get("/conf_provider/{mac}")
+async def ep_conf_provider(mac):
+    print('received request for', mac)
 
 
 @app.get('/ping')
@@ -225,7 +231,7 @@ def main_api():
     # docs at http://0.0.0.0/port/docs
     setproctitle.setproctitle(NAME_EXE_API)
     linux_app_write_pid_to_tmp(PID_FILE_API)
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    uvicorn.run(app, host="0.0.0.0", port=DDH_PORT_API)
 
 
 def controller_main_api():
