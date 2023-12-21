@@ -41,12 +41,6 @@ DDH_PORT_API = 8000
 app = FastAPI()
 
 
-# todo ---> move this to DDN
-@app.get("/conf_provider/{mac}")
-async def ep_conf_provider(mac):
-    print('received request for', mac)
-
-
 @app.get('/ping')
 async def ep_ping():
     d = {
