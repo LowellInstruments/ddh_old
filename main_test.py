@@ -1,11 +1,12 @@
 import datetime
+import glob
 import os
 
 from ddh.db.db_his import *
 from dds.aws import _aws_s3_sync_process
 from dds.rbl import _rbl_send, rbl_decode
 from utils.ddh_config import dds_get_box_sn
-from utils.ddh_shared import ddh_get_db_history_file
+from utils.ddh_shared import ddh_get_db_history_file, ddh_get_absolute_application_path
 
 
 # ----------------------------------------------
@@ -14,10 +15,18 @@ from utils.ddh_shared import ddh_get_db_history_file
 # ----------------------------------------------
 
 def main_test_aws():
-    path = 'dl_files'
-    if not os.path.isdir(path):
-        os.mkdir(path)
-    _aws_s3_sync_process()
+    # path = 'dl_files'
+    # if not os.path.isdir(path):
+    #     os.mkdir(path)
+    # _aws_s3_sync_process()
+
+    # count number of files
+    fol = ddh_get_absolute_application_path() + '/dl_files'
+    ls = []
+    for i in ('lid', 'lix', 'csv', 'cst', 'gps', 'bin'):
+        ls += glob.glob(f'{fol}/**/*.{i}')
+    print(ls)
+    print(len(ls))
 
 
 def main_test_rbl():
@@ -61,4 +70,4 @@ def main_test_db_his():
 
 
 if __name__ == '__main__':
-    main_test_db_his()
+    main_test_aws()

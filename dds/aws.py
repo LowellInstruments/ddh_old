@@ -21,7 +21,7 @@ from utils.ddh_shared import (
     STATE_DDS_NOTIFY_CLOUD_BUSY,
     STATE_DDS_NOTIFY_CLOUD_ERR,
     STATE_DDS_NOTIFY_CLOUD_OK,
-    dds_get_aws_has_something_to_do_via_gui_flag_file,
+    dds_get_aws_has_something_to_do_via_gui_flag_file, ddh_get_absolute_application_path,
 )
 from utils.logs import lg_aws as lg
 
@@ -31,6 +31,7 @@ PERIOD_AWS_S3_SECS = 3600 * 6
 PERIOD_ALARM_AWS_S3 = 86400 * 7
 AWS_S3_SYNC_PROC_NAME = "dds_aws_sync"
 dev = not linux_is_rpi()
+past_n_files = 0
 
 
 def _get_aws_bin_path():
@@ -178,9 +179,22 @@ def aws_serve():
             and not exists_flag_gui:
         return
 
-    # explicitly asked to not do anything
+    # nothing to do, in fact, disabled
     if not dds_get_aws_en():
         lg.a("warning: aws_en is disabled")
+        return
+
+    # nothing to do, number of files did not change
+    # todo ---> test this
+    fol = ddh_get_absolute_application_path() + '/dl_files'
+    ls = []
+    for i in ('lid', 'lix', 'csv', 'cst', 'gps', 'bin'):
+        ls += glob.glob(f'{fol}/**/*.{i}')
+    global past_n_files
+    ff_ctt = past_n_files == len(ls) and not exists_flag_gui
+    past_n_files = len(ls)
+    if ff_ctt:
+        lg.a('warning: AWS same number of files, not syncing')
         return
 
     # tell why we do AWS

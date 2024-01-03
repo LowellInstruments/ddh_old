@@ -430,6 +430,21 @@ def _process_n_graph(a, r=''):
                     symbolSize=14))
             p3.setYRange(0, max(y3), padding=0)
 
+        # alpha: the lower, the more transparent
+        alpha = 85
+        if _zt == 'zones OFF':
+            return
+
+        for i in range(20):
+            if i % 2:
+                continue
+            j = i * 300
+            reg_tap = FiniteLinearRegionItem(values=(x[j], x[j + 300]),
+                                             orientation="vertical",
+                                             brush=(127, 127, 255, alpha))
+            reg_tap.setMovable(False)
+            g.addItem(reg_tap)
+
     # statistics: display number of points
     end_ts = time.perf_counter()
     el_ts = int((end_ts - start_ts) * 1000)

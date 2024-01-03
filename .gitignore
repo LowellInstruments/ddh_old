@@ -24,10 +24,10 @@ settings/config.toml
 
 # so test graph files are copied
 !tests/*
-!tests/00-00-00-00-00-00/*
-!tests/11-22-33-44-55-66/*
-!tests/99-99-99-99-99-99/*
-!tests/55-55-55-55-55-55/*
+!dl_files/00-00-00-00-00-00/*
+!dl_files/11-22-33-44-55-66/*
+!dl_files/99-99-99-99-99-99/*
+!dl_files/55-55-55-55-55-55/*
 
 
 
