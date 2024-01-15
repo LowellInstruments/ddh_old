@@ -21,7 +21,7 @@ def main_ddh():
     setproctitle.setproctitle(NAME_EXE_DDH)
     linux_app_write_pid_to_tmp(PID_FILE_DDH)
 
-    assert sys.version_info >= (3, 7)
+    assert sys.version_info >= (3, 9)
     signal.signal(signal.SIGINT, on_ctrl_c)
 
     app = QApplication(sys.argv)

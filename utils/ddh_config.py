@@ -81,6 +81,10 @@ def dds_get_all_macs():
     return cfg['all_macs']
 
 
+def dds_get_fake_gps_position():
+    return cfg['behavior']['fake_gps_position']
+
+
 def dds_get_json_mac_dns(mac):
 
     mac = mac.lower()

@@ -8,7 +8,8 @@ from mat.gps import PORT_CTRL, PORT_DATA
 from mat.utils import linux_is_rpi, linux_set_datetime
 from tzlocal import get_localzone
 
-from utils.ddh_config import dds_get_json_vessel_name, dds_get_flag_gps_external, dds_get_flag_gps_error_forced
+from utils.ddh_config import dds_get_json_vessel_name, dds_get_flag_gps_external, dds_get_flag_gps_error_forced, \
+    dds_get_fake_gps_position
 from utils.ddh_shared import (
     send_ddh_udp_gui as _u,
     STATE_DDS_NOTIFY_GPS,
@@ -186,8 +187,9 @@ def _gps_measure():
     if check_gps_dummy_mode():
         # lg.a('debug: HOOK_GPS_DUMMY_MEASUREMENT')
         time.sleep(0.5)
-        lat = "{:+.6f}".format(38.000000000)
-        lon = "{:+.6f}".format(-83.0)
+        fgp = dds_get_fake_gps_position()
+        lat = "{:+.6f}".format(fgp[0])
+        lon = "{:+.6f}".format(fgp[1])
         return lat, lon, datetime.datetime.utcnow(), 1
 
     # open serial port

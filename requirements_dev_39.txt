@@ -1,1 +1,0 @@
-# use the ones in requirements_rpi_39 without versions
