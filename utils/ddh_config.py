@@ -86,7 +86,7 @@ def dds_get_fake_gps_position():
 
 
 def dds_get_json_mac_dns(mac):
-
+    # todo: see if we can remove this or dds_get_json_mac_dns_from_json_file()
     mac = mac.lower()
 
     # happens when g_graph_test_mode()
@@ -94,7 +94,8 @@ def dds_get_json_mac_dns(mac):
         '00:00:00:00:00:00': 'test000',
         '11:22:33:44:55:66': 'test111',
         '99:99:99:99:99:99': 'test999',
-        '55:55:55:55:55:55': 'test555'
+        '55:55:55:55:55:55': 'test555',
+        '33:33:33:33:33:33': 'test333'
     }
     if mac in test_graph_d.keys():
         return test_graph_d[mac]
@@ -118,7 +119,8 @@ def dds_get_mac_from_sn_from_json_file(sn):
         'test000': '00:00:00:00:00:00',
         'test111': '11:22:33:44:55:66',
         'test999': '99:99:99:99:99:99',
-        'test555': '55:55:55:55:55:55'
+        'test555': '55:55:55:55:55:55',
+        'test333': '33:33:33:33:33:33',
     }
     if sn in test_graph_d.keys():
         return test_graph_d[sn]

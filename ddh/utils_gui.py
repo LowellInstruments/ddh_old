@@ -141,19 +141,23 @@ def gui_manage_graph_test_files():
     d1 = a + '/dl_files/11-22-33-44-55-66'
     d2 = a + '/dl_files/99-99-99-99-99-99'
     d3 = a + '/dl_files/55-55-55-55-55-55'
+    d4 = a + '/dl_files/33-33-33-33-33-33'
     t0 = a + '/tests/00-00-00-00-00-00'
     t1 = a + '/tests/11-22-33-44-55-66'
     t2 = a + '/tests/99-99-99-99-99-99'
     t3 = a + '/tests/55-55-55-55-55-55'
+    t4 = a + '/tests/33-33-33-33-33-33'
     shutil.rmtree(d0, ignore_errors=True)
     shutil.rmtree(d1, ignore_errors=True)
     shutil.rmtree(d2, ignore_errors=True)
     shutil.rmtree(d3, ignore_errors=True)
+    shutil.rmtree(d4, ignore_errors=True)
     if dds_get_flag_graph_test_mode():
         shutil.copytree(t0, d0)
         shutil.copytree(t1, d1)
         shutil.copytree(t2, d2)
         shutil.copytree(t3, d3)
+        shutil.copytree(t4, d4)
         lg.a('copied logger graph test folders')
 
 
@@ -216,6 +220,7 @@ def gui_ddh_populate_graph_dropdown_sn(my_app):
         a.cb_g_sn.addItem('SNtest111')
         a.cb_g_sn.addItem('SNtest999')
         a.cb_g_sn.addItem('SNtest555')
+        a.cb_g_sn.addItem('SNtest333')
         return
 
     j = dds_get_monitored_serial_numbers()
