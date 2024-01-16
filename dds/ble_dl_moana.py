@@ -458,3 +458,41 @@ async def ble_interact_moana(dl_folder, mac, h, g):
         lg.a("error: traceback -> {}".format(traceback.print_exc()))
         await lc.disconnect()
         return 1
+
+
+if __name__ == '__main__':
+    dl_file_path = "/home/kaz/Downloads/MOANA_0736_14_231222175737.bin"
+    csv_file_path = dl_file_path.replace(".bin", ".csv")
+
+    with open(dl_file_path, "rb") as bin_file:
+        print(f"Decoding to file: {csv_file_path}")
+        with open(csv_file_path, "wb") as csv_file:
+            # header
+            data = bin_file.read(1)
+            while data and data != b"\x03":
+                csv_file.write(data)
+                data = bin_file.read(1)
+
+            # origin time
+            timestamp = struct.unpack("<i", bin_file.read(4))[0]
+
+            data = bin_file.read(6)
+            while data:
+                if len(data) != 6:
+                    print("Unexpected number of bytes")
+                    break
+                values = struct.unpack("<3H", data)
+
+                timestamp += values[0]
+                csv_file.write(
+                    f'{datetime.utcfromtimestamp(timestamp).strftime("%d/%m/%Y,%H:%M:%S")},'.encode()
+                )
+
+                depth = (values[1] / 10) - 10
+                csv_file.write(f"{depth:.1f},".encode())
+
+                temp = (values[2] / 1000) - 10
+                csv_file.write(f"{temp:.3f}\n".encode())
+
+                data = bin_file.read(6)
+    print("Decoding finished")

@@ -5,6 +5,7 @@ import json
 from PyQt5 import QtCore
 from PyQt5.QtCore import QTime, QCoreApplication
 import pyqtgraph as pg
+from PyQt5.QtGui import QFont
 from pyqtgraph.Qt import QtGui
 from os.path import basename
 from pyqtgraph import LinearRegionItem
@@ -411,39 +412,40 @@ def _process_n_graph(a, r=''):
         if 'Depth (f)' in lbl1:
             p1.setYRange(max(y1), 0, padding=0)
 
-        # 3rd line: color axis title, ticks text, line, show it
+        # 3rd line: accelerometer
         if not linux_is_rpi():
-            p1.layout.addItem(ax3, 2, 3)
+            # add another axis
+            # p1.layout.addItem(ax3, 2, 3)
             ax3.setStyle(tickFont=font)
             pen3 = pg.mkPen(color=clr_3, width=1, style=QtCore.Qt.SolidLine)
             ax3.setLabel(lbl3, **_sty(clr_3))
             ax3.setTextPen(clr_3)
 
-            # build the arrows arrays
-            # todo ----> do not plot point by point but arrays so faster
-            for i in range(1, len(x), int(len(x) / 40)):
-                sym_i = (i % 3) + 1
-                p3.addItem(pg.PlotDataItem(
-                    [x[i]], [y3[i] + 50],
-                    pen=pen3, hoverable=True, symbol='t' + str(sym_i),
-                    symbolBrush=clr_3,
-                    symbolSize=14))
+            # add arrows
+            # for i in range(3):
+            #     a = pg.ArrowItem(angle=-160, tipAngle=60, headLen=40, tailLen=40, tailWidth=20,
+            #                      pen={'color': 'w', 'width': 3}, brush='r')
+            #     a.setPos(x[20 + (i * 10)], y3[20 + (i * 10)],)
+            #     p3.addItem(a)
+
+            # add text
+            # a = pg.TextItem('alarm', color='orange', border='green', angle=45)
+            # a.setPos(x[10], y3[10])
+            # a.setFont(QFont('Times', 20))
+            # p3.addItem(a)
+
+            # range
             p3.setYRange(0, max(y3), padding=0)
 
-        # alpha: the lower, the more transparent
-        alpha = 85
-        if _zt == 'zones OFF':
-            return
-
-        for i in range(20):
-            if i % 2:
-                continue
-            j = i * 300
-            reg_tap = FiniteLinearRegionItem(values=(x[j], x[j + 300]),
-                                             orientation="vertical",
-                                             brush=(127, 127, 255, alpha))
-            reg_tap.setMovable(False)
-            g.addItem(reg_tap)
+            # add region
+            # alpha = 85
+            # pen4 = pg.mkPen(color=clr_3, width=10, style=QtCore.Qt.DotLine)
+            # rr = FiniteLinearRegionItem(values=(x[30], x[35]),
+            #                             orientation="vertical",
+            #                             brush=(150, 150, 150, alpha),
+            #                             pen=pen4,
+            #                             movable=False)
+            # g.addItem(rr)
 
     # statistics: display number of points
     end_ts = time.perf_counter()
