@@ -313,7 +313,6 @@ def _process_n_graph(a, r=''):
     t1 = datetime.fromtimestamp(x[0]).strftime(fmt)
     t2 = datetime.fromtimestamp(x[-1]).strftime(fmt)
     mac = basename(fol).replace('-', ':')
-    sn = dds_get_json_mac_dns(mac)
     title = '{} to {}'.format(t1, t2)
     if data['pruned']:
         title += ' (data trimmed)'
@@ -454,7 +453,7 @@ def _process_n_graph(a, r=''):
                 ax3.setStyle(tickFont=font)
                 pen3 = pg.mkPen(color=clr_3, width=1, style=QtCore.Qt.SolidLine)
                 ax3.setLabel(lbl3, **_sty(clr_3))
-                ax3.setTextPen(clr_3)
+                ax3.setTextPen(pen3)
 
                 # add arrows
                 # for i in range(3):
@@ -484,15 +483,18 @@ def _process_n_graph(a, r=''):
 
         # type of plot 2: T vs D, draw lines
         elif 'Temp' in tap_plot_type:
-            p1.setLabel("left", 'Depth (fathoms)' + ' ─', **_sty(clr_1))
+            clr_5 = 'purple'
+            pen5 = pg.mkPen(color=clr_5, width=2, style=QtCore.Qt.SolidLine)
+            p1.setLabel("left", 'Depth (fathoms)' + ' ─', **_sty(clr_5))
 
             # remove whole right axis
             g.getPlotItem().hideAxis('right')
 
             # in this case,  x-ticks are T values
-            p1.plot(y2, y1, pen=pen1, hoverable=True)
+            p1.plot(y2, y1, pen=pen5, hoverable=True)
 
             # prevent negative depth values
+            # todo ---> how to plot ticks purple instead of blue
             p1.setYRange(0, max(y1) + _axis_room(y1), padding=0)
 
             # bottom axis usage
