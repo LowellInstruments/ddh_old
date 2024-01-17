@@ -26,6 +26,13 @@ import json
 MC_FILE = "MAT.cfg"
 
 
+def _une(rv, notes, e):
+    # une: update notes error
+    if not rv:
+        return
+    notes["error"] = "error " + str(e)
+
+
 def _rae(rv, s):
     if rv:
         raise BLEAppException("cc26x2 interact " + s)
@@ -33,16 +40,17 @@ def _rae(rv, s):
 
 class BleCC26X2Download:
     @staticmethod
-    async def download_recipe(lc, mac, info, g, notes):
+    async def download_recipe(lc, mac, info, g, notes: dict):
 
         # initialize variables
         notes["battery_level"] = 0xFFFF
-        notes["DO_sensor_error"] = False
+        notes["error"] = ""
         simulation = ble_logger_is_cc26x2r_simulated(mac)
         rerun_flag = get_ddh_rerun_flag()
         create_folder_logger_by_mac(mac)
 
         rv = await lc.connect(mac)
+        _une(rv, notes, "comm.")
         _rae(rv, "connecting")
         lg.a("connected to {}".format(mac))
 
@@ -88,7 +96,6 @@ class BleCC26X2Download:
             _rae(rv, "fex error: no configuration file in logger")
 
         # iterate files present in logger
-        any_dl = False
         for name, size in ls.items():
 
             # delete zero-bytes files
@@ -132,7 +139,6 @@ class BleCC26X2Download:
             # delete file in logger
             rv = await lc.cmd_del(name)
             _rae(rv, "del")
-            any_dl = True
             lg.a("deleted file {}".format(name))
 
             # create LEF file with download info
@@ -160,7 +166,7 @@ class BleCC26X2Download:
             if bad_rv:
                 lg.a("GDO | error {}".format(rv))
                 _u(STATE_DDS_BLE_DOWNLOAD_ERROR_GDO)
-                notes["DO_sensor_error"] = True
+                _une(bad_rv, notes, "ox_sensor_error")
                 await asyncio.sleep(5)
             _rae(bad_rv, "gdo")
             lg.a("GDO | {}".format(rv))
@@ -191,10 +197,6 @@ class BleCC26X2Download:
         # bye, bye to this logger
         # -----------------------
         await lc.disconnect()
-
-        # graph
-        # if any_dl and not simulation:
-        # we can request a graph here
 
         return 0
 

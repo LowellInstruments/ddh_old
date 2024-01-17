@@ -274,6 +274,7 @@ def gui_setup_buttons(my_app):
     a.cb_g_sn.activated.connect(a.click_graph_listview_logger_sn)
     a.cb_g_cycle_haul.activated.connect(a.click_graph_lbl_haul_types)
     a.cb_g_paint_zones.activated.connect(a.click_graph_btn_paint_zones)
+    a.cb_g_switch_tp.activated.connect(a.click_graph_cb_switch_tp)
 
 
 def gui_hide_edit_tab(ui):

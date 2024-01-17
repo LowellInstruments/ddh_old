@@ -41,7 +41,7 @@
        </font>
       </property>
       <property name="currentIndex">
-       <number>1</number>
+       <number>5</number>
       </property>
       <widget class="QWidget" name="tab">
        <property name="sizePolicy">
@@ -1426,7 +1426,7 @@ font: 19pt &quot;DejaVu Sans&quot;;</string>
        </attribute>
        <layout class="QVBoxLayout" name="verticalLayout_7" stretch="1,0,8">
         <item>
-         <layout class="QHBoxLayout" name="lay_g_h1" stretch="1,2,2,1,1,1">
+         <layout class="QHBoxLayout" name="lay_g_h1" stretch="1,2,1,2,1,1,1">
           <property name="spacing">
            <number>18</number>
           </property>
@@ -1447,6 +1447,29 @@ font: 19pt &quot;DejaVu Sans&quot;;</string>
             <item>
              <property name="text">
               <string>zones OFF</string>
+             </property>
+            </item>
+           </widget>
+          </item>
+          <item>
+           <widget class="QComboBox" name="cb_g_switch_tp">
+            <property name="maximumSize">
+             <size>
+              <width>110</width>
+              <height>16777215</height>
+             </size>
+            </property>
+            <property name="currentText">
+             <string>x-time</string>
+            </property>
+            <item>
+             <property name="text">
+              <string>x-time</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>x-Temp</string>
              </property>
             </item>
            </widget>

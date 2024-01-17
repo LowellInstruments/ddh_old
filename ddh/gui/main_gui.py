@@ -123,6 +123,7 @@ class DDH(QMainWindow, d_m.Ui_MainWindow):
         self.btn_g_next_haul.setEnabled(False)
         self.btn_g_next_haul.setVisible(False)
         self.lbl_graph_busy.setVisible(False)
+        self.cb_g_switch_tp.setVisible(False)
 
         # graph test mode
         gui_manage_graph_test_files()
@@ -565,6 +566,9 @@ class DDH(QMainWindow, d_m.Ui_MainWindow):
         process_n_graph(self, r='hauls_labels')
 
     def click_graph_btn_paint_zones(self, _):
+        process_n_graph(self)
+
+    def click_graph_cb_switch_tp(self, _):
         process_n_graph(self)
 
 

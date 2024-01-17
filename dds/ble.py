@@ -138,20 +138,22 @@ async def _ble_id_n_interact_logger(mac, info: str, h, g):
         _u("history/add&{}&error&{}&{}&{}".format(mac, lat, lon, dt))
         return
 
-    # allows speeding up discarding loggers
-    err_sensor_oxygen = False
+    # allows discarding loggers faster
+    _crit_error = False
 
     # --------------------
     # logger interaction
     # --------------------
+
     if _ble_logger_is_cc26x2r(info):
         rv, notes = await ble_interact_cc26x2(mac, info, g, hs)
         sqs_msg_notes_cc26x2r(notes, mac, sn, lat, lon)
-        err_sensor_oxygen = notes["DO_sensor_error"]
+        _crit_error = notes['error']
 
     elif _ble_logger_is_tap(info):
         rv, notes = await ble_interact_tap(mac, info, g, hs)
         # sqs_msg_notes_tap(notes, mac, sn, lat, lon)
+        _crit_error = notes['error']
 
     elif _ble_logger_is_rn4020(mac, info):
         rv = await ble_interact_rn4020(mac, info, g, hs)
@@ -163,18 +165,21 @@ async def _ble_id_n_interact_logger(mac, info: str, h, g):
             return
 
     # tell GUI how it went, also do MAC colors stuff
-    _ble_analyze_logger_result(rv, mac, lat, lon, sn, err_sensor_oxygen)
+    _ble_analyze_logger_result(rv, mac, lat, lon, sn, _crit_error)
 
     # on GUI, all times are local, not UTC
     tz_ddh = get_localzone()
     tz_utc = datetime.timezone.utc
     dt_local = dt.replace(tzinfo=tz_utc).astimezone(tz=tz_ddh)
 
+    # ------------------------------------
     # so GUI can update its HISTORY tab
+    # ------------------------------------
     s = "{}/add&{}&{}&{}&{}&{}"
-    e = 'ok' if rv == 0 else 'error'
-    if err_sensor_oxygen:
-        e = 'err_sen_ox'
+    e = 'ok'
+    if rv:
+        # a bit more info
+        e = 'error' if not _crit_error else _crit_error
     epoch_time = int(dt_local.timestamp())
     _u(s.format(STATE_DDS_NOTIFY_HISTORY, mac, e, lat, lon, epoch_time))
     if rv:

@@ -36,6 +36,10 @@ class GraphException(Exception):
     pass
 
 
+def _axis_room(v: list):
+    return .1 * max(v)
+
+
 def _sty(color):
     return {"color": color, "font-size": "20px", "font-weight": "bold"}
 
@@ -240,6 +244,9 @@ def _process_n_graph(a, r=''):
             a.btn_g_next_haul.setEnabled(False)
             a.btn_g_next_haul.setVisible(False)
 
+    # this is also conditional
+    a.cb_g_switch_tp.setVisible(False)
+
     # ---------------
     # let's CLEAR it
     # ---------------
@@ -345,9 +352,6 @@ def _process_n_graph(a, r=''):
     lbl3 = lbl3 + ' ─'
     p1.getAxis('left').setTextPen(clr_1)
     p1.getAxis('right').setTextPen(clr_2)
-
-    # axes style, BOTTOM
-    p1.getAxis('bottom').setLabel(title, **_sty('black'))
     p1.getAxis('bottom').setTextPen('black')
 
     # pens for drawing
@@ -356,6 +360,8 @@ def _process_n_graph(a, r=''):
 
     # avoids small glitch when re-zooming
     g.getPlotItem().enableAutoRange()
+
+    # todo ---> decide: set depth min 0 or modify negative depths values
 
     # custom adjustments
     if met == 'DO':
@@ -369,6 +375,9 @@ def _process_n_graph(a, r=''):
         # axis ranges
         p1.setYRange(0, 10, padding=0)
         p2.setYRange(min(y2), max(y2), padding=0)
+
+        # bottom axis usage
+        p1.getAxis('bottom').setLabel(title, **_sty('black'))
 
         # alpha: the lower, the more transparent
         alpha = 85
@@ -399,61 +408,95 @@ def _process_n_graph(a, r=''):
         g.addItem(reg_do_h)
         g.addItem(reg_do_g)
 
+    # old Temperature / Pressure loggers
     if met == 'TP':
-        if 'Depth (f)' in lbl1:
-            p1.setYRange(max(y1), 0, padding=0)
-
-    if met == 'TAP':
 
         # draw lines
         p1.setLabel("left", lbl1, **_sty(clr_1))
         p1.getAxis('right').setLabel(lbl2, **_sty(clr_2))
-        pen1 = pg.mkPen(color=clr_1, width=2, style=QtCore.Qt.SolidLine)
-        pen2 = pg.mkPen(color=clr_2, width=2, style=QtCore.Qt.DashLine)
         p1.plot(x, y1, pen=pen1, hoverable=True)
         p2.addItem(pg.PlotCurveItem(x, y2, pen=pen2, hoverable=True))
 
         # axis ranges
-        p1.setYRange(min(y1), max(y1), padding=0)
+        p1.setYRange(0, max(y1) + _axis_room(y1), padding=0)
         p2.setYRange(min(y2), max(y2), padding=0)
 
-        if 'Depth (f)' in lbl1:
-            p1.setYRange(max(y1), 0, padding=0)
+        # bottom axis usage
+        p1.getAxis('bottom').setLabel(title, **_sty('black'))
 
-        # 3rd line: accelerometer
-        if not linux_is_rpi():
-            # add another axis
-            # p1.layout.addItem(ax3, 2, 3)
-            ax3.setStyle(tickFont=font)
-            pen3 = pg.mkPen(color=clr_3, width=1, style=QtCore.Qt.SolidLine)
-            ax3.setLabel(lbl3, **_sty(clr_3))
-            ax3.setTextPen(clr_3)
+    if met == 'TAP':
 
-            # add arrows
-            # for i in range(3):
-            #     a = pg.ArrowItem(angle=-160, tipAngle=60, headLen=40, tailLen=40, tailWidth=20,
-            #                      pen={'color': 'w', 'width': 3}, brush='r')
-            #     a.setPos(x[20 + (i * 10)], y3[20 + (i * 10)],)
-            #     p3.addItem(a)
+        # TAP has 2 types of plots
+        a.cb_g_switch_tp.setVisible(True)
 
-            # add text
-            # a = pg.TextItem('alarm', color='orange', border='green', angle=45)
-            # a.setPos(x[10], y3[10])
-            # a.setFont(QFont('Times', 20))
-            # p3.addItem(a)
+        tap_plot_type = a.cb_g_switch_tp.currentText()
 
-            # range
-            p3.setYRange(0, max(y3), padding=0)
+        # type of plot 1: T & D vs time, draw lines
+        if 'time' in tap_plot_type:
+            p1.setLabel("left", lbl1, **_sty(clr_1))
+            p1.getAxis('right').setLabel(lbl2, **_sty(clr_2))
+            p1.plot(x, y1, pen=pen1, hoverable=True)
+            p2.addItem(pg.PlotCurveItem(x, y2, pen=pen2, hoverable=True))
 
-            # add region
-            # alpha = 85
-            # pen4 = pg.mkPen(color=clr_3, width=10, style=QtCore.Qt.DotLine)
-            # rr = FiniteLinearRegionItem(values=(x[30], x[35]),
-            #                             orientation="vertical",
-            #                             brush=(150, 150, 150, alpha),
-            #                             pen=pen4,
-            #                             movable=False)
-            # g.addItem(rr)
+            # axis ranges, prevent negative depth values
+            p1.setYRange(0, max(y1) + _axis_room(y1), padding=0)
+            p2.setYRange(min(y2), max(y2), padding=0)
+
+            # bottom axis usage
+            p1.getAxis('bottom').setLabel(title, **_sty('black'))
+
+            # ------------------------
+            # 3rd line: accelerometer
+            # ------------------------
+            if not linux_is_rpi():
+                # add another axis
+                # p1.layout.addItem(ax3, 2, 3)
+                ax3.setStyle(tickFont=font)
+                pen3 = pg.mkPen(color=clr_3, width=1, style=QtCore.Qt.SolidLine)
+                ax3.setLabel(lbl3, **_sty(clr_3))
+                ax3.setTextPen(clr_3)
+
+                # add arrows
+                # for i in range(3):
+                #     a = pg.ArrowItem(angle=-160, tipAngle=60, headLen=40, tailLen=40, tailWidth=20,
+                #                      pen={'color': 'w', 'width': 3}, brush='r')
+                #     a.setPos(x[20 + (i * 10)], y3[20 + (i * 10)],)
+                #     p3.addItem(a)
+
+                # add text
+                # a = pg.TextItem('alarm', color='orange', border='green', angle=45)
+                # a.setPos(x[10], y3[10])
+                # a.setFont(QFont('Times', 20))
+                # p3.addItem(a)
+
+                # range
+                p3.setYRange(0, max(y3), padding=0)
+
+                # add region
+                # alpha = 85
+                # pen4 = pg.mkPen(color=clr_3, width=10, style=QtCore.Qt.DotLine)
+                # rr = FiniteLinearRegionItem(values=(x[30], x[35]),
+                #                             orientation="vertical",
+                #                             brush=(150, 150, 150, alpha),
+                #                             pen=pen4,
+                #                             movable=False)
+                # g.addItem(rr)
+
+        # type of plot 2: T vs D, draw lines
+        elif 'Temp' in tap_plot_type:
+            p1.setLabel("left", 'Depth (fathoms)' + ' ─', **_sty(clr_1))
+
+            # remove whole right axis
+            g.getPlotItem().hideAxis('right')
+
+            # in this case,  x-ticks are T values
+            p1.plot(y2, y1, pen=pen1, hoverable=True)
+
+            # prevent negative depth values
+            p1.setYRange(0, max(y1) + _axis_room(y1), padding=0)
+
+            # bottom axis usage
+            p1.getAxis('bottom').setLabel(f'Temperature (F) {title}', **_sty('black'))
 
     # statistics: display number of points
     end_ts = time.perf_counter()
