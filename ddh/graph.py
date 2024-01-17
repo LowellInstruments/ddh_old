@@ -276,7 +276,7 @@ def _process_n_graph(a, r=''):
     _graph_update_views()
     p1.vb.sigResized.connect(_graph_update_views)
 
-    # font: size of axis ticks text
+    # font: TICKS TEXT
     font = QtGui.QFont()
     font.setPixelSize(16)
     font.setBold(True)
@@ -311,9 +311,6 @@ def _process_n_graph(a, r=''):
     if data['pruned']:
         title += ' (data trimmed)'
 
-    # removed title removed for more graphing room, now title used for errors
-    # g.setTitle(title, color="black", size="15pt", bold=True)
-
     # default variables to show for each metric
     lbl1, lbl2, lbl3 = '', '', ''
     y1, y2, y3 = [], [], []
@@ -346,35 +343,33 @@ def _process_n_graph(a, r=''):
     lbl1 = lbl1 + ' ─'
     lbl2 = lbl2 + ' - -'
     lbl3 = lbl3 + ' ─'
-    p1.setLabel("left", lbl1, **_sty(clr_1))
-    p1.getAxis('right').setLabel(lbl2, **_sty(clr_2))
     p1.getAxis('left').setTextPen(clr_1)
     p1.getAxis('right').setTextPen(clr_2)
 
     # axes style, BOTTOM
-    cb = 'black'
-    # p1.getAxis('bottom').setLabel('Time', **_sty(cb))
-    p1.getAxis('bottom').setLabel(title, **_sty(cb))
-    p1.getAxis('bottom').setTextPen(cb)
+    p1.getAxis('bottom').setLabel(title, **_sty('black'))
+    p1.getAxis('bottom').setTextPen('black')
 
-    # ---------------------
-    # DRAW the LINES
-    # ---------------------
+    # pens for drawing
     pen1 = pg.mkPen(color=clr_1, width=2, style=QtCore.Qt.SolidLine)
     pen2 = pg.mkPen(color=clr_2, width=2, style=QtCore.Qt.DashLine)
-    p1.plot(x, y1, pen=pen1, hoverable=True)
-    p2.addItem(pg.PlotCurveItem(x, y2, pen=pen2, hoverable=True))
 
     # avoids small glitch when re-zooming
     g.getPlotItem().enableAutoRange()
 
-    # axis ranges
-    p1.setYRange(min(y1), max(y1), padding=0)
-    p2.setYRange(min(y2), max(y2), padding=0)
-
     # custom adjustments
     if met == 'DO':
+
+        # draw lines
+        p1.setLabel("left", lbl1, **_sty(clr_1))
+        p1.getAxis('right').setLabel(lbl2, **_sty(clr_2))
+        p1.plot(x, y1, pen=pen1, hoverable=True)
+        p2.addItem(pg.PlotCurveItem(x, y2, pen=pen2, hoverable=True))
+
+        # axis ranges
         p1.setYRange(0, 10, padding=0)
+        p2.setYRange(min(y2), max(y2), padding=0)
+
         # alpha: the lower, the more transparent
         alpha = 85
         if _zt == 'zones OFF':
@@ -409,6 +404,19 @@ def _process_n_graph(a, r=''):
             p1.setYRange(max(y1), 0, padding=0)
 
     if met == 'TAP':
+
+        # draw lines
+        p1.setLabel("left", lbl1, **_sty(clr_1))
+        p1.getAxis('right').setLabel(lbl2, **_sty(clr_2))
+        pen1 = pg.mkPen(color=clr_1, width=2, style=QtCore.Qt.SolidLine)
+        pen2 = pg.mkPen(color=clr_2, width=2, style=QtCore.Qt.DashLine)
+        p1.plot(x, y1, pen=pen1, hoverable=True)
+        p2.addItem(pg.PlotCurveItem(x, y2, pen=pen2, hoverable=True))
+
+        # axis ranges
+        p1.setYRange(min(y1), max(y1), padding=0)
+        p2.setYRange(min(y2), max(y2), padding=0)
+
         if 'Depth (f)' in lbl1:
             p1.setYRange(max(y1), 0, padding=0)
 
