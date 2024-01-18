@@ -1,7 +1,6 @@
 dl_files/*
 logs/*
 .idea/
-!tests/*
 
 # un-ignore so empty folders are copied
 !logs/.gitkeep
@@ -9,11 +8,15 @@ logs/*
 !rbl/.gitkeep
 !lef/.gitkeep
 !sqs/.gitkeep
+!tests/.gitkeep
 
 db_his.json*
 *.so
 *.lid
+!test_*.lid
+!test_*.lix
 *.csv
+!test_*.csv
 *.gps
 *.lef
 *.sqs
