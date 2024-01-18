@@ -8,6 +8,7 @@ logs/*
 !rbl/.gitkeep
 !lef/.gitkeep
 !sqs/.gitkeep
+!/tests
 
 db_his.json*
 *.so
@@ -17,7 +18,6 @@ db_his.json*
 *.lef
 *.sqs
 *.rbl
-!/tests
 
 # just in case there are more dl_files here
 dds/dl_files/
