@@ -19,7 +19,7 @@ from utils.ddh_shared import get_dl_folder_path_from_mac, \
     ddh_get_absolute_application_path, \
     get_number_of_hauls
 from utils.logs import lg_gra as lg
-
+from utils.mavg import get_interesting_idx_ma
 
 # to be able to zoom in RPi
 pg.setConfigOption('leftButtonPan', False)
@@ -449,6 +449,13 @@ def _process_n_graph(a, r=''):
                 ax3.setStyle(tickFont=font)
                 ax3.setLabel(lbl3, **_sty(clr_3))
                 ax3.setTextPen(pen3)
+
+                # get indexes with interesting accelerometer data
+                w = 2
+                th = 3
+                li = get_interesting_idx_ma(y5, w, th)
+                print('y5', y5)
+                print('li_y5', li)
 
                 # add arrows
                 # for i in range(3):
