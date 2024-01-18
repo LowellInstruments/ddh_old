@@ -1,13 +1,15 @@
 dl_files/*
 logs/*
+.idea/
+
 # un-ignore so empty folders are copied
 !logs/.gitkeep
 !dl_files/.gitkeep
 !rbl/.gitkeep
 !lef/.gitkeep
 !sqs/.gitkeep
+
 db_his.json*
-.idea/
 *.so
 *.lid
 *.csv
@@ -15,8 +17,10 @@ db_his.json*
 *.lef
 *.sqs
 *.rbl
+
 # just in case there are more dl_files here
 dds/dl_files/
+
 dds/macs/black/
 dds/macs/orange/
 .ruff_cache/
@@ -28,6 +32,7 @@ settings/config.toml
 !dl_files/11-22-33-44-55-66/*
 !dl_files/99-99-99-99-99-99/*
 !dl_files/55-55-55-55-55-55/*
+!dl_files/33-33-33-33-33-33/*
 
 
 
