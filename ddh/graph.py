@@ -312,7 +312,6 @@ def _process_n_graph(a, r=''):
     # choose utcfromtimestamp() / fromtimestamp()
     t1 = datetime.fromtimestamp(x[0]).strftime(fmt)
     t2 = datetime.fromtimestamp(x[-1]).strftime(fmt)
-    mac = basename(fol).replace('-', ':')
     title = '{} to {}'.format(t1, t2)
     if data['pruned']:
         title += ' (data trimmed)'
@@ -483,8 +482,9 @@ def _process_n_graph(a, r=''):
 
         # type of plot 2: T vs D, draw lines
         elif 'Temp' in tap_plot_type:
-            clr_5 = 'purple'
+            clr_5 = 'magenta'
             pen5 = pg.mkPen(color=clr_5, width=2, style=QtCore.Qt.SolidLine)
+            p1.getAxis('left').setTextPen(clr_5)
             p1.setLabel("left", 'Depth (fathoms)' + ' ─', **_sty(clr_5))
 
             # remove whole right axis
@@ -494,7 +494,6 @@ def _process_n_graph(a, r=''):
             p1.plot(y2, y1, pen=pen5, hoverable=True)
 
             # prevent negative depth values
-            # todo ---> how to plot ticks purple instead of blue
             p1.setYRange(0, max(y1) + _axis_room(y1), padding=0)
 
             # bottom axis usage
