@@ -30,6 +30,7 @@ dds/dl_files/
 dds/macs/black/
 dds/macs/orange/
 .ruff_cache/
+settings/config.toml
 
 
 # Byte-compiled / optimized / DLL files
