@@ -316,7 +316,7 @@ def _process_n_graph(a, r=''):
     if data['pruned']:
         title += ' (data trimmed)'
 
-    # default variables to show for each metric
+    # metric labels
     lbl1, lbl2, lbl3 = '', '', ''
     y1, y2, y3 = [], [], []
     if met == 'TP':
@@ -338,39 +338,41 @@ def _process_n_graph(a, r=''):
     # see if we need to invert or de-invert
     p1.invertY('Depth' in lbl1)
 
-    # axes styles, sides
+    # colors
     lbl1 = lbl1.replace(' TP', '').replace(' DO', '').replace(' TAP', '')
     lbl2 = lbl2.replace(' TP', '').replace(' DO', '').replace(' TAP', '')
     lbl3 = lbl3.replace(' TP', '').replace(' DO', '').replace(' TAP', '')
     clr_1 = _get_color_by_label(lbl1)
     clr_2 = _get_color_by_label(lbl2)
     clr_3 = _get_color_by_label(lbl3)
+    clr_4 = 'magenta'
     lbl1 = lbl1 + ' ─'
     lbl2 = lbl2 + ' - -'
     lbl3 = lbl3 + ' ─'
+    pen1 = pg.mkPen(color=clr_1, width=2, style=QtCore.Qt.SolidLine)
+    pen2 = pg.mkPen(color=clr_2, width=2, style=QtCore.Qt.DashLine)
+    pen3 = pg.mkPen(color=clr_3, width=1, style=QtCore.Qt.SolidLine)
+    pen4 = pg.mkPen(color=clr_4, width=2, style=QtCore.Qt.SolidLine)
     p1.getAxis('left').setTextPen(clr_1)
     p1.getAxis('right').setTextPen(clr_2)
     p1.getAxis('bottom').setTextPen('black')
-
-    # pens for drawing
-    pen1 = pg.mkPen(color=clr_1, width=2, style=QtCore.Qt.SolidLine)
-    pen2 = pg.mkPen(color=clr_2, width=2, style=QtCore.Qt.DashLine)
 
     # avoids small glitch when re-zooming
     g.getPlotItem().enableAutoRange()
 
     # todo ---> decide: set depth min 0 or modify negative depths values
 
-    # custom adjustments
+    # -----------
+    # DO loggers
+    # -----------
     if met == 'DO':
-
-        # draw lines
+        # draw DO and T lines
         p1.setLabel("left", lbl1, **_sty(clr_1))
         p1.getAxis('right').setLabel(lbl2, **_sty(clr_2))
         p1.plot(x, y1, pen=pen1, hoverable=True)
         p2.addItem(pg.PlotCurveItem(x, y2, pen=pen2, hoverable=True))
 
-        # axis ranges
+        # y-axis ranges
         p1.setYRange(0, 10, padding=0)
         p2.setYRange(min(y2), max(y2), padding=0)
 
@@ -381,62 +383,59 @@ def _process_n_graph(a, r=''):
         alpha = 85
         if _zt == 'zones OFF':
             return
-        reg_do_l = FiniteLinearRegionItem(values=(0, 2),
-                                           limits=4,
-                                           orientation="horizontal",
-                                           brush=(255, 0, 0, alpha))
-        reg_do_m = FiniteLinearRegionItem(values=(2, 4),
-                                       limits=4,
-                                       orientation="horizontal",
-                                       brush=(255, 170, 6, alpha))
-        reg_do_h = FiniteLinearRegionItem(values=(4, 6),
-                                       limits=4,
-                                       orientation="horizontal",
-                                       brush=(255, 255, 66, alpha))
-        reg_do_g = FiniteLinearRegionItem(values=(6, 10),
-                                       limits=4,
-                                       orientation="horizontal",
-                                       brush=(176, 255, 66, alpha))
-        reg_do_l.setMovable(False)
-        reg_do_m.setMovable(False)
-        reg_do_h.setMovable(False)
-        reg_do_g.setMovable(False)
-        g.addItem(reg_do_l)
-        g.addItem(reg_do_m)
-        g.addItem(reg_do_h)
-        g.addItem(reg_do_g)
+        g.addItem(FiniteLinearRegionItem(values=(0, 2),
+                                         limits=4,
+                                         orientation="horizontal",
+                                         brush=(255, 0, 0, alpha),
+                                         movable=False))
+        g.addItem(FiniteLinearRegionItem(values=(2, 4),
+                                         limits=4,
+                                         orientation="horizontal",
+                                         brush=(255, 170, 6, alpha),
+                                         movable=False))
+        g.addItem(FiniteLinearRegionItem(values=(4, 6),
+                                         limits=4,
+                                         orientation="horizontal",
+                                         brush=(255, 255, 66, alpha),
+                                         movable=False))
+        g.addItem(FiniteLinearRegionItem(values=(6, 10),
+                                         limits=4,
+                                         orientation="horizontal",
+                                         brush=(176, 255, 66, alpha),
+                                         movable=False))
 
+    # -----------------------------------
     # old Temperature / Pressure loggers
+    # -----------------------------------
     if met == 'TP':
-
-        # draw lines
+        # draw T and D lines
         p1.setLabel("left", lbl1, **_sty(clr_1))
         p1.getAxis('right').setLabel(lbl2, **_sty(clr_2))
         p1.plot(x, y1, pen=pen1, hoverable=True)
         p2.addItem(pg.PlotCurveItem(x, y2, pen=pen2, hoverable=True))
 
-        # axis ranges
+        # y-axis ranges
         p1.setYRange(0, max(y1) + _axis_room(y1), padding=0)
         p2.setYRange(min(y2), max(y2), padding=0)
 
         # bottom axis usage
         p1.getAxis('bottom').setLabel(title, **_sty('black'))
 
+    # ------------
+    # TAP loggers
+    # ------------
     if met == 'TAP':
-
-        # TAP has 2 types of plots
         a.cb_g_switch_tp.setVisible(True)
-
         tap_plot_type = a.cb_g_switch_tp.currentText()
 
-        # type of plot 1: T & D vs time, draw lines
+        # type of TAP plot 1/2: T & D vs time, draw lines
         if 'time' in tap_plot_type:
             p1.setLabel("left", lbl1, **_sty(clr_1))
             p1.getAxis('right').setLabel(lbl2, **_sty(clr_2))
             p1.plot(x, y1, pen=pen1, hoverable=True)
             p2.addItem(pg.PlotCurveItem(x, y2, pen=pen2, hoverable=True))
 
-            # axis ranges, prevent negative depth values
+            # y-axis ranges, prevent negative depth values
             p1.setYRange(0, max(y1) + _axis_room(y1), padding=0)
             p2.setYRange(min(y2), max(y2), padding=0)
 
@@ -450,7 +449,6 @@ def _process_n_graph(a, r=''):
                 # add another axis
                 # p1.layout.addItem(ax3, 2, 3)
                 ax3.setStyle(tickFont=font)
-                pen3 = pg.mkPen(color=clr_3, width=1, style=QtCore.Qt.SolidLine)
                 ax3.setLabel(lbl3, **_sty(clr_3))
                 ax3.setTextPen(pen3)
 
@@ -472,7 +470,6 @@ def _process_n_graph(a, r=''):
 
                 # add region
                 # alpha = 85
-                # pen4 = pg.mkPen(color=clr_3, width=10, style=QtCore.Qt.DotLine)
                 # rr = FiniteLinearRegionItem(values=(x[30], x[35]),
                 #                             orientation="vertical",
                 #                             brush=(150, 150, 150, alpha),
@@ -480,20 +477,18 @@ def _process_n_graph(a, r=''):
                 #                             movable=False)
                 # g.addItem(rr)
 
-        # type of plot 2: T vs D, draw lines
+        # type of TAP plot 2/2: T vs D, draw lines
         elif 'Temp' in tap_plot_type:
-            clr_5 = 'magenta'
-            pen5 = pg.mkPen(color=clr_5, width=2, style=QtCore.Qt.SolidLine)
-            p1.getAxis('left').setTextPen(clr_5)
-            p1.setLabel("left", 'Depth (fathoms)' + ' ─', **_sty(clr_5))
+            p1.getAxis('left').setTextPen(clr_4)
+            p1.setLabel("left", 'Depth (fathoms)' + ' ─', **_sty(clr_4))
 
             # remove whole right axis
             g.getPlotItem().hideAxis('right')
 
-            # in this case,  x-ticks are T values
-            p1.plot(y2, y1, pen=pen5, hoverable=True)
+            # in this case, x-ticks are T
+            p1.plot(y2, y1, pen=pen4, hoverable=True)
 
-            # prevent negative depth values
+            # y-axis range, prevent negative depth values
             p1.setYRange(0, max(y1) + _axis_room(y1), padding=0)
 
             # bottom axis usage
