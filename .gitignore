@@ -17,6 +17,7 @@ db_his.json*
 *.lef
 *.sqs
 *.rbl
+!/tests
 
 # just in case there are more dl_files here
 dds/dl_files/
