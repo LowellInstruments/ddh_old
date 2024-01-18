@@ -182,29 +182,27 @@ def _graph_calc_hash_filenames(fol):
 
 def _process_n_graph(a, r=''):
 
-    # passed app, get graph
+    # get graph from passed app
     g = a.g
 
-    # time this graphing thing
+    # benchmark this graphing function
     start_ts = time.perf_counter()
 
-    # fol_ls: list of absolute local 'dl_files/<mac>' folders
+    # get list of absolute local 'dl_files/<mac>' folders
     fol_ls = utils_graph_get_abs_fol_list()
+    fol: str
 
     # get current haul type
     _ht = a.cb_g_cycle_haul.currentText()
 
-    # zones type
+    # get zones on / off
     _zt = a.cb_g_paint_zones.currentText()
 
-    # haul idx
+    # get haul idx
     if a.g_haul_idx is None:
         a.g_haul_idx = -1
 
-    # this will have the absolute path to folder to graph
-    fol: str
-
-    # show who asked for a graph
+    # get reason passed for graph
     if r == 'BLE':
         if not utils_graph_does_exist_fol_req_file():
             raise GraphException('error: no BLE requested folder to graph')
@@ -226,7 +224,7 @@ def _process_n_graph(a, r=''):
         # fol: 'dl_files/<mac>, is not absolute, make it so
         fol = str(ddh_get_absolute_application_path()) + '/' + str(fol)
 
-    # number of hauls
+    # get number of hauls
     nh = get_number_of_hauls(fol)
     lg.a(f'found {nh} hauls in folder {fol}')
     if r == 'hauls_next':
@@ -244,12 +242,12 @@ def _process_n_graph(a, r=''):
             a.btn_g_next_haul.setEnabled(False)
             a.btn_g_next_haul.setVisible(False)
 
-    # this is also conditional
+    # get buttons visible or not conditionally
     a.cb_g_switch_tp.setVisible(False)
 
-    # ---------------
-    # let's CLEAR it
-    # ---------------
+    # ----------------------------------------
+    # let's CLEAR graph and start from scratch
+    # ----------------------------------------
     global p1
     global p2
     global p3
@@ -264,14 +262,18 @@ def _process_n_graph(a, r=''):
     # grid or not
     g.showGrid(x=True, y=False)
 
-    # line: create the 2nd
+    # ---------
+    # 2nd line
+    # ---------
     p2 = pg.ViewBox(enableMenu=True)
     p1.showAxis('right')
     p1.scene().addItem(p2)
     p1.getAxis('right').linkToView(p2)
     p2.setXLink(p1)
 
-    # line: create the 3rd, not show it yet
+    # ---------
+    # 3rd line
+    # ---------
     p3 = pg.ViewBox()
     ax3 = pg.AxisItem('right')
     p1.scene().addItem(p3)
@@ -316,7 +318,9 @@ def _process_n_graph(a, r=''):
     if data['pruned']:
         title += ' (data trimmed)'
 
+    # --------------
     # metric labels
+    # --------------
     lbl1, lbl2, lbl3 = '', '', ''
     y1, y2, y3 = [], [], []
     if met == 'TP':
@@ -335,7 +339,7 @@ def _process_n_graph(a, r=''):
     y1 = data[lbl1]
     y2 = data[lbl2]
 
-    # see if we need to invert or de-invert
+    # see if we need Depth-axis inverted
     p1.invertY('Depth' in lbl1)
 
     # colors
@@ -362,9 +366,9 @@ def _process_n_graph(a, r=''):
 
     # todo ---> decide: set depth min 0 or modify negative depths values
 
-    # -----------
-    # DO loggers
-    # -----------
+    # -----------------
+    # graph DO loggers
+    # -----------------
     if met == 'DO':
         # draw DO and T lines
         p1.setLabel("left", lbl1, **_sty(clr_1))
@@ -372,14 +376,12 @@ def _process_n_graph(a, r=''):
         p1.plot(x, y1, pen=pen1, hoverable=True)
         p2.addItem(pg.PlotCurveItem(x, y2, pen=pen2, hoverable=True))
 
-        # y-axis ranges
+        # y-axis ranges, bottom-axis label
         p1.setYRange(0, 10, padding=0)
         p2.setYRange(min(y2), max(y2), padding=0)
-
-        # bottom axis usage
         p1.getAxis('bottom').setLabel(title, **_sty('black'))
 
-        # alpha: the lower, the more transparent
+        # alpha, for zones, the lower, the more transparent
         alpha = 85
         if _zt == 'zones OFF':
             return
@@ -404,9 +406,9 @@ def _process_n_graph(a, r=''):
                                          brush=(176, 255, 66, alpha),
                                          movable=False))
 
-    # -----------------------------------
-    # old Temperature / Pressure loggers
-    # -----------------------------------
+    # -----------------------------------------
+    # graph old Temperature / Pressure loggers
+    # -----------------------------------------
     if met == 'TP':
         # draw T and D lines
         p1.setLabel("left", lbl1, **_sty(clr_1))
@@ -414,16 +416,14 @@ def _process_n_graph(a, r=''):
         p1.plot(x, y1, pen=pen1, hoverable=True)
         p2.addItem(pg.PlotCurveItem(x, y2, pen=pen2, hoverable=True))
 
-        # y-axis ranges
+        # y-axis ranges, bottom-axis label
         p1.setYRange(0, max(y1) + _axis_room(y1), padding=0)
         p2.setYRange(min(y2), max(y2), padding=0)
-
-        # bottom axis usage
         p1.getAxis('bottom').setLabel(title, **_sty('black'))
 
-    # ------------
-    # TAP loggers
-    # ------------
+    # ------------------
+    # graph TAP loggers
+    # ------------------
     if met == 'TAP':
         a.cb_g_switch_tp.setVisible(True)
         tap_plot_type = a.cb_g_switch_tp.currentText()
@@ -435,18 +435,16 @@ def _process_n_graph(a, r=''):
             p1.plot(x, y1, pen=pen1, hoverable=True)
             p2.addItem(pg.PlotCurveItem(x, y2, pen=pen2, hoverable=True))
 
-            # y-axis ranges, prevent negative depth values
+            # y-axis ranges, prevent negative depth values, bottom-axis label
             p1.setYRange(0, max(y1) + _axis_room(y1), padding=0)
             p2.setYRange(min(y2), max(y2), padding=0)
-
-            # bottom axis usage
             p1.getAxis('bottom').setLabel(title, **_sty('black'))
 
             # ------------------------
             # 3rd line: accelerometer
             # ------------------------
             if not linux_is_rpi():
-                # add another axis
+                # add 3rd axis
                 # p1.layout.addItem(ax3, 2, 3)
                 ax3.setStyle(tickFont=font)
                 ax3.setLabel(lbl3, **_sty(clr_3))
@@ -455,7 +453,7 @@ def _process_n_graph(a, r=''):
                 # add arrows
                 # for i in range(3):
                 #     a = pg.ArrowItem(angle=-160, tipAngle=60, headLen=40, tailLen=40, tailWidth=20,
-                #                      pen={'color': 'w', 'width': 3}, brush='r')
+                #                      pen=pen3, brush='r')
                 #     a.setPos(x[20 + (i * 10)], y3[20 + (i * 10)],)
                 #     p3.addItem(a)
 
@@ -468,15 +466,6 @@ def _process_n_graph(a, r=''):
                 # range
                 p3.setYRange(0, max(y3), padding=0)
 
-                # add region
-                # alpha = 85
-                # rr = FiniteLinearRegionItem(values=(x[30], x[35]),
-                #                             orientation="vertical",
-                #                             brush=(150, 150, 150, alpha),
-                #                             pen=pen4,
-                #                             movable=False)
-                # g.addItem(rr)
-
         # type of TAP plot 2/2: T vs D, draw lines
         elif 'Temp' in tap_plot_type:
             p1.getAxis('left').setTextPen(clr_4)
@@ -488,16 +477,18 @@ def _process_n_graph(a, r=''):
             # in this case, x-ticks are T
             p1.plot(y2, y1, pen=pen4, hoverable=True)
 
-            # y-axis range, prevent negative depth values
+            # y-axis range, prevent negative depth values, bottom axis label
             p1.setYRange(0, max(y1) + _axis_room(y1), padding=0)
+            title = f'Temperature (F) {title}'
+            p1.getAxis('bottom').setLabel(title, **_sty('black'))
 
-            # bottom axis usage
-            p1.getAxis('bottom').setLabel(f'Temperature (F) {title}', **_sty('black'))
+            # or we could set the x-axis label on top
+            # a.g.setTitle(e, color="red", size="15pt")
 
-    # statistics: display number of points
+    # statistics: benchmark and number of points
     end_ts = time.perf_counter()
     el_ts = int((end_ts - start_ts) * 1000)
-    lg.a(f'displaying {len(x)} {met} points, took {el_ts} ms')
+    lg.a(f'graphed {len(x)} {met} points, took {el_ts} ms')
 
 
 def process_n_graph(a, r=''):
