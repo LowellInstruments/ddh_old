@@ -1,3 +1,4 @@
+import json
 import os
 import pathlib
 import shutil
@@ -75,16 +76,40 @@ def ble_op_conditions_met(knots) -> bool:
     if not l_h:
         return True
 
-    # case: trawling
+    # simulation of boat speed
+    sim_boat_speed = False
+    try:
+        with open("/tmp/ddh_boat_speed.json", "r") as f:
+            # file content
+            # {
+            #     "knots_min": 3,
+            #     "knots_max": 5,
+            #     "knots_set": 4
+            # }
+            j = json.load(f)
+            k_min = j['knots_min']
+            k_max = j['knots_max']
+            k_set = j['knots_set']
+            sim_boat_speed = True
+    except (Exception, ):
+        pass
+
+    # case: trawling, we know for sure l_h is set here
     s_lo, s_hi = speed_range
     s_lo = float(s_lo)
     knots = float(knots)
     s_hi = float(s_hi)
-    valid_moving_range = s_lo <= knots <= s_hi
-    if l_h and valid_moving_range:
+    if sim_boat_speed:
+        lg.a("warning: using simulated boat speeds")
+        s_lo = float(k_min)
+        s_hi = float(k_max)
+        knots = float(k_set)
+    if s_lo <= knots <= s_hi:
+        # valid moving range
         return True
 
     _u("{}/{}".format(STATE_DDS_BLE_APP_GPS_ERROR_SPEED, knots))
+    time.sleep(5)
 
 
 def ble_tell_gui_antenna_type(_h, desc):

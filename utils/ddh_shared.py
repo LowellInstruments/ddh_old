@@ -138,6 +138,9 @@ def ddh_get_disabled_ble_flag_file() -> str:
 
 
 def ddh_get_app_override_flag_file() -> str:
+    # set this with the clear-lockout physical button
+    # to force at least one execution even with
+    # boat not moving on haul mode
     return "/tmp/ddh_app_override_file.flag"
 
 

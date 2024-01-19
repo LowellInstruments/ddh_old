@@ -15,10 +15,9 @@ from dds.gps import (
     gps_configure_shield,
     gps_clock_sync_if_so,
     gps_tell_vessel_name,
-    gps_hw_error_get,
+    gps_hw_error,
     gps_did_we_ever_clock_sync,
     gps_print_trying_clock_sync_at_boot,
-    gps_hw_error_parse,
     gps_power_cycle_if_so,
     gps_know_hat_firmware_version,
 )
@@ -137,6 +136,7 @@ def main_dds():
         # old GPS hats may need power ON / OFF + GPS on
         gps_power_cycle_if_so()
         gps_configure_shield()
+        gps_tell_vessel_name()
 
         # other stages
         cnv_serve()
@@ -145,10 +145,8 @@ def main_dds():
         net_serve()
 
         # GPS stage
-        gps_tell_vessel_name()
         g = gps_measure()
-        _ge = gps_hw_error_get(g)
-        if gps_hw_error_parse(_ge):
+        if gps_hw_error(g):
             time.sleep(1)
             continue
         lat, lon, tg, speed = g

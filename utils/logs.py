@@ -101,8 +101,10 @@ def dds_log_tracking_add(lat, lon, tg):
     if not its_time_to("track_boat_gps", t=10):
         return
     if not lat:
+        lg_dds.a("error: dds_log_tracking_add() no lat")
         return
     if not tg:
+        lg_dds.a("error: dds_log_tracking_add() no tg")
         return
 
     # works with GPS hat and PUCK, checked

@@ -388,42 +388,27 @@ def gps_tell_position_logger(g):
     lg.a(s.format(lat, lon, speed))
 
 
-def gps_hw_error_parse(e) -> bool:
-    if e == 0:
-        # no error
-        return False
-    if e == 2:
-        # too many errors
-        sqs_msg_ddh_error_gps_hw("", "")
-
-    # e == 1 is ONE error
-    return True
-
-
-def gps_hw_error_get(g) -> int:
-    """
-    return = True means error detected in frame 'g'
-    """
-
+def gps_hw_error(g) -> int:
     if g:
+        # no error
         return 0
 
     # don't tell GPS error too often
-    tell = 0
     if its_time_to("tell_gps_hw_error", PERIOD_GPS_TELL_GPS_HW_ERROR_SECS):
         lg.a("error: no GPS frame, examine further log messages")
-        tell = 2
+        sqs_msg_ddh_error_gps_hw("", "")
+        return 1
 
     # detect errors in GPS frame
     if not g:
-        if tell:
-            lg.a("error: no GPS frame, will not interact w/ loggers")
+        lg.a("error: no GPS frame, will not interact w/ loggers")
         return 1
     lat, lon, tg, speed = g
     if not lat:
-        if tell:
-            lg.a("error: no GPS latitude, will not interact w/ loggers")
+        lg.a("error: no GPS latitude, will not interact w/ loggers")
         return 1
+    lg.a(f"error: GPS unexpected {g}")
+    return 1
 
 
 def gps_print_trying_clock_sync_at_boot():
