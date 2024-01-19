@@ -22,7 +22,7 @@ def _check_cfg(c):
             os._exit(1)
 
 
-def cfg_load(p=PATH_FILE_CFG):
+def cfg_load_from_file(p=PATH_FILE_CFG):
     try:
         with open(p, 'r') as f:
             c = toml.load(f)
@@ -33,7 +33,7 @@ def cfg_load(p=PATH_FILE_CFG):
         os._exit(1)
 
 
-def cfg_save(c, p=PATH_FILE_CFG):
+def cfg_save_to_file(c, p=PATH_FILE_CFG):
     try:
         with open(p, 'w') as f:
             return toml.dump(c, f)
@@ -42,51 +42,54 @@ def cfg_save(c, p=PATH_FILE_CFG):
         os._exit(1)
 
 
-cfg = cfg_load()
+cfg = cfg_load_from_file()
 
 
-def dds_get_json_vessel_name():
+def dds_get_cfg_vessel_name():
     return cfg['behavior']['ship_name']
 
 
-def dds_get_aws_en():
+def dds_get_cfg_aws_en():
     return cfg['flags']['aws_en']
 
 
-def dds_get_flag_graph_test_mode():
+def dds_get_cfg_flag_graph_test_mode():
     return cfg['flags']['hook_graph_test_mode']
 
 
-def dds_get_flag_gps_external():
+def dds_get_cfg_flag_gps_external():
     return cfg['flags']['g_gps_is_external']
 
 
-def dds_get_flag_gps_error_forced():
+def dds_get_cfg_flag_gps_error_forced():
     return cfg['flags']['hook_gps_error_measurement_forced']
 
 
-def dds_get_monitored_serial_numbers():
+def dds_get_cfg_monitored_serial_numbers():
     return list(cfg['monitored_macs'].values())
 
 
-def dds_get_monitored_macs():
+def dds_get_cfg_monitored_macs():
     return list(cfg['monitored_macs'].keys())
 
 
-def dds_get_monitored_pairs():
+def dds_get_cfg_monitored_pairs():
     return cfg['monitored_macs']
 
 
-def dds_get_all_macs():
+def dds_get_cfg_all_macs():
     return cfg['all_macs']
 
 
-def dds_get_fake_gps_position():
+def dds_get_cfg_fake_gps_position():
     return cfg['behavior']['fake_gps_position']
 
 
-def dds_get_json_mac_dns(mac):
-    # todo: see if we can remove this or dds_get_json_mac_dns_from_json_file()
+def dds_get_cfg_forget_time_secs():
+    return int(cfg['behavior']['forget_time'])
+
+
+def dds_get_cfg_logger_sn_from_mac(mac):
     mac = mac.lower()
 
     # happens when g_graph_test_mode()
@@ -106,11 +109,7 @@ def dds_get_json_mac_dns(mac):
             return v.lower()
 
 
-def dds_json_get_forget_time_secs():
-    return int(cfg['behavior']['forget_time'])
-
-
-def dds_get_mac_from_sn_from_json_file(sn):
+def dds_get_cfg_logger_mac_from_sn(sn):
 
     sn = sn.lower()
 
@@ -131,11 +130,11 @@ def dds_get_mac_from_sn_from_json_file(sn):
             return k.lower()
 
 
-def ddh_get_json_gear_type():
+def ddh_get_cfg_gear_type():
     return cfg['behavior']['gear_type']
 
 
-def dds_check_we_have_box_env_info():
+def dds_check_cfg_has_box_info():
     sn = cfg['credentials']['cred_ddh_serial_number']
     if not sn:
         print('error: need box sn')
@@ -146,60 +145,60 @@ def dds_check_we_have_box_env_info():
         os._exit(1)
 
 
-def dds_get_flag_ble_purge_black_macs_on_boot():
+def dds_get_cfg_flag_purge_black_macs_on_boot():
     return cfg['flags']['hook_ble_purge_black_macs_on_boot']
 
 
-def dds_get_flag_ble_purge_this_mac_dl_files_folder():
+def dds_get_cfg_flag_purge_this_mac_dl_files_folder():
     return cfg['flags']['hook_ble_purge_this_mac_dl_files_folder']
 
 
-def dds_get_moving_speed():
+def dds_get_cfg_moving_speed():
     return cfg['behavior']['moving_speed']
 
 
-def dds_get_flag_ble_en():
+def dds_get_cfg_flag_ble_en():
     return cfg['flags']['ble_en']
 
 
-def dds_get_flag_rbl_en():
+def dds_get_cfg_flag_rbl_en():
     return cfg['flags']['rbl_en']
 
 
-def dds_get_flag_sqs_en():
+def dds_get_cfg_flag_sqs_en():
     return cfg['flags']['sqs_en']
 
 
-def dds_get_aws_credential(k):
+def dds_get_cfg_aws_credential(k):
     assert k in cfg['credentials'].keys() \
            and k.startswith("cred_aws_")
     return cfg['credentials'][k]
 
 
-def dds_get_box_sn():
+def dds_get_cfg_box_sn():
     return cfg["credentials"]["cred_ddh_serial_number"]
 
 
-def dds_get_box_project():
+def dds_get_cfg_box_project():
     return cfg["credentials"]["cred_ddh_project_name"]
 
 
 if __name__ == '__main__':
-    print('vessel_name', dds_get_json_vessel_name())
-    print('aws_en', dds_get_aws_en())
-    print('flag_graph_test', dds_get_flag_graph_test_mode())
-    print('flag_gps_external', dds_get_flag_gps_external())
-    print('flag_gps_error_forced', dds_get_flag_gps_error_forced())
-    print('ls_sn_macs', dds_get_monitored_serial_numbers())
-    print('json_mac_dns', dds_get_json_mac_dns("11-22-33-44-55-66"))
-    print('ft', dds_json_get_forget_time_secs())
-    print('monitored_macs', dds_get_monitored_macs())
+    print('vessel_name', dds_get_cfg_vessel_name())
+    print('aws_en', dds_get_cfg_aws_en())
+    print('flag_graph_test', dds_get_cfg_flag_graph_test_mode())
+    print('flag_gps_external', dds_get_cfg_flag_gps_external())
+    print('flag_gps_error_forced', dds_get_cfg_flag_gps_error_forced())
+    print('ls_sn_macs', dds_get_cfg_monitored_serial_numbers())
+    print('json_mac_dns', dds_get_cfg_logger_sn_from_mac("11-22-33-44-55-66"))
+    print('ft', dds_get_cfg_forget_time_secs())
+    print('monitored_macs', dds_get_cfg_monitored_macs())
     print('flag_re_run', get_ddh_rerun_flag())
-    print('mac_from_sn_json_file', dds_get_mac_from_sn_from_json_file('1234567'))
-    print('gear_type', ddh_get_json_gear_type())
-    print('check_we_have_box_env_info', dds_check_we_have_box_env_info())
-    print('purge_black_macs_on_boot', dds_get_flag_ble_purge_black_macs_on_boot())
-    print('purge_mac_dl_files_folder', dds_get_flag_ble_purge_this_mac_dl_files_folder())
-    print('get_moving_speed', dds_get_moving_speed())
-    print('dds_get_flag_rbl_en', dds_get_flag_rbl_en())
-    print('dds_get_flag_sqs_en', dds_get_flag_sqs_en())
+    print('mac_from_sn_json_file', dds_get_cfg_logger_mac_from_sn('1234567'))
+    print('gear_type', ddh_get_cfg_gear_type())
+    print('check_we_have_box_env_info', dds_check_cfg_has_box_info())
+    print('purge_black_macs_on_boot', dds_get_cfg_flag_purge_black_macs_on_boot())
+    print('purge_mac_dl_files_folder', dds_get_cfg_flag_purge_this_mac_dl_files_folder())
+    print('get_moving_speed', dds_get_cfg_moving_speed())
+    print('dds_get_flag_rbl_en', dds_get_cfg_flag_rbl_en())
+    print('dds_get_flag_sqs_en', dds_get_cfg_flag_sqs_en())

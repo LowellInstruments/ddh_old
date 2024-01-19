@@ -22,9 +22,9 @@ from mat.ble.ble_mat_utils import DDH_GUI_UDP_PORT
 from mat.utils import linux_is_rpi
 import subprocess as sp
 
-from utils.ddh_config import dds_get_json_vessel_name, dds_get_monitored_serial_numbers, \
-    dds_get_flag_graph_test_mode, dds_get_json_mac_dns, dds_json_get_forget_time_secs, dds_get_monitored_macs, \
-    dds_get_monitored_pairs
+from utils.ddh_config import dds_get_cfg_vessel_name, dds_get_cfg_monitored_serial_numbers, \
+    dds_get_cfg_flag_graph_test_mode, dds_get_cfg_logger_sn_from_mac, dds_get_cfg_forget_time_secs, dds_get_cfg_monitored_macs, \
+    dds_get_cfg_monitored_pairs
 
 from utils.ddh_shared import (
     STATE_DDS_BLE_SCAN,
@@ -91,7 +91,7 @@ def gui_setup_view(my_win):
     a.lbl_boat.setPixmap(QPixmap("ddh/gui/res/img_boat.png"))
     a.lbl_net.setPixmap(QPixmap("ddh/gui/res/img_wireless_color.png"))
     a.lbl_cloud_img.setPixmap(QPixmap("ddh/gui/res/upcloud.png"))
-    ship = dds_get_json_vessel_name()
+    ship = dds_get_cfg_vessel_name()
     a.lbl_boat_txt.setText(ship)
     a.setCentralWidget(a.tabs)
     a.tabs.setCurrentIndex(0)
@@ -152,7 +152,7 @@ def gui_manage_graph_test_files():
     shutil.rmtree(d2, ignore_errors=True)
     shutil.rmtree(d3, ignore_errors=True)
     shutil.rmtree(d4, ignore_errors=True)
-    if dds_get_flag_graph_test_mode():
+    if dds_get_cfg_flag_graph_test_mode():
         shutil.copytree(t0, d0)
         shutil.copytree(t1, d1)
         shutil.copytree(t2, d2)
@@ -204,7 +204,7 @@ def gui_ddh_populate_note_tab_dropdown(my_app):
     a = my_app
     a.lst_macs_note_tab.clear()
 
-    j = dds_get_monitored_serial_numbers()
+    j = dds_get_cfg_monitored_serial_numbers()
     for each in j:
         a.lst_macs_note_tab.addItem(each)
 
@@ -215,7 +215,7 @@ def gui_ddh_populate_graph_dropdown_sn(my_app):
     a = my_app
     a.cb_g_sn.clear()
 
-    if dds_get_flag_graph_test_mode():
+    if dds_get_cfg_flag_graph_test_mode():
         a.cb_g_sn.addItem('SNtest000')
         a.cb_g_sn.addItem('SNtest111')
         a.cb_g_sn.addItem('SNtest999')
@@ -223,7 +223,7 @@ def gui_ddh_populate_graph_dropdown_sn(my_app):
         a.cb_g_sn.addItem('SNtest333')
         return
 
-    j = dds_get_monitored_serial_numbers()
+    j = dds_get_cfg_monitored_serial_numbers()
     for each in j:
         a.cb_g_sn.addItem('SN' + each)
 
@@ -386,7 +386,7 @@ def gui_setup_buttons_rpi(my_app):
 
 
 def gui_add_to_history_database(mac, e, lat, lon, t):
-    sn = dds_get_json_mac_dns(mac)
+    sn = dds_get_cfg_logger_sn_from_mac(mac)
     db = DBHis(ddh_get_db_history_file())
     db.add(mac, sn, e, lat, lon, t)
 
@@ -681,7 +681,7 @@ def gui_timer_fxn(my_app):
 
 
 def gui_json_get_forget_time_secs():
-    t = dds_json_get_forget_time_secs()
+    t = dds_get_cfg_forget_time_secs()
     assert t >= 600
     return t
 

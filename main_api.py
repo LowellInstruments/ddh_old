@@ -13,7 +13,7 @@ from api.api_utils import get_git_commit_mat_local, \
 from dds.rbl import rbl_find_usb_port
 from mat.linux import linux_app_write_pid_to_tmp, linux_is_process_running
 from mat.utils import linux_is_rpi
-from utils.ddh_config import dds_get_json_vessel_name
+from utils.ddh_config import dds_get_cfg_vessel_name
 from utils.ddh_shared import NAME_EXE_API_CONTROLLER, \
     PID_FILE_API_CONTROLLER, \
     NAME_EXE_API, PID_FILE_API, get_ddh_folder_path_dl_files
@@ -47,7 +47,7 @@ async def ep_ping():
         "ping": "OK",
         "ip_vpn": get_ip_vpn(),
         "ip_wlan": get_ip_wlan(),
-        "vessel": dds_get_json_vessel_name()
+        "vessel": dds_get_cfg_vessel_name()
     }
     return d
 
@@ -98,7 +98,7 @@ async def api_get_info():
         "ble_state": _th(get_ble_state),
         "boat_prj": _th(get_boat_project),
         "boat_sn": _th(get_boat_sn),
-        "boat_name": _th(dds_get_json_vessel_name),
+        "boat_name": _th(dds_get_cfg_vessel_name),
         "running": _th(get_running),
         "crontab": _th(get_crontab_ddh),
         "mac_reset_files": _th(get_logger_mac_reset_files),
@@ -112,7 +112,7 @@ async def api_get_info():
 @app.get('/logs_get')
 async def ep_logs_get():
     now = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
-    vn = dds_get_json_vessel_name()
+    vn = dds_get_cfg_vessel_name()
     vn = vn.replace(' ', '')
     file_name = 'logs_{}_{}.zip'.format(vn, now)
     # zip ONLY .log files
@@ -130,7 +130,7 @@ async def ep_logs_get():
 @app.get("/conf_get")
 async def ep_conf_get():
     # prepare the zip file name
-    vn = dds_get_json_vessel_name()
+    vn = dds_get_cfg_vessel_name()
     vn = vn.replace(' ', '')
     file_name = 'conf_{}.zip'.format(vn)
 
@@ -145,7 +145,7 @@ async def ep_conf_get():
 
 @app.get("/dl_files_get")
 async def ep_dl_files_get():
-    vn = dds_get_json_vessel_name()
+    vn = dds_get_cfg_vessel_name()
     vn = vn.replace(' ', '')
     file_name = 'dl_files_{}.zip'.format(vn)
 

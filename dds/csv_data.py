@@ -2,7 +2,7 @@ import bisect
 import glob
 import os.path
 
-from utils.ddh_config import dds_get_json_vessel_name
+from utils.ddh_config import dds_get_cfg_vessel_name
 from utils.ddh_shared import get_ddh_folder_path_dl_files
 from utils.logs import lg_cnv as lg
 
@@ -22,7 +22,7 @@ def _file_lowell_raw_csv_to_emolt_lt_csv(filename):
     etc = lr[-1].split(',')[0].replace('.000', 'Z')
 
     # track files: get file names involved
-    v = dds_get_json_vessel_name().replace(" ", "_")
+    v = dds_get_cfg_vessel_name().replace(" ", "_")
     fol = str(get_ddh_folder_path_dl_files())
     mask = "{}/ddh#{}/{}T*Z#{}_track.txt"
     mask_stf = mask.format(fol, v, stc.split('T')[0], v)

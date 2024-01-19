@@ -13,7 +13,7 @@ from dds.sqs import sqs_msg_ddh_alarm_s3
 from dds.timecache import its_time_to
 from mat.linux import linux_is_process_running
 from mat.utils import linux_is_rpi
-from utils.ddh_config import dds_get_json_vessel_name, dds_get_aws_en, dds_get_aws_credential
+from utils.ddh_config import dds_get_cfg_vessel_name, dds_get_cfg_aws_en, dds_get_cfg_aws_credential
 from utils.ddh_shared import (
     send_ddh_udp_gui as _u,
     get_ddh_folder_path_dl_files,
@@ -67,9 +67,9 @@ def _aws_s3_sync_process():
     # sys.exit() instead of return prevents zombie processes
     setproctitle.setproctitle(AWS_S3_SYNC_PROC_NAME)
     fol_dl_files = get_ddh_folder_path_dl_files()
-    _k = dds_get_aws_credential("cred_aws_key_id")
-    _s = dds_get_aws_credential("cred_aws_secret")
-    _n = dds_get_aws_credential("cred_aws_bucket")
+    _k = dds_get_cfg_aws_credential("cred_aws_key_id")
+    _s = dds_get_cfg_aws_credential("cred_aws_secret")
+    _n = dds_get_cfg_aws_credential("cred_aws_bucket")
     if _k is None or _s is None or _n is None:
         lg.a("warning: missing credentials")
         _u(STATE_DDS_NOTIFY_CLOUD_LOGIN)
@@ -103,7 +103,7 @@ def _aws_s3_sync_process():
         ).format(_k, _s, _bin, m, _n, um, dr)
 
         if this_box_has_grouped_s3_uplink():
-            v = dds_get_json_vessel_name()
+            v = dds_get_cfg_vessel_name()
             # v: "bailey's" --> BAYLEYS
             v = v.replace("'", "")
             v = v.replace(" ", "_")
@@ -180,7 +180,7 @@ def aws_serve():
         return
 
     # nothing to do, in fact, disabled
-    if not dds_get_aws_en():
+    if not dds_get_cfg_aws_en():
         lg.a("warning: aws_en is disabled")
         return
 

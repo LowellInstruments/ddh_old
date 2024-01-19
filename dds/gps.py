@@ -8,8 +8,8 @@ from mat.gps import PORT_CTRL, PORT_DATA
 from mat.utils import linux_is_rpi, linux_set_datetime
 from tzlocal import get_localzone
 
-from utils.ddh_config import dds_get_json_vessel_name, dds_get_flag_gps_external, dds_get_flag_gps_error_forced, \
-    dds_get_fake_gps_position
+from utils.ddh_config import dds_get_cfg_vessel_name, dds_get_cfg_flag_gps_external, dds_get_cfg_flag_gps_error_forced, \
+    dds_get_cfg_fake_gps_position
 from utils.ddh_shared import (
     send_ddh_udp_gui as _u,
     STATE_DDS_NOTIFY_GPS,
@@ -67,7 +67,7 @@ def _gps_bu353s4_find_usb_port():
     return find_usb_port_automatically('067B:23A3')
 
 
-if dds_get_flag_gps_external():
+if dds_get_cfg_flag_gps_external():
     _g_bu353s4_port = _gps_bu353s4_find_usb_port()
 
 
@@ -179,7 +179,7 @@ def _gps_measure():
     global _g_bu353s4_port
 
     # hooks
-    if dds_get_flag_gps_error_forced():
+    if dds_get_cfg_flag_gps_error_forced():
         _u(STATE_DDS_BLE_APP_GPS_ERROR_POSITION)
         lg.a("debug: HOOK_GPS_ERROR_MEASUREMENT_FORCED")
         return
@@ -187,13 +187,13 @@ def _gps_measure():
     if check_gps_dummy_mode():
         # lg.a('debug: HOOK_GPS_DUMMY_MEASUREMENT')
         time.sleep(0.5)
-        fgp = dds_get_fake_gps_position()
+        fgp = dds_get_cfg_fake_gps_position()
         lat = "{:+.6f}".format(fgp[0])
         lon = "{:+.6f}".format(fgp[1])
         return lat, lon, datetime.datetime.utcnow(), 1
 
     # open serial port
-    if dds_get_flag_gps_external():
+    if dds_get_cfg_flag_gps_external():
         sp = serial.Serial(_g_bu353s4_port, 4800, timeout=0.2)
     else:
         sp = serial.Serial(PORT_DATA, baudrate=115200, timeout=0.2,
@@ -224,7 +224,7 @@ def _gps_measure():
         b = sp.readall()
 
         # USB GPS puck
-        if dds_get_flag_gps_external():
+        if dds_get_cfg_flag_gps_external():
             if not b:
                 continue
             try:
@@ -378,7 +378,7 @@ def gps_wait_for_first_frame_at_boot():
 def gps_tell_vessel_name():
     if not its_time_to("tell_vessel_name", PERIOD_GPS_TELL_VESSEL_SECS):
         return
-    v = dds_get_json_vessel_name()
+    v = dds_get_cfg_vessel_name()
     _u("{}/{}".format(STATE_DDS_NOTIFY_BOAT_NAME, v))
 
 
@@ -451,7 +451,7 @@ def gps_power_cycle_if_so(forced=False):
         lg.a("debug: no power cycle dummy GPS")
         return
 
-    if dds_get_flag_gps_external():
+    if dds_get_cfg_flag_gps_external():
         if its_time_to("show_debug_power_cycle_gps_puck", PERIOD_GPS_TELL_PUCK_NO_PC):
             lg.a("debug: no power cycle BU-353-S4 GPS puck")
         return
@@ -516,7 +516,7 @@ def gps_configure_shield():
     if check_gps_dummy_mode():
         return
 
-    if dds_get_flag_gps_external():
+    if dds_get_cfg_flag_gps_external():
         return
 
     did_configure_ok = False
@@ -562,7 +562,7 @@ def gps_know_hat_firmware_version():
     if check_gps_dummy_mode():
         return
 
-    if dds_get_flag_gps_external():
+    if dds_get_cfg_flag_gps_external():
         return
 
     sp = None
@@ -600,7 +600,7 @@ def gps_know_hat_firmware_version():
 
 
 if __name__ == "__main__":
-    if not dds_get_flag_gps_external():
+    if not dds_get_cfg_flag_gps_external():
         gps_configure_shield()
     while 1:
         m = gps_measure()

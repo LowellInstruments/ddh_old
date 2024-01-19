@@ -9,8 +9,8 @@ from dds.sqs import sqs_msg_ddh_error_ble_hw
 from dds.timecache import its_time_to
 from mat.ble.ble_mat_utils import ble_mat_get_bluez_version
 from mat.utils import linux_is_rpi
-from utils.ddh_config import dds_get_monitored_macs, dds_get_flag_ble_purge_black_macs_on_boot, \
-    ddh_get_json_gear_type, dds_get_moving_speed
+from utils.ddh_config import dds_get_cfg_monitored_macs, dds_get_cfg_flag_purge_black_macs_on_boot, \
+    ddh_get_cfg_gear_type, dds_get_cfg_moving_speed
 from utils.ddh_shared import (
     send_ddh_udp_gui as _u,
     ddh_get_disabled_ble_flag_file,
@@ -31,7 +31,7 @@ _g_ant_ble = "undefined"
 
 
 def ble_show_monitored_macs():
-    mm = dds_get_monitored_macs()
+    mm = dds_get_cfg_monitored_macs()
     for i in mm:
         lg.a("debug: monitored mac {}".format(i))
 
@@ -63,11 +63,11 @@ def ble_op_conditions_met(knots) -> bool:
         os.unlink(flag)
         return True
 
-    l_h = ddh_get_json_gear_type()
-    speed_range = dds_get_moving_speed()
+    l_h = ddh_get_cfg_gear_type()
+    speed_range = dds_get_cfg_moving_speed()
 
     # case: forgot to assign loggers
-    if not dds_get_monitored_macs():
+    if not dds_get_cfg_monitored_macs():
         _u(STATE_DDS_BLE_NO_ASSIGNED_LOGGERS)
         time.sleep(5)
         return False
@@ -191,7 +191,7 @@ def dds_tell_software_update():
 
 
 def ble_apply_debug_hooks_at_boot():
-    if dds_get_flag_ble_purge_black_macs_on_boot():
+    if dds_get_cfg_flag_purge_black_macs_on_boot():
         lg.a("debug: HOOK_PURGE_BLACK_MACS_ON_BOOT")
         p = pathlib.Path(get_ddh_folder_path_macs_black())
         shutil.rmtree(str(p), ignore_errors=True)

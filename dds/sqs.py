@@ -19,8 +19,8 @@ from dds.ddn_msg import (
 
 from dds.timecache import its_time_to
 from mat.utils import linux_is_rpi3, linux_is_rpi4
-from utils.ddh_config import dds_get_json_vessel_name, dds_get_flag_sqs_en, dds_get_aws_credential, dds_get_box_sn, \
-    dds_get_box_project
+from utils.ddh_config import dds_get_cfg_vessel_name, dds_get_cfg_flag_sqs_en, dds_get_cfg_aws_credential, dds_get_cfg_box_sn, \
+    dds_get_cfg_box_project
 from utils.logs import lg_sqs as lg
 from utils.ddh_shared import (
     get_ddh_folder_path_sqs,
@@ -37,12 +37,12 @@ warnings.filterwarnings("ignore",
 # ------------------------------------
 # allows for double credential system
 # ------------------------------------
-sqs_key_id = dds_get_aws_credential("cred_aws_key_id")
-custom_sqs_key_id = dds_get_aws_credential("cred_aws_custom_sqs_key_id")
+sqs_key_id = dds_get_cfg_aws_credential("cred_aws_key_id")
+custom_sqs_key_id = dds_get_cfg_aws_credential("cred_aws_custom_sqs_key_id")
 if custom_sqs_key_id:
     sqs_key_id = custom_sqs_key_id
-sqs_access_key = dds_get_aws_credential("cred_aws_secret")
-custom_sqs_access_key = dds_get_aws_credential("cred_aws_custom_sqs_access_key")
+sqs_access_key = dds_get_cfg_aws_credential("cred_aws_secret")
+custom_sqs_access_key = dds_get_cfg_aws_credential("cred_aws_custom_sqs_access_key")
 if custom_sqs_access_key:
     sqs_access_key = custom_sqs_access_key
 
@@ -96,7 +96,7 @@ def _sqs_gen_file(desc, mac, lg_sn, lat, lon, m_ver=1, data=""):
 
     # grab all local info
     try:
-        vn = dds_get_json_vessel_name()
+        vn = dds_get_cfg_vessel_name()
     except (Exception,):
         vn = "test_vessel_name"
     try:
@@ -113,14 +113,14 @@ def _sqs_gen_file(desc, mac, lg_sn, lat, lon, m_ver=1, data=""):
     # build DDN message w/ local info + parameters
     d = DdnMsg()
     d.reason = desc
-    d.project = dds_get_box_project()
+    d.project = dds_get_cfg_box_project()
     d.logger_mac = mac
     d.logger_sn = lg_sn
     d.vessel = vn
     d.ddh_commit = dch
     d.utc_time = int(time.time())
     d.local_time = int(d.utc_time + get_utc_offset())
-    d.box_sn = dds_get_box_sn()
+    d.box_sn = dds_get_cfg_box_sn()
     d.hw_uptime = rv_up.stdout.decode()
     d.gps_position = "{},{}".format(lat, lon)
     d.platform = plat
@@ -249,7 +249,7 @@ def sqs_serve():
     if not its_time_to("sqs_serve", 600):
         return
 
-    if not dds_get_flag_sqs_en():
+    if not dds_get_cfg_flag_sqs_en():
         lg.a("warning: sqs_en is False")
         return
 
@@ -279,7 +279,7 @@ def sqs_serve():
             # ENQUEUES the JSON as string to SQS service
             m = json.dumps(j)
             rsp = sqs.send_message(
-                QueueUrl=dds_get_aws_credential("cred_aws_sqs_queue_name"),
+                QueueUrl=dds_get_cfg_aws_credential("cred_aws_sqs_queue_name"),
                 MessageGroupId=str(uuid.uuid4()),
                 MessageDeduplicationId=str(uuid.uuid4()),
                 MessageBody=m,

@@ -41,9 +41,9 @@ from mat.linux import linux_is_process_running
 from mat.utils import linux_is_rpi
 from rpc.rpc_rx import th_srv_notify
 from rpc.rpc_tx import th_cli_cmd
-from utils.ddh_config import dds_get_json_vessel_name, dds_get_mac_from_sn_from_json_file, \
-    ddh_get_json_gear_type, cfg_load, dds_get_flag_ble_en, cfg_save, dds_get_monitored_pairs, \
-    dds_get_all_macs
+from utils.ddh_config import dds_get_cfg_vessel_name, dds_get_cfg_logger_mac_from_sn, \
+    ddh_get_cfg_gear_type, cfg_load_from_file, dds_get_cfg_flag_ble_en, cfg_save_to_file, dds_get_cfg_monitored_pairs, \
+    dds_get_cfg_all_macs
 from utils.ddh_shared import (
     get_ddh_folder_path_dl_files,
     ddh_get_gui_closed_flag_file,
@@ -64,13 +64,13 @@ from utils.logs import lg_gui as lg  # noqa: E402
 import subprocess as sp  # noqa: E402
 
 
-_g_flag_ble_en = dds_get_flag_ble_en()
+_g_flag_ble_en = dds_get_cfg_flag_ble_en()
 
 
 class DDH(QMainWindow, d_m.Ui_MainWindow):
     def __init__(self):
         super(DDH, self).__init__()
-        cfg_load()
+        cfg_load_from_file()
         gui_setup_view(self)
         gui_setup_buttons(self)
         gui_center_window(self)
@@ -200,7 +200,7 @@ class DDH(QMainWindow, d_m.Ui_MainWindow):
         """loads (mac, name) pairs from all macs config section"""
 
         self.lst_mac_org.clear()
-        pp = dds_get_all_macs()
+        pp = dds_get_cfg_all_macs()
         for m, n in pp.items():
             s = "{}  {}".format(m, n)
             self.lst_mac_org.addItem(s)
@@ -209,7 +209,7 @@ class DDH(QMainWindow, d_m.Ui_MainWindow):
         """loads (mac, name) pairs from config file"""
 
         self.lst_mac_org.clear()
-        pp = dds_get_monitored_pairs()
+        pp = dds_get_cfg_monitored_pairs()
         for m, n in pp.items():
             s = "{}  {}".format(m, n)
             self.lst_mac_org.addItem(s)
@@ -265,12 +265,12 @@ class DDH(QMainWindow, d_m.Ui_MainWindow):
         self.lbl_setup_result.setText(s)
 
         # update configuration with these GUI values
-        cfg = cfg_load()
+        cfg = cfg_load_from_file()
         cfg['behavior']["forget_time"] = t
         cfg['behavior']['ship_name'] = ves
         cfg['behavior']['gear_type'] = lhf
         cfg['monitored_macs'] = pairs
-        cfg_save(cfg)
+        cfg_save_to_file(cfg)
 
         # bye, bye DDS
         dds_kill_by_pid_file(only_child=True)
@@ -363,9 +363,9 @@ class DDH(QMainWindow, d_m.Ui_MainWindow):
     def click_btn_load_current_json_file(self):
         """updates EDIT tab from current config file"""
 
-        ves = dds_get_json_vessel_name()
+        ves = dds_get_cfg_vessel_name()
         f_t = gui_json_get_forget_time_secs()
-        lhf = ddh_get_json_gear_type()
+        lhf = ddh_get_cfg_gear_type()
         self.lne_vessel.setText(ves)
         self.lne_forget.setText(str(f_t))
         # set index of the JSON dropdown list
@@ -385,7 +385,7 @@ class DDH(QMainWindow, d_m.Ui_MainWindow):
                         continue
 
                     sn = self.lst_macs_note_tab.item(i).text()
-                    mac = dds_get_mac_from_sn_from_json_file(sn)
+                    mac = dds_get_cfg_logger_mac_from_sn(sn)
                     if mac:
                         mac = mac.replace(":", "-")
                         mask = "{}/{}@*".format(p, mac)

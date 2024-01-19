@@ -1,7 +1,7 @@
 import glob
 import json
 
-from utils.ddh_config import dds_get_json_vessel_name
+from utils.ddh_config import dds_get_cfg_vessel_name
 from utils.ddh_shared import get_ddh_folder_path_lef
 import os
 
@@ -27,7 +27,7 @@ def dds_create_file_lef(g, name):
         "dl_utc_tg": str(tg),
         "dl_speed": speed,
         "dl_filename": name,
-        "dl_vessel": dds_get_json_vessel_name()
+        "dl_vessel": dds_get_cfg_vessel_name()
     }
     fol = str(get_ddh_folder_path_lef())
     path = "{}/dl_{}.lef".format(fol, name)

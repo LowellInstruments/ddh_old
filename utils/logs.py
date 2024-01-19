@@ -3,7 +3,7 @@ import glob
 import os
 from pathlib import Path
 from dds.timecache import its_time_to
-from utils.ddh_config import dds_get_json_vessel_name
+from utils.ddh_config import dds_get_cfg_vessel_name
 from utils.ddh_shared import (
     get_ddh_folder_path_logs,
     get_ddh_folder_path_dl_files, get_ddh_folder_path_lef,
@@ -123,7 +123,7 @@ def dds_log_tracking_add(lat, lon, tg):
     str_iso_tg_tz_utc = '{}Z'.format(iso_tg)
 
     # create TRACKING log folder if it does not exist
-    v = dds_get_json_vessel_name().replace(" ", "_")
+    v = dds_get_cfg_vessel_name().replace(" ", "_")
     d = str(get_ddh_folder_path_dl_files())
     d = "{}/ddh#{}/".format(d, v)
     Path(d).mkdir(parents=True, exist_ok=True)

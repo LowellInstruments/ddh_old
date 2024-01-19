@@ -24,7 +24,7 @@ from dds.sqs import (
     sqs_msg_notes_cc26x2r,
 )
 from mat.utils import linux_is_rpi
-from utils.ddh_config import dds_get_flag_ble_purge_this_mac_dl_files_folder, dds_get_json_mac_dns
+from utils.ddh_config import dds_get_cfg_flag_purge_this_mac_dl_files_folder, dds_get_cfg_logger_sn_from_mac
 from utils.ddh_shared import (
     send_ddh_udp_gui as _u,
     STATE_DDS_BLE_DOWNLOAD_OK,
@@ -116,13 +116,13 @@ async def _ble_id_n_interact_logger(mac, info: str, h, g):
     # info = 'DO-2'
 
     # debug: delete THIS logger's existing files
-    if dds_get_flag_ble_purge_this_mac_dl_files_folder():
+    if dds_get_cfg_flag_purge_this_mac_dl_files_folder():
         lg.a("debug: HOOK_PURGE_THIS_MAC_DL_FILES_FOLDER {}".format(mac))
         p = pathlib.Path(get_dl_folder_path_from_mac(mac))
         shutil.rmtree(str(p), ignore_errors=True)
 
     # get logger serial number
-    sn = dds_get_json_mac_dns(mac)
+    sn = dds_get_cfg_logger_sn_from_mac(mac)
     _u("{}/{}".format(STATE_DDS_BLE_DOWNLOAD, sn))
     lg.a("processing sensor {} / mac {}".format(sn, mac))
 

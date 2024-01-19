@@ -14,7 +14,7 @@ from ddh.utils_graph import utils_graph_read_fol_req_file, \
     utils_graph_does_exist_fol_req_file, \
     utils_graph_delete_fol_req_file
 from mat.utils import linux_is_rpi
-from utils.ddh_config import dds_get_json_mac_dns, dds_get_mac_from_sn_from_json_file
+from utils.ddh_config import dds_get_cfg_logger_sn_from_mac, dds_get_cfg_logger_mac_from_sn
 from utils.ddh_shared import get_dl_folder_path_from_mac, \
     ddh_get_absolute_application_path, \
     get_number_of_hauls
@@ -216,7 +216,7 @@ def _process_n_graph(a, r=''):
             raise GraphException('seems no one asked for a graph?')
         if sn.startswith('SN'):
             sn = sn[2:]
-        mac = dds_get_mac_from_sn_from_json_file(sn).replace(':', '-')
+        mac = dds_get_cfg_logger_mac_from_sn(sn).replace(':', '-')
         if not _graph_check_mac_has_dl_files(mac, fol_ls):
             raise GraphException(f'error: no files for sn {sn} mac {mac}')
         lg.a('selected dropdown sn {} / mac {}'.format(sn, mac))

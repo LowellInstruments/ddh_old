@@ -46,8 +46,8 @@ from mat.ble.ble_mat_utils import (
 )
 from rpc.rpc_rx import th_srv_cmd
 from rpc.rpc_tx import th_cli_notify
-from utils.ddh_config import dds_get_json_vessel_name, dds_check_we_have_box_env_info, \
-    dds_get_monitored_macs, dds_get_box_sn, dds_get_box_project
+from utils.ddh_config import dds_get_cfg_vessel_name, dds_check_cfg_has_box_info, \
+    dds_get_cfg_monitored_macs, dds_get_cfg_box_sn, dds_get_cfg_box_project
 from utils.ddh_shared import (
     PID_FILE_DDS,
     dds_create_folder_dl_files,
@@ -67,7 +67,7 @@ import setproctitle
 
 def main_dds():
     dds_tell_software_update()
-    dds_check_we_have_box_env_info()
+    dds_check_cfg_has_box_info()
     dds_ensure_proper_working_folder()
     dds_create_folder_macs_color()
     dds_create_folder_sqs()
@@ -76,7 +76,7 @@ def main_dds():
     dds_create_folder_logs()
     dds_log_core_start_at_boot()
     dds_macs_color_show_at_boot()
-    m_j = dds_get_monitored_macs()
+    m_j = dds_get_cfg_monitored_macs()
     dds_check_bluez_version()
 
     ble_show_monitored_macs()
@@ -174,9 +174,9 @@ def _alarm_dds_crash(n):
     if n == 0:
         return
     if its_time_to('tell_dds_child_crash', 3600):
-        vs = dds_get_json_vessel_name()
-        box_sn = dds_get_box_sn()
-        prj = dds_get_box_project()
+        vs = dds_get_cfg_vessel_name()
+        box_sn = dds_get_cfg_box_sn()
+        prj = dds_get_cfg_box_project()
         ip_vpn = get_ip_vpn()
         u = str(uuid.uuid4())[:5]
         s = f'DDH just crashed, check it: '
