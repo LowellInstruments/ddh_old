@@ -37,10 +37,10 @@ def net_serve():
 
     global _g_last_via
     if via != _g_last_via:
-        s = "internet via is {}"
         if via == "none":
-            s = "warning: " + s
-        lg.a(s.format(via))
+            lg.a("warning: seems no internet")
+        else:
+            lg.a(f"internet via {via}")
     _g_last_via = via
 
 
