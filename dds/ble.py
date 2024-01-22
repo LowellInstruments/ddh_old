@@ -11,6 +11,7 @@ from dds.macs import (
     is_mac_in_orange,
     add_mac_orange,
 )
+from dds.timecache import its_time_to
 from mat.ble.ble_mat_utils import ble_mat_bluetoothctl_power_cycle, ble_mat_disconnect_all_devices_ll
 from mat.ble.bleak.cc26x2r_sim import ble_logger_is_cc26x2r_simulated
 
@@ -208,6 +209,12 @@ async def ble_interact_all_loggers(macs_det, macs_mon, g, _h: int, _h_desc):
         simulated_mac = ble_logger_is_cc26x2r_simulated(mac)
         if mac not in macs_mon and not simulated_mac:
             continue
+
+        # helps in distance-detection issues
+        if its_time_to(f'tell_saw_mac_{mac}', 900):
+            sn = dds_get_cfg_logger_sn_from_mac(mac)
+            lg.a(f"debug: seen logger {sn} / mac {mac}")
+
         if is_mac_in_black(mac):
             continue
         if is_mac_in_orange(mac):
