@@ -254,12 +254,15 @@ def gui_setup_buttons(my_app):
     # buttons' connections
     a.btn_known_clear.clicked.connect(a.click_btn_clear_known_mac_list)
     a.btn_see_all.clicked.connect(a.click_btn_clear_see_all_macs)
+    # see current macs
     a.btn_see_cur.clicked.connect(a.click_btn_see_macs_in_current_json_file)
     a.btn_arrow.clicked.connect(a.click_btn_arrow_move_entries)
+    # save configuration
     a.btn_setup_apply.clicked.connect(a.click_btn_apply_write_json_file)
     a.btn_dl_purge.clicked.connect(a.click_btn_purge_dl_folder)
     a.btn_his_purge.clicked.connect(a.click_btn_purge_his_db)
     a.btn_adv_purge_lo.clicked.connect(a.click_btn_adv_purge_lo)
+    # load current settings
     a.btn_load_current.clicked.connect(a.click_btn_load_current_json_file)
     a.btn_note_yes.clicked.connect(a.click_btn_note_yes)
     a.btn_note_no.clicked.connect(a.click_btn_note_no)

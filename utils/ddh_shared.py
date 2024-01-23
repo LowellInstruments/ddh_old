@@ -101,13 +101,23 @@ def send_ddh_udp_gui(s, ip="127.0.0.1", port=DDH_GUI_UDP_PORT):
 
 # used by GUI on upper-X, 'q', clicking uptime and ctrl+c
 def dds_kill_by_pid_file(only_child=False):
-    print("[ KILL ] killing child DDS process")
+    print("[ KILL ] killing DDS child process")
     c = "pkill -F {}".format(PID_FILE_DDS)
     sp.run(c, shell=True)
     if only_child:
         return
-    print("[ KILL ] killing controller DDS process")
+    print("[ KILL ] killing DDS controller process")
     c = "pkill -F {}".format(PID_FILE_DDS_CONTROLLER)
+    sp.run(c, shell=True)
+
+
+def ddh_kill_by_pid_file(only_child=False):
+    if not only_child:
+        print("[ KILL ] killing DDH controller process")
+        c = "pkill -F {}".format(PID_FILE_DDH_CONTROLLER)
+        sp.run(c, shell=True)
+    print("[ KILL ] killing DDH child process")
+    c = "pkill -F {}".format(PID_FILE_DDH)
     sp.run(c, shell=True)
 
 

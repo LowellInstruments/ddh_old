@@ -100,7 +100,7 @@ def _menu_display(d: dict, cfg: dict):
     print("scan done!")
     print("\nchoose an option:")
     print("\ts) scan for macs nearby")
-    print("\tl) list monitored macs in file li_all_macs_to_sn.yml")
+    print("\tl) list monitored macs in DDH configuration file")
     print("\tr) toggle RUN flag, current value is {}".format(g_flag_run))
     print("\ti) set DO interval, current value is {}".format(cfg["DRI"]))
     print("\td) set DEPLOYMENT, current value is {}".format(cfg["DFN"]))

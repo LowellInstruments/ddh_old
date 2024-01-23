@@ -13,10 +13,10 @@ ship_name = "FV_DDH_401"
 forget_time = 36000
 gear_type = 0
 moving_speed = [ 0.5, 7.0,]
-fake_gps_position = [11.0, -83.0]
+fake_gps_position = [ 11.0, -83.0,]
 
 [monitored_macs]
-"60:77:71:22:ca:21" = "3333333"
+"11:22:33:44:55:66" = "1234567"
 
 [all_macs]
 "11:22:33:44:55:66" = "1234567"

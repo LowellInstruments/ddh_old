@@ -36,7 +36,7 @@ def cfg_load_from_file(p=PATH_FILE_CFG):
 def cfg_save_to_file(c, p=PATH_FILE_CFG):
     try:
         with open(p, 'w') as f:
-            return toml.dump(c, f)
+            toml.dump(c, f)
     except (Exception, ) as ex:
         print('error: toml_cfg_read_file: ', ex)
         os._exit(1)

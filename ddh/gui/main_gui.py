@@ -1,3 +1,5 @@
+import time
+
 import pyqtgraph as pg
 from pathlib import Path
 import psutil
@@ -57,7 +59,7 @@ from utils.ddh_shared import (
     STATE_DDS_BLE_SERVICE_INACTIVE,
     dds_get_ddh_got_an_update_flag_file,
     STATE_DDS_SOFTWARE_UPDATED,
-    ddh_get_db_history_file, set_ddh_rerun_flag
+    ddh_get_db_history_file, set_ddh_rerun_flag, ddh_kill_by_pid_file
 )
 
 from utils.logs import lg_gui as lg  # noqa: E402
@@ -70,7 +72,6 @@ _g_flag_ble_en = dds_get_cfg_flag_ble_en()
 class DDH(QMainWindow, d_m.Ui_MainWindow):
     def __init__(self):
         super(DDH, self).__init__()
-        cfg_load_from_file()
         gui_setup_view(self)
         gui_setup_buttons(self)
         gui_center_window(self)
@@ -239,8 +240,9 @@ class DDH(QMainWindow, d_m.Ui_MainWindow):
 
         l_v = self.lst_mac_dst
         pairs = dict_from_list_view(l_v)
+        # pairs: {'11:22:33:44:55:66': '1234567'}
 
-        # input: <mac, name> pairs and forget_time
+        # input: forget_time
         try:
             t = int(self.lne_forget.text())
         except ValueError:
@@ -260,23 +262,23 @@ class DDH(QMainWindow, d_m.Ui_MainWindow):
             self.lbl_setup_result.setText("bad vessel name")
             return
 
+        save_cfg = cfg_load_from_file()
+        save_cfg['behavior']["forget_time"] = t
+        save_cfg['behavior']['ship_name'] = ves
+        save_cfg['behavior']['gear_type'] = lhf
+        save_cfg['monitored_macs'] = pairs
+        cfg_save_to_file(save_cfg)
+
         # we seem good to go
         s = "restarting DDH..."
         self.lbl_setup_result.setText(s)
-
-        # update configuration with these GUI values
-        cfg = cfg_load_from_file()
-        cfg['behavior']["forget_time"] = t
-        cfg['behavior']['ship_name'] = ves
-        cfg['behavior']['gear_type'] = lhf
-        cfg['monitored_macs'] = pairs
-        cfg_save_to_file(cfg)
+        lg.a("closing by save config button")
 
         # bye, bye DDS
-        dds_kill_by_pid_file(only_child=True)
+        dds_kill_by_pid_file(only_child=False)
+        ddh_kill_by_pid_file(only_child=False)
 
         # bye, bye DDH
-        lg.a("closing by save config button")
         sys.stderr.close()
         os._exit(0)
 
