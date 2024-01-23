@@ -137,11 +137,15 @@ def ddh_get_cfg_gear_type():
 def dds_check_cfg_has_box_info():
     sn = cfg['credentials']['cred_ddh_serial_number']
     if not sn:
-        print('error: need box sn')
+        print('***********************')
+        print('  error! need box sn')
+        print('***********************')
         os._exit(1)
     prj = cfg['credentials']['cred_ddh_project_name']
     if not prj:
-        print('error: need box project name')
+        print('********************************')
+        print('  error: need box project name')
+        print('********************************')
         os._exit(1)
 
 
