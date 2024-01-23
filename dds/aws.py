@@ -191,7 +191,7 @@ def aws_serve():
     for i in ('lid', 'lix', 'csv', 'cst', 'gps', 'bin'):
         ls += glob.glob(f'{fol}/**/*.{i}')
     global past_n_files
-    ff_ctt = past_n_files == len(ls) and not exists_flag_gui
+    ff_ctt = (not exists_flag_gui) and past_n_files == len(ls)
     past_n_files = len(ls)
     if ff_ctt:
         lg.a('warning: AWS same number of files, not syncing')
@@ -199,7 +199,7 @@ def aws_serve():
 
     # tell why we do AWS
     if os.path.exists(flag_gui):
-        lg.a("debug: aws_do_flag_gui is set")
+        lg.a("debug: the aws_do_flag_gui is set")
         os.unlink(flag_gui)
     else:
         lg.a("period elapsed, time for some AWS S3")
