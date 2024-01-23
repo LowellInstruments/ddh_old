@@ -46,7 +46,7 @@ fi
 
 
 echo -e "${C_B}\n>>> ensure we have extra requirements installed\n${C_Z}"
-pip install -r $FA/requirements_rpi_39_extra.txt
+pip install -r $FA/requirements_rpi_39_2023_extra.txt
 
 
 echo -e "${C_B}\n>>> un-stashing DDS configuration\n${C_Z}"
