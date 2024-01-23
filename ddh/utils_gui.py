@@ -408,9 +408,7 @@ def gui_confirm_by_user(s):
 
 def _parse_addr(my_app, addr):
     ip, _ = addr
-    if ip == "127.0.0.1":
-        my_app.lbl_ip.setText("local DDH")
-    else:
+    if ip != "127.0.0.1":
         my_app.lbl_ip.setText("remote DDH")
 
 
