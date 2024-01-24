@@ -7,65 +7,73 @@ from utils.ddh_shared import get_ddh_folder_path_dl_files
 from utils.logs import lg_cnv as lg
 
 
+# outputs a CST file (CSV file + tracking GPS info)
 def _file_lowell_raw_csv_to_emolt_lt_csv(filename):
 
-    # be sure of extensions
-    raw_csv_file = filename
-    if raw_csv_file.endswith('.lix'):
-        raw_csv_file = filename[:-4] + '_TAP.csv'
+    # correct a bad input parameter filename
+    csv_f = filename.replace('.lix', '_TAP.csv')
 
-    # CSV RAW data file: get start time and end time
-    lg.a(f'generating trawling for input file {raw_csv_file}')
-    with open(raw_csv_file) as f:
-        lr = f.readlines()
-    stc = lr[1].split(',')[0].replace('.000', 'Z')
-    etc = lr[-1].split(',')[0].replace('.000', 'Z')
+    # read csv file into lines
+    lg.a(f'generating trawling for input file {csv_f}')
+    with open(csv_f) as f:
+        csv_ll = f.readlines()
 
-    # track files: get file names involved
+    # use first and last csv lines to know names of GPS track files involved
+    stc = csv_ll[1].split(',')[0].replace('.000', 'Z')
+    etc = csv_ll[-1].split(',')[0].replace('.000', 'Z')
     v = dds_get_cfg_vessel_name().replace(" ", "_")
     fol = str(get_ddh_folder_path_dl_files())
     mask = "{}/ddh#{}/{}T*Z#{}_track.txt"
+    # mask: dl_files/ddh#<v>/2023-12-12T*Z#<v>_track.txt
     mask_stf = mask.format(fol, v, stc.split('T')[0], v)
     mask_etf = mask.format(fol, v, etc.split('T')[0], v)
     stf = glob.glob(mask_stf)
     etf = glob.glob(mask_etf)
 
-    # keep only unique file names
-    atf = list(set(stf).union(set(etf)))
-    if not atf:
+    # filter by unique tracking file names
+    utf = list(set(stf).union(set(etf)))
+    if not utf:
         lg.a(f'error: no track files found for mask {mask}')
         return
 
-    # track files: create big database
-    dbt = []
-    for i in atf:
+    # track files: create big database of lines
+    tf_ll = []
+    for i in utf:
         with open(i) as f:
-            dbt += f.readlines()
+            tf_ll += f.readlines()
 
-    # OUT: new lowell file lt_*.cst
-    bn = os.path.basename(raw_csv_file)
-    cst_filename = os.path.dirname(raw_csv_file) + '/lt_' + bn[:-4] + '.cst'
+    # ------------------------------------------------
+    # write new output file lt_*.cst (csv + tracking)
+    # ------------------------------------------------
+    bn = os.path.basename(csv_f)
+    cst_filename = os.path.dirname(csv_f) + '/lt_' + bn[:-4] + '.cst'
+
     with open(cst_filename, 'w') as f:
-        # headers first
-        hh = lr[0].replace('\n', '') + ',lat,lon\n'
+
+        # cst has 2 more columns in the headers
+        hh = csv_ll[0].replace('\n', '') + ',lat,lon\n'
         f.write(hh)
 
-        # to each input raw line, add lat, lon from big database
-        for ir in lr[1:]:
-            t = ir.split(',')[0].replace('.000', 'Z')
-            # database: get nearest index for this RAW time
-            i = bisect.bisect_left(dbt, t) - 1
+        # get each input CSV line (il)
+        for il in csv_ll[1:]:
+
+            # convert (il) time to tracking file time format (tf_t)
+            tf_t = il.split(',')[0].replace('.000', 'Z')
+
+            # use (tf_t) to get most significant tracking line index (i)
+            i = bisect.bisect_left(tf_ll, tf_t) - 1
             i = i if i >= 0 else 0
 
-            # get rid of any LEF marker, take care of newline
-            x = dbt[i].split('***')[0]
-            if not x.endswith('\n'):
-                x += '\n'
-
-            # database: get lat, lon for such index found
+            # get rid of any LEF marker in the indexed tracking line
+            # x: 2023-12-15T18:56:40Z,38.000000,-83.000000***LEF info
+            x = tf_ll[i].split('***')[0]
+            x += "" if x.endswith('\n') else '\n'
             _, lat, lon = x.split(',')
-            ol = '{},{},{}'.format(ir.replace('\n', ''), lat, lon)
+
+            # output line (ol) is input line + lat, lon from tracking line
+            ol = '{},{},{}'.format(il.replace('\n', ''), lat, lon)
             f.write(ol)
+
     lg.a(f'OK: generated trawling CST file {cst_filename}')
 
 
