@@ -1,3 +1,4 @@
+import numpy as np
 import time
 from datetime import datetime
 from glob import glob
@@ -34,6 +35,18 @@ just_booted = True
 
 class GraphException(Exception):
     pass
+
+
+# src: https://onestopdataanalysis.com/python-outlier-detection/
+def _get_outliers_indexes(data, n1, n2):
+    # compute inter-percentile range
+    q1, q3 = np.percentile(sorted(data), [n1, n2])
+    iqr = q3 - q1
+    # find lower and upper bounds
+    low = q1 - (1.5 * iqr)
+    hig = q3 + (1.5 * iqr)
+    ls_idx = [i for i, x in enumerate(data) if x <= low or x >= hig]
+    return ls_idx
 
 
 def _axis_room(v: list):
@@ -364,8 +377,6 @@ def _process_n_graph(a, r=''):
     # avoids small glitch when re-zooming
     g.getPlotItem().enableAutoRange()
 
-    # todo ---> decide: set depth min 0 or modify negative depths values
-
     # -----------------
     # graph DO loggers
     # -----------------
@@ -481,8 +492,13 @@ def _process_n_graph(a, r=''):
             # remove whole right axis
             g.getPlotItem().hideAxis('right')
 
+            # chop, this graph mess x-axis when outliers
+            ls_idx = _get_outliers_indexes(y2, 10, 90)
+            cy1 = [j for i, j in enumerate(y1) if i not in ls_idx]
+            cy2 = [j for i, j in enumerate(y2) if i not in ls_idx]
+            print(f'{len(cy1) / len(y1)}% of the points here')
             # in this case, x-ticks are T
-            p1.plot(y2, y1, pen=pen4, hoverable=True)
+            p1.plot(x=cy2, y=cy1, pen=pen4, hoverable=True)
 
             # y-axis range, prevent negative depth values, bottom axis label
             p1.setYRange(0, max(y1) + _axis_room(y1), padding=0)

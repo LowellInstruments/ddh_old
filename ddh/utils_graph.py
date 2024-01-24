@@ -2,7 +2,6 @@ import os
 import time
 from functools import lru_cache
 from glob import glob
-from math import ceil
 from os.path import basename
 import dateutil.parser as dp
 import pandas as pd
@@ -105,25 +104,6 @@ def _data_build_dict_intervals(df, di) -> dict:
         v += n
     di[delta] = v
     return di
-
-
-def _data_weight_intervals(di):
-    if len(di.items()) == 0:
-        print('cannot weight')
-        return
-    v = 0
-    n = 0
-    for i, w in di.items():
-        lg.a(f'weight: interval {i}, {w} points')
-        n += w
-        v += (i * w)
-    return v / n
-
-
-def _data_average_by_time_weight(d_i, w):
-    # d_i: data input
-    for i in d_i[::w]:
-        print(i)
 
 
 def _data_get_prune_period(x, met):
@@ -236,16 +216,6 @@ def process_graph_csv_data(fol, _, h, hi) -> dict:
         if not di:
             lg.a('error: NO _data_build_dict_intervals')
             return {}
-
-        # weight dict intervals
-        w = int(ceil(_data_weight_intervals(di)))
-        if not w:
-            lg.a('error: NO _data_weight_intervals')
-            return {}
-        lg.a(f'weight: result {w}')
-
-        # data averaging for fewer dots to graph
-        # _data_average_by_time_weight(x, w)
 
     elif met == 'TAP':
         for f in _g_ff_tap:
