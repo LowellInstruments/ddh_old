@@ -21,7 +21,7 @@ from utils.logs import lg_dds as lg
 
 PERIOD_BLE_TELL_HW_ERR_SECS = 600
 _g_first_ble_scan_ever = True
-_g_json_macs = dds_get_cfg_monitored_macs()
+_g_monitored_macs = dds_get_cfg_monitored_macs()
 _g_ble_scan_early_leave = False
 
 
@@ -73,7 +73,7 @@ async def ble_scan(g, _h: int, _h_desc, t=5.0):
         _all_devs[d.address.lower()] = d.name
         # allows scan to end faster
         global _g_ble_scan_early_leave
-        _g_ble_scan_early_leave = len(_our_devs) == len(_g_json_macs)
+        _g_ble_scan_early_leave = len(_our_devs) == len(_g_monitored_macs)
 
     # classify devs
     _our_devs = {}
@@ -128,5 +128,5 @@ async def ble_scan(g, _h: int, _h_desc, t=5.0):
         if its_time_to(e, 600):
             lg.a(e.format(ex))
             sqs_msg_ddh_error_ble_hw(_lat, _lon)
-            _u(STATE_DDS_BLE_HARDWARE_ERROR)
+        _u(STATE_DDS_BLE_HARDWARE_ERROR)
         return {}

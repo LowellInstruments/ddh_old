@@ -1,4 +1,4 @@
-verbose = 1
+verbose = 0
 
 
 def _p(s):
@@ -37,7 +37,10 @@ def ci_ma(ll, i, w, th):
 
 
 def get_interesting_idx_ma(ll, w, th):
-    return [i for i, _ in enumerate(ll) if ci_ma(ll, i, w, th)]
+    int_ll = [i for i, _ in enumerate(ll) if ci_ma(ll, i, w, th)]
+    _p(f'll {ll}')
+    _p(f'int_ll {int_ll}')
+    return int_ll
 
 
 def main():

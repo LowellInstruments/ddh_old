@@ -456,7 +456,7 @@ def _process_n_graph(a, r=''):
             # ------------------------
             if not linux_is_rpi():
                 # add 3rd axis
-                # p1.layout.addItem(ax3, 2, 3)
+                p1.layout.addItem(ax3, 2, 3)
                 ax3.setStyle(tickFont=font)
                 ax3.setLabel(lbl3, **_sty(clr_3))
                 ax3.setTextPen(pen3)
@@ -465,15 +465,28 @@ def _process_n_graph(a, r=''):
                 w = 2
                 th = 3
                 li = get_interesting_idx_ma(y5, w, th)
-                print('y5', y5)
-                print('li_y5', li)
+                print('li', li)
+
+                # simulate arrows height
+                # y5 = [140] * len(y5)
+
+                # add some more accelerometer arrows
+                n = int(len(y5) / 5)
+                yn = [i for i in range(0, len(y5), n)]
+                li += yn
+                print('yn', yn)
 
                 # add arrows
-                # for i in range(3):
-                #     a = pg.ArrowItem(angle=-160, tipAngle=60, headLen=40, tailLen=40, tailWidth=20,
-                #                      pen=pen3, brush='r')
-                #     a.setPos(x[20 + (i * 10)], y3[20 + (i * 10)],)
-                #     p3.addItem(a)
+                for i in li:
+                    a = pg.ArrowItem(angle=180, # 180 faces right
+                                     tipAngle=60,
+                                     headLen=20,
+                                     tailLen=20,
+                                     tailWidth=10,
+                                     pen=pen3,
+                                     brush=clr_3)
+                    a.setPos(x[i], y5[i])
+                    p3.addItem(a)
 
                 # add text
                 # a = pg.TextItem('alarm', color='orange', border='green', angle=45)
