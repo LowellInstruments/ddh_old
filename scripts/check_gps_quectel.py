@@ -36,8 +36,15 @@ def _gps_measure():
         print(g)
 
 
-if __name__ == "__main__":
+def main():
+    try:
+        gps_configure_shield()
+        while 1:
+            _gps_measure()
+    except (Exception, ) as ex:
+        print(f'error gps_test -> {ex}')
+        print(f'ensure GPS was ON for a while before trying')
 
-    gps_configure_shield()
-    while 1:
-        _gps_measure()
+
+if __name__ == "__main__":
+    main()
