@@ -79,6 +79,7 @@ def _file_lowell_raw_csv_to_emolt_lt_csv(filename):
 
 def file_lowell_raw_csv_to_emolt_lt_csv(filename):
     try:
+        # todo ---> maybe only do this if gear_type is last_haul?
         _file_lowell_raw_csv_to_emolt_lt_csv(filename)
     except (Exception, ) as ex:
         lg.a(f'error: file_lowell_raw_csv_to_emolt_lt_csv: {ex}')
