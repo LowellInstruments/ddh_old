@@ -29,7 +29,7 @@ _e $? "$_S"
 
 _S="[ POP ] mat | cloning newest code from github to /tmp"
 _pb "$_S"
-rm -rf $F_CLONE_MAT && \
+rm -rf $F_CLONE_MAT
 git clone https://github.com/lowellinstruments/mat.git $F_CLONE_MAT
 _e $? "$_S"
 
@@ -44,7 +44,7 @@ _e $? "$_S"
 
 _S="[ POP ] mat | creating commit local file"
 _pb "$_S"
-COM_MAT_LOC=$(cd "$F_CLONE_MAT" && git rev-parse master); rv=$?;
+COM_MAT_LOC=$(cd "$F_CLONE_MAT" && git rev-parse master)
 _e $? "cannot get MAT local commit file"
 [ ${#COM_MAT_LOC} -ne 40 ]
 _e $? "bad MAT local commit file"
