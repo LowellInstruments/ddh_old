@@ -1,11 +1,8 @@
 #!/usr/bin/bash
+
+
+source colors.sh
 echo; echo; echo
-
-
-# colors red, blue and reset
-C_R="\033[0;31m"
-C_B="\033[0;36m"
-C_Z="\033[0m"
 
 
 # constants
@@ -13,52 +10,50 @@ FTS=/tmp/ddh_stash
 FA=/home/pi/li/ddh
 
 
-# ensuring we have the latest DDT because we pull files from them
-echo -e "${C_B}\n>>> ensuring we have latest DDT\n${C_Z}"
-cd /home/pi/li/ddt || (echo -e "${C_R}error: no DDT folder${C_Z}"; exit 1)
-git reset --hard
-git pull
-
-
-
-echo -e "${C_B}\n>>> stashing current DDS configuration\n${C_Z}"
+_S="[ POP ] ddh | stashing configuration files"
+_pb "$_S"
 rm -rf $FTS
-mkdir $FTS
-cp $FA/settings/config.toml $FTS
-cp $FA/scripts/script_logger_do_deploy_cfg.json $FTS
+mkdir $FTS && \
+cp $FA/settings/config.toml $FTS && \
+cp $FA/scripts/script_logger_do_deploy_cfg.json $FTS && \
 cp $FA/ddh/db/db_his.json $FTS
+_e $? "$_S"
 
 
 
-echo -e "${C_B}\n>>> resetting and pulling DDH from github\n${C_Z}"
-cd $FA || (echo -e "${C_R}error: no DDH app folder${C_Z}"; exit 1)
-git reset --hard
+_S="[ POP ] ddh | getting last github DDH code"
+_pb "$_S"
+cd $FA && \
+git reset --hard && \
 git pull
-rv=$?
-if [ $rv -ne 0 ]; then
-    echo -en "${C_R}"
-    echo "error: cannot DDH git pull"
-    echo "check your current configuration files"
-    echo "recover from ${FTS} if they ended up wrong"
-    echo -en "${C_Z}"
-    exit 1
-fi
+_e $? "$_S"
 
 
-echo -e "${C_B}\n>>> ensure we have extra requirements installed\n${C_Z}"
+
+_S="[ POP ] ddh | pip installing extra requirements"
+_pb "$_S"
 pip install -r $FA/requirements_rpi_39_2023_extra.txt
+_e $? "$_S"
 
 
-echo -e "${C_B}\n>>> un-stashing DDS configuration\n${C_Z}"
-cp $FTS/config.toml $FA/settings
-cp $FTS/script_logger_do_deploy_cfg.json $FA/scripts
+
+
+_S="[ POP ] ddh | un-stashing configuration files"
+_pb "$_S"
+cp $FTS/config.toml $FA/settings && \
+cp $FTS/script_logger_do_deploy_cfg.json $FA/scripts && \
 cp $FTS/db_his.json $FA/ddh/db
+_e $? "$_S"
 
 
 
-echo -e "${C_B}\n>>> installing Moana plugin from ddt\n${C_Z}"
+_S="[ POP ] ddh | installing Moana plugin from ddt folder"
+_pb "$_S"
+cd /home/pi/li/ddt && \
+git reset --hard && \
+git pull && \
 cp /home/pi/li/ddt/_dt_files/ble_dl_moana.py $FA/dds
+_e $? "$_S"
 
 
-
-echo -e "${C_B}\n>>> done pop_ddh.sh\n${C_Z}"
+_pg "[ POP ] ddh | ran OK!"
