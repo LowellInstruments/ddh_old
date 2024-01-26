@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-F_VE=/home/pi/li/venv
+F_VE=/home/pi/li/venv_api
 F_DA=/home/pi/li/ddh
 
 

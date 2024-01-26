@@ -77,7 +77,7 @@ class BleCC26X2Download:
         if b < 1500:
             # give time to GUI to display
             _u("{}/{}".format(STATE_DDS_BLE_LOW_BATTERY, mac))
-            await asyncio.sleep(3)
+            await asyncio.sleep(5)
 
         rv, v = await lc.cmd_gfv()
         _rae(rv, "gfv")

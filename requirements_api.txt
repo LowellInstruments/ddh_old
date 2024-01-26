@@ -1,3 +1,7 @@
 uvicorn
 fastapi
 python-multipart
+setproctitle
+pyserial
+toml
+GitPython

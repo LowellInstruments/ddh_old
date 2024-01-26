@@ -427,6 +427,7 @@ def _gps_power_on_off_hat():
     _u("{}".format(STATE_DDS_GPS_POWER_CYCLE))
     t = 75
     lg.a("=== warning: power-cycling hat, wait ~{} seconds ===".format(t))
+
     # GPIO26 controls the sixfab hat power rail
     _pin = LED(26)
 

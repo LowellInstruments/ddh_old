@@ -52,19 +52,18 @@ def ble_logger_ccx26x2r_needs_a_reset(mac):
 
 def ble_op_conditions_met(knots) -> bool:
 
+    # when Bluetooth is disabled
     flag = ddh_get_disabled_ble_flag_file()
     if os.path.isfile(flag):
         _u(STATE_DDS_BLE_DISABLED)
         return False
 
+    # when it is forced to work, ex: button 2 is pressed
     flag = ddh_get_app_override_flag_file()
     if os.path.isfile(flag):
         lg.a("debug: application override set")
         os.unlink(flag)
         return True
-
-    l_h = ddh_get_cfg_gear_type()
-    speed_range = dds_get_cfg_moving_speed()
 
     # case: forgot to assign loggers
     if not dds_get_cfg_monitored_macs():
@@ -72,7 +71,9 @@ def ble_op_conditions_met(knots) -> bool:
         time.sleep(5)
         return False
 
-    # case: lobster trap, that is, no speed requirement
+    # when speed does not matter
+    l_h = ddh_get_cfg_gear_type()
+    speed_range = dds_get_cfg_moving_speed()
     if not l_h:
         return True
 
@@ -101,6 +102,7 @@ def ble_op_conditions_met(knots) -> bool:
     s_hi = float(s_hi)
     if sim_boat_speed:
         lg.a("warning: using simulated boat speeds")
+        lg.a(f"set {k_set} min {k_min} max {k_max}")
         s_lo = float(k_min)
         s_hi = float(k_max)
         knots = float(k_set)
@@ -109,7 +111,6 @@ def ble_op_conditions_met(knots) -> bool:
         return True
 
     _u("{}/{}".format(STATE_DDS_BLE_APP_GPS_ERROR_SPEED, knots))
-    time.sleep(5)
 
 
 def ble_tell_gui_antenna_type(_h, desc):
@@ -185,9 +186,9 @@ def dds_tell_software_update():
     if os.path.exists(f):
         os.unlink(f)
         lg.a("told software updated")
+        # give GUI time and chances to show this
         _u(STATE_DDS_SOFTWARE_UPDATED)
-        # give GUI time to show this
-        time.sleep(10)
+        time.sleep(5)
 
 
 def ble_apply_debug_hooks_at_boot():

@@ -1,6 +1,8 @@
 import datetime
 import pathlib
 import shutil
+import time
+
 from tzlocal import get_localzone
 from dds.ble_dl_tap import ble_interact_tap
 from dds.macs import (
@@ -53,11 +55,7 @@ def _ble_analyze_logger_result(rv, mac, lat, lon, sn, err_critical):
             del _g_logger_errors[mac]
         lg.a("OK! logger {}/{}".format(mac, sn))
         _u("{}/{}".format(STATE_DDS_BLE_DOWNLOAD_OK, sn))
-
-        # indicate folder we want to graph
-        # graph_set_fol_req_file(mac)
-        # start new graphing engine
-        # _u(STATE_DDS_REQUEST_GRAPH)
+        time.sleep(1)
         return
 
     # NOT success

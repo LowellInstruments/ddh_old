@@ -18,6 +18,7 @@ from gpiozero import Button
 from ddh.db.db_his import DBHis
 from ddh.graph import process_n_graph
 from ddh.utils_net import net_get_my_current_wlan_ssid
+from dds.timecache import its_time_to
 from mat.ble.ble_mat_utils import DDH_GUI_UDP_PORT
 from mat.utils import linux_is_rpi
 import subprocess as sp
@@ -68,11 +69,11 @@ from utils.logs import lg_gui as lg
 STR_NOTE_PURGE_BLACKLIST = "Purge all loggers' lock-out time?"
 STR_NOTE_GPS_BAD = "Skipping logger until valid GPS fix is obtained"
 _g_ts_gui_boot = time.perf_counter()
-_g_ts_gui_expire_icon = 0
 PERIOD_SHOW_LOGGER_DL_OK_SECS = 300
 PERIOD_SHOW_LOGGER_DL_ERROR_SECS = 300
 PERIOD_SHOW_LOGGER_DL_WARNING_SECS = 60
 PERIOD_SHOW_BLE_APP_GPS_ERROR_POSITION = 60
+g_timer_lock_icon = 0
 
 
 def gui_setup_view(my_win):
@@ -412,7 +413,16 @@ def _parse_addr(my_app, addr):
         my_app.lbl_ip.setText("remote DDH")
 
 
+def _gui_update_icon_timer():
+    global g_timer_lock_icon
+    if g_timer_lock_icon:
+        g_timer_lock_icon -= 1
+
+
 def _gui_update_icon(my_app, ci, ct):
+    if g_timer_lock_icon:
+        return
+
     if ci:
         fol_res = str(ddh_get_folder_path_res())
         ci = "{}/{}".format(fol_res, ci)
@@ -424,8 +434,10 @@ def _gui_update_icon(my_app, ci, ct):
 def _parse_udp(my_app, s, ip="127.0.0.1"):
 
     a = my_app
-    global _g_ts_gui_expire_icon
     i = int(time.perf_counter()) % 4
+
+    # when this > 0, the BLE_SCAN_ICON cannot appear
+    global g_timer_lock_icon
 
     f, v = s.split("/")
     # lg.a('UDP | parsing \'{}/{}\''.format(f, v))
@@ -442,48 +454,44 @@ def _parse_udp(my_app, s, ip="127.0.0.1"):
         ci = "blue{}.png".format(i)
 
     elif f == STATE_DDS_SOFTWARE_UPDATED:
-        _g_ts_gui_expire_icon = time.perf_counter() + 30
         ct = "DDH updated!"
         ci = "update.png"
 
     elif f == STATE_DDS_BLE_DOWNLOAD:
-        _g_ts_gui_expire_icon = time.perf_counter() + 30
         ct = "downloading {}".format(v)
         ci = "dl2.png"
         a.bar_dl.setValue(0)
 
     elif f == STATE_DDS_BLE_DOWNLOAD_OK:
-        _g_ts_gui_expire_icon = time.perf_counter() + 60
+        g_timer_lock_icon = 30
         ct = "done " + v
         ci = "ok.png"
 
     elif f == STATE_DDS_BLE_DOWNLOAD_WARNING:
-        _g_ts_gui_expire_icon = time.perf_counter() + 30
+        # at least same value as orange mac
+        g_timer_lock_icon = 15
         ct = "{} retrying".format(v)
         ci = "sand_clock.png"
 
     elif f == STATE_DDS_BLE_DOWNLOAD_ERROR:
-        _g_ts_gui_expire_icon = time.perf_counter() + 60
+        g_timer_lock_icon = 15
         ct = "{} failure".format(v)
         ci = "error.png"
 
     elif f == STATE_DDS_BLE_DOWNLOAD_ERROR_GDO:
-        _g_ts_gui_expire_icon = time.perf_counter() + 60
         ct = "error oxygen sensor"
         ci = "error.png"
 
     elif f == STATE_DDS_BLE_DOWNLOAD_ERROR_TP_SENSOR:
-        _g_ts_gui_expire_icon = time.perf_counter() + 60
         ct = "error oxygen TP"
         ci = "error.png"
 
     elif f == STATE_DDS_BLE_ERROR_RUN:
-        _g_ts_gui_expire_icon = time.perf_counter() + 60
         ct = "error running logger"
         ci = "error.png"
 
     elif f == STATE_DDS_BLE_HARDWARE_ERROR:
-        _g_ts_gui_expire_icon = time.perf_counter() + 60
+        g_timer_lock_icon = 5
         ct = "radio error"
         ci = "blue_err.png"
 
@@ -492,14 +500,13 @@ def _parse_udp(my_app, s, ip="127.0.0.1"):
         ci = "blue_dis.png"
 
     elif f == STATE_DDS_BLE_APP_GPS_ERROR_POSITION:
-        _g_ts_gui_expire_icon = time.perf_counter() + 60
+        g_timer_lock_icon = 5
         ct = "need GPS"
         ci = "gps_err.png"
         a.lbl_gps.setText("-")
         a.lbl_gps_sat.setText("-")
 
     elif f == STATE_DDS_BLE_APP_GPS_ERROR_SPEED:
-        _g_ts_gui_expire_icon = time.perf_counter() + 60
         ct = "app resting"
         ci = "blue{}.png".format(i)
 
@@ -581,10 +588,12 @@ def _parse_udp(my_app, s, ip="127.0.0.1"):
         a.lbl_gps.setText(v)
 
     elif f == STATE_DDS_GPS_POWER_CYCLE:
+        # time controlled via function calling this state
         ct = "wait, power-cycling GPS"
         ci = "gps_power_cycle.png"
 
     elif f == STATE_DDS_NOTIFY_GPS_CLOCK:
+        # time controlled via function calling this state
         ct = "syncing GPS time"
         ci = "gps_clock.png"
 
@@ -618,13 +627,6 @@ def _parse_udp(my_app, s, ip="127.0.0.1"):
     # -----------------------
     # update big icon in GUI
     # -----------------------
-    now = time.perf_counter()
-    if f == STATE_DDS_BLE_SCAN and now < _g_ts_gui_expire_icon:
-        # current icon should be 'scan', but it has LOW priority
-        # lets show others till they expire
-        return
-
-    # GUI main icon and title
     _gui_update_icon(a, ci, ct)
 
     # progress bar
@@ -642,6 +644,7 @@ _skg.bind(("127.0.0.1", DDH_GUI_UDP_PORT))
 def gui_timer_fxn(my_app):
     a = my_app
 
+    _gui_update_icon_timer()
     i = int(time.perf_counter()) % 4
     a.lbl_date.setText(datetime.datetime.now().strftime("%b %d %H:%M:%S"))
 
