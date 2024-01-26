@@ -15,7 +15,7 @@ from dds.gps import (
     gps_configure_shield,
     gps_clock_sync_if_so,
     gps_tell_vessel_name,
-    gps_hw_error,
+    gps_check_for_errors,
     gps_did_we_ever_clock_sync,
     gps_print_trying_clock_sync_at_boot,
     gps_power_cycle_if_so,
@@ -133,10 +133,12 @@ def main_dds():
 
     while 1:
 
+        # tell GUI
+        gps_tell_vessel_name()
+
         # old GPS hats may need power ON / OFF + GPS on
         gps_power_cycle_if_so()
         gps_configure_shield()
-        gps_tell_vessel_name()
 
         # other stages
         cnv_serve()
@@ -146,7 +148,8 @@ def main_dds():
 
         # GPS stage
         g = gps_measure()
-        if gps_hw_error(g):
+        # todo ---> this next function is proper place to add Geroge request
+        if gps_check_for_errors(g):
             time.sleep(1)
             continue
         lat, lon, tg, speed = g

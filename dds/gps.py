@@ -388,12 +388,12 @@ def gps_tell_position_logger(g):
     lg.a(s.format(lat, lon, speed))
 
 
-def gps_hw_error(g) -> int:
+def gps_check_for_errors(g) -> int:
     if g:
         # no error
         return 0
 
-    # don't tell GPS error too often
+    # don't log GPS error too often
     if its_time_to("tell_gps_hw_error", PERIOD_GPS_TELL_GPS_HW_ERROR_SECS):
         lg.a("error: no GPS frame, examine further log messages")
         sqs_msg_ddh_error_gps_hw("", "")
