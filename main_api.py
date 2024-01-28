@@ -5,15 +5,15 @@ import shutil
 import time
 import setproctitle
 from api.api_utils import get_git_commit_mat_local, \
-    get_boat_sn, get_ip_vpn, get_ip_wlan, get_ip_cell, \
+    get_ip_vpn, get_ip_wlan, get_ip_cell, \
     get_running, get_crontab_ddh, shell, \
     set_crontab, \
     get_git_commit_ddh_local, \
-    get_ble_state, get_gps, get_logger_mac_reset_files, get_versions, get_boat_project
+    get_ble_state, get_gps, get_logger_mac_reset_files, get_versions
 from dds.rbl import rbl_find_usb_port
 from mat.linux import linux_app_write_pid_to_tmp, linux_is_process_running
 from mat.utils import linux_is_rpi
-from utils.ddh_config import dds_get_cfg_vessel_name
+from utils.ddh_config import dds_get_cfg_vessel_name, dds_get_cfg_box_sn, dds_get_cfg_box_project
 from utils.ddh_shared import NAME_EXE_API_CONTROLLER, \
     PID_FILE_API_CONTROLLER, \
     NAME_EXE_API, PID_FILE_API, get_ddh_folder_path_dl_files
@@ -68,7 +68,7 @@ async def api_upload_conf(file: UploadFile = File(...)):
     except (Exception, ):
         return {ep: 'error_uploading'}
 
-    # overwrite DDH configuration
+    # overwrite DDH configuration only on DDH boxes
     if not linux_is_rpi():
         return {ep: 'no_install_not_Rpi'}
 
@@ -96,8 +96,8 @@ async def api_get_info():
         "gps": _th(get_gps),
         "rockblocks": _th(rbl_find_usb_port),
         "ble_state": _th(get_ble_state),
-        "boat_prj": _th(get_boat_project),
-        "boat_sn": _th(get_boat_sn),
+        "boat_prj": _th(dds_get_cfg_box_project),
+        "boat_sn": _th(dds_get_cfg_box_sn),
         "boat_name": _th(dds_get_cfg_vessel_name),
         "running": _th(get_running),
         "crontab": _th(get_crontab_ddh),
@@ -151,7 +151,7 @@ async def ep_dl_files_get():
 
     # zip it, -o flag overwrites if already exists
     s = get_ddh_folder_path_dl_files()
-    print('pwd', os.getcwd())
+    print('cwd is', os.getcwd())
     print('getting files from', s)
     p = '/tmp/' + file_name
     c = 'zip -ro {} {}'.format(p, s)
@@ -186,15 +186,15 @@ async def ep_update_mat():
 
 @app.get('/kill_ddh')
 async def ep_kill_ddh():
-    rv_h = shell("killall main_ddh")
-    rv_s = shell("killall main_dds")
-    ans_h = rv_h.stderr.decode().replace('\n', '')
-    if rv_h.returncode == 0:
-        ans_h = 'OK'
-    ans_s = rv_s.stderr.decode().replace('\n', '')
-    if rv_s.returncode == 0:
-        ans_s = 'OK'
-    return {'kill_ddh': {'ddh': ans_h, 'dds': ans_s}}
+    d = dict()
+    for i in ('main_ddh', 'main_ddh_controller',
+              'main_dds', 'main_dds_controller'):
+        rv = shell(f'killall {i}')
+        s = rv.stderr.decode().replace('\n', '')
+        if rv.returncode == 0:
+            s = 'OK'
+        d[i] = s
+    return d
 
 
 @app.get('/kill_api')

@@ -69,26 +69,6 @@ def get_git_commit_liu_remote():
     return _get_remote_commit('liu')
 
 
-def get_boat_sn():
-    # todo ---> do this new syntax toml
-    c = 'cat run_dds.sh | grep DDH_BOX_SERIAL_NUMBER'
-    rv = shell(c)
-    sn = ''
-    if rv.returncode == 0:
-        sn = rv.stdout.decode().replace('\n', '').split('=')[1]
-    return sn
-
-
-def get_boat_project():
-    # todo ---> do this new syntax toml
-    c = 'cat run_dds.sh | grep DDH_BOX_PROJECT_NAME'
-    rv = shell(c)
-    prj = ''
-    if rv.returncode == 0:
-        prj = rv.stdout.decode().replace('\n', '').split('=')[1]
-    return prj
-
-
 def _get_iface_ip(iface):
     # src: stackoverflow 8529181
     if iface not in ('wg0', 'wlan0', 'ppp0'):
