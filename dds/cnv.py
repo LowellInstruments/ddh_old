@@ -223,16 +223,21 @@ def cnv_serve():
             lg.a(f'{e} {ex}')
 
 
+# if __name__ == '__main__':
+#     # we are currently inside "ddh/dds" folder
+#     os.chdir('../dl_files')
+#     # now we are inside "ddh/dl_files" folder
+#     print('working directory:', os.getcwd())
+#     for p in os.listdir():
+#         if (not os.path.isdir(p)) or p.startswith('ddh'):
+#             continue
+#         print(f'doing folder {p}')
+#         mask = f'{p}/*.csv'
+#         for f in glob.glob(mask):
+#             os.unlink(f)
+#         convert_lid_to_csv(p, '_DissolvedOxygen')
+
+
 if __name__ == '__main__':
-    # we are currently inside "ddh/dds" folder
-    os.chdir('../dl_files')
-    # now we are inside "ddh/dl_files" folder
-    print('working directory:', os.getcwd())
-    for p in os.listdir():
-        if (not os.path.isdir(p)) or p.startswith('ddh'):
-            continue
-        print(f'doing folder {p}')
-        mask = f'{p}/*.csv'
-        for f in glob.glob(mask):
-            os.unlink(f)
-        convert_lid_to_csv(p, '_DissolvedOxygen')
+    p = '/home/kaz/Downloads/pepi'
+    convert_lid_to_csv(p, '_DissolvedOxygen')
