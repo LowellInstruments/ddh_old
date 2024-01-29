@@ -184,7 +184,7 @@ def _log_extra_gps(s):
     _fn = f'{_h}/extra_gps_debug_{_d}.txt'
 
     with open(_fn, 'a') as f:
-        f.write(s)
+        f.write(s + '\n')
 
 
 def _gps_measure():
@@ -242,7 +242,6 @@ def _gps_measure():
         # USB GPS puck
         if g_gps_is_external:
             if not b:
-                _log_extra_gps('no bytes from GPS puck')
                 continue
             try:
                 # just see we can decode the thing
