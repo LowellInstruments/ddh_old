@@ -56,6 +56,11 @@ def controller_main_ddh():
 
 
 if __name__ == "__main__":
+
+    # ------------------------
+    # run DDH controller
+    # ------------------------
+
     if not linux_is_process_running(NAME_EXE_DDH_CONTROLLER):
         controller_main_ddh()
     else:

@@ -1,10 +1,24 @@
 import glob
 import json
+import pathlib
 import subprocess as sp
+
+from mat.utils import linux_is_rpi
 
 
 def shell(c):
     return sp.run(c, shell=True, stdout=sp.PIPE, stderr=sp.PIPE)
+
+
+def api_get_full_ddh_config_file_path():
+    p = pathlib.Path.home()
+    if linux_is_rpi():
+        # /home/pi/li/ddh/settings/config.toml
+        p = str(p) + '/li/ddh/settings/config.toml'
+    else:
+        # /home/kaz/PycharmProjects/ddh/settings/config.toml
+        p = str(p) + '/PycharmProjects/ddh/settings/config.toml'
+    return p
 
 
 def _get_remote_commit(s):

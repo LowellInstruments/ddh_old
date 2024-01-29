@@ -9,7 +9,7 @@ from api.api_utils import get_git_commit_mat_local, \
     get_running, get_crontab_ddh, shell, \
     set_crontab, \
     get_git_commit_ddh_local, \
-    get_ble_state, get_gps, get_logger_mac_reset_files, get_versions
+    get_ble_state, get_gps, get_logger_mac_reset_files, get_versions, api_get_full_ddh_config_file_path
 from dds.rbl import rbl_find_usb_port
 from mat.linux import linux_app_write_pid_to_tmp, linux_is_process_running
 from mat.utils import linux_is_rpi
@@ -28,14 +28,6 @@ from fastapi.responses import FileResponse
 import concurrent.futures
 
 
-# ---------------------------------------------------------------------
-# to configure pycharm:
-#     in "target to run" instead of "Script path" choose "Module name"
-#     In Module name type uvicorn
-#     In parameters app.main:app --reload --port 5000
-# ---------------------------------------------------------------------
-
-DDH_CONFIG_FILE = '/home/pi/li/ddh/settings/config.toml'
 DDH_PORT_API = 8000
 
 app = FastAPI()
@@ -73,7 +65,8 @@ async def api_upload_conf(file: UploadFile = File(...)):
     if not linux_is_rpi():
         return {ep: 'no_install_not_Rpi'}
 
-    rv = shell(f'cp {uploaded_name} {DDH_CONFIG_FILE}')
+    p = api_get_full_ddh_config_file_path()
+    rv = shell(f'cp {uploaded_name} {p}')
     if rv.returncode:
         return {ep: 'error_installing'}
 
@@ -137,7 +130,8 @@ async def ep_conf_get():
 
     # zip it, -o flag overwrites if already exists
     p = '/tmp/{file_name}'
-    rv = shell(f'zip -o {p} {DDH_CONFIG_FILE}')
+    cf = api_get_full_ddh_config_file_path()
+    rv = shell(f'zip -o {p} {cf}')
 
     # send it as response
     if rv.returncode == 0:
@@ -229,26 +223,5 @@ def main_api():
     uvicorn.run(app, host="0.0.0.0", port=DDH_PORT_API)
 
 
-def controller_main_api():
-    s = NAME_EXE_API_CONTROLLER
-    p = PID_FILE_API_CONTROLLER
-    setproctitle.setproctitle(s)
-    linux_app_write_pid_to_tmp(p)
-    lg.a("=== {} started ===".format(s))
-
-    while 1:
-        # the GUI KILLs this process when desired
-        lg.a("=== {} launching child ===".format(s))
-        p = Process(target=main_api)
-        p.start()
-        p.join()
-        lg.a("=== {} waits child ===".format(s))
-        time.sleep(5)
-
-
 if __name__ == "__main__":
-    if not linux_is_process_running(NAME_EXE_API_CONTROLLER):
-        controller_main_api()
-    else:
-        e = "not launching {}, already running at python level"
-        print(e.format(NAME_EXE_API_CONTROLLER))
+    main_api()

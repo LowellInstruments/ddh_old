@@ -3,12 +3,13 @@ import os
 
 from utils.ddh_shared import get_ddh_rerun_flag
 
-# when DDH
-if os.getcwd().endswith('ddh'):
-    PATH_FILE_CFG = 'settings/config.toml'
-# when testing this file
-else:
-    PATH_FILE_CFG = '../settings/config.toml'
+
+def _get_relative_config_file_path():
+    # when DDH
+    if os.getcwd().endswith('ddh'):
+        return 'settings/config.toml'
+    # when developing / testing this file
+    return '../settings/config.toml'
 
 
 def _check_cfg(c):
@@ -22,8 +23,9 @@ def _check_cfg(c):
             os._exit(1)
 
 
-def cfg_load_from_file(p=PATH_FILE_CFG):
+def cfg_load_from_file():
     try:
+        p = _get_relative_config_file_path()
         with open(p, 'r') as f:
             c = toml.load(f)
             _check_cfg(c)
@@ -33,8 +35,9 @@ def cfg_load_from_file(p=PATH_FILE_CFG):
         os._exit(1)
 
 
-def cfg_save_to_file(c, p=PATH_FILE_CFG):
+def cfg_save_to_file(c):
     try:
+        p = _get_relative_config_file_path()
         with open(p, 'w') as f:
             toml.dump(c, f)
     except (Exception, ) as ex:

@@ -1,6 +1,6 @@
 # how to install
 # --------------
-    # create a file named .pre-commit-config.yaml to contain the git hook scripts
+    # create a file named .pre-commit-config.yaml like this one
     # $ pip install pre-commit      ---> python package
     # $ pre-commit install          ---> so previous file will auto-run each git commit
     # $ pre-commit run --all-files  ---> test

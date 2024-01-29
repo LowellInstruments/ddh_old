@@ -207,9 +207,10 @@ def controller_main_dds():
 
 if __name__ == "__main__":
 
-    # -----------------
-    # run DDS software
-    # -----------------
+    # --------------------
+    # run DDS controller
+    # --------------------
+
     if not linux_is_process_running(NAME_EXE_DDS_CONTROLLER):
         controller_main_dds()
     else:
