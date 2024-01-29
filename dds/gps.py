@@ -173,6 +173,20 @@ def _gps_parse_gsv_frame(data: bytes, force_print=False):
         lg.a("error: parse GSV frame {} -> {}".format(data, ex))
 
 
+def _log_extra_gps(s):
+    global _g_extra_gps_debug
+    if _g_extra_gps_debug == 0:
+        return
+
+    _d = datetime.datetime.now().strftime("%Y%m%d")
+    _t = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
+    _h = pathlib.Path.home()
+    _fn = f'{_h}/extra_gps_debug_{_d}.txt'
+
+    with open(_fn, 'a') as f:
+        f.write(s)
+
+
 def _gps_measure():
     """
     returns (lat, lon, dt object, speed) or None
@@ -228,20 +242,30 @@ def _gps_measure():
         # USB GPS puck
         if g_gps_is_external:
             if not b:
+                _log_extra_gps('no bytes from GPS puck')
                 continue
             try:
                 # just see we can decode the thing
                 b.decode()
-            except (Exception,):
+            except (Exception,) as exg:
+                _log_extra_gps(f'exception decoding bytes {exg}')
                 continue
 
             # detect and parse the type of GPS frame
             re_rmc = re.search(b"GPRMC(.*)\r\n", b)
             if re_rmc:
                 g = _gps_parse_rmc_frame(b"$GPRMC" + re_rmc.group(1))
+                if g:
+                    _log_extra_gps(f'{g}')
+                else:
+                    _log_extra_gps(f'error parsing RMC frame')
             re_gsv = re.search(b"GPGSV(.*)\r\n", b)
             if re_gsv:
                 _gps_parse_gsv_frame(b"$GPGSV" + re_gsv.group(1))
+                if g:
+                    _log_extra_gps(f'{g}')
+                else:
+                    _log_extra_gps(f'error parsing GSV frame')
 
         # GPS shield
         else:
@@ -406,17 +430,6 @@ def gps_hw_error_get(g) -> int:
     """
     return = True means error detected in frame 'g'
     """
-
-    # more debug, activate it or not
-    if _g_extra_gps_debug:
-        _d = datetime.datetime.now().strftime("%Y%m%d")
-        _t = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
-        h = pathlib.Path.home()
-        with open(f'{h}/extra_gps_debug_{_d}.txt', 'a') as f:
-            if not g:
-                f.write(f'{_t} | GPS error')
-            else:
-                f.write(f'{_t} g')
 
     if g:
         return 0
