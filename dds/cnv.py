@@ -28,6 +28,7 @@ DDH_BPSL = BAROMETRIC_PRESSURE_SEA_LEVEL_IN_DECIBAR
 
 _g_files_we_cannot_convert = []
 _g_files_already_converted = []
+_g_last_nf = 0
 
 
 def _lid_file_has_sensor_data_type(path, suffix):
@@ -165,6 +166,19 @@ def _cnv_all_tap_files():
 
 
 def _cnv_serve():
+
+    # detect we have to force a conversion sequence
+    fol = str(get_ddh_folder_path_dl_files())
+    global _g_last_nf
+    ls = glob.glob(f'{fol}/**/*.lid', recursive=True)
+    forced = len(ls) != _g_last_nf
+    if forced:
+        lg.a(f'OK: #LID files {_g_last_nf} -> {len(ls)}, conversion forced')
+    _g_last_nf = len(ls)
+
+    # this function does not run always, only from time to time
+    if not its_time_to("do_some_conversions", PERIOD_CNV_SECS) and not forced:
+        return
 
     # this function does not run always, only from time to time
     if not its_time_to("do_some_conversions", PERIOD_CNV_SECS):
