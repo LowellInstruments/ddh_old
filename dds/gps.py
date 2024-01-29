@@ -1,4 +1,5 @@
 import datetime
+import pathlib
 import subprocess as sp
 import time
 import serial
@@ -33,6 +34,7 @@ _g_ts_cached_gps_valid_for = 0
 _g_cached_gps = None
 _g_banner_cache_too_old = 0
 _g_ever_gps_clock_sync = False
+_g_extra_gps_debug = 0
 
 
 PERIOD_GPS_CACHE_VALID_SECS = 30
@@ -404,6 +406,17 @@ def gps_hw_error_get(g) -> int:
     """
     return = True means error detected in frame 'g'
     """
+
+    # more debug, activate it or not
+    if _g_extra_gps_debug:
+        _d = datetime.datetime.now().strftime("%Y%m%d")
+        _t = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
+        h = pathlib.Path.home()
+        with open(f'{h}/extra_gps_debug_{_d}.txt', 'a') as f:
+            if not g:
+                f.write(f'{_t} | GPS error')
+            else:
+                f.write(f'{_t} g')
 
     if g:
         return 0
