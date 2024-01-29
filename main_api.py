@@ -47,7 +47,8 @@ async def ep_ping():
         "ping": "OK",
         "ip_vpn": get_ip_vpn(),
         "ip_wlan": get_ip_wlan(),
-        "vessel": dds_get_cfg_vessel_name()
+        "vessel": dds_get_cfg_vessel_name(),
+        "is_rpi": linux_is_rpi()
     }
     return d
 
