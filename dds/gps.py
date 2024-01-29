@@ -184,7 +184,7 @@ def _log_extra_gps(s):
     _fn = f'{_h}/extra_gps_debug_{_d}.txt'
 
     with open(_fn, 'a') as f:
-        f.write(s + '\n')
+        f.write(f'{_t} | {s}\n')
 
 
 def _gps_measure():
@@ -257,14 +257,14 @@ def _gps_measure():
                 if g:
                     _log_extra_gps(f'{g}')
                 else:
-                    _log_extra_gps(f'error parsing RMC frame')
+                    _log_extra_gps(f'incomplete RMC frame {b}')
             re_gsv = re.search(b"GPGSV(.*)\r\n", b)
             if re_gsv:
                 _gps_parse_gsv_frame(b"$GPGSV" + re_gsv.group(1))
                 if g:
                     _log_extra_gps(f'{g}')
                 else:
-                    _log_extra_gps(f'error parsing GSV frame')
+                    _log_extra_gps(f'incomplete GSV frame {b}')
 
         # GPS shield
         else:
