@@ -179,7 +179,7 @@ def _log_extra_gps(s):
         return
 
     _d = datetime.datetime.now().strftime("%Y%m%d")
-    _t = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
+    _t = datetime.datetime.now().strftime("%Y/%m/%d %H:%M:%S")
     _h = pathlib.Path.home()
     _fn = f'{_h}/extra_gps_debug_{_d}.txt'
 
