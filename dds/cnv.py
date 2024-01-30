@@ -253,5 +253,5 @@ def cnv_serve():
 
 
 if __name__ == '__main__':
-    p = '/home/kaz/Downloads/pepi'
-    convert_lid_to_csv(p, '_DissolvedOxygen')
+    f = 'hello.lix'
+    DataConverter(f, {}).convert()
