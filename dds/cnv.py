@@ -4,7 +4,7 @@ import pathlib
 from dds.timecache import its_time_to
 from mat.data_converter import default_parameters, DataConverter
 from mat.data_file_factory import load_data_file
-from mat.lix import ParserLixFile
+# from mat.lix import ParserLixFile
 from mat.tap import convert_tap_file
 from mat.utils import linux_ls_by_ext
 from utils.logs import lg_cnv as lg
@@ -152,16 +152,16 @@ def _cnv_all_lix_files():
             continue
         if f in _g_files_we_cannot_convert:
             continue
-
-        # try to convert it
-        plf = ParserLixFile(f)
-        rv = plf.convert_lix_file()
-
-        # populate lists
-        if rv and f not in _g_files_we_cannot_convert:
-            lg.a(f"warning: ignoring file {f} from now on")
-            _g_files_we_cannot_convert.append(f)
-        rv_all += rv
+        #
+        # # try to convert it
+        # plf = ParserLixFile(f)
+        # rv = plf.convert_lix_file()
+        #
+        # # populate lists
+        # if rv and f not in _g_files_we_cannot_convert:
+        #     lg.a(f"warning: ignoring file {f} from now on")
+        #     _g_files_we_cannot_convert.append(f)
+        # rv_all += rv
 
     # check not a single file had errors
     return rv_all == 0
@@ -214,10 +214,10 @@ def _cnv_serve():
         e += "P_"
         lg.a(s.format(m))
 
-    rv = _cnv_all_lix_files()
-    if not rv:
-        e += 'LIX_'
-        lg.a(s.format('_LIX'))
+    # rv = _cnv_all_lix_files()
+    # if not rv:
+    #     e += 'LIX_'
+    #     lg.a(s.format('_LIX'))
 
     s = 'conversion sequence finished'
     lg.a(s)

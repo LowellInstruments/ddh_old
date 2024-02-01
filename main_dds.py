@@ -25,6 +25,7 @@ from dds.gps import (
 )
 from dds.macs import dds_create_folder_macs_color, dds_macs_color_show_at_boot
 from dds.net import net_serve
+from dds.notifications import ddh_notification_boot
 from dds.rbl import rbl_loop
 from dds.sqs import (
     dds_create_folder_sqs,
@@ -105,6 +106,7 @@ def main_dds():
     if g:
         lat, lon, tg, speed = g
         gps_clock_sync_if_so(tg)
+        ddh_notification_boot(g)
         sqs_msg_ddh_booted(lat, lon)
 
     # do nothing if we never had a GPS clock sync

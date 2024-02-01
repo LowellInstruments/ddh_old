@@ -1,6 +1,7 @@
 import asyncio
 import datetime
 import glob
+import pathlib
 import time
 import git
 import json
@@ -10,8 +11,7 @@ from pathlib import Path
 from git import InvalidGitRepositoryError
 import subprocess as sp
 from mat.ble.ble_mat_utils import DDH_GUI_UDP_PORT
-from mat.utils import linux_is_rpi
-
+from mat.utils import linux_is_rpi, linux_is_rpi3, linux_is_rpi4
 
 STATE_DDS_NOTIFY_BOAT_NAME = "boat_name"
 STATE_DDS_NOTIFY_GPS = "gps"
@@ -122,7 +122,12 @@ def ddh_kill_by_pid_file(only_child=False):
 
 
 def ddh_get_folder_path_root() -> Path:
-    return Path("ddh")
+    p = pathlib.Path.home()
+    if linux_is_rpi():
+        p = str(p) + '/li/ddh'
+    else:
+        p = str(p) + '/PycharmProjects/ddh'
+    return Path(p)
 
 
 def dds_ensure_proper_working_folder():
@@ -173,6 +178,15 @@ def get_ddh_commit():
         return str(c)[:5]
     except InvalidGitRepositoryError:
         return "none"
+
+
+def get_ddh_sw_version():
+    path = str(ddh_get_folder_path_root()) + '/.ddh_version'
+    try:
+        with open(path, 'r') as f:
+            return f.readline().replace('\n', '')
+    except (Exception, ) as ex:
+        return 'error_get_version'
 
 
 def get_ddh_folder_path_dl_files() -> Path:
@@ -315,6 +329,16 @@ def check_gps_dummy_mode():
     if not linux_is_rpi():
         return True
     return os.path.exists(GPS_DUMMY_MODE_FILE)
+
+
+def get_ddh_platform():
+    if linux_is_rpi3():
+        return "rpi3"
+    elif linux_is_rpi4():
+        return "rpi4"
+    elif linux_is_rpi():
+        return "rpi"
+    return "unk"
 
 
 def main():
