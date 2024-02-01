@@ -50,6 +50,7 @@ class BleCC26X2Download:
         simulation = ble_logger_is_cc26x2r_simulated(mac)
         rerun_flag = get_ddh_rerun_flag()
         create_folder_logger_by_mac(mac)
+        _is_a_lix_logger = False
 
         rv = await lc.connect(mac)
         _une(rv, notes, "comm.")
@@ -61,6 +62,12 @@ class BleCC26X2Download:
             # out of here for sure
             raise BLEAppException("cc26x2 interact logger reset file")
 
+        # to know if this DO-X logger uses LID or LIX files
+        rv = await lc.cmd_xod(g)
+        _is_a_lix_logger = rv == 0
+        lg.a(f"XOD | LIX = {_is_a_lix_logger}")
+
+        # STOP with STRING
         rv = await lc.cmd_sws(g)
         _rae(rv, "sws")
         lg.a("SWS | OK")
@@ -161,7 +168,7 @@ class BleCC26X2Download:
                 _rae(rv, "cfg")
                 lg.a("CFG | OK")
 
-        # Dissolved oxygen measurement
+        # see if the DO sensor works
         if "DO-" in info:
             rv = await lc.cmd_gdo()
             bad_rv = not rv or (rv and rv[0] == "0000")
