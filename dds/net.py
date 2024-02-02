@@ -27,6 +27,10 @@ def _get_internet_via():
     return "wifi"
 
 
+def ddh_get_internet_via():
+    return _get_internet_via()
+
+
 def net_serve():
 
     if not its_time_to("get_internet_via", 60):

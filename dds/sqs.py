@@ -16,6 +16,7 @@ from dds.ddn_msg import (
     OPCODE_SQS_LOGGER_MAX_ERRORS,
     OPCODE_SQS_LOGGER_ERROR_OXYGEN, OPCODE_SQS_DDH_NEEDS_UPDATE
 )
+from dds.net import ddh_get_internet_via
 
 from dds.timecache import its_time_to
 from mat.utils import linux_is_rpi3, linux_is_rpi4
@@ -247,6 +248,11 @@ def sqs_serve():
 
     # this runs from time to time, not always
     if not its_time_to("sqs_serve", 600):
+        return
+
+    if ddh_get_internet_via() == "none":
+        # prevents main_loop getting stuck
+        lg.a("warning: no internet to serve SQS")
         return
 
     if not ctx.sqs_en:
