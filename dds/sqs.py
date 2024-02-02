@@ -253,6 +253,11 @@ def sqs_serve():
         lg.a("warning: sqs_en is False")
         return
 
+    if ddh_get_internet_via() == "none":
+        # prevents main_loop getting stuck
+        lg.a("warning: no internet to serve SQS")
+        return
+
     # ---------------------------------
     # grab / collect SQS files to send
     # ---------------------------------
