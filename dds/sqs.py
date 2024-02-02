@@ -169,9 +169,9 @@ def sqs_msg_ddh_needs_update(*args):
             with open(f'/tmp/{s}', 'r') as f:
                 vg = f.readline().replace('\n', '')
 
-        if vl < vg:
-            _sqs_gen_file(OPCODE_SQS_DDH_NEEDS_UPDATE, "", "", *args)
-            return 1
+            if vl < vg:
+                _sqs_gen_file(OPCODE_SQS_DDH_NEEDS_UPDATE, "", "", *args)
+                return 1
 
     except (Exception, ) as ex:
         lg.a(f'error: sqs_msg_ddh_needs_update -> {ex}')
