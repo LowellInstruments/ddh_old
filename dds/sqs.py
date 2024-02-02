@@ -250,13 +250,13 @@ def sqs_serve():
     if not its_time_to("sqs_serve", 600):
         return
 
+    if not ctx.sqs_en:
+        lg.a("warning: ctx.sqs_en is False")
+        return
+
     if ddh_get_internet_via() == "none":
         # prevents main_loop getting stuck
         lg.a("warning: no internet to serve SQS")
-        return
-
-    if not ctx.sqs_en:
-        lg.a("warning: ctx.sqs_en is False")
         return
 
     # ---------------------------------
