@@ -74,8 +74,8 @@ class _DDHNotification:
         if g:
             print('g', g)
             lat, lon, _, speed = g
-            self.ddh_gps_position = f'{lat}, {lon}'
-            self.ddh_gps_speed = '{:.2f} knots'.format(speed)
+            self.ddh_gps_position = '{:.4f}, {:.4f}'.format(float(lat), float(lon))
+            self.ddh_gps_speed = '{:.2f} knots'.format(float(speed))
         self.ddh_box_name = dds_get_cfg_vessel_name()
         self.ddh_box_sn = dds_get_cfg_box_sn()
         self.ddh_box_project = dds_get_cfg_box_project()
