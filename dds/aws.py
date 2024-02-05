@@ -184,6 +184,13 @@ def aws_serve():
         lg.a("warning: aws_en is disabled")
         return
 
+    # tell why we do AWS
+    if os.path.exists(flag_gui):
+        lg.a("debug: the aws_do_flag_gui is set")
+        os.unlink(flag_gui)
+    else:
+        lg.a("period elapsed, time for some AWS S3")
+
     # nothing to do, number of files did not change
     # todo ---> test this
     fol = ddh_get_absolute_application_path() + '/dl_files'
@@ -193,16 +200,12 @@ def aws_serve():
     global past_n_files
     ff_ctt = (not exists_flag_gui) and past_n_files == len(ls)
     past_n_files = len(ls)
+    if len(ls):
+        lg.a('warning: AWS zero number of files, not syncing')
+        return
     if ff_ctt:
         lg.a('warning: AWS same number of files, not syncing')
         return
-
-    # tell why we do AWS
-    if os.path.exists(flag_gui):
-        lg.a("debug: the aws_do_flag_gui is set")
-        os.unlink(flag_gui)
-    else:
-        lg.a("period elapsed, time for some AWS S3")
 
     # useful to remove zombie processes
     multiprocessing.active_children()
