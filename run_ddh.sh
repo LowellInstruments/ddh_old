@@ -19,6 +19,6 @@ _pb "###############"
 _pb "     DDH GUI   "
 _pb "###############"
 echo
-sudo chown -R pi:pi "$F_LI"
+sudo chown -R pi:pi "$FOL_LI"
 source "$FOL_VEN"/bin/activate
 cd "$FOL_DDH" && "$FOL_VEN"/bin/python main_ddh.py
