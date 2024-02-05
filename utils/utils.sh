@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 
 
-FOL_PI=/home/pi
-FOL_LI=$FOL_PI/li
-FOL_DDH=$FOL_LI/ddh
-FOL_VEN=$FOL_LI/venv
+export FOL_PI=/home/pi
+export FOL_LI=$FOL_PI/li
+export FOL_DDH=$FOL_LI/ddh
+export FOL_VEN=$FOL_LI/venv
 
 
 # 0 black, 1 red, 2 green, 3 yellow
