@@ -1,5 +1,12 @@
 #!/usr/bin/env bash
 
+
+FOL_PI=/home/pi
+FOL_LI=$FOL_PI/li
+FOL_DDH=$FOL_LI/ddh
+FOL_VEN=$FOL_LI/venv
+
+
 # 0 black, 1 red, 2 green, 3 yellow
 # 4 blue, 5 magenta, 6 cyan, 7 white
 function _p_color { tput setaf "$1"; printf "%s\n" "$2"; tput sgr0; }

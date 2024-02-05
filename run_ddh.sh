@@ -1,11 +1,9 @@
 #!/usr/bin/env bash
-F_LI=/home/pi/li
-F_DA="$F_LI"/ddh
-F_VE=/home/pi/li/venv
+source /home/pi/li/ddh/utils.sh
+
 
 
 clear
-source $F_AU/utils.sh
 echo
 
 # for crontab to detect already running
@@ -23,5 +21,5 @@ _pb "     DDH GUI   "
 _pb "###############"
 echo
 sudo chown -R pi:pi "$F_LI"
-source "$F_VE"/bin/activate
-cd "$F_DA" && $F_VE/bin/python main_ddh.py
+source "$FOL_VEN"/bin/activate
+cd "$FOL_DDH" && "$FOL_VEN"/bin/python main_ddh.py

@@ -1,12 +1,8 @@
 #!/usr/bin/env bash
-F_LI=/home/pi/li
-F_VE=$F_LI/venv
-F_DA=$F_LI/ddh
-F_AU=$F_DA/utils
+source /home/pi/li/ddh/utils.sh
 
 
 clear
-source $F_AU/utils.sh
 echo
 
 
@@ -48,8 +44,6 @@ _pb "###############"
 _pb "     DDS       "
 _pb "###############"
 echo
-sudo chown -R pi:pi "$F_DA"
-source "$F_VE"/bin/activate
-cd "$F_DA" && $F_VE/bin/python main_dds.py
-
-
+sudo chown -R pi:pi "$FOL_DDH"
+source "$FOL_VEN"/bin/activate
+cd "$FOL_DDH" && "$FOL_VEN"/bin/python main_dds.py
