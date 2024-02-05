@@ -4,6 +4,11 @@ source /home/pi/li/ddh/utils/utils.sh
 
 clear
 echo
+_pb "####################"
+_pb " DDH GUI checking  "
+_pb "####################"
+
+
 
 # for crontab to detect already running
 check_already_running "main_ddh_controller"

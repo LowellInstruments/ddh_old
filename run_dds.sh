@@ -4,6 +4,9 @@ source /home/pi/li/ddh/utils/utils.sh
 
 clear
 echo
+_pb "###############"
+_pb " DDS checking  "
+_pb "###############"
 
 
 # for crontab to detect already running
@@ -41,7 +44,7 @@ sudo setcap 'cap_net_raw,cap_net_admin+eip' /usr/sbin/ifmetric
 
 echo && echo
 _pb "###############"
-_pb "     DDS       "
+_pb " DDS running   "
 _pb "###############"
 echo
 sudo chown -R pi:pi "$FOL_DDH"
