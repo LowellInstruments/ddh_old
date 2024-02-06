@@ -4,9 +4,9 @@ F_DA=/home/pi/li/ddh
 
 
 # for crontab: to detect already running
-ps -aux | grep "main_api_controller" | grep -v grep
-ALREADY=$?
-if [ "$ALREADY" -eq 0 ]; then echo "API already running in bash, leaving"; exit 0; fi
+pgrep -f main_api
+rv=$?
+if [ $rv -eq 0 ]; then echo "DDH main_api already running"; exit 1; fi
 
 
 # launch API

@@ -2,7 +2,6 @@
 
 import datetime
 import shutil
-import time
 import setproctitle
 from api.api_utils import get_git_commit_mat_local, \
     get_ip_vpn, get_ip_wlan, get_ip_cell, \
@@ -14,13 +13,13 @@ from dds.rbl import rbl_find_usb_port
 from mat.linux import linux_app_write_pid_to_tmp, linux_is_process_running
 from mat.utils import linux_is_rpi
 from utils.ddh_config import dds_get_cfg_vessel_name, dds_get_cfg_box_sn, dds_get_cfg_box_project
-from utils.ddh_shared import NAME_EXE_API_CONTROLLER, \
-    PID_FILE_API_CONTROLLER, \
-    NAME_EXE_API, PID_FILE_API, get_ddh_folder_path_dl_files
+from utils.ddh_shared import (
+    NAME_EXE_API,
+    PID_FILE_API,
+    get_ddh_folder_path_dl_files)
 from utils.logs import (
     lg_api as lg,
 )
-from multiprocessing import Process
 import uvicorn
 from fastapi import FastAPI, UploadFile, File
 import os
@@ -146,8 +145,7 @@ async def ep_dl_files_get():
 
     # zip it, -o flag overwrites if already exists
     s = get_ddh_folder_path_dl_files()
-    print('cwd is', os.getcwd())
-    print('getting files from', s)
+    lg.a(f'cwd is {os.getcwd()}, getting files from {s}')
     p = '/tmp/' + file_name
     c = 'zip -ro {} {}'.format(p, s)
     rv = shell(c)
@@ -194,7 +192,6 @@ async def ep_kill_ddh():
 
 @app.get('/kill_api')
 async def ep_kill_api():
-    shell('killall main_api_controller')
     shell('killall main_api')
     # does not matter, won't answer
     return {'kill_api': 'OK'}

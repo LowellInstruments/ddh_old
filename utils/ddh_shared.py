@@ -69,10 +69,8 @@ PID_FILE_DDS = "/tmp/{}.pid".format(NAME_EXE_DDS)
 PID_FILE_API = "/tmp/{}.pid".format(NAME_EXE_API)
 NAME_EXE_DDH_CONTROLLER = NAME_EXE_DDH + "_controller"
 NAME_EXE_DDS_CONTROLLER = NAME_EXE_DDS + "_controller"
-NAME_EXE_API_CONTROLLER = NAME_EXE_API + "_controller"
 PID_FILE_DDH_CONTROLLER = "/tmp/{}.pid".format(NAME_EXE_DDH_CONTROLLER)
 PID_FILE_DDS_CONTROLLER = "/tmp/{}.pid".format(NAME_EXE_DDS_CONTROLLER)
-PID_FILE_API_CONTROLLER = "/tmp/{}.pid".format(NAME_EXE_API_CONTROLLER)
 
 
 _sk = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
