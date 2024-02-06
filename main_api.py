@@ -160,6 +160,9 @@ def _ep_update(_ep, c):
     if not linux_is_rpi():
         return {ep: 'not RPi, not updating DDH'}
     rv = shell(c)
+    print('rv status', rv.returncode)
+    print('rv stderr', rv.stderr.decode())
+    print('rv stdout', rv.stdout.decode())
     return {_ep: 'OK' if rv.returncode == 0 else 'error'}
 
 
@@ -178,8 +181,6 @@ async def ep_update_ddh():
 @app.get('/update_mat')
 async def ep_update_mat():
     d = api_get_folder_path_root()
-    print('d', d)
-    print('full', f'cd {d}/scripts && ./pop_mat.sh')
     return _ep_update('update_mat', f'{d}/scripts/pop_mat.sh')
 
 
