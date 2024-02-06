@@ -4,13 +4,14 @@ import datetime
 import pathlib
 import shutil
 import setproctitle
-from api.api_utils import get_git_commit_mat_local, \
-    get_ip_vpn, get_ip_wlan, get_ip_cell, \
-    get_running, get_crontab_ddh, shell, \
-    set_crontab, \
-    get_git_commit_ddh_local, \
-    get_ble_state, get_gps, get_logger_mac_reset_files, get_versions, api_get_full_ddh_config_file_path, \
-    linux_app_write_pid_to_tmp, linux_is_rpi
+from api.api_utils import (get_git_commit_mat_local,
+                           get_ip_vpn, get_ip_wlan, get_ip_cell,
+                           get_running, get_crontab_ddh, shell,
+                           set_crontab,
+                           get_git_commit_ddh_local,
+                           get_ble_state, get_gps, get_logger_mac_reset_files, get_versions,
+                           api_get_full_ddh_config_file_path,
+                           linux_app_write_pid_to_tmp, linux_is_rpi, api_get_folder_path_root)
 from utils.ddh_config import dds_get_cfg_vessel_name, dds_get_cfg_box_sn, dds_get_cfg_box_project
 import uvicorn
 from fastapi import FastAPI, UploadFile, File
@@ -28,9 +29,8 @@ app = FastAPI()
 
 
 def _get_ddh_folder_path_dl_files():
-    # where is the file main_api.py
-    p = pathlib.Path(__file__).parent.resolve()
-    return p + '/dl_files'
+    d = api_get_folder_path_root()
+    return f'{d}' + '/dl_files'
 
 
 @app.get('/ping')
@@ -108,14 +108,15 @@ async def ep_logs_get():
     vn = dds_get_cfg_vessel_name()
     vn = vn.replace(' ', '')
     file_name = 'logs_{}_{}.zip'.format(vn, now)
+    d = api_get_folder_path_root()
     # zip ONLY .log files
-    c = 'zip -r {} logs/*.log'.format(file_name)
+    c = f'zip -r {file_name} {d}/logs/*.log'
     rv = shell(c)
     if rv.returncode == 0:
-        c = 'mv {} logs/'.format(file_name)
+        c = f'mv {file_name} {d}/logs'
         rv = shell(c)
         if rv.returncode == 0:
-            p = 'logs/' + file_name
+            p = f'{d}/logs/' + file_name
             fr = FileResponse(path=p, filename=file_name)
             return fr
 
@@ -164,17 +165,20 @@ def _ep_update(_ep, c):
 
 @app.get('/update_ddt')
 async def ep_update_ddt():
-    return _ep_update('update_ddt', 'cd ../ddt && git pull')
+    d = api_get_folder_path_root()
+    return _ep_update('update_ddt', f'cd {d}/../ddt && git pull')
 
 
 @app.get('/update_ddh')
 async def ep_update_ddh():
-    return _ep_update('update_ddh', 'cd scripts && ./pop_ddh.sh')
+    d = api_get_folder_path_root()
+    return _ep_update('update_ddh', f'cd {d}/scripts && ./pop_ddh.sh')
 
 
 @app.get('/update_mat')
 async def ep_update_mat():
-    return _ep_update('update_mat', 'cd scripts && ./pop_mat.sh')
+    d = api_get_folder_path_root()
+    return _ep_update('update_mat', f'cd {d}/scripts && ./pop_mat.sh')
 
 
 @app.get('/kill_ddh')
