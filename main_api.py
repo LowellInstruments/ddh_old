@@ -10,7 +10,6 @@ from api.api_utils import get_git_commit_mat_local, \
     get_git_commit_ddh_local, \
     get_ble_state, get_gps, get_logger_mac_reset_files, get_versions, api_get_full_ddh_config_file_path, \
     linux_app_write_pid_to_tmp, linux_is_rpi
-from dds.rbl import rbl_find_usb_port
 from utils.ddh_config import dds_get_cfg_vessel_name, dds_get_cfg_box_sn, dds_get_cfg_box_project
 from utils.ddh_shared import (
     NAME_EXE_API,
@@ -86,7 +85,6 @@ async def api_get_info():
         "ip_wlan": _th(get_ip_wlan),
         "ip_cell": _th(get_ip_cell),
         "gps": _th(get_gps),
-        "rockblocks": _th(rbl_find_usb_port),
         "ble_state": _th(get_ble_state),
         "boat_prj": _th(dds_get_cfg_box_project),
         "boat_sn": _th(dds_get_cfg_box_sn),

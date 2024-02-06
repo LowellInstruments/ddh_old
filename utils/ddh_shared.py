@@ -4,7 +4,6 @@ import glob
 import pathlib
 import time
 import git
-import json
 import os
 import socket
 from pathlib import Path
