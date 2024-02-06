@@ -180,7 +180,7 @@ async def ep_update_mat():
     d = api_get_folder_path_root()
     print('d', d)
     print('full', f'cd {d}/scripts && ./pop_mat.sh')
-    return _ep_update('update_mat', f'cd {d}/scripts && ./pop_mat.sh')
+    return _ep_update('update_mat', f'{d}/scripts/pop_mat.sh')
 
 
 @app.get('/kill_ddh')
