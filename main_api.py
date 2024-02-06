@@ -12,9 +12,6 @@ from api.api_utils import get_git_commit_mat_local, \
     get_ble_state, get_gps, get_logger_mac_reset_files, get_versions, api_get_full_ddh_config_file_path, \
     linux_app_write_pid_to_tmp, linux_is_rpi
 from utils.ddh_config import dds_get_cfg_vessel_name, dds_get_cfg_box_sn, dds_get_cfg_box_project
-from utils.logs import (
-    lg_api as lg,
-)
 import uvicorn
 from fastapi import FastAPI, UploadFile, File
 import os
@@ -148,7 +145,7 @@ async def ep_dl_files_get():
 
     # zip it, -o flag overwrites if already exists
     s = _get_ddh_folder_path_dl_files()
-    lg.a(f'cwd is {os.getcwd()}, getting files from {s}')
+    print(f'cwd is {os.getcwd()}, getting files from {s}')
     p = '/tmp/' + file_name
     c = 'zip -ro {} {}'.format(p, s)
     rv = shell(c)
