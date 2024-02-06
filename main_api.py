@@ -160,9 +160,10 @@ def _ep_update(_ep, c):
     if not linux_is_rpi():
         return {ep: 'not RPi, not updating DDH'}
     rv = shell(c)
-    print('rv status', rv.returncode)
-    print('rv stderr', rv.stderr.decode())
-    print('rv stdout', rv.stdout.decode())
+    if rv.returncode:
+        print('rv status', rv.returncode)
+        print('rv stderr', rv.stderr.decode())
+        print('rv stdout', rv.stdout.decode())
     return {_ep: 'OK' if rv.returncode == 0 else 'error'}
 
 

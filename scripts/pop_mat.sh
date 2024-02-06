@@ -43,7 +43,7 @@ _S="[ POP ] mat | creating commit local file"
 _pb "$_S"
 COM_MAT_LOC=$(cd "$F_CLONE_MAT" && git rev-parse master)
 _e $? "cannot get MAT local commit file"
-[ ${#COM_MAT_LOC} -ne 40 ]
+[ ${#COM_MAT_LOC} -eq 40 ]
 _e $? "bad MAT $COM_MAT_LOC local commit file"
 sudo echo "$COM_MAT_LOC" | sudo tee /etc/com_mat_loc.txt > /dev/null
 _e $? "cannot copy MAT commit file to /etc/"
