@@ -17,7 +17,7 @@ function _py { _p_color 3 "$1"; }
 function _pb { _p_color 6 "$1"; }
 function _e {
     if [ "$1" -ne 0 ]; then
-        _pr "error: $2 rv $1"; exit "$1";
+        _pr "error: $2, the error rv is $1"; exit "$1";
     fi
 }
 
