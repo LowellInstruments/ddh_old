@@ -5,8 +5,6 @@ import pathlib
 import platform
 import subprocess as sp
 
-from mat.utils import linux_is_rpi
-
 
 def shell(c):
     return sp.run(c, shell=True, stdout=sp.PIPE, stderr=sp.PIPE)
