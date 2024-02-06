@@ -2,20 +2,17 @@ import numpy as np
 import time
 from datetime import datetime
 from glob import glob
-import json
 from PyQt5 import QtCore
 from PyQt5.QtCore import QTime, QCoreApplication
 import pyqtgraph as pg
-from PyQt5.QtGui import QFont
 from pyqtgraph.Qt import QtGui
-from os.path import basename
 from pyqtgraph import LinearRegionItem
 from ddh.utils_graph import utils_graph_read_fol_req_file, \
     utils_graph_get_abs_fol_list, process_graph_csv_data, \
     utils_graph_does_exist_fol_req_file, \
     utils_graph_delete_fol_req_file
 from mat.utils import linux_is_rpi
-from utils.ddh_config import dds_get_cfg_logger_sn_from_mac, dds_get_cfg_logger_mac_from_sn
+from utils.ddh_config import dds_get_cfg_logger_mac_from_sn
 from utils.ddh_shared import get_dl_folder_path_from_mac, \
     ddh_get_absolute_application_path, \
     get_number_of_hauls

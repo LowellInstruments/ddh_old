@@ -21,6 +21,15 @@ def api_get_full_ddh_config_file_path():
     return p
 
 
+def api_get_folder_path_root():
+    p = pathlib.Path.home()
+    if linux_is_rpi():
+        p = str(p) + '/li/ddh'
+    else:
+        p = str(p) + '/PycharmProjects/ddh'
+    return p
+
+
 def _get_remote_commit(s):
     assert s in ('mat', 'ddh', 'ddt', 'liu')
     url = 'https://github.com/lowellinstruments/{}.git'.format(s)
@@ -182,13 +191,12 @@ def get_ble_state():
 
 
 def get_gps():
-    g = ''
     try:
         with open('/tmp/gps_last.json', 'r') as f:
-            g = json.load(f)
-    except (Exception, ):
-        pass
-    return g
+            return json.load(f)
+    except (Exception, ) as ex:
+        print(f'error: cannot api_get_gps -> {ex}')
+        return {}
 
 
 def get_versions():
@@ -198,19 +206,20 @@ def get_versions():
     v_ddh_r = get_git_commit_ddh_remote()
     v_ddt_l = get_git_commit_ddt_local()
     v_ddt_r = get_git_commit_ddt_remote()
-    v_liu_l = get_git_commit_liu_local()
-    v_liu_r = get_git_commit_liu_remote()
+    print('mat', v_mat_l, v_mat_r)
+    print('ddh', v_ddh_l, v_ddh_r)
+    print('ddt', v_ddt_l, v_ddt_r)
     return {
         'need_mat_update': 'yes' if v_mat_l != v_mat_r else 'no',
         'need_ddh_update': 'yes' if v_ddh_l != v_ddh_r else 'no',
         'need_ddt_update': 'yes' if v_ddt_l != v_ddt_r else 'no',
-        'need_liu_update': 'yes' if v_liu_l != v_liu_r else 'no'
     }
 
 
 def get_logger_mac_reset_files():
-    ff = glob.glob('api/*.rst')
-    return {'mac_reset_files': ff}
+    p = api_get_folder_path_root()
+    ff = glob.glob(f'{p}/dds/tweak/*.rst')
+    return ff
 
 
 # let's repeat 2 functions here so API does not require MAT

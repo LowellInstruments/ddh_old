@@ -1,4 +1,5 @@
 import datetime
+import json
 import subprocess as sp
 import time
 import serial
@@ -128,16 +129,18 @@ def _gps_parse_rmc_frame(data: bytes):
     if cs_in != cs_calc.upper():
         return None
 
-    # save to disk for other apps
-    # d = {
-    #    "lat": lat,
-    #    "lon": lon,
-    #    "gps_time": gps_time,
-    #    "speed": speed
-    # }
-    # j = json.dumps(d)
-    # with open("/tmp/gps_last.json", "w") as outfile:
-    #    outfile.write(j)
+    # save to disk for other apps such as DDH API
+    try:
+        d = {
+           "lat": lat,
+           "lon": lon,
+           "gps_time": gps_time,
+           "speed": speed
+        }
+        with open("/tmp/gps_last.json", "w") as f:
+            json.dump(d, f)
+    except (Exception, ) as ex:
+        lg.a(f'error: saving /tmp/gps_last.json -> {ex}')
 
     # everything went OK
     return lat, lon, gps_time, speed

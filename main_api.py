@@ -87,7 +87,7 @@ async def api_get_info():
         "ip_vpn": _th(get_ip_vpn),
         "ip_wlan": _th(get_ip_wlan),
         "ip_cell": _th(get_ip_cell),
-        "gps": _th(get_gps),
+        "last_gps": _th(get_gps),
         "ble_state": _th(get_ble_state),
         "boat_prj": _th(dds_get_cfg_box_project),
         "boat_sn": _th(dds_get_cfg_box_sn),
