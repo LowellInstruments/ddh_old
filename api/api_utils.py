@@ -1,6 +1,8 @@
 import glob
 import json
+import os
 import pathlib
+import platform
 import subprocess as sp
 
 from mat.utils import linux_is_rpi
@@ -211,3 +213,23 @@ def get_versions():
 def get_logger_mac_reset_files():
     ff = glob.glob('api/*.rst')
     return {'mac_reset_files': ff}
+
+
+# let's repeat 2 functions here so API does not require MAT
+def linux_app_write_pid_to_tmp(name):
+    if not name.endswith('.pid'):
+        name += '.pid'
+    if not name.startswith('/tmp/'):
+        name = '/tmp/' + name
+    path = name
+    pid = str(os.getpid())
+    f = open(path, 'w')
+    f.write(pid)
+    f.close()
+
+
+def linux_is_rpi():
+    if platform.system() == 'Windows':
+        return False
+    # better than checking architecture
+    return os.uname().nodename in ('raspberrypi', 'rpi')
