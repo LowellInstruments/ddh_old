@@ -206,9 +206,6 @@ def get_versions():
     v_ddh_r = get_git_commit_ddh_remote()
     v_ddt_l = get_git_commit_ddt_local()
     v_ddt_r = get_git_commit_ddt_remote()
-    print('mat', v_mat_l, v_mat_r)
-    print('ddh', v_ddh_l, v_ddh_r)
-    print('ddt', v_ddt_l, v_ddt_r)
     return {
         'need_mat_update': 'yes' if v_mat_l != v_mat_r else 'no',
         'need_ddh_update': 'yes' if v_ddh_l != v_ddh_r else 'no',
