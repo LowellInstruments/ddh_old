@@ -1,8 +1,6 @@
 import toml
 import os
 
-from utils.ddh_shared import get_ddh_rerun_flag
-
 
 def _get_relative_config_file_path():
     # when DDH
@@ -200,7 +198,6 @@ if __name__ == '__main__':
     print('json_mac_dns', dds_get_cfg_logger_sn_from_mac("11-22-33-44-55-66"))
     print('ft', dds_get_cfg_forget_time_secs())
     print('monitored_macs', dds_get_cfg_monitored_macs())
-    print('flag_re_run', get_ddh_rerun_flag())
     print('mac_from_sn_json_file', dds_get_cfg_logger_mac_from_sn('1234567'))
     print('gear_type', ddh_get_cfg_gear_type())
     print('check_we_have_box_env_info', dds_check_cfg_has_box_info())
