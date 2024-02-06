@@ -9,7 +9,6 @@ import socket
 from pathlib import Path
 from git import InvalidGitRepositoryError
 import subprocess as sp
-from mat.ble.ble_mat_utils import DDH_GUI_UDP_PORT
 from mat.utils import linux_is_rpi, linux_is_rpi3, linux_is_rpi4
 
 STATE_DDS_NOTIFY_BOAT_NAME = "boat_name"
@@ -81,6 +80,10 @@ ael = asyncio.get_event_loop()
 
 class BLEAppException(Exception):
     pass
+
+
+# post must match the one in MAT library
+DDH_GUI_UDP_PORT = 12349
 
 
 def send_ddh_udp_gui(s, ip="127.0.0.1", port=DDH_GUI_UDP_PORT):
