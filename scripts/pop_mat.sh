@@ -2,27 +2,24 @@
 
 
 
-source colors.sh
-echo; echo; echo
+source /home/pi/li/ddh/scripts/utils.sh
+clear
 
 
-
-F_VE=/home/pi/li/venv
-PIP=$F_VE/bin/pip3
 F_CLONE_MAT=/tmp/mat
 
 
 
 _S="[ POP ] mat | activating VENV"
 _pb "$_S"
-source $F_VE/bin/activate
+source "$FOL_VEN"/bin/activate
 _e $? "$_S"
 
 
 
 _S="[ POP ] mat | uninstalling previous library, if any"
 _pb "$_S"
-$PIP uninstall -y mat
+"$FOL_VEN"/bin/pip3 uninstall -y mat
 _e $? "$_S"
 
 
@@ -37,7 +34,7 @@ _e $? "$_S"
 
 _S="[ POP ] mat | installing it via pip"
 _pb "$_S"
-$PIP install $F_CLONE_MAT
+"$FOL_VEN"/bin/pip3 install $F_CLONE_MAT
 _e $? "$_S"
 
 

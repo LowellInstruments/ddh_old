@@ -179,7 +179,7 @@ async def ep_update_ddh():
 async def ep_update_mat():
     d = api_get_folder_path_root()
     print('d', d)
-    print('full', 'cd {d}/scripts && ./pop_mat.sh')
+    print('full', f'cd {d}/scripts && ./pop_mat.sh')
     return _ep_update('update_mat', f'cd {d}/scripts && ./pop_mat.sh')
 
 
