@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import datetime
+import pathlib
 import shutil
 import setproctitle
 from api.api_utils import get_git_commit_mat_local, \
@@ -11,10 +12,6 @@ from api.api_utils import get_git_commit_mat_local, \
     get_ble_state, get_gps, get_logger_mac_reset_files, get_versions, api_get_full_ddh_config_file_path, \
     linux_app_write_pid_to_tmp, linux_is_rpi
 from utils.ddh_config import dds_get_cfg_vessel_name, dds_get_cfg_box_sn, dds_get_cfg_box_project
-from utils.ddh_shared import (
-    NAME_EXE_API,
-    PID_FILE_API,
-    get_ddh_folder_path_dl_files)
 from utils.logs import (
     lg_api as lg,
 )
@@ -26,8 +23,17 @@ import concurrent.futures
 
 
 DDH_PORT_API = 8000
+NAME_EXE_API = "main_api"
+PID_FILE_API = "/tmp/{}.pid".format(NAME_EXE_API)
+
 
 app = FastAPI()
+
+
+def _get_ddh_folder_path_dl_files():
+    # where is the file main_api.py
+    p = pathlib.Path(__file__).parent.resolve()
+    return p + '/dl_files'
 
 
 @app.get('/ping')
@@ -141,7 +147,7 @@ async def ep_dl_files_get():
     file_name = 'dl_files_{}.zip'.format(vn)
 
     # zip it, -o flag overwrites if already exists
-    s = get_ddh_folder_path_dl_files()
+    s = _get_ddh_folder_path_dl_files()
     lg.a(f'cwd is {os.getcwd()}, getting files from {s}')
     p = '/tmp/' + file_name
     c = 'zip -ro {} {}'.format(p, s)
