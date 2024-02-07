@@ -2,6 +2,9 @@ dl_files/*
 logs/*
 .idea/
 
+# stupid moana plugin
+dds/ble_dl_moana.py
+
 # un-ignore so empty folders are copied
 !logs/.gitkeep
 !dl_files/.gitkeep
