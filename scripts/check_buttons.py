@@ -1,5 +1,7 @@
 from gpiozero import Button
 import time
+from signal import pause
+
 
 # bta = 0
 btb = 0.2
@@ -62,5 +64,5 @@ button_c.when_released = button_c_released_cb
 
 print(f'bounce times A {0} B {btb} C {btc}')
 print(f'pullup confs A {pua} B {pub} C {puc}')
-while True:
-    pass
+pause()
+
