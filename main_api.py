@@ -171,13 +171,13 @@ def _ep_update(_ep, c):
 @app.get('/update_ddt')
 async def ep_update_ddt():
     d = api_get_folder_path_root()
-    return _ep_update('update_ddt', f'cd {d}/../ddt && git pull')
+    return _ep_update('update_ddt', f'{d}/scripts/pop_ddt.sh')
 
 
 @app.get('/update_ddh')
 async def ep_update_ddh():
     d = api_get_folder_path_root()
-    return _ep_update('update_ddh', f'cd {d}/scripts && ./pop_ddh.sh')
+    return _ep_update('update_ddh', f'{d}/scripts/pop_ddh.sh')
 
 
 @app.get('/update_mat')
