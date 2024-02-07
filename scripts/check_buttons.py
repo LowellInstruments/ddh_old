@@ -55,7 +55,7 @@ button_a.when_released = button_a_released_cb
 button_b.when_held = button_b_held_cb
 button_b.when_pressed = button_b_pressed_cb
 button_b.when_released = button_b_released_cb
-button_c.when_held = button_c_held_cb
+# button_c.when_held = button_c_held_cb
 button_c.when_pressed = button_c_pressed_cb
 button_c.when_released = button_c_released_cb
 
