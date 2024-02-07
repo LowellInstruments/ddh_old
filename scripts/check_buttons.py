@@ -51,20 +51,15 @@ def button_c_released_cb():
     print("released button C")
 
 
-def button_c_nick_cb():
-    print("C active")
-
-
 button_a.when_held = button_a_held_cb
 button_a.when_pressed = button_a_pressed_cb
 button_a.when_released = button_a_released_cb
 button_b.when_held = button_b_held_cb
 button_b.when_pressed = button_b_pressed_cb
 button_b.when_released = button_b_released_cb
-# button_c.when_held = button_c_held_cb
-# button_c.when_pressed = button_c_pressed_cb
-# button_c.when_released = button_c_released_cb
-button_c.when_activated = button_c_nick_cb
+button_c.when_held = button_c_held_cb
+button_c.when_pressed = button_c_pressed_cb
+button_c.when_released = button_c_released_cb
 
 
 print(f'bounce times A {0} B {btb} C {btc}')
