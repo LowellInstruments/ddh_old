@@ -2,6 +2,7 @@ dl_files/*
 logs/*
 .idea/
 
+
 # stupid moana plugin
 dds/ble_dl_moana.py
 
@@ -25,8 +26,6 @@ db_his.json*
 *.sqs
 *.rbl
 
-
-
 # just in case there are more dl_files here
 dds/dl_files/
 
@@ -34,6 +33,9 @@ dds/macs/black/
 dds/macs/orange/
 .ruff_cache/
 settings/config.toml
+
+
+
 
 
 # Byte-compiled / optimized / DLL files
