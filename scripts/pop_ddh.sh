@@ -53,10 +53,15 @@ _e $? "$_S"
 _S="[ POP ] ddh | installing Moana plugin from ddt folder"
 _da "$_S"
 _pb "$_S"
-cd /home/pi/li/ddt && \
-git reset --hard && \
-git pull && \
-cp /home/pi/li/ddt/_dt_files/ble_dl_moana.py "$FOL_DDH"/dds
+_da "hello"
+cd /home/pi/li/ddt
+_da "hello2"
+git reset --hard
+_da "hello3"
+git pull
+_da "hello4"
+cp "$FOL_DDT"/_dt_files/ble_dl_moana.py "$FOL_DDH"/dds
+_da "hello5"
 _e $? "$_S"
 
 
