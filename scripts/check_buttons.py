@@ -1,14 +1,14 @@
 from gpiozero import Button
 import time
 
-bta = 0
+# bta = 0
 btb = 0.2
 btc = 0.4
 pua = 1
 pub = 1
 puc = 1
 
-button_a = Button(16, pull_up=pua, bounce_time=bta)
+button_a = Button(16, pull_up=pua)
 button_b = Button(20, pull_up=pub, bounce_time=btb)
 button_c = Button(21, pull_up=puc, bounce_time=btc)
 

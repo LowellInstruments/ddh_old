@@ -117,6 +117,12 @@ def get_ip_cell():
     return _get_iface_ip('ppp0')
 
 
+def get_uptime():
+    c = 'uptime -p'
+    rv = shell(c)
+    return rv.stdout.decode()
+
+
 def get_crontab_ddh():
     c = 'cat /etc/crontab | grep crontab_ddh.sh'
     rv = shell(c)
