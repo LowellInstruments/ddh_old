@@ -68,6 +68,7 @@ async def ble_scan(g, _h: int, _h_desc, t=5.0):
     """
 
     def _scan_cb(d: BLEDevice, _):
+        # returns lower-case macs
         if _ble_is_supported_logger(d.name):
             _our_devs[d.address.lower()] = d.name
         _all_devs[d.address.lower()] = d.name

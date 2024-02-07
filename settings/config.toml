@@ -1,5 +1,4 @@
 [credentials]
-# new configuration single file
 cred_aws_bucket = "bkt-kaz"
 cred_aws_key_id = "AKIA2SU3QQX6Z4TX4VO3"
 cred_aws_secret = "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"
@@ -12,13 +11,12 @@ cred_aws_custom_sqs_access_key = ""
 [behavior]
 ship_name = "ship_name"
 forget_time = 86400
-# 0 static, 1 trawl
 gear_type = 0
 moving_speed = [ 0.5, 7.0,]
 fake_gps_position = [ 11.0, -83.0,]
 
 [monitored_macs]
-"11:22:33:44:55:66" = "1234567"
+"D0:2E:AB:D9:29:48" = "TAP1"
 
 [all_macs]
 "11:22:33:44:55:66" = "1234567"

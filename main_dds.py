@@ -69,6 +69,7 @@ import setproctitle
 
 
 def main_dds():
+
     dds_tell_software_update()
     dds_check_cfg_has_box_info()
     dds_ensure_proper_working_folder()
@@ -200,12 +201,12 @@ def controller_main_dds():
 
     while 1:
         # the GUI KILLs this process when desired
-        lg.a("=== {} launching child ===".format(s))
+        lg.a(f"=== {s} launching child ===")
         p = Process(target=main_dds)
         p.start()
         p.join()
         _alarm_dds_crash(p.exitcode)
-        lg.a("=== {} waits child ===".format(s))
+        lg.a(f"=== {s} waits child, exitcode {p.exitcode} ===")
         time.sleep(5)
 
 

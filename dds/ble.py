@@ -1,4 +1,5 @@
 import datetime
+import os
 import pathlib
 import shutil
 import time
@@ -15,11 +16,8 @@ from dds.macs import (
 )
 from dds.timecache import its_time_to
 from mat.ble.ble_mat_utils import ble_mat_bluetoothctl_power_cycle, ble_mat_disconnect_all_devices_ll
-from mat.ble.bleak.cc26x2r_sim import ble_logger_is_cc26x2r_simulated
-
 from dds.ble_dl_rn4020 import ble_interact_rn4020
 from dds.ble_dl_cc26x2r import ble_interact_cc26x2
-from dds.ble_dl_moana import ble_interact_moana, check_moana_plugin_is_missing
 from dds.gps import gps_tell_position_logger
 from dds.sqs import (
     sqs_msg_logger_error_max_retries,
@@ -35,9 +33,10 @@ from utils.ddh_shared import (
     STATE_DDS_BLE_DOWNLOAD_WARNING,
     get_dl_folder_path_from_mac,
     STATE_DDS_BLE_DOWNLOAD, dds_get_aws_has_something_to_do_via_gui_flag_file,
-    STATE_DDS_NOTIFY_HISTORY,
+    STATE_DDS_NOTIFY_HISTORY, STATE_DDS_BLE_ERROR_MOANA_PLUGIN,
 )
 from utils.logs import lg_dds as lg
+from dds.ble_dl_moana import ble_interact_moana
 
 
 _g_logger_errors = {}
@@ -143,15 +142,9 @@ async def _ble_id_n_interact_logger(mac, info: str, h, g):
     # --------------------
     # logger interaction
     # --------------------
-
     if _ble_logger_is_cc26x2r(info):
         rv, notes = await ble_interact_cc26x2(mac, info, g, hs)
         sqs_msg_notes_cc26x2r(notes, mac, sn, lat, lon)
-        _crit_error = notes['error']
-
-    elif _ble_logger_is_tap(info):
-        rv, notes = await ble_interact_tap(mac, info, g, hs)
-        # sqs_msg_notes_tap(notes, mac, sn, lat, lon)
         _crit_error = notes['error']
 
     elif _ble_logger_is_rn4020(mac, info):
@@ -160,8 +153,21 @@ async def _ble_id_n_interact_logger(mac, info: str, h, g):
     elif _ble_logger_is_moana(info):
         fol = get_dl_folder_path_from_mac(mac)
         rv = await ble_interact_moana(fol, mac, hs, g)
-        if check_moana_plugin_is_missing(rv):
+        if rv == 2:
+            _u(STATE_DDS_BLE_ERROR_MOANA_PLUGIN)
+            if its_time_to(f'tell_error_moana_plugin', 900):
+                lg.a('error: no Moana plugin installed')
+            time.sleep(5)
             return
+
+    elif _ble_logger_is_tap(info):
+        rv, notes = await ble_interact_tap(mac, info, g, hs)
+        # sqs_msg_notes_tap(notes, mac, sn, lat, lon)
+        _crit_error = notes['error']
+
+    else:
+        lg.a(f'error: this should not happen, info {info}')
+        return
 
     # tell GUI how it went, also do MAC colors stuff
     _ble_analyze_logger_result(rv, mac, lat, lon, sn, _crit_error)
@@ -203,9 +209,11 @@ async def _ble_id_n_interact_logger(mac, info: str, h, g):
 
 
 async def ble_interact_all_loggers(macs_det, macs_mon, g, _h: int, _h_desc):
+
     for mac, model in macs_det.items():
-        simulated_mac = ble_logger_is_cc26x2r_simulated(mac)
-        if mac not in macs_mon and not simulated_mac:
+        # because macs_det, macs_mon macs_mon are lowercase
+        mac = mac.lower()
+        if mac not in macs_mon:
             continue
 
         # helps in distance-detection issues

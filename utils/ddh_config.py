@@ -71,7 +71,8 @@ def dds_get_cfg_monitored_serial_numbers():
 
 
 def dds_get_cfg_monitored_macs():
-    return list(cfg['monitored_macs'].keys())
+    ls = list(cfg['monitored_macs'].keys())
+    return [i.lower() for i in ls]
 
 
 def dds_get_cfg_monitored_pairs():
