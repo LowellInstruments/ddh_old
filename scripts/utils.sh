@@ -32,3 +32,12 @@ function check_already_running {
         exit 0;
     fi
 }
+
+
+function _di {
+    echo "$1" > /tmp/dbg.txt
+}
+
+function _da {
+    echo "$1" >> /tmp/dbg.txt
+}

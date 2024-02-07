@@ -10,6 +10,7 @@ FTS=/tmp/ddh_stash
 
 
 _S="[ POP ] ddh | stashing configuration files"
+_di "$_S"
 _pb "$_S"
 rm -rf $FTS
 mkdir $FTS && \
@@ -21,6 +22,7 @@ _e $? "$_S"
 
 
 _S="[ POP ] ddh | getting last github DDH code"
+_da "$_S"
 _pb "$_S"
 cd "$FOL_DDH" && \
 git reset --hard && \
@@ -30,6 +32,7 @@ _e $? "$_S"
 
 
 _S="[ POP ] ddh | pip installing extra requirements"
+_da "$_S"
 _pb "$_S"
 pip install -r "$FOL_DDH"/requirements_rpi_39_2023_extra.txt
 _e $? "$_S"
@@ -38,6 +41,7 @@ _e $? "$_S"
 
 
 _S="[ POP ] ddh | un-stashing configuration files"
+_da "$_S"
 _pb "$_S"
 cp $FTS/config.toml "$FOL_DDH"/settings && \
 cp $FTS/script_logger_do_deploy_cfg.json "$FOL_DDH"/scripts && \
@@ -47,6 +51,7 @@ _e $? "$_S"
 
 
 _S="[ POP ] ddh | installing Moana plugin from ddt folder"
+_da "$_S"
 _pb "$_S"
 cd /home/pi/li/ddt && \
 git reset --hard && \
