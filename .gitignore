@@ -6,14 +6,6 @@ logs/*
 # stupid moana plugin
 dds/ble_dl_moana.py
 
-# un-ignore so empty folders are copied
-!logs/.gitkeep
-!dl_files/.gitkeep
-!rbl/.gitkeep
-!lef/.gitkeep
-!sqs/.gitkeep
-!tests/.gitkeep
-
 db_his.json*
 *.so
 *.lid
@@ -28,7 +20,6 @@ db_his.json*
 
 # just in case there are more dl_files here
 dds/dl_files/
-
 dds/macs/black/
 dds/macs/orange/
 .ruff_cache/
