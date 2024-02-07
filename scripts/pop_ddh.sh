@@ -56,8 +56,8 @@ git pull && \
 echo "c" >> /tmp/dbg.txt && \
 echo "$FOL_DDH" >> /tmp/dbg.txt && \
 echo "$FOL_DDT" >> /tmp/dbg.txt && \
-cp "$FOL_DDT"/_dt_files/ble_dl_moana.py "$FOL_DDH"/dds
-echo "d" >> /tmp/dbg.txt && \
+cp "$FOL_DDT"/_dt_files/ble_dl_moana.py "$FOL_DDH"/dds && \
+echo "d" >> /tmp/dbg.txt
 _e $? "$_S"
 
 
