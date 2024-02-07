@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
+# so stupid crontab does not complain
+export TERM=xterm-256color
+
 
 export FOL_PI=/home/pi
 export FOL_LI=$FOL_PI/li
