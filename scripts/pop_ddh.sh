@@ -48,10 +48,16 @@ _e $? "$_S"
 
 _S="[ POP ] ddh | installing Moana plugin from ddt folder"
 _pb "$_S"
-cd /home/pi/li/ddt && \
+cd "$FOL_DDT" && \
+echo "a" > /tmp/dbg.txt && \
 git reset --hard && \
+echo "b" >> /tmp/dbg.txt && \
 git pull && \
+echo "c" >> /tmp/dbg.txt && \
+echo "$FOL_DDH" >> /tmp/dbg.txt && \
+echo "$FOL_DDT" >> /tmp/dbg.txt && \
 cp "$FOL_DDT"/_dt_files/ble_dl_moana.py "$FOL_DDH"/dds
+echo "d" >> /tmp/dbg.txt && \
 _e $? "$_S"
 
 
