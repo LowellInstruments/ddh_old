@@ -161,10 +161,10 @@ def _ep_update(_ep, c):
     if not linux_is_rpi():
         return {ep: 'not RPi, not updating DDH'}
     rv = shell(c)
-    if rv.returncode:
-        print('rv status', rv.returncode)
-        print('rv stderr', rv.stderr.decode())
-        print('rv stdout', rv.stdout.decode())
+    with open('/tmp/puta.txt', 'w') as f:
+        f.write(f'rc {rv.returncode}')
+        f.write(f'er {rv.stderr.decode()}')
+        f.write(f'ou {rv.stdout.decode()}')
     return {_ep: 'OK' if rv.returncode == 0 else 'error'}
 
 
