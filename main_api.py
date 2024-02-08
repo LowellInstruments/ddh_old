@@ -11,7 +11,7 @@ from api.api_utils import (get_git_commit_mat_local,
                            get_git_commit_ddh_local,
                            get_ble_state, get_gps, get_logger_mac_reset_files, get_versions,
                            api_get_full_ddh_config_file_path,
-                           linux_app_write_pid_to_tmp, linux_is_rpi, api_get_folder_path_root)
+                           linux_app_write_pid_to_tmp, linux_is_rpi, api_get_folder_path_root, ddt_get_folder_path_root)
 from utils.ddh_config import dds_get_cfg_vessel_name, dds_get_cfg_box_sn, dds_get_cfg_box_project
 import uvicorn
 from fastapi import FastAPI, UploadFile, File
@@ -171,20 +171,20 @@ def _ep_update(_ep, c):
 
 @app.get('/update_ddt')
 async def ep_update_ddt():
-    d = api_get_folder_path_root()
-    return _ep_update('update_ddt', f'{d}/scripts/pop_ddt.sh')
+    d = ddt_get_folder_path_root()
+    return _ep_update('update_ddt', f'{d}/pop_ddt.sh')
 
 
 @app.get('/update_ddh')
 async def ep_update_ddh():
-    d = api_get_folder_path_root()
-    return _ep_update('update_ddh', f'{d}/scripts/pop_ddh.sh')
+    d = ddt_get_folder_path_root()
+    return _ep_update('update_ddh', f'{d}/pop_ddh.sh')
 
 
 @app.get('/update_mat')
 async def ep_update_mat():
-    d = api_get_folder_path_root()
-    return _ep_update('update_mat', f'{d}/scripts/pop_mat.sh')
+    d = ddt_get_folder_path_root()
+    return _ep_update('update_mat', f'{d}/pop_mat.sh')
 
 
 @app.get('/kill_ddh')

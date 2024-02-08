@@ -30,6 +30,15 @@ def api_get_folder_path_root():
     return p
 
 
+def ddt_get_folder_path_root():
+    p = pathlib.Path.home()
+    if linux_is_rpi():
+        p = str(p) + '/li/ddt'
+    else:
+        p = str(p) + '/PycharmProjects/ddt'
+    return p
+
+
 def _get_remote_commit(s):
     assert s in ('mat', 'ddh', 'ddt', 'liu')
     url = 'https://github.com/lowellinstruments/{}.git'.format(s)
