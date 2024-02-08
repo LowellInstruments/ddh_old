@@ -4,9 +4,6 @@ source /home/pi/li/ddh/scripts/utils.sh
 
 clear
 echo
-_pb "####################"
-_pb " DDH GUI checking  "
-_pb "####################"
 
 
 
