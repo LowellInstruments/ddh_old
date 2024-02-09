@@ -33,7 +33,7 @@ app = FastAPI()
 
 def _get_ddh_folder_path_dl_files():
     d = api_get_folder_path_root()
-    return f'{d}' + '/dl_files'
+    return f'{d}/dl_files'
 
 
 @app.get('/ping')
