@@ -116,8 +116,24 @@ async def ep_logs_get():
     f = f'/tmp/logs_{vn}_{now}.zip'
     d = api_get_folder_path_root()
     # zip ONLY .log files
-    c = f'cd {d}/logs && zip -r {f} *.log'
+    c = f'rm {f}; cd {d}/logs && zip -r {f} *.log'
     rv = shell(c)
+    if rv.returncode == 0:
+        return FileResponse(path=f, filename=os.path.basename(f))
+
+
+@app.get("/dl_files_get")
+async def ep_dl_files_get():
+    vn = dds_get_cfg_vessel_name()
+    vn = vn.replace(' ', '')
+    f = f'/tmp/dl_files_{vn}.zip'
+
+    # zip it, -o flag overwrites if already exists
+    s = _get_ddh_folder_path_dl_files()
+    c = f'rm {f}; cd {s} && zip -r {f} *'
+    rv = shell(c)
+
+    # send it as response
     if rv.returncode == 0:
         return FileResponse(path=f, filename=os.path.basename(f))
 
@@ -131,23 +147,7 @@ async def ep_conf_get():
     # zip it, -o flag overwrites if already exists
     f = f'/tmp/conf_{vn}.zip'
     d = api_get_folder_path_root()
-    c = f'cd {d}/settings && zip -o {f} config.toml'
-    rv = shell(c)
-
-    # send it as response
-    if rv.returncode == 0:
-        return FileResponse(path=f, filename=os.path.basename(f))
-
-
-@app.get("/dl_files_get")
-async def ep_dl_files_get():
-    vn = dds_get_cfg_vessel_name()
-    vn = vn.replace(' ', '')
-    f = '/tmp/dl_files_{}.zip'.format(vn)
-
-    # zip it, -o flag overwrites if already exists
-    s = _get_ddh_folder_path_dl_files()
-    c = f'cd {s} && zip -ro {f} *'
+    c = f'rm {f}; cd {d}/settings && zip -o {f} config.toml'
     rv = shell(c)
 
     # send it as response
