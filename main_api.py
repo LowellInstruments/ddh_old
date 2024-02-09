@@ -11,7 +11,8 @@ from api.api_utils import (get_git_commit_mat_local,
                            get_git_commit_ddh_local,
                            get_ble_state, get_gps, get_logger_mac_reset_files, get_versions,
                            api_get_full_ddh_config_file_path,
-                           linux_app_write_pid_to_tmp, linux_is_rpi, api_get_folder_path_root, ddt_get_folder_path_root)
+                           linux_app_write_pid_to_tmp, linux_is_rpi, api_get_folder_path_root, ddt_get_folder_path_root,
+                           get_uptime)
 from utils.ddh_config import dds_get_cfg_vessel_name, dds_get_cfg_box_sn, dds_get_cfg_box_project
 import uvicorn
 from fastapi import FastAPI, UploadFile, File
@@ -41,7 +42,8 @@ async def ep_ping():
         "ip_wlan": get_ip_wlan(),
         "vessel": dds_get_cfg_vessel_name(),
         "last_gps": get_gps(),
-        "is_rpi": linux_is_rpi()
+        "is_rpi": linux_is_rpi(),
+        "uptime": get_uptime()
     }
     return d
 
