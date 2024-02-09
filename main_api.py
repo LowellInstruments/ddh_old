@@ -100,8 +100,8 @@ async def api_get_info():
         "crontab": _th(get_crontab_ddh),
         "mac_reset_files": _th(get_logger_mac_reset_files),
         "versions": _th(get_versions),
-        "commit_mat": _th(get_git_commit_mat_local),
-        "commit_ddh": _th(get_git_commit_ddh_local),
+        # "commit_mat": _th(get_git_commit_mat_local),
+        # "commit_ddh": _th(get_git_commit_ddh_local),
     }
     return d
 

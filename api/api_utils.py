@@ -150,11 +150,12 @@ def get_uptime():
     s = rv.stdout.decode()
     # s: "up 3 days, 14 hours, 29 minutes\n"
     s = s[3:-1]
-    s = s.replace('years', 'y')
-    s = s.replace('months', 'm')
-    s = s.replace('days', 'd')
-    s = s.replace('hours', 'h')
-    s = s.replace('minutes', 'mins')
+    s = s.replace(' years', 'y')
+    s = s.replace(' months', 'm')
+    s = s.replace(' days', 'd')
+    s = s.replace(' hours', 'h')
+    s = s.replace(' minutes', 'mi')
+    s = s.replace(',', '')
     return s
 
 
@@ -204,10 +205,10 @@ def get_running():
     rv_hc = shell('ps -aux | grep "main_ddh_controller" | grep -v grep')
     rv_hs = shell('ps -aux | grep "main_dds_controller" | grep -v grep')
     return {
-        'is_ddh_running': rv_h.returncode == 0,
-        'is_dds_running': rv_s.returncode == 0,
-        'is_ddh_controller_running': rv_hc.returncode == 0,
-        'is_dds_controller_running': rv_hs.returncode == 0
+        'ddh': int(rv_h.returncode == 0),
+        'dds': int(rv_s.returncode == 0),
+        'ddh_controller': int(rv_hc.returncode == 0),
+        'dds_controller': int(rv_hs.returncode == 0)
     }
 
 
@@ -216,16 +217,16 @@ def get_ble_state():
     rv_0 = shell('{} -a | grep hci0'.format(h))
     rv_1 = shell('{} -a | grep hci1'.format(h))
     d = dict()
-    d['hci0_present'] = False
-    d['hci1_present'] = False
-    d['hci0_running'] = False
-    d['hci1_running'] = False
+    d['hci0_present'] = 'no'
+    d['hci1_present'] = 'no'
+    d['hci0_running'] = 'no'
+    d['hci1_running'] = 'no'
     if rv_0.returncode == 0:
-        d['hci0_present'] = True
+        d['hci0_present'] = 'yes'
         rv = shell('{} hci0'.format(h))
         d['hci0_running'] = 'UP RUNNING' in rv.stdout.decode()
     if rv_1.returncode == 0:
-        d['hci1_present'] = True
+        d['hci1_present'] = 'yes'
         rv = shell('{} hci1'.format(h))
         d['hci1_running'] = 'UP RUNNING' in rv.stdout.decode()
     return d
