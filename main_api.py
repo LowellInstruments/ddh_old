@@ -14,7 +14,7 @@ from api.api_utils import (get_git_commit_mat_local,
                            api_get_full_ddh_config_file_path,
                            linux_app_write_pid_to_tmp, linux_is_rpi,
                            api_get_folder_path_root, ddt_get_folder_path_root,
-                           get_uptime)
+                           get_uptime, get_crontab_api)
 from utils.ddh_config import dds_get_cfg_vessel_name, dds_get_cfg_box_sn, dds_get_cfg_box_project
 import uvicorn
 from fastapi import FastAPI, UploadFile, File
@@ -99,7 +99,8 @@ async def api_get_info():
         "boat_sn": _th(dds_get_cfg_box_sn),
         "boat_name": _th(dds_get_cfg_vessel_name),
         "running": _th(get_running),
-        "crontab": _th(get_crontab_ddh),
+        "crontab_ddh": _th(get_crontab_ddh),
+        "crontab_api": _th(get_crontab_api),
         "mac_reset_files": _th(get_logger_mac_reset_files),
         "versions": _th(get_versions),
         # "commit_mat": _th(get_git_commit_mat_local),

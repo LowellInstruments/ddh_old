@@ -159,22 +159,31 @@ def get_uptime():
     return s
 
 
-def get_crontab_ddh():
-    c = 'cat /etc/crontab | grep crontab_ddh.sh'
+def _get_crontab(s):
+    c = f'cat /etc/crontab | grep crontab_{s}.sh'
     rv = shell(c)
     if rv.returncode:
-        # no "crontab_ddh.sh" string found in whole crontab
+        # no "crontab_*.sh" string found in whole crontab
         return -1
 
-    c = 'cat /etc/crontab | grep crontab_ddh.sh | grep "#"'
+    c = f'cat /etc/crontab | grep crontab_{s}.sh | grep "#"'
     rv = shell(c)
     if rv.returncode == 0:
-        # string "# crontab_ddh.sh" found, but it is disabled
+        # string "# crontab_*.sh" found, but it is disabled
         return 0
     return 1
 
 
+def get_crontab_ddh():
+    return _get_crontab('ddh')
+
+
+def get_crontab_api():
+    return _get_crontab('api')
+
+
 def set_crontab(on_flag):
+    # only for DDH, never for API
     assert on_flag in (0, 1)
     s = get_crontab_ddh()
     c = ''
