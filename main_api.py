@@ -198,6 +198,8 @@ async def ep_kill_ddh():
         s = rv.stderr.decode().replace('\n', '')
         if rv.returncode == 0:
             s = 'OK'
+        if 'no process found' in s:
+            s = 'was not running'
         d[i] = s
     return d
 
