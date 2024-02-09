@@ -149,7 +149,7 @@ def get_uptime():
     s = s.replace('days', 'd')
     s = s.replace('hours', 'h')
     s = s.replace('minutes', 'mins')
-    return rv.stdout.decode()
+    return s
 
 
 def get_crontab_ddh():
