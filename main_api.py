@@ -137,8 +137,9 @@ async def ep_conf_get():
 
     # zip it, -o flag overwrites if already exists
     p = '/tmp/{file_name}'
-    cf = api_get_full_ddh_config_file_path()
-    rv = shell(f'zip -o {p} {cf}')
+    d = api_get_folder_path_root()
+    c = f'cd {d}/settings && zip -o {p} config.toml'
+    rv = shell(c)
 
     # send it as response
     if rv.returncode == 0:
@@ -155,7 +156,7 @@ async def ep_dl_files_get():
     s = _get_ddh_folder_path_dl_files()
     print(f'cwd is {os.getcwd()}, getting files from {s}')
     p = '/tmp/' + file_name
-    c = 'zip -ro {} {}'.format(p, s)
+    c = f'cd {s} && zip -ro {p} {s}'
     rv = shell(c)
 
     # send it as response
@@ -167,7 +168,7 @@ def _ep_update(_ep, c):
     if not linux_is_rpi():
         return {ep: 'not RPi, not updating DDH'}
     rv = shell(c)
-    with open('/tmp/puta.txt', 'w') as f:
+    with open('/tmp/ddr_update_log.txt', 'w') as f:
         f.write(f'rc {rv.returncode}')
         f.write(f'er {rv.stderr.decode()}')
         f.write(f'ou {rv.stdout.decode()}')
