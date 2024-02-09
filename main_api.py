@@ -143,11 +143,10 @@ async def ep_conf_get():
 async def ep_dl_files_get():
     vn = dds_get_cfg_vessel_name()
     vn = vn.replace(' ', '')
-    file_name = 'dl_files_{}.zip'.format(vn)
+    f = '/tmp/dl_files_{}.zip'.format(vn)
 
     # zip it, -o flag overwrites if already exists
     s = _get_ddh_folder_path_dl_files()
-    f = '/tmp/' + file_name
     c = f'cd {s} && zip -ro {f} *'
     rv = shell(c)
 
