@@ -145,7 +145,7 @@ def get_uptime():
     # s: "up 3 days, 14 hours, 29 minutes\n"
     s = s[3:-1]
     s = s.replace('years', 'y')
-    s = s.replace('months, m')
+    s = s.replace('months', 'm')
     s = s.replace('days', 'd')
     s = s.replace('hours', 'h')
     s = s.replace('minutes', 'mins')
