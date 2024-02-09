@@ -201,8 +201,10 @@ async def ep_kill_ddh():
         if rv.returncode == 0:
             s = 'OK'
         if 'no process found' in s:
-            s = 'was not running'
-        d[i] = s
+            s = 'N/A'
+        # shorter name
+        j = i.replace('main_', '')
+        d[j] = s
     return d
 
 
