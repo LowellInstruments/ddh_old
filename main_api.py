@@ -112,20 +112,14 @@ async def api_get_info():
 @app.get('/logs_get')
 async def ep_logs_get():
     now = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
-    vn = dds_get_cfg_vessel_name()
-    vn = vn.replace(' ', '')
-    file_name = 'logs_{}_{}.zip'.format(vn, now)
+    vn = dds_get_cfg_vessel_name().replace(' ', '')
+    f = f'/tmp/logs_{vn}_{now}.zip'
     d = api_get_folder_path_root()
     # zip ONLY .log files
-    c = f'zip -r {file_name} {d}/logs/*.log'
+    c = f'cd {d}/logs && zip -r {f} *.log'
     rv = shell(c)
     if rv.returncode == 0:
-        c = f'mv {file_name} {d}/logs'
-        rv = shell(c)
-        if rv.returncode == 0:
-            p = f'{d}/logs/' + file_name
-            fr = FileResponse(path=p, filename=file_name)
-            return fr
+        return FileResponse(path=f, filename=os.path.basename(f))
 
 
 @app.get("/conf_get")
@@ -133,17 +127,16 @@ async def ep_conf_get():
     # prepare the zip file name
     vn = dds_get_cfg_vessel_name()
     vn = vn.replace(' ', '')
-    file_name = 'conf_{}.zip'.format(vn)
 
     # zip it, -o flag overwrites if already exists
-    p = '/tmp/{file_name}'
+    f = f'/tmp/conf_{vn}.zip'
     d = api_get_folder_path_root()
-    c = f'cd {d}/settings && zip -o {p} config.toml'
+    c = f'cd {d}/settings && zip -o {f} config.toml'
     rv = shell(c)
 
     # send it as response
     if rv.returncode == 0:
-        return FileResponse(path=p, filename=file_name)
+        return FileResponse(path=f, filename=os.path.basename(f))
 
 
 @app.get("/dl_files_get")
@@ -154,14 +147,13 @@ async def ep_dl_files_get():
 
     # zip it, -o flag overwrites if already exists
     s = _get_ddh_folder_path_dl_files()
-    print(f'cwd is {os.getcwd()}, getting files from {s}')
-    p = '/tmp/' + file_name
-    c = f'cd {s} && zip -ro {p} {s}'
+    f = '/tmp/' + file_name
+    c = f'cd {s} && zip -ro {f} *'
     rv = shell(c)
 
     # send it as response
     if rv.returncode == 0:
-        return FileResponse(path=p, filename=file_name)
+        return FileResponse(path=f, filename=os.path.basename(f))
 
 
 def _ep_update(_ep, c):
