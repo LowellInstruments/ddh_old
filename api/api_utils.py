@@ -4,10 +4,22 @@ import os
 import pathlib
 import platform
 import subprocess as sp
+import sys
 
 
 def shell(c):
-    return sp.run(c, shell=True, stdout=sp.PIPE, stderr=sp.PIPE)
+    rv = sp.run(c, shell=True, stdout=sp.PIPE, stderr=sp.PIPE)
+    if rv.returncode:
+        print('----------------')
+        print('api shell error')
+        print('----------------')
+        print(f'\t returncode {rv.returncode}')
+        print(f'\t stdout     {rv.stdout.decode()}')
+        print(f'\t stderr     {rv.stderr.decode()}')
+        # o/wise output not shown in journalctl
+        #   $ journalctl -u unit_switch_net.service
+        sys.stdout.flush()
+    return rv
 
 
 def api_get_full_ddh_config_file_path():
@@ -129,6 +141,14 @@ def get_ip_cell():
 def get_uptime():
     c = 'uptime -p'
     rv = shell(c)
+    s = rv.stdout.decode()
+    # s: "up 3 days, 14 hours, 29 minutes\n"
+    s = s[3:-1]
+    s = s.replace('years', 'y')
+    s = s.replace('months, m')
+    s = s.replace('days', 'd')
+    s = s.replace('hours', 'h')
+    s = s.replace('minutes', 'mins')
     return rv.stdout.decode()
 
 
