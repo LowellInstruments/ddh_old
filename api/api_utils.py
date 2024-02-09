@@ -1,3 +1,4 @@
+import datetime
 import glob
 import json
 import os
@@ -10,12 +11,17 @@ import sys
 def shell(c):
     rv = sp.run(c, shell=True, stdout=sp.PIPE, stderr=sp.PIPE)
     if rv.returncode:
-        print('----------------')
-        print('api shell error')
-        print('----------------')
-        print(f'\t returncode {rv.returncode}')
-        print(f'\t stdout     {rv.stdout.decode()}')
-        print(f'\t stderr     {rv.stderr.decode()}')
+        e = ''
+        e += '----------------\n'
+        e += f'{datetime.datetime.now()}\n'
+        e += 'api shell error\n'
+        e += '----------------\n'
+        e += f'    returncode {rv.returncode}\n'
+        e += f'    stdout     {rv.stdout.decode()}\n'
+        e += f'    stderr     {rv.stderr.decode()}\n'
+        print(e)
+        with open('/tmp/debug_api.txt', 'a') as f:
+            f.write(e)
         # o/wise output not shown in journalctl
         #   $ journalctl -u unit_switch_net.service
         sys.stdout.flush()
