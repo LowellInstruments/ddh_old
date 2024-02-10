@@ -219,6 +219,7 @@ async def ble_interact_tap(mac, info, g, h):
         for f in dl_lix_files:
             rv_cnv, e = convert_tap_file(f, verbose=False)
             if rv_cnv == 0:
+                # todo ---> maybe only do this if gear_type is last_haul?
                 file_lowell_raw_csv_to_emolt_lt_csv(f)
             else:
                 lg.a(f'error: DDH converting TAP file {f} -> {e}')
