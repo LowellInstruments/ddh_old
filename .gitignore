@@ -3,9 +3,6 @@ logs/*
 .idea/
 
 
-# stupid moana plugin
-dds/ble_dl_moana.py
-
 db_his.json*
 *.so
 *.lid
