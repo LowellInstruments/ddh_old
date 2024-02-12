@@ -59,6 +59,7 @@ from utils.ddh_shared import (
     NAME_EXE_DDS_CONTROLLER,
     NAME_EXE_DDS, ael,
 )
+from utils.flags import ble_aws_sem_set, ble_aws_sem_clr
 from utils.logs import (
     lg_dds as lg,
     dds_log_tracking_add,
@@ -134,7 +135,6 @@ def main_dds():
     # =============
     # main loop
     # =============
-
     while 1:
 
         # tell GUI
@@ -152,7 +152,6 @@ def main_dds():
 
         # GPS stage
         g = gps_measure()
-        # todo ---> this next function is proper place to add Geroge request
         if gps_check_for_errors(g):
             time.sleep(1)
             continue
@@ -170,11 +169,15 @@ def main_dds():
         if not ble_op_conditions_met(speed):
             continue
 
-        # BLE stage
+        # BLE scan stage
         args = [g, h, h_d]
         det = ael.run_until_complete(ble_scan(*args))
+
+        # BLE download stage
+        ble_aws_sem_set()
         args = [det, m_j, g, h, h_d]
         ael.run_until_complete(ble_interact_all_loggers(*args))
+        ble_aws_sem_clr()
 
 
 def _alarm_dds_crash(n):

@@ -72,7 +72,6 @@ class _DDHNotification:
         self.ddh_gps_position = ''
         self.ddh_gps_speed = ''
         if g:
-            print('g', g)
             lat, lon, _, speed = g
             self.ddh_gps_position = '{:.4f}, {:.4f}'.format(float(lat), float(lon))
             self.ddh_gps_speed = '{:.2f} knots'.format(float(speed))
@@ -106,7 +105,6 @@ class _DDHNotification:
         fol = str(get_ddh_folder_path_sqs())
         now = int(time.time_ns())
         path = "{}/{}.sqs".format(fol, now)
-        print(vars(self))
         with open(path, "w") as f:
             json.dump(vars(self), f, indent=4)
         lg.a(f"generated SQS file {path}, details next")

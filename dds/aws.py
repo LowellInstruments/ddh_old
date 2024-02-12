@@ -23,6 +23,7 @@ from utils.ddh_shared import (
     STATE_DDS_NOTIFY_CLOUD_OK,
     dds_get_aws_has_something_to_do_via_gui_flag_file, ddh_get_root_folder_path_as_str,
 )
+from utils.flags import FILE_SEMAPHORE_BLE_AWS
 from utils.logs import lg_aws as lg
 
 
@@ -169,6 +170,11 @@ def _aws_s3_sync_process():
 
 
 def aws_serve():
+
+    # semaphore to not mess with BLE process
+    if os.path.exists(FILE_SEMAPHORE_BLE_AWS):
+        lg.a("warning: semaphore BLE AWS active, will do AWS later")
+        return
 
     # check someone asked for AWS sync from GUI
     flag_gui = dds_get_aws_has_something_to_do_via_gui_flag_file()

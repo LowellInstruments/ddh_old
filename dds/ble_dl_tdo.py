@@ -229,7 +229,7 @@ async def ble_interact_tdo(mac, info, g, h):
         # convert lix files
         dl_lix_files = [f for f in dl_files if f.endswith(".lix")]
         for f in dl_lix_files:
-            rv_cnv, e = convert_lix_file(f, verbose=False)
+            rv_cnv, e = convert_lix_file(f)
             # if rv_cnv == 0:
                 # todo ---> maybe only do this if gear_type is last_haul?
                 # file_lowell_raw_csv_to_emolt_lt_csv(f)
