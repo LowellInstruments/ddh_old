@@ -195,7 +195,7 @@ def aws_serve():
         lg.a("debug: the aws_do_flag_gui is set")
         os.unlink(flag_gui)
     else:
-        lg.a("period elapsed, time for some AWS S3")
+        lg.a("maybe it's time for some AWS S3 syncing")
 
     # nothing to do, number of files did not change
     # todo ---> test this

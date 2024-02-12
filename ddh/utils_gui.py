@@ -614,7 +614,7 @@ def _parse_udp(my_app, s, ip="127.0.0.1"):
 
     elif f == STATE_DDS_BLE_RUN_STATUS:
         if v == "off":
-            ct = "logger stopped & auto-wake OFF"
+            ct = "stopped & auto-wake OFF"
             ci = "attention.png"
 
     elif f == STATE_DDS_BLE_NO_ASSIGNED_LOGGERS:

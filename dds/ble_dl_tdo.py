@@ -12,6 +12,7 @@ from mat.ble.bleak.cc26x2r import BleCC26X2
 from dds.ble_utils_dds import ble_logger_ccx26x2r_needs_a_reset
 from mat.lix import convert_lix_file
 from mat.utils import linux_is_rpi
+from utils.ddh_config import ddh_get_cfg_gear_type
 from utils.ddh_shared import (
     send_ddh_udp_gui as _u,
     STATE_DDS_BLE_LOW_BATTERY,
@@ -227,14 +228,14 @@ async def ble_interact_tdo(mac, info, g, h):
         rv, dl_files = await BleTDODownload.download_recipe(lc, mac, info, g, notes)
 
         # convert lix files
-        dl_lix_files = [f for f in dl_files if f.endswith(".lix")]
-        for f in dl_lix_files:
-            rv_cnv, e = convert_lix_file(f)
-            # if rv_cnv == 0:
-                # todo ---> maybe only do this if gear_type is last_haul?
-                # file_lowell_raw_csv_to_emolt_lt_csv(f)
-            # else:
-            #     lg.a(f'error: DDH converting TDO file {f} -> {e}')
+        lix_f = [f for f in dl_files if f.endswith(".lix")]
+        for f in lix_f:
+            rv_cnv = convert_lix_file(f)
+            if rv_cnv == 0:
+                if ddh_get_cfg_gear_type() != 0:
+                    file_lowell_raw_csv_to_emolt_lt_csv(f)
+            else:
+                lg.a(f'error: DDH converting TDO file {f}')
 
     except Exception as ex:
         lg.a("error dl_tdo_exception {}".format(ex))

@@ -217,7 +217,7 @@ async def ble_interact_all_loggers(macs_det, macs_mon, g, _h: int, _h_desc):
         # helps in distance-detection issues
         if its_time_to(f'tell_saw_mac_{mac}', 900):
             sn = dds_get_cfg_logger_sn_from_mac(mac)
-            lg.a(f"debug: seen logger {sn} / mac {mac}")
+            lg.a(f"debug: logger {sn} / mac {mac} seen, it's been a while")
 
         if is_mac_in_black(mac):
             continue

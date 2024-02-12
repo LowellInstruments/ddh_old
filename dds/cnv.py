@@ -4,6 +4,7 @@ import pathlib
 from dds.timecache import its_time_to
 from mat.data_converter import default_parameters, DataConverter
 from mat.data_file_factory import load_data_file
+from mat.lix import convert_lix_file
 from mat.tap import convert_tap_file
 from mat.utils import linux_ls_by_ext
 from utils.logs import lg_cnv as lg
@@ -13,6 +14,7 @@ from utils.ddh_shared import (
     STATE_DDS_NOTIFY_CONVERSION_ERR,
     STATE_DDS_NOTIFY_CONVERSION_OK,
 )
+import pyarrow
 import pandas as pd
 
 
@@ -238,21 +240,7 @@ def cnv_serve():
             lg.a(f'{e} {ex}')
 
 
-# if __name__ == '__main__':
-#     # we are currently inside "ddh/dds" folder
-#     os.chdir('../dl_files')
-#     # now we are inside "ddh/dl_files" folder
-#     print('working directory:', os.getcwd())
-#     for p in os.listdir():
-#         if (not os.path.isdir(p)) or p.startswith('ddh'):
-#             continue
-#         print(f'doing folder {p}')
-#         mask = f'{p}/*.csv'
-#         for f in glob.glob(mask):
-#             os.unlink(f)
-#         convert_lid_to_csv(p, '_DissolvedOxygen')
-
-
 if __name__ == '__main__':
-    f = 'hello.lix'
-    DataConverter(f, {}).convert()
+    fol = str(get_ddh_folder_path_dl_files())
+    f = fol + '/d0-2e-ab-d9-29-48/9999999_BIL_20240209_165512.lix'
+    convert_lix_file(f)
