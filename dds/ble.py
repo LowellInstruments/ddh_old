@@ -5,7 +5,7 @@ import shutil
 import time
 
 from tzlocal import get_localzone
-from dds.ble_dl_tap import ble_interact_tap
+from dds.ble_dl_tdo import ble_interact_tdo
 from dds.macs import (
     rm_mac_black,
     add_mac_black,
@@ -90,8 +90,8 @@ def _ble_logger_is_cc26x2r(info: str):
     return "DO-" in info
 
 
-def _ble_logger_is_tap(info: str):
-    return "TAP" in info
+def _ble_logger_is_tdo(info: str):
+    return ("TAP", "TDO") in info
 
 
 def _ble_logger_is_moana(info: str):
@@ -160,9 +160,9 @@ async def _ble_id_n_interact_logger(mac, info: str, h, g):
             time.sleep(5)
             return
 
-    elif _ble_logger_is_tap(info):
-        rv, notes = await ble_interact_tap(mac, info, g, hs)
-        # sqs_msg_notes_tap(notes, mac, sn, lat, lon)
+    elif _ble_logger_is_tdo(info):
+        rv, notes = await ble_interact_tdo(mac, info, g, hs)
+        # sqs_msg_notes_tdo(notes, mac, sn, lat, lon)
         _crit_error = notes['error']
 
     else:

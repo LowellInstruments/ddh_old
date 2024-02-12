@@ -15,6 +15,7 @@ def _file_lowell_raw_csv_to_emolt_lt_csv(filename):
 
     # read csv file into lines
     lg.a(f'generating trawling for input file {csv_f}')
+    lg.a(f'warning we are in cwd {os.getcwd()}')
     with open(csv_f) as f:
         csv_ll = f.readlines()
 

@@ -249,7 +249,7 @@ if __name__ == "__main__":
     ble_mat_disconnect_all_devices_ll()
     os.chdir('..')
     _m = "11:22:33:44:55:66"
-    # do not use this one for TAP loggers but 'ble_dl_tap.py'
+    # do not use this one for TAP loggers but 'ble_dl_tdo.py'
     _i = "DO-1"
     _g = ("+1.111111", "-2.222222", datetime.datetime.now(), 0)
     _h = "hci0"

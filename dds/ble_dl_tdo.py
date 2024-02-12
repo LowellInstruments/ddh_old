@@ -10,13 +10,14 @@ from mat.ble.ble_mat_utils import (
 )
 from mat.ble.bleak.cc26x2r import BleCC26X2
 from dds.ble_utils_dds import ble_logger_ccx26x2r_needs_a_reset
-from mat.tap import convert_tap_file
+from mat.lix import convert_lix_file
 from mat.utils import linux_is_rpi
 from utils.ddh_shared import (
     send_ddh_udp_gui as _u,
     STATE_DDS_BLE_LOW_BATTERY,
     STATE_DDS_BLE_RUN_STATUS, STATE_DDS_BLE_ERROR_RUN,
-    STATE_DDS_BLE_DOWNLOAD_ERROR_TP_SENSOR, BLEAppException, ael, get_ddh_rerun_flag,
+    STATE_DDS_BLE_DOWNLOAD_ERROR_TP_SENSOR,
+    BLEAppException, ael, get_ddh_rerun_flag,
 )
 from utils.logs import lg_dds as lg
 from utils.ddh_shared import (
@@ -34,10 +35,10 @@ def _une(rv, notes, e):
 
 def _rae(rv, s):
     if rv:
-        raise BLEAppException("TAP interact " + s)
+        raise BLEAppException("TDO interact " + s)
 
 
-class BleTAPDownload:
+class BleTDODownload:
     @staticmethod
     async def download_recipe(lc, mac, info, g, notes):
 
@@ -56,7 +57,7 @@ class BleTAPDownload:
         if ble_logger_ccx26x2r_needs_a_reset(mac):
             await lc.cmd_rst()
             # out of here for sure
-            raise BLEAppException("TAP interact logger reset file")
+            raise BLEAppException("TDO interact logger reset file")
 
         rv = await lc.cmd_sws(g)
         _rae(rv, "sws")
@@ -213,7 +214,7 @@ class BleTAPDownload:
         return 0, dl_files
 
 
-async def ble_interact_tap(mac, info, g, h):
+async def ble_interact_tdo(mac, info, g, h):
 
     notes = {}
     lc = BleCC26X2(h)
@@ -222,21 +223,21 @@ async def ble_interact_tap(mac, info, g, h):
         # -------------------------
         # BLE connection done here
         # -------------------------
-        lg.a(f"interacting TAP logger, info {info}")
-        rv, dl_files = await BleTAPDownload.download_recipe(lc, mac, info, g, notes)
+        lg.a(f"interacting TDO logger, info {info}")
+        rv, dl_files = await BleTDODownload.download_recipe(lc, mac, info, g, notes)
 
         # convert lix files
         dl_lix_files = [f for f in dl_files if f.endswith(".lix")]
         for f in dl_lix_files:
-            rv_cnv, e = convert_tap_file(f, verbose=False)
+            rv_cnv, e = convert_lix_file(f, verbose=False)
             # if rv_cnv == 0:
                 # todo ---> maybe only do this if gear_type is last_haul?
                 # file_lowell_raw_csv_to_emolt_lt_csv(f)
             # else:
-            #     lg.a(f'error: DDH converting TAP file {f} -> {e}')
+            #     lg.a(f'error: DDH converting TDO file {f} -> {e}')
 
     except Exception as ex:
-        lg.a("error dl_tap_exception {}".format(ex))
+        lg.a("error dl_tdo_exception {}".format(ex))
         rv = 1
 
     finally:
@@ -255,4 +256,4 @@ if __name__ == "__main__":
     _g = ("+1.111111", "-2.222222", datetime.datetime.now(), 0)
     _h = "hci0"
     _args = [_m, _i, _g, _h]
-    ael.run_until_complete(ble_interact_tap(*_args))
+    ael.run_until_complete(ble_interact_tdo(*_args))
