@@ -200,18 +200,19 @@ def aws_serve():
     # nothing to do, number of files did not change
     # todo ---> test this
     fol = ddh_get_root_folder_path_as_str() + '/dl_files'
-    ls = []
+    mon_ls = []
     for i in ('lid', 'lix', 'csv', 'cst', 'gps', 'bin'):
-        ls += glob.glob(f'{fol}/**/*.{i}')
+        mon_ls += glob.glob(f'{fol}/**/*.{i}')
     global past_n_files
-    ff_ctt = (not exists_flag_gui) and past_n_files == len(ls)
-    past_n_files = len(ls)
-    if len(ls) == 0:
+    ff_ctt = (not exists_flag_gui) and past_n_files == len(mon_ls)
+    past_n_files = len(mon_ls)
+    if len(mon_ls) == 0:
         lg.a('warning: AWS zero number of files, not syncing')
         return
     if ff_ctt:
         lg.a('warning: AWS same number of files, not syncing')
         return
+    lg.a(f'debug: AWS folder currently has {len(mon_ls)} monitored files')
 
     # useful to remove zombie processes
     multiprocessing.active_children()

@@ -220,20 +220,6 @@ def get_ddh_folder_path_lef() -> Path:
     return Path(f"{p}/dds/lef")
 
 
-def get_ddh_rerun_flag() -> bool:
-    p = str(ddh_get_root_folder_path())
-    return os.path.exists(f'{p}/settings/.rerun_flag')
-
-
-def set_ddh_rerun_flag(v):
-    p = str(ddh_get_root_folder_path())
-    p = f'{p}/settings/.rerun_flag'
-    if v:
-        Path(p).touch()
-    else:
-        os.unlink(p)
-
-
 def get_ddh_folder_path_rbl() -> Path:
     p = str(ddh_get_root_folder_path())
     return Path(f"{p}/dds/rbl")
@@ -371,6 +357,27 @@ def set_ddh_toml_all_macs_content(d):
     except (Exception,) as ex:
         print('error: get_ddh_toml_all_macs_content: ', ex)
         os._exit(1)
+
+
+def get_ddh_rerun_flag_li():
+    p = str(ddh_get_root_folder_path())
+    f = f'{p}/settings/rerun_flag.toml'
+    return os.path.exists(f)
+
+
+def set_ddh_rerun_flag_li():
+    p = str(ddh_get_root_folder_path())
+    f = f'{p}/settings/rerun_flag.toml'
+    pathlib.Path(f).touch()
+
+
+def clr_ddh_rerun_flag_li():
+    p = str(ddh_get_root_folder_path())
+    f = f'{p}/settings/rerun_flag.toml'
+    try:
+        os.unlink(f)
+    except (Exception, ) as ex:
+        print(f'error clr_ddh_rerun_flag_li -> {ex}')
 
 
 def main():

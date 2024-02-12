@@ -18,13 +18,13 @@ from gpiozero import Button
 from ddh.db.db_his import DBHis
 from ddh.graph import process_n_graph
 from ddh.utils_net import net_get_my_current_wlan_ssid
-from dds.timecache import its_time_to
 from mat.ble.ble_mat_utils import DDH_GUI_UDP_PORT
 from mat.utils import linux_is_rpi
 import subprocess as sp
 
 from utils.ddh_config import dds_get_cfg_vessel_name, dds_get_cfg_monitored_serial_numbers, \
-    dds_get_cfg_flag_graph_test_mode, dds_get_cfg_logger_sn_from_mac, dds_get_cfg_forget_time_secs, dds_get_cfg_monitored_macs, \
+    dds_get_cfg_flag_graph_test_mode, dds_get_cfg_logger_sn_from_mac, dds_get_cfg_forget_time_secs, \
+    dds_get_cfg_monitored_macs, \
     dds_get_cfg_monitored_pairs
 
 from utils.ddh_shared import (
@@ -62,7 +62,7 @@ from utils.ddh_shared import (
     STATE_DDS_BLE_ERROR_MOANA_PLUGIN, STATE_DDS_BLE_DOWNLOAD_ERROR_GDO, STATE_DDS_BLE_ERROR_RUN,
     STATE_DDS_REQUEST_GRAPH, ddh_get_root_folder_path_as_str,
     STATE_DDS_BLE_DOWNLOAD_ERROR_TP_SENSOR, ddh_get_db_history_file, STATE_DDS_BLE_NO_ASSIGNED_LOGGERS, get_ddh_commit,
-    get_ddh_rerun_flag,
+    get_ddh_rerun_flag_li,
 )
 from utils.logs import lg_gui as lg
 
@@ -73,7 +73,12 @@ PERIOD_SHOW_LOGGER_DL_OK_SECS = 300
 PERIOD_SHOW_LOGGER_DL_ERROR_SECS = 300
 PERIOD_SHOW_LOGGER_DL_WARNING_SECS = 60
 PERIOD_SHOW_BLE_APP_GPS_ERROR_POSITION = 60
-g_timer_lock_icon = 0
+g_lock_icon_timer = 0
+
+
+def _lock_icon(t):
+    global g_lock_icon_timer
+    g_lock_icon_timer = t
 
 
 def gui_setup_view(my_win):
@@ -113,7 +118,7 @@ def gui_setup_view(my_win):
     a.lbl_commit.setText(dc)
 
     # checkboxes rerun flag
-    rerun_flag = get_ddh_rerun_flag()
+    rerun_flag = get_ddh_rerun_flag_li()
     a.chk_rerun.setChecked(rerun_flag)
 
     return a
@@ -414,18 +419,19 @@ def _parse_addr(my_app, addr):
 
 
 def _gui_update_icon_timer():
-    global g_timer_lock_icon
-    if g_timer_lock_icon:
-        g_timer_lock_icon -= 1
+    global g_lock_icon_timer
+    if g_lock_icon_timer:
+        g_lock_icon_timer -= 1
 
 
-def _gui_update_icon(my_app, ci, ct):
-    if g_timer_lock_icon:
+def _gui_update_icon(my_app, ci, ct, cf):
+
+    # cases we don't update
+    if cf == STATE_DDS_BLE_SCAN and g_lock_icon_timer:
         return
 
     if ci:
-        fol_res = str(ddh_get_folder_path_res())
-        ci = "{}/{}".format(fol_res, ci)
+        ci = f"{str(ddh_get_folder_path_res())}/{ci}"
         my_app.lbl_ble_img.setPixmap(QPixmap(ci))
     if ct:
         my_app.lbl_ble.setText(ct)
@@ -437,7 +443,7 @@ def _parse_udp(my_app, s, ip="127.0.0.1"):
     i = int(time.perf_counter()) % 4
 
     # when this > 0, the BLE_SCAN_ICON cannot appear
-    global g_timer_lock_icon
+    global g_lock_icon_timer
 
     f, v = s.split("/")
     # lg.a('UDP | parsing \'{}/{}\''.format(f, v))
@@ -445,6 +451,7 @@ def _parse_udp(my_app, s, ip="127.0.0.1"):
     # variables for big icon and text
     ci = ""
     ct = ""
+    cf = f
 
     # -------------------
     # BLE service states
@@ -463,18 +470,18 @@ def _parse_udp(my_app, s, ip="127.0.0.1"):
         a.bar_dl.setValue(0)
 
     elif f == STATE_DDS_BLE_DOWNLOAD_OK:
-        g_timer_lock_icon = 30
+        _lock_icon(30)
         ct = "done " + v
         ci = "ok.png"
 
     elif f == STATE_DDS_BLE_DOWNLOAD_WARNING:
         # at least same value as orange mac
-        g_timer_lock_icon = 15
+        _lock_icon(15)
         ct = "{} retrying".format(v)
         ci = "sand_clock.png"
 
     elif f == STATE_DDS_BLE_DOWNLOAD_ERROR:
-        g_timer_lock_icon = 15
+        _lock_icon(15)
         ct = "{} failure".format(v)
         ci = "error.png"
 
@@ -491,7 +498,6 @@ def _parse_udp(my_app, s, ip="127.0.0.1"):
         ci = "error.png"
 
     elif f == STATE_DDS_BLE_HARDWARE_ERROR:
-        g_timer_lock_icon = 5
         ct = "radio error"
         ci = "blue_err.png"
 
@@ -500,7 +506,6 @@ def _parse_udp(my_app, s, ip="127.0.0.1"):
         ci = "blue_dis.png"
 
     elif f == STATE_DDS_BLE_APP_GPS_ERROR_POSITION:
-        g_timer_lock_icon = 5
         ct = "need GPS"
         ci = "gps_err.png"
         a.lbl_gps.setText("-")
@@ -627,7 +632,7 @@ def _parse_udp(my_app, s, ip="127.0.0.1"):
     # -----------------------
     # update big icon in GUI
     # -----------------------
-    _gui_update_icon(a, ci, ct)
+    _gui_update_icon(a, ci, ct, cf)
 
     # progress bar
     if f not in (STATE_DDS_BLE_DOWNLOAD, STATE_DDS_BLE_DOWNLOAD_PROGRESS):

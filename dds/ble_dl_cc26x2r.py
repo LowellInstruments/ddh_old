@@ -15,8 +15,7 @@ from utils.ddh_shared import (
     send_ddh_udp_gui as _u,
     STATE_DDS_BLE_LOW_BATTERY,
     STATE_DDS_BLE_RUN_STATUS, STATE_DDS_BLE_DOWNLOAD_ERROR_GDO,
-    STATE_DDS_BLE_ERROR_RUN, BLEAppException, ael,
-    get_ddh_rerun_flag,
+    STATE_DDS_BLE_ERROR_RUN, BLEAppException, ael, get_ddh_rerun_flag_li,
 )
 from utils.logs import lg_dds as lg
 from utils.ddh_shared import (
@@ -49,7 +48,7 @@ class BleCC26X2Download:
         notes["battery_level"] = 0xFFFF
         notes["error"] = ""
         simulation = ble_logger_is_cc26x2r_simulated(mac)
-        rerun_flag = get_ddh_rerun_flag()
+        rerun_flag = get_ddh_rerun_flag_li()
         create_folder_logger_by_mac(mac)
         _is_a_lix_logger = False
 
@@ -205,7 +204,7 @@ class BleCC26X2Download:
             lg.a("RWS | OK")
         else:
             # GUI telling this
-            _u("{}/{}".format(STATE_DDS_BLE_RUN_STATUS, "off"))
+            _u(f"{STATE_DDS_BLE_RUN_STATUS}/off")
             # give time to GUI to display
             await asyncio.sleep(5)
 

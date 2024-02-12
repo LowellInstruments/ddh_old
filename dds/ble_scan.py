@@ -130,4 +130,5 @@ async def ble_scan(g, _h: int, _h_desc, t=5.0):
             lg.a(e.format(ex))
             sqs_msg_ddh_error_ble_hw(_lat, _lon)
         _u(STATE_DDS_BLE_HARDWARE_ERROR)
+        await asyncio.sleep(5)
         return {}

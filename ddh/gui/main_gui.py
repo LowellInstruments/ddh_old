@@ -57,7 +57,8 @@ from utils.ddh_shared import (
     STATE_DDS_BLE_SERVICE_INACTIVE,
     dds_get_ddh_got_an_update_flag_file,
     STATE_DDS_SOFTWARE_UPDATED,
-    ddh_get_db_history_file, set_ddh_rerun_flag, ddh_kill_by_pid_file, get_ddh_toml_all_macs_content
+    ddh_get_db_history_file, ddh_kill_by_pid_file, get_ddh_toml_all_macs_content, set_ddh_rerun_flag_li,
+    clr_ddh_rerun_flag_li
 )
 
 from utils.logs import lg_gui as lg  # noqa: E402
@@ -328,7 +329,8 @@ class DDH(QMainWindow, d_m.Ui_MainWindow):
         self.num_clicks_brightness = 1 if v == 0 else v
         gui_ddh_set_brightness(self)
 
-    def click_btn_purge_dl_folder(self):
+    @staticmethod
+    def click_btn_purge_dl_folder():
         """deletes contents in 'download files' folder"""
 
         d = str(get_ddh_folder_path_dl_files())
@@ -392,7 +394,7 @@ class DDH(QMainWindow, d_m.Ui_MainWindow):
                         ff = glob.glob(mask)
                         for f in ff:
                             os.unlink(f)
-                            s = "warning: clear lock-out selective for {}"
+                            s = "debug: clear lock-out selective for {}"
                             lg.a(s.format(f))
                     else:
                         lg.a("warning: could not clear lock-out selective")
@@ -419,7 +421,7 @@ class DDH(QMainWindow, d_m.Ui_MainWindow):
                 ff = glob.glob(mask)
                 for f in ff:
                     os.unlink(f)
-                    s = "warning: clear lock-out all for {}"
+                    s = "warning: debug lock-out all for {}"
                     lg.a(s.format(f))
 
             except (OSError, Exception) as ex:
@@ -550,7 +552,10 @@ class DDH(QMainWindow, d_m.Ui_MainWindow):
         lg.a("clicked cloud icon")
 
     def click_chk_rerun(self, _):
-        set_ddh_rerun_flag(self.chk_rerun.isChecked())
+        if self.chk_rerun.isChecked():
+            set_ddh_rerun_flag_li()
+        else:
+            clr_ddh_rerun_flag_li()
 
     def click_graph_btn_reset(self):
         self.g.getPlotItem().enableAutoRange()

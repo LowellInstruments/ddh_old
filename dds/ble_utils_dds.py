@@ -174,6 +174,7 @@ def ble_check_antenna_up_n_running(lat, lon, h: int):
     # not UP and running, tell so
     e = "error: ble_check_antenna_up_n_running #{}".format(h)
     _u(STATE_DDS_BLE_HARDWARE_ERROR)
+    time.sleep(5)
     if its_time_to(e, 600):
         lg.a(e.format(e))
         sqs_msg_ddh_error_ble_hw(lat, lon)

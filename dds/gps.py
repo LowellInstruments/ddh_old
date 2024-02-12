@@ -185,6 +185,7 @@ def _gps_measure():
     if dds_get_cfg_flag_gps_error_forced():
         _u(STATE_DDS_BLE_APP_GPS_ERROR_POSITION)
         lg.a("debug: HOOK_GPS_ERROR_MEASUREMENT_FORCED")
+        time.sleep(5)
         return
 
     if check_gps_dummy_mode():
@@ -292,6 +293,7 @@ def _gps_measure():
 
     # tell GUI about GPS error
     _u(STATE_DDS_BLE_APP_GPS_ERROR_POSITION)
+    time.sleep(3)
 
 
 def gps_measure():

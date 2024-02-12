@@ -119,8 +119,8 @@ async def _ble_id_n_interact_logger(mac, info: str, h, g):
 
     # get logger serial number
     sn = dds_get_cfg_logger_sn_from_mac(mac)
-    _u("{}/{}".format(STATE_DDS_BLE_DOWNLOAD, sn))
-    lg.a("processing sensor {} / mac {}".format(sn, mac))
+    _u(f"{STATE_DDS_BLE_DOWNLOAD}/{sn}")
+    lg.a(f"processing sensor {sn} / mac {mac}")
 
     # bleak wants a string, not an integer
     hs = "hci{}".format(h)

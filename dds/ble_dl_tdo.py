@@ -18,7 +18,7 @@ from utils.ddh_shared import (
     STATE_DDS_BLE_LOW_BATTERY,
     STATE_DDS_BLE_RUN_STATUS, STATE_DDS_BLE_ERROR_RUN,
     STATE_DDS_BLE_DOWNLOAD_ERROR_TP_SENSOR,
-    BLEAppException, ael, get_ddh_rerun_flag,
+    BLEAppException, ael, get_ddh_rerun_flag_li
 )
 from utils.logs import lg_dds as lg
 from utils.ddh_shared import (
@@ -46,7 +46,7 @@ class BleTDODownload:
         # initialize variables
         notes["battery_level"] = 0xFFFF
         notes["error"] = ""
-        rerun_flag = get_ddh_rerun_flag()
+        rerun_flag = get_ddh_rerun_flag_li()
         create_folder_logger_by_mac(mac)
         dl_files = []
 
@@ -203,7 +203,8 @@ class BleTDODownload:
             lg.a("RWS | OK")
         else:
             # GUI telling this
-            _u("{}/{}".format(STATE_DDS_BLE_RUN_STATUS, "off"))
+            lg.a("warning: telling this logger is not set for auto-re-run")
+            _u(f"{STATE_DDS_BLE_RUN_STATUS}/off")
             # give time to GUI to display
             await asyncio.sleep(5)
 
