@@ -89,7 +89,7 @@ def _ble_logger_is_cc26x2r(info: str):
 
 
 def _ble_logger_is_tdo(info: str):
-    return ("TAP", "TDO") in info
+    return "TAP" in info or "TDO" in info
 
 
 def _ble_logger_is_moana(info: str):
