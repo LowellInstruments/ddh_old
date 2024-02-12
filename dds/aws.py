@@ -97,9 +97,11 @@ def _aws_s3_sync_process():
             '--include "*.csv" '
             '--include "*.gps" '
             '--include "*.lid" '
+            '--include "*.lix" '
             '--include "*.bin" '
             '--exclude "test_*.csv '
             '--exclude "test_*.lid '
+            '--exclude "test_*.lix '
             '--include "*.txt" {}'
         ).format(_k, _s, _bin, m, _n, um, dr)
 
@@ -119,9 +121,11 @@ def _aws_s3_sync_process():
                 '--include "*.csv" '
                 '--include "*.gps" '
                 '--include "*.lid" '
+                '--include "*.lix" '
                 '--include "*.bin" '
                 '--exclude "test_*.csv '
                 '--exclude "test_*.lid '
+                '--exclude "test_*.lix '
                 '--include "*.txt" {}'
             ).format(_k, _s, _bin, m, _n, um, dr)
 

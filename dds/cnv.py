@@ -172,17 +172,14 @@ def _cnv_serve():
     fol = str(get_ddh_folder_path_dl_files())
     global _g_last_nf
     ls = glob.glob(f'{fol}/**/*.lid', recursive=True)
+    ls += glob.glob(f'{fol}/**/*.lix', recursive=True)
     forced = len(ls) != _g_last_nf
     if forced:
-        lg.a(f'OK: #LID files {_g_last_nf} -> {len(ls)}, conversion forced')
+        lg.a(f'OK: #files {_g_last_nf} -> {len(ls)}, conversion forced')
     _g_last_nf = len(ls)
 
     # this function does not run always, only from time to time
     if not its_time_to("do_some_conversions", PERIOD_CNV_SECS) and not forced:
-        return
-
-    # this function does not run always, only from time to time
-    if not its_time_to("do_some_conversions", PERIOD_CNV_SECS):
         return
 
     # general banner
@@ -194,7 +191,7 @@ def _cnv_serve():
     e = ""
 
     # this one includes WATER
-    s = "some {} .lid files did not convert"
+    s = "some {} files did not convert"
     m = "_DissolvedOxygen"
     rv = _cnv_lid_metric(m)
     if not rv:
