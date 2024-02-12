@@ -18,7 +18,7 @@ from dds.gps import (
     gps_tell_vessel_name,
     gps_check_for_errors,
     gps_did_we_ever_clock_sync,
-    gps_print_trying_clock_sync_at_boot,
+    gps_banner_clock_sync_at_boot,
     gps_power_cycle_if_so,
     gps_know_hat_firmware_version,
 )
@@ -111,7 +111,7 @@ def main_dds():
         sqs_msg_ddh_booted(lat, lon)
 
     # do nothing if we never had a GPS clock sync
-    gps_print_trying_clock_sync_at_boot()
+    gps_banner_clock_sync_at_boot()
     lat = ''
     lon = ''
     while not gps_did_we_ever_clock_sync():
@@ -120,7 +120,8 @@ def main_dds():
             lat, lon, tg, speed = g
             if gps_clock_sync_if_so(tg):
                 break
-        time.sleep(5)
+        # todo ---> Feb. 2024 I changed this from 5 to 1, check if OK
+        time.sleep(1)
 
     if sqs_msg_ddh_needs_update(lat, lon):
         s = 'warning: this DDH needs an update'

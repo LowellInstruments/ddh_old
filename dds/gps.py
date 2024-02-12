@@ -366,7 +366,7 @@ def gps_wait_for_first_frame_at_boot():
         # ----------------------------------------------
         t = int(till - time.perf_counter())
         t = t if t > 0 else 0
-        _u("{}/{}".format(STATE_DDS_NOTIFY_GPS_BOOT, t))
+        _u(f"{STATE_DDS_NOTIFY_GPS_BOOT}/{t}")
 
         # this GPS measure call controls exceptions :)
         g = gps_measure()
@@ -416,7 +416,7 @@ def gps_check_for_errors(g) -> int:
     return 1
 
 
-def gps_print_trying_clock_sync_at_boot():
+def gps_banner_clock_sync_at_boot():
     if not check_gps_dummy_mode():
         lg.a("trying clock sync via GPS at boot")
         return
