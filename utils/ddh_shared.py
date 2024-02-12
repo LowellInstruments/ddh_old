@@ -10,6 +10,8 @@ from pathlib import Path
 from git import InvalidGitRepositoryError
 import subprocess as sp
 from mat.utils import linux_is_rpi, linux_is_rpi3, linux_is_rpi4
+import toml
+
 
 STATE_DDS_NOTIFY_BOAT_NAME = "boat_name"
 STATE_DDS_NOTIFY_GPS = "gps"
@@ -121,15 +123,6 @@ def ddh_kill_by_pid_file(only_child=False):
     sp.run(c, shell=True)
 
 
-def ddh_get_folder_path_root() -> Path:
-    p = pathlib.Path.home()
-    if linux_is_rpi():
-        p = str(p) + '/li/ddh'
-    else:
-        p = str(p) + '/PycharmProjects/ddh'
-    return Path(p)
-
-
 def dds_ensure_proper_working_folder():
     if not os.path.exists("main_dds.py"):
         print("{} = BAD working directory".format(os.getcwd()))
@@ -137,7 +130,8 @@ def dds_ensure_proper_working_folder():
 
 
 def ddh_get_folder_path_res() -> Path:
-    return Path("ddh/gui/res")
+    p = str(ddh_get_root_folder_path())
+    return Path(f"{p}/ddh/gui/res")
 
 
 def ddh_get_gui_closed_flag_file() -> Path:
@@ -168,7 +162,8 @@ def dds_get_aws_has_something_to_do_via_gui_flag_file() -> str:
 
 
 def ddh_get_db_history_file() -> str:
-    return "ddh/db/db_his.json"
+    p = str(ddh_get_root_folder_path())
+    return f"{p}/ddh/db/db_his.json"
 
 
 def get_ddh_commit():
@@ -181,7 +176,7 @@ def get_ddh_commit():
 
 
 def get_ddh_sw_version():
-    path = str(ddh_get_folder_path_root()) + '/.ddh_version'
+    path = str(ddh_get_root_folder_path()) + '/.ddh_version'
     try:
         with open(path, 'r') as f:
             return f.readline().replace('\n', '')
@@ -190,7 +185,8 @@ def get_ddh_sw_version():
 
 
 def get_ddh_folder_path_dl_files() -> Path:
-    return Path("dl_files")
+    p = str(ddh_get_root_folder_path())
+    return Path(f"{p}/dl_files")
 
 
 def get_ddh_folder_path_logs() -> Path:
@@ -202,7 +198,8 @@ def get_ddh_folder_path_logs() -> Path:
 
 
 def get_dds_folder_path_macs() -> Path:
-    return Path("dds/macs")
+    p = str(ddh_get_root_folder_path())
+    return Path(f"{p}/dds/macs")
 
 
 def get_ddh_folder_path_macs_black() -> Path:
@@ -214,19 +211,23 @@ def get_ddh_folder_path_macs_orange() -> Path:
 
 
 def get_ddh_folder_path_sqs() -> Path:
-    return Path("dds/sqs")
+    p = str(ddh_get_root_folder_path())
+    return Path(f"{p}/dds/sqs")
 
 
 def get_ddh_folder_path_lef() -> Path:
-    return Path("dds/lef")
+    p = str(ddh_get_root_folder_path())
+    return Path(f"{p}/dds/lef")
 
 
 def get_ddh_rerun_flag() -> bool:
-    return os.path.exists('settings/.rerun_flag')
+    p = str(ddh_get_root_folder_path())
+    return os.path.exists(f'{p}/settings/.rerun_flag')
 
 
 def set_ddh_rerun_flag(v):
-    p = 'settings/.rerun_flag'
+    p = str(ddh_get_root_folder_path())
+    p = f'{p}/settings/.rerun_flag'
     if v:
         Path(p).touch()
     else:
@@ -234,20 +235,22 @@ def set_ddh_rerun_flag(v):
 
 
 def get_ddh_folder_path_rbl() -> Path:
-    return Path("dds/rbl")
+    p = str(ddh_get_root_folder_path())
+    return Path(f"{p}/dds/rbl")
 
 
 def get_ddh_folder_path_settings() -> Path:
-    return Path("settings")
+    p = str(ddh_get_root_folder_path())
+    return Path(f"{p}/settings")
 
 
 def get_ddh_folder_path_tweak() -> Path:
-    return Path("dds/tweak")
+    p = str(ddh_get_root_folder_path())
+    return Path(f"{p}/dds/tweak")
 
 
 def get_mac_from_folder_path(fol):
     """returns '11:22:33' from 'dl_files/11-22-33'"""
-
     try:
         return fol.split("/")[-1].replace("-", ":")
     except (ValueError, Exception):
@@ -256,7 +259,6 @@ def get_mac_from_folder_path(fol):
 
 def get_dl_folder_path_from_mac(mac):
     """returns 'dl_files/11-22-33' from '11:22:33'"""
-
     fol = get_ddh_folder_path_dl_files()
     fol = fol / "{}/".format(mac.replace(":", "-").lower())
     return fol
@@ -264,7 +266,6 @@ def get_dl_folder_path_from_mac(mac):
 
 def create_folder_logger_by_mac(mac):
     """mkdir folder based on mac, replaces ':' with '-'"""
-
     fol = get_ddh_folder_path_dl_files()
     fol = fol / "{}/".format(mac.replace(":", "-").lower())
     os.makedirs(fol, exist_ok=True)
@@ -313,13 +314,17 @@ def get_number_of_hauls(path):
     return n
 
 
-def ddh_get_absolute_application_path():
-    home = os.getenv("HOME")
+def ddh_get_root_folder_path() -> Path:
+    p = pathlib.Path.home()
     if linux_is_rpi():
-        app = '/li'
+        p = str(p) + '/li/ddh'
     else:
-        app = '/PycharmProjects'
-    return home + app + '/ddh'
+        p = str(p) + '/PycharmProjects/ddh'
+    return Path(p)
+
+
+def ddh_get_root_folder_path_as_str():
+    return str(ddh_get_root_folder_path())
 
 
 GPS_DUMMY_MODE_FILE = '/tmp/gps_dummy_mode.json'
@@ -341,8 +346,35 @@ def get_ddh_platform():
     return "unk"
 
 
+def get_ddh_toml_all_macs_content():
+    p = str(ddh_get_root_folder_path())
+    p = f"{p}/settings/all_macs.toml"
+
+    try:
+        with open(p, 'r') as f:
+            # d: {'11:22:33:44:55:66': 'sn1234567'}
+            return toml.load(f)
+    except (Exception,) as ex:
+        print('error: get_ddh_toml_all_macs_content: ', ex)
+        os._exit(1)
+
+
+def set_ddh_toml_all_macs_content(d):
+    p = str(ddh_get_root_folder_path())
+    p = f"{p}/settings/all_macs.toml"
+
+    try:
+        with open(p, 'w') as f:
+            # d: {'11:22:33:44:55:66': 'sn1234567'}
+            toml.dump(d, f)
+            print(d)
+    except (Exception,) as ex:
+        print('error: get_ddh_toml_all_macs_content: ', ex)
+        os._exit(1)
+
+
 def main():
-    print(ddh_get_folder_path_root())
+    get_ddh_toml_all_macs_content()
 
 
 if __name__ == "__main__":

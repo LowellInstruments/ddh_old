@@ -6,7 +6,7 @@ from ddh.db.db_his import *
 from dds.aws import _aws_s3_sync_process
 from dds.rbl import _rbl_send, rbl_decode
 from utils.ddh_config import dds_get_cfg_box_sn
-from utils.ddh_shared import ddh_get_db_history_file, ddh_get_absolute_application_path
+from utils.ddh_shared import ddh_get_db_history_file, ddh_get_root_folder_path_as_str
 
 
 # ----------------------------------------------
@@ -21,7 +21,7 @@ def main_test_aws():
     # _aws_s3_sync_process()
 
     # count number of files
-    fol = ddh_get_absolute_application_path() + '/dl_files'
+    fol = ddh_get_root_folder_path_as_str() + '/dl_files'
     ls = []
     for i in ('lid', 'lix', 'csv', 'cst', 'gps', 'bin'):
         ls += glob.glob(f'{fol}/**/*.{i}')

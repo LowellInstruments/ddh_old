@@ -11,13 +11,15 @@ def _get_relative_config_file_path():
 
 
 def _check_cfg(c):
-    for k in c['monitored_macs'].keys():
+    for k, v in c['monitored_macs'].items():
         if '-' in k:
             print('error: "-" symbol in monitored macs, use ":"')
             os._exit(1)
-    for k in c['all_macs'].keys():
-        if '-' in k:
-            print('error: "-" symbol in monitored macs, use ":"')
+        if type(k) is not str:
+            print('error: {k} in config file is not a string')
+            os._exit(1)
+        if type(v) is not str:
+            print('error: {v} in config file is not a string')
             os._exit(1)
 
 
@@ -77,10 +79,6 @@ def dds_get_cfg_monitored_macs():
 
 def dds_get_cfg_monitored_pairs():
     return cfg['monitored_macs']
-
-
-def dds_get_cfg_all_macs():
-    return cfg['all_macs']
 
 
 def dds_get_cfg_fake_gps_position():

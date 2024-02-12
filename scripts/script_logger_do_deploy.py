@@ -2,7 +2,6 @@
 import asyncio
 import sys
 import subprocess as sp
-import toml
 import os
 from mat.utils import PrintColors as PC
 from script_logger_do_deploy_utils import (
@@ -11,6 +10,8 @@ from script_logger_do_deploy_utils import (
     get_script_cfg_file,
     ble_scan,
 )
+from utils.ddh_shared import get_ddh_toml_all_macs_content
+
 
 # ---------------------------------
 # issues RUN command or not at end
@@ -43,32 +44,23 @@ def _check_cwd():
         assert False
 
 
-def _list_monitored_macs():
-    with open('../settings/config.toml', 'r') as f:
-        _c = toml.load(f)
-        macs = _c['all_macs']
-    i = 0
-    for k, v in macs.items():
+def _list_all_macs_file_content():
+    ls_macs = get_ddh_toml_all_macs_content()
+    if not ls_macs:
+        return
+
+    print("\nmonitored macs\n--------------\n")
+    for i, (k, v) in enumerate(ls_macs.items()):
         if k.startswith("#") or len(k) < 5:
             continue
-        if i == 0:
-            print("\nmonitored macs\n--------------\n")
         print(f'{i}) {k}')
-        i += 1
 
 
 def _menu_build(_sr: dict, n: int):
-    # -------------------------------------------------
-    # dictionary <- import macs from '_macs_to_sn.yml'
-    # -------------------------------------------------
-    # todo ---> test this
-    with open('../settings/config.toml', 'r') as f:
-        _c = toml.load(f)
-        ddh_d = _c['all_macs']
 
-    # detect errors
+    ddh_d = get_ddh_toml_all_macs_content()
     if not ddh_d:
-        e = "error -> importing _macs_to_sn.yml"
+        e = "error -> all_macs list is empty"
         print(PC.FAIL + e + PC.ENDC)
         return
     # convert to lower-case
@@ -100,7 +92,7 @@ def _menu_display(d: dict, cfg: dict):
     print("scan done!")
     print("\nchoose an option:")
     print("\ts) scan for macs nearby")
-    print("\tl) list monitored macs in DDH configuration file")
+    print("\tl) list monitored macs in config.toml file")
     print("\tr) toggle RUN flag, current value is {}".format(g_flag_run))
     print("\ti) set DO interval, current value is {}".format(cfg["DRI"]))
     print("\td) set DEPLOYMENT, current value is {}".format(cfg["DFN"]))
@@ -134,7 +126,7 @@ def _menu_execute(_m, _c, cfg):
         return
 
     if _c == "l":
-        _list_monitored_macs()
+        _list_all_macs_file_content()
         return
 
     if _c == "r":

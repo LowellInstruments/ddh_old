@@ -134,10 +134,10 @@ async def ble_scan(t=5.0):
     _dd = {}
     _dl = []
 
-    def _scan_cb(d: BLEDevice, _):
+    def _scan_cb(d: BLEDevice, adv_data):
         logger_types = ["DO-2", "DO-1", "TAP1"]
         if d.name in logger_types:
-            _dd[d.address.lower()] = d.rssi
+            _dd[d.address.lower()] = adv_data.rssi
 
     try:
         print("\nscanning for {} seconds ...".format(int(t)))

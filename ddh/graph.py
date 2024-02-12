@@ -14,7 +14,7 @@ from ddh.utils_graph import utils_graph_read_fol_req_file, \
 from mat.utils import linux_is_rpi
 from utils.ddh_config import dds_get_cfg_logger_mac_from_sn
 from utils.ddh_shared import get_dl_folder_path_from_mac, \
-    ddh_get_absolute_application_path, \
+    ddh_get_root_folder_path_as_str, \
     get_number_of_hauls
 from utils.logs import lg_gra as lg
 from utils.mavg import get_interesting_idx_ma
@@ -232,7 +232,7 @@ def _process_n_graph(a, r=''):
         lg.a('selected dropdown sn {} / mac {}'.format(sn, mac))
         fol = get_dl_folder_path_from_mac(mac)
         # fol: 'dl_files/<mac>, is not absolute, make it so
-        fol = str(ddh_get_absolute_application_path()) + '/' + str(fol)
+        fol = str(ddh_get_root_folder_path_as_str()) + '/' + str(fol)
 
     # get number of hauls
     nh = get_number_of_hauls(fol)

@@ -4,7 +4,6 @@
 from multiprocessing import Process
 import threading
 import time
-import os
 import uuid
 from api.api_utils import get_ip_vpn
 from dds.aws import aws_serve

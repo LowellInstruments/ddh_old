@@ -4,7 +4,6 @@ import pathlib
 from dds.timecache import its_time_to
 from mat.data_converter import default_parameters, DataConverter
 from mat.data_file_factory import load_data_file
-# from mat.lix import ParserLixFile
 from mat.tap import convert_tap_file
 from mat.utils import linux_ls_by_ext
 from utils.logs import lg_cnv as lg

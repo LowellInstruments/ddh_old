@@ -66,7 +66,7 @@ class BleCC26X2Download:
         # to know if this DO-X logger uses LID or LIX files
         rv = await lc.cmd_xod()
         _is_a_lix_logger = rv == 0
-        lg.a(f"XOD | LIX = {_is_a_lix_logger}")
+        lg.a(f"XOD | LIX {_is_a_lix_logger}")
 
         # STOP with STRING
         rv = await lc.cmd_sws(g)

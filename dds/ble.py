@@ -1,9 +1,7 @@
 import datetime
-import os
 import pathlib
 import shutil
 import time
-
 from tzlocal import get_localzone
 from dds.ble_dl_tdo import ble_interact_tdo
 from dds.macs import (

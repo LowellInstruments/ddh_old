@@ -1,5 +1,3 @@
-import time
-
 import pyqtgraph as pg
 from pathlib import Path
 import psutil
@@ -43,9 +41,9 @@ from mat.linux import linux_is_process_running
 from mat.utils import linux_is_rpi
 from rpc.rpc_rx import th_srv_notify
 from rpc.rpc_tx import th_cli_cmd
-from utils.ddh_config import dds_get_cfg_vessel_name, dds_get_cfg_logger_mac_from_sn, \
-    ddh_get_cfg_gear_type, cfg_load_from_file, dds_get_cfg_flag_ble_en, cfg_save_to_file, dds_get_cfg_monitored_pairs, \
-    dds_get_cfg_all_macs
+from utils.ddh_config import (dds_get_cfg_vessel_name, dds_get_cfg_logger_mac_from_sn,
+                              ddh_get_cfg_gear_type, cfg_load_from_file, dds_get_cfg_flag_ble_en,
+                              cfg_save_to_file, dds_get_cfg_monitored_pairs)
 from utils.ddh_shared import (
     get_ddh_folder_path_dl_files,
     ddh_get_gui_closed_flag_file,
@@ -59,7 +57,7 @@ from utils.ddh_shared import (
     STATE_DDS_BLE_SERVICE_INACTIVE,
     dds_get_ddh_got_an_update_flag_file,
     STATE_DDS_SOFTWARE_UPDATED,
-    ddh_get_db_history_file, set_ddh_rerun_flag, ddh_kill_by_pid_file
+    ddh_get_db_history_file, set_ddh_rerun_flag, ddh_kill_by_pid_file, get_ddh_toml_all_macs_content
 )
 
 from utils.logs import lg_gui as lg  # noqa: E402
@@ -197,16 +195,16 @@ class DDH(QMainWindow, d_m.Ui_MainWindow):
         self.lst_mac_org.clear()
         self.lst_mac_dst.clear()
 
-    def click_btn_clear_see_all_macs(self):
+    def click_btn_see_all_macs(self):
         """loads (mac, name) pairs from all macs config section"""
 
         self.lst_mac_org.clear()
-        pp = dds_get_cfg_all_macs()
+        pp = get_ddh_toml_all_macs_content()
         for m, n in pp.items():
             s = "{}  {}".format(m, n)
             self.lst_mac_org.addItem(s)
 
-    def click_btn_see_macs_in_current_json_file(self):
+    def click_btn_see_monitored_macs(self):
         """loads (mac, name) pairs from config file"""
 
         self.lst_mac_org.clear()

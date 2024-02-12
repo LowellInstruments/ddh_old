@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 
 import datetime
-import pathlib
 import shutil
 import setproctitle
 from api.api_utils import (get_git_commit_mat_local,
