@@ -14,7 +14,6 @@ from utils.ddh_shared import (
     STATE_DDS_NOTIFY_CONVERSION_ERR,
     STATE_DDS_NOTIFY_CONVERSION_OK,
 )
-import pyarrow
 import pandas as pd
 
 
