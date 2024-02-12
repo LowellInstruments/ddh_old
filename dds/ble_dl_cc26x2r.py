@@ -14,7 +14,8 @@ from utils.ddh_config import dds_get_cfg_logger_sn_from_mac
 from utils.ddh_shared import (
     send_ddh_udp_gui as _u,
     STATE_DDS_BLE_LOW_BATTERY,
-    STATE_DDS_BLE_RUN_STATUS, STATE_DDS_BLE_DOWNLOAD_ERROR_GDO, STATE_DDS_BLE_ERROR_RUN, BLEAppException, ael,
+    STATE_DDS_BLE_RUN_STATUS, STATE_DDS_BLE_DOWNLOAD_ERROR_GDO,
+    STATE_DDS_BLE_ERROR_RUN, BLEAppException, ael,
     get_ddh_rerun_flag,
 )
 from utils.logs import lg_dds as lg
@@ -63,7 +64,7 @@ class BleCC26X2Download:
             raise BLEAppException("cc26x2 interact logger reset file")
 
         # to know if this DO-X logger uses LID or LIX files
-        rv = await lc.cmd_xod(g)
+        rv = await lc.cmd_xod()
         _is_a_lix_logger = rv == 0
         lg.a(f"XOD | LIX = {_is_a_lix_logger}")
 
@@ -83,7 +84,7 @@ class BleCC26X2Download:
         notes["battery_level"] = b
         if b < 1500:
             # give time to GUI to display
-            _u("{}/{}".format(STATE_DDS_BLE_LOW_BATTERY, mac))
+            _u(f"{STATE_DDS_BLE_LOW_BATTERY}/{mac}")
             await asyncio.sleep(5)
 
         rv, v = await lc.cmd_gfv()
