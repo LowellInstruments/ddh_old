@@ -14,7 +14,6 @@ from ddh.utils_graph import utils_graph_read_fol_req_file, \
 from mat.utils import linux_is_rpi
 from utils.ddh_config import dds_get_cfg_logger_mac_from_sn
 from utils.ddh_shared import get_dl_folder_path_from_mac, \
-    ddh_get_root_folder_path_as_str, \
     get_number_of_hauls
 from utils.logs import lg_gra as lg
 from utils.mavg import get_interesting_idx_ma
@@ -230,9 +229,7 @@ def _process_n_graph(a, r=''):
         if not _graph_check_mac_has_dl_files(mac, fol_ls):
             raise GraphException(f'error: no files for sn {sn} mac {mac}')
         lg.a('selected dropdown sn {} / mac {}'.format(sn, mac))
-        fol = get_dl_folder_path_from_mac(mac)
-        # fol: 'dl_files/<mac>, is not absolute, make it so
-        fol = str(ddh_get_root_folder_path_as_str()) + '/' + str(fol)
+        fol = str(get_dl_folder_path_from_mac(mac))
 
     # get number of hauls
     nh = get_number_of_hauls(fol)

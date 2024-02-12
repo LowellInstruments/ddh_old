@@ -310,10 +310,6 @@ def ddh_get_root_folder_path() -> Path:
     return Path(p)
 
 
-def ddh_get_root_folder_path_as_str():
-    return str(ddh_get_root_folder_path())
-
-
 GPS_DUMMY_MODE_FILE = '/tmp/gps_dummy_mode.json'
 
 

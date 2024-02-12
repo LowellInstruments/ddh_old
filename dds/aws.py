@@ -21,7 +21,7 @@ from utils.ddh_shared import (
     STATE_DDS_NOTIFY_CLOUD_BUSY,
     STATE_DDS_NOTIFY_CLOUD_ERR,
     STATE_DDS_NOTIFY_CLOUD_OK,
-    dds_get_aws_has_something_to_do_via_gui_flag_file, ddh_get_root_folder_path_as_str,
+    dds_get_aws_has_something_to_do_via_gui_flag_file
 )
 from utils.flags import FILE_SEMAPHORE_BLE_AWS
 from utils.logs import lg_aws as lg
@@ -203,7 +203,7 @@ def aws_serve():
 
     # nothing to do, number of files did not change
     # todo ---> test this
-    fol = ddh_get_root_folder_path_as_str() + '/dl_files'
+    fol = get_ddh_folder_path_dl_files()
     mon_ls = []
     for i in ('lid', 'lix', 'csv', 'cst', 'gps', 'bin'):
         mon_ls += glob.glob(f'{fol}/**/*.{i}')

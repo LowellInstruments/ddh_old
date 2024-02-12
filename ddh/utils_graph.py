@@ -7,7 +7,8 @@ import dateutil.parser as dp
 import pandas as pd
 
 from utils.ddh_config import dds_get_cfg_flag_graph_test_mode
-from utils.ddh_shared import ddh_get_root_folder_path_as_str
+from utils.ddh_shared import (get_ddh_folder_path_dl_files,
+                              get_dl_folder_path_from_mac)
 from utils.logs import lg_gra as lg
 
 
@@ -22,7 +23,7 @@ def utils_graph_get_abs_fol_list() -> list:
     """
     get list of absolute paths of "dl_files/<mac>" folders
     """
-    d = ddh_get_root_folder_path_as_str() + '/dl_files'
+    d = str(get_ddh_folder_path_dl_files())
     if dds_get_cfg_flag_graph_test_mode():
         fol_ls = [
             d + '/11-22-33-44-55-66',
@@ -33,7 +34,6 @@ def utils_graph_get_abs_fol_list() -> list:
         ]
         return fol_ls
 
-    d = ddh_get_root_folder_path_as_str() + '/dl_files'
     if os.path.isdir(d):
         f_l = [f.path for f in os.scandir(d) if f.is_dir()]
         # remove 'ddh_vessel' folders
@@ -79,9 +79,7 @@ def utils_graph_set_fol_req_file(mac):
         return
     try:
         with open(GRAPH_REQ_JSON_FILE, "w") as f:
-            fol = mac.replace(':', '-')
-            dl_files_fol = ddh_get_root_folder_path_as_str() + '/dl_files'
-            content = str(dl_files_fol) + '/' + str(fol)
+            content = str(get_dl_folder_path_from_mac(mac))
             f.write(content)
     except (Exception, ) as ex:
         lg.a("error: graph_set_fol_req_file() {}".format(ex))

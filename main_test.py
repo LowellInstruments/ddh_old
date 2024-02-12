@@ -1,12 +1,8 @@
 import datetime
 import glob
-import os
-
 from ddh.db.db_his import *
-from dds.aws import _aws_s3_sync_process
-from dds.rbl import _rbl_send, rbl_decode
 from utils.ddh_config import dds_get_cfg_box_sn
-from utils.ddh_shared import ddh_get_db_history_file, ddh_get_root_folder_path_as_str
+from utils.ddh_shared import ddh_get_db_history_file, get_ddh_folder_path_dl_files
 
 
 # ----------------------------------------------
@@ -21,7 +17,7 @@ def main_test_aws():
     # _aws_s3_sync_process()
 
     # count number of files
-    fol = ddh_get_root_folder_path_as_str() + '/dl_files'
+    fol = str(get_ddh_folder_path_dl_files())
     ls = []
     for i in ('lid', 'lix', 'csv', 'cst', 'gps', 'bin'):
         ls += glob.glob(f'{fol}/**/*.{i}')
