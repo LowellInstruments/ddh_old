@@ -200,7 +200,7 @@ def aws_serve():
     global past_n_files
     ff_ctt = (not exists_flag_gui) and past_n_files == len(ls)
     past_n_files = len(ls)
-    if len(ls):
+    if len(ls) == 0:
         lg.a('warning: AWS zero number of files, not syncing')
         return
     if ff_ctt:
