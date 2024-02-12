@@ -25,6 +25,13 @@ from utils.ddh_shared import (
 )
 
 
+def _une(rv, notes, e):
+    # une: update notes error
+    if not rv:
+        return
+    notes["error"] = "error " + str(e)
+
+
 def _rae(rv, s):
     if rv:
         raise BLEAppException("TAP interact " + s)
@@ -36,11 +43,13 @@ class BleTAPDownload:
 
         # initialize variables
         notes["battery_level"] = 0xFFFF
+        notes["error"] = ""
         rerun_flag = get_ddh_rerun_flag()
         create_folder_logger_by_mac(mac)
         dl_files = []
 
         rv = await lc.connect(mac)
+        _une(rv, notes, "comm.")
         _rae(rv, "connecting")
         lg.a("connected to {}".format(mac))
 
@@ -157,6 +166,7 @@ class BleTAPDownload:
         # rv: (0, 46741)
         bad_rv = not rv or rv[0] == 1 or rv[1] == 0xFFFF or rv[1] == 0
         if bad_rv:
+            _une(bad_rv, notes, "T_sensor_error")
             lg.a('GST | error {}'.format(rv))
             _u(STATE_DDS_BLE_DOWNLOAD_ERROR_TP_SENSOR)
             await asyncio.sleep(5)
@@ -167,6 +177,7 @@ class BleTAPDownload:
         # rv: (0, 1241)
         bad_rv = not rv or rv[0] == 1 or rv[1] == 0xFFFF or rv[1] == 0
         if bad_rv:
+            _une(bad_rv, notes, "P_sensor_error")
             lg.a('GSP | error {}'.format(rv))
             _u(STATE_DDS_BLE_DOWNLOAD_ERROR_TP_SENSOR)
             await asyncio.sleep(5)
@@ -218,11 +229,11 @@ async def ble_interact_tap(mac, info, g, h):
         dl_lix_files = [f for f in dl_files if f.endswith(".lix")]
         for f in dl_lix_files:
             rv_cnv, e = convert_tap_file(f, verbose=False)
-            if rv_cnv == 0:
+            # if rv_cnv == 0:
                 # todo ---> maybe only do this if gear_type is last_haul?
-                file_lowell_raw_csv_to_emolt_lt_csv(f)
-            else:
-                lg.a(f'error: DDH converting TAP file {f} -> {e}')
+                # file_lowell_raw_csv_to_emolt_lt_csv(f)
+            # else:
+            #     lg.a(f'error: DDH converting TAP file {f} -> {e}')
 
     except Exception as ex:
         lg.a("error dl_tap_exception {}".format(ex))

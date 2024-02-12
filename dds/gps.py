@@ -134,7 +134,7 @@ def _gps_parse_rmc_frame(data: bytes):
         d = {
            "lat": lat,
            "lon": lon,
-           "gps_time": gps_time,
+           "gps_time": str(gps_time),
            "speed": speed
         }
         with open("/tmp/gps_last.json", "w") as f:
