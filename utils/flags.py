@@ -6,7 +6,7 @@ FILE_SEMAPHORE_BLE_AWS = '/tmp/ble_aws.sem'
 
 
 def _set_semaphore_file(f):
-    pathlib.Path.touch(f)
+    pathlib.Path(f).touch()
 
 
 def _clear_semaphore_file(f):
