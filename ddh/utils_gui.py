@@ -22,10 +22,14 @@ from mat.ble.ble_mat_utils import DDH_GUI_UDP_PORT
 from mat.utils import linux_is_rpi
 import subprocess as sp
 
-from utils.ddh_config import dds_get_cfg_vessel_name, dds_get_cfg_monitored_serial_numbers, \
-    dds_get_cfg_flag_graph_test_mode, dds_get_cfg_logger_sn_from_mac, dds_get_cfg_forget_time_secs, \
-    dds_get_cfg_monitored_macs, \
-    dds_get_cfg_monitored_pairs
+from utils.ddh_config import (
+    dds_get_cfg_vessel_name,
+    dds_get_cfg_monitored_serial_numbers,
+    dds_get_cfg_flag_graph_test_mode,
+    dds_get_cfg_logger_sn_from_mac,
+    dds_get_cfg_forget_time_secs,
+    dds_get_cfg_monitored_macs,
+    dds_get_cfg_monitored_pairs)
 
 from utils.ddh_shared import (
     STATE_DDS_BLE_SCAN,
@@ -518,9 +522,10 @@ def _parse_udp(my_app, s, ip="127.0.0.1"):
         ci = "blue{}.png".format(i)
 
     elif f == STATE_DDS_NOTIFY_GPS_BOOT:
-        v = int(float(v))
-        ct = "waiting GPS {} seconds".format(v)
-        ci = "gps_boot{}.png".format(i)
+        print(f'----- debug gps gui {f} {i} {v}')
+        v = int(v)
+        ct = f"waiting GPS {v} seconds"
+        ci = f"gps_boot{i}.png"
 
     elif f == STATE_DDS_BLE_DOWNLOAD_PROGRESS:
         v = int(float(v))

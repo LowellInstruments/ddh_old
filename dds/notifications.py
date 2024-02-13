@@ -51,13 +51,13 @@ DDH_ALL_NOTIFICATIONS = [
 
 
 class _DDHNotification:
-    def __init__(self, s, g, mac, v, extra):
+    def __init__(self, s, g, mac, ver, extra):
         now = datetime.now()
         now_utc = datetime.utcnow()
         rv = sp.run("uptime -p", shell=True, stdout=sp.PIPE)
         up = rv.stdout.decode()
 
-        self.msg_ver = v
+        self.msg_ver = ver
         self.reason = s
         self.time_local_epoch = int(now.timestamp())
         self.time_local_str = str(now).split('.')[0]
@@ -120,7 +120,18 @@ def _ddh_notification(s, g='', mac='', v=2, extra=''):
 
 
 def ddh_notification_boot(g):
-    return _ddh_notification(DDH_NOTIFICATION_STATUS_BOOT, g)
+    return _ddh_notification(
+        DDH_NOTIFICATION_STATUS_BOOT,
+        g
+    )
+
+
+def ddh_notification_error_sensor_pressure(g, mac):
+    return _ddh_notification(
+        DDH_NOTIFICATION_ERROR_HW_LOGGER_PRESSURE,
+        g,
+        mac
+    )
 
 
 if __name__ == '__main__':

@@ -347,36 +347,25 @@ def gps_clock_sync_if_so(dt_gps_utc) -> bool:
     return False
 
 
-def gps_wait_for_first_frame_at_boot():
+def gps_boot_wait_first():
 
     # Wikipedia: GPS-Time-To-First-Fix for cold start is typ.
     # 2 to 5 minutes, warm <= 45 secs, hot <= 22 secs
 
-    till = time.perf_counter() + PERIOD_GPS_AT_BOOT_SECS
-    s = "boot: wait up to {} seconds"
-    lg.a(s.format(PERIOD_GPS_AT_BOOT_SECS))
+    till = int(PERIOD_GPS_AT_BOOT_SECS)
+    lg.a(f"boot: wait up to {till} seconds")
 
-    while 1:
-        t = time.perf_counter()
-        if t > till:
-            break
-
-        # ----------------------------------------------
-        # MEASURE countdown at boot time to connect GPS
-        # ----------------------------------------------
-        t = int(till - time.perf_counter())
-        t = t if t > 0 else 0
-        _u(f"{STATE_DDS_NOTIFY_GPS_BOOT}/{t}")
-
-        # this GPS measure call controls exceptions :)
+    while till > 0:
+        _u(f"{STATE_DDS_NOTIFY_GPS_BOOT}/{till}")
+        till -= 1
         g = gps_measure()
         if g:
-            lg.a("gps_wait_at_boot returned {}".format(g))
+            lg.a(f"gps_boot_wait_first g = {str(g)}")
             return g
-        lg.a("{} seconds left to wait for GPS at boot".format(t))
+        lg.a(f"{till} seconds remaining GPS at boot")
         time.sleep(1)
 
-    lg.a("warning: gps_wait_at_boot could not get GPS lock")
+    lg.a("warning: gps_boot_wait_first did not get GPS lock")
     return "", "", None, 0
 
 

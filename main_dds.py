@@ -11,7 +11,7 @@ from dds.ble import ble_interact_all_loggers
 from dds.ble_scan import ble_scan
 from dds.cnv import cnv_serve
 from dds.gps import (
-    gps_wait_for_first_frame_at_boot,
+    gps_boot_wait_first,
     gps_measure,
     gps_configure_shield,
     gps_clock_sync_if_so,
@@ -99,7 +99,7 @@ def main_dds():
     if not rv:
         gps_power_cycle_if_so(forced=True)
         gps_configure_shield()
-    gps_wait_for_first_frame_at_boot()
+    gps_boot_wait_first()
     gps_know_hat_firmware_version()
 
     # GPS first stage
@@ -108,7 +108,6 @@ def main_dds():
         lat, lon, tg, speed = g
         gps_clock_sync_if_so(tg)
         ddh_notification_boot(g)
-        sqs_msg_ddh_booted(lat, lon)
 
     # do nothing if we never had a GPS clock sync
     gps_banner_clock_sync_at_boot()
@@ -132,6 +131,9 @@ def main_dds():
     # Rockblocks stuff is slow, launch its loop as a thread
     th = threading.Thread(target=rbl_loop)
     th.start()
+
+    # ensure first AWS serve won't act to prioritize BLE
+    ble_aws_sem_set()
 
     # =============
     # main loop
@@ -203,7 +205,7 @@ def controller_main_dds():
     lg.a("=== {} started ===".format(s))
 
     while 1:
-        # the GUI KILLs this process when desired
+        # GUI KILLs this process when desired
         lg.a(f"=== {s} launching child ===")
         p = Process(target=main_dds)
         p.start()

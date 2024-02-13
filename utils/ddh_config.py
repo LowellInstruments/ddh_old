@@ -16,10 +16,10 @@ def _check_cfg(c):
             print('error: "-" symbol in monitored macs, use ":"')
             os._exit(1)
         if type(k) is not str:
-            print('error: {k} in config file is not a string')
+            print(f'error: {k} in config file is not a string')
             os._exit(1)
         if type(v) is not str:
-            print('error: {v} in config file is not a string')
+            print(f'error: {v} in config file is not a string')
             os._exit(1)
 
 
