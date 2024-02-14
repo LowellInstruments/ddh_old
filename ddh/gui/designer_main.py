@@ -660,7 +660,7 @@ class Ui_MainWindow(object):
         self.lay_g_h1_2.addWidget(self.lbl_graph_busy)
         self.verticalLayout_7.addLayout(self.lay_g_h1_2)
         self.lay_g_h2 = QtWidgets.QHBoxLayout()
-        self.lay_g_h2.setContentsMargins(-1, 6, -1, -1)
+        self.lay_g_h2.setContentsMargins(-1, 3, -1, -1)
         self.lay_g_h2.setObjectName("lay_g_h2")
         self.verticalLayout_7.addLayout(self.lay_g_h2)
         self.verticalLayout_7.setStretch(0, 1)

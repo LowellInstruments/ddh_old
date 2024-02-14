@@ -1567,7 +1567,7 @@ font: 19pt &quot;DejaVu Sans&quot;;</string>
         <item>
          <layout class="QHBoxLayout" name="lay_g_h2">
           <property name="topMargin">
-           <number>6</number>
+           <number>3</number>
           </property>
          </layout>
         </item>
