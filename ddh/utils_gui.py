@@ -5,7 +5,7 @@ import socket
 import time
 import shutil
 from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QPixmap, QIcon
+from PyQt5.QtGui import QPixmap, QIcon, QMovie
 from PyQt5.QtWidgets import (
     QDesktopWidget,
     QWidget,
@@ -147,6 +147,19 @@ def gui_center_window(my_app):
     a.setFixedHeight(768)
 
 
+def gui_populate_maps_tab(my_app):
+    # todo: remove this
+    if linux_is_rpi():
+        return
+    a = my_app
+    gui_show_map_tab(a)
+    f = str(ddh_get_root_folder_path()) + '/tests/map_test.gif'
+    a.lbl_map_txt.setText('maps_text')
+    a.gif_map = QMovie(f)
+    a.lbl_map.setMovie(a.gif_map)
+    a.gif_map.start()
+
+
 def gui_manage_graph_test_files():
     a = str(ddh_get_root_folder_path())
     d0 = a + '/dl_files/00-00-00-00-00-00'
@@ -282,6 +295,7 @@ def gui_setup_buttons(my_app):
     a.chk_rerun.toggled.connect(a.click_chk_rerun)
     a.cb_s3_uplink_type.activated.connect(a.click_cb_s3_uplink_type)
     a.btn_adv_sms.clicked.connect(a.click_btn_adv_sms)
+    a.btn_map.clicked.connect(a.click_btn_map)
 
     # graph stuff
     a.btn_g_reset.clicked.connect(a.click_graph_btn_reset)
@@ -300,6 +314,13 @@ def gui_hide_edit_tab(ui):
     ui.tabs.removeTab(i)
 
 
+def gui_hide_map_tab(ui):
+    p = ui.tabs.findChild(QWidget, "tab_map")
+    i = ui.tabs.indexOf(p)
+    ui.tab_map_wgt_ref = ui.tabs.widget(i)
+    ui.tabs.removeTab(i)
+
+
 def gui_hide_advanced_tab(ui):
     # find tab ID, index and keep ref
     p = ui.tabs.findChild(QWidget, "tab_advanced")
@@ -309,7 +330,6 @@ def gui_hide_advanced_tab(ui):
 
 
 def gui_hide_graph_tab(ui):
-
     if not linux_is_rpi():
         return
     if os.path.exists('/home/pi/li/.ddh_graph_enabler.json'):
@@ -341,6 +361,14 @@ def gui_show_advanced_tab(ui):
     icon = QIcon("ddh/gui/res/icon_tweak.png")
     ui.tabs.addTab(ui.tab_recipe_wgt_ref, icon, " Advanced")
     p = ui.tabs.findChild(QWidget, "tab_advanced")
+    i = ui.tabs.indexOf(p)
+    ui.tabs.setCurrentIndex(i)
+
+
+def gui_show_map_tab(ui):
+    icon = QIcon("ddh/gui/res/icon_setup.png")
+    ui.tabs.addTab(ui.tab_map_wgt_ref, icon, " Maps")
+    p = ui.tabs.findChild(QWidget, "tab_map")
     i = ui.tabs.indexOf(p)
     ui.tabs.setCurrentIndex(i)
 

@@ -41,7 +41,7 @@
        </font>
       </property>
       <property name="currentIndex">
-       <number>5</number>
+       <number>6</number>
       </property>
       <widget class="QWidget" name="tab">
        <property name="sizePolicy">
@@ -1569,6 +1569,76 @@ font: 19pt &quot;DejaVu Sans&quot;;</string>
           <property name="topMargin">
            <number>3</number>
           </property>
+         </layout>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="tab_map">
+       <attribute name="title">
+        <string>Maps</string>
+       </attribute>
+       <layout class="QVBoxLayout" name="verticalLayout_4" stretch="1,10">
+        <item>
+         <layout class="QHBoxLayout" name="horizontalLayout_16">
+          <item>
+           <widget class="QPushButton" name="btn_map">
+            <property name="maximumSize">
+             <size>
+              <width>250</width>
+              <height>16777215</height>
+             </size>
+            </property>
+            <property name="text">
+             <string>get latest forecast</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLabel" name="lbl_map_txt">
+            <property name="maximumSize">
+             <size>
+              <width>9002</width>
+              <height>100</height>
+             </size>
+            </property>
+            <property name="font">
+             <font>
+              <pointsize>32</pointsize>
+              <weight>50</weight>
+              <bold>false</bold>
+              <underline>false</underline>
+              <strikeout>false</strikeout>
+              <kerning>true</kerning>
+             </font>
+            </property>
+            <property name="styleSheet">
+             <string notr="true">color: rgb(0, 0, 255)</string>
+            </property>
+            <property name="text">
+             <string>LOADING...</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignCenter</set>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <layout class="QHBoxLayout" name="lay_g_h2_3">
+          <property name="topMargin">
+           <number>3</number>
+          </property>
+          <item>
+           <widget class="QLabel" name="lbl_map">
+            <property name="text">
+             <string/>
+            </property>
+            <property name="scaledContents">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
          </layout>
         </item>
        </layout>
