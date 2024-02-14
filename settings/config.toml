@@ -1,0 +1,37 @@
+[credentials]
+cred_aws_bucket = ""
+cred_aws_key_id = ""
+cred_aws_secret = ""
+cred_aws_sqs_queue_name = ""
+cred_ddh_serial_number = "9999999"
+cred_ddh_project_name = "lab"
+cred_aws_custom_sqs_key_id = ""
+cred_aws_custom_sqs_access_key = ""
+
+[behavior]
+ship_name = "nameofboat"
+forget_time = 36000
+gear_type = 0
+moving_speed = [ 0.5, 7.0,]
+fake_gps_position = [ 11.0, -83.0,]
+
+[monitored_macs]
+"60:77:71:22:CA:6A" = "1000000"
+"D0:2E:AB:D9:E7:B3" = "2311735"
+
+[all_macs]
+"60:77:71:22:CA:6A" = "1000000"
+"D0:2E:AB:D9:E7:B3" = "2311735"
+
+[flags]
+aws_en = 1
+sqs_en = 1
+ble_en = 1
+rbl_en = 0
+g_gps_is_external = 0
+sms_en = 0
+hook_graph_test_mode = 0
+hook_gps_error_measurement_forced = 0
+hook_ble_purge_black_macs_on_boot = 0
+hook_ble_purge_this_mac_dl_files_folder = 0
+hook_ble_scan_cc26x2r_sim = 0
