@@ -244,6 +244,19 @@ def sqs_msg_notes_cc26x2r(*args):
         sqs_msg_logger_low_battery(mac, sn, lat, lon)
 
 
+# DDH_NOTIFICATION_STATUS_ALIVE = 'DDH is still online'
+# DDH_NOTIFICATION_STATUS_IN_PORT = 'DDH is around a port'
+# DDH_NOTIFICATION_STATUS_NEED_SW_UPDATE = 'DDH may use a software update'
+# DDH_NOTIFICATION_ERROR_HW_BLE = 'DDH had a Bluetooth error'
+# DDH_NOTIFICATION_ERROR_HW_GPS = 'DDH had a GPS error'
+# DDH_NOTIFICATION_ERROR_HW_LOGGER_OXYGEN = 'check oxygen sensor in logger'
+# DDH_NOTIFICATION_ERROR_HW_LOGGER_BATTERY = 'check battery in logger'
+# DDH_NOTIFICATION_ERROR_HW_LOGGER_RETRIES = 'too many bad download attempts on logger'
+# DDH_NOTIFICATION_ERROR_SW_AWS_S3 = 'too long since a good AWS sync'
+# DDH_NOTIFICATION_ERROR_SW_CRASH = 'DDH just crashed, or at least restarted'
+# DDH_NOTIFICATION_OK_LOGGER_DL = 'logger was download OK'
+
+
 def sqs_serve():
 
     # this runs from time to time, not always

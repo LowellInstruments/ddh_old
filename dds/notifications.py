@@ -1,9 +1,8 @@
-from datetime import datetime
+from datetime import datetime, UTC
 import json
 import os
 import subprocess as sp
 import time
-
 import pytz
 import tzlocal
 
@@ -53,7 +52,7 @@ DDH_ALL_NOTIFICATIONS = [
 class _DDHNotification:
     def __init__(self, s, g, mac, ver, extra):
         now = datetime.now()
-        now_utc = datetime.utcnow()
+        now_utc = datetime.now(UTC)
         rv = sp.run("uptime -p", shell=True, stdout=sp.PIPE)
         up = rv.stdout.decode()
 
