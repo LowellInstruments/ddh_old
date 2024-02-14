@@ -267,7 +267,7 @@ def _process_n_graph(a, r=''):
     p1 = g.plotItem
 
     # grid or not
-    g.showGrid(x=True, y=False)
+    g.showGrid(x=True, y=True)
 
     # ---------
     # 2nd line
@@ -433,10 +433,14 @@ def _process_n_graph(a, r=''):
         a.cb_g_switch_tp.setVisible(True)
         tap_plot_type = a.cb_g_switch_tp.currentText()
 
-        # type of TAP plot 1/2: T & D vs time, draw lines
+        # type of TDO plot 1/2: D (y1) & T (y2) vs time
         if 'time' in tap_plot_type:
             p1.setLabel("left", lbl1, **_sty(clr_1))
             p1.getAxis('right').setLabel(lbl2, **_sty(clr_2))
+            # set any pressure value < 0 to 0
+            arr = np.array(y1)
+            arr[arr < 0] = 0
+            y1 = list(arr)
             p1.plot(x, y1, pen=pen1, hoverable=True)
             p2.addItem(pg.PlotCurveItem(x, y2, pen=pen2, hoverable=True))
 
