@@ -110,7 +110,7 @@ class _DDHNotification:
         self.display_details()
 
 
-def _ddh_notification(s, g='', mac='', v=2, extra=''):
+def _n(s, g='', mac='', v=2, extra=''):
     if s not in DDH_ALL_NOTIFICATIONS:
         print(f'ddh_notification unknown opcode {s}')
         return
@@ -119,20 +119,31 @@ def _ddh_notification(s, g='', mac='', v=2, extra=''):
 
 
 def ddh_notification_boot(g):
-    return _ddh_notification(
-        DDH_NOTIFICATION_STATUS_BOOT,
-        g
-    )
+    return _n(DDH_NOTIFICATION_STATUS_BOOT, g)
 
 
 def ddh_notification_error_sensor_pressure(g, mac):
-    return _ddh_notification(
-        DDH_NOTIFICATION_ERROR_HW_LOGGER_PRESSURE,
-        g,
-        mac
-    )
+    return _n(DDH_NOTIFICATION_ERROR_HW_LOGGER_PRESSURE, g, mac)
+
+
+def ddh_notification_error_battery(g, mac):
+    return _n(DDH_NOTIFICATION_ERROR_HW_LOGGER_BATTERY, g, mac)
+
+
+def ddh_notification_alarm_s3():
+    return _n(DDH_NOTIFICATION_ERROR_SW_AWS_S3)
+
+
+def ddh_notification_alarm_crash():
+    return _n(DDH_NOTIFICATION_ERROR_SW_CRASH)
+
+
+def ddh_notification_based_on_notes(n, g, mac):
+    v = n["battery_level"]
+    if v < 1800:
+        ddh_notification_error_battery(g, mac)
 
 
 if __name__ == '__main__':
     os.chdir('..')
-    _ddh_notification(DDH_NOTIFICATION_STATUS_ALIVE)
+    _n(DDH_NOTIFICATION_STATUS_ALIVE)

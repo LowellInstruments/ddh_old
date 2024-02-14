@@ -9,7 +9,7 @@ import time
 from multiprocessing import Process
 import setproctitle
 from dds.emolt import this_box_has_grouped_s3_uplink
-from dds.sqs import sqs_msg_ddh_alarm_s3
+from dds.notifications import ddh_notification_alarm_s3
 from dds.timecache import its_time_to
 from mat.linux import linux_is_process_running
 from mat.utils import linux_is_rpi
@@ -156,7 +156,7 @@ def _aws_s3_sync_process():
             if delta > PERIOD_ALARM_AWS_S3:
                 lg.a('error: too many bad S3, creating alarm SQS file')
                 _touch_s3_ts()
-                sqs_msg_ddh_alarm_s3()
+                ddh_notification_alarm_s3()
             else:
                 lg.a('warning: bad S3, but not critical yet')
         else:

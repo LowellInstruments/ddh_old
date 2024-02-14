@@ -149,10 +149,6 @@ def _sqs_gen_file(desc, mac, lg_sn, lat, lon, m_ver=1, data=""):
         lg.a(s.format(desc, lat, lon))
 
 
-def sqs_msg_ddh_booted(*args):
-    _sqs_gen_file(OPCODE_SQS_DDH_BOOT, "", "", *args)
-
-
 def sqs_msg_ddh_needs_update(*args):
 
     try:
@@ -175,16 +171,6 @@ def sqs_msg_ddh_needs_update(*args):
 
     except (Exception, ) as ex:
         lg.a(f'error: sqs_msg_ddh_needs_update -> {ex}')
-
-
-def sqs_msg_ddh_alarm_s3():
-    # hardcoded opcode so deployed DDH w/ old LIU library don't crash
-    mac = ''
-    lg_sn = ''
-    lat = ''
-    lon = ''
-    data = ''
-    _sqs_gen_file('DDH_ALARM_S3', mac, lg_sn, lat, lon, m_ver=1, data=data)
 
 
 def sqs_msg_ddh_alive(*args):
@@ -212,10 +198,6 @@ def sqs_msg_logger_error_oxygen_zeros(*args):
     _sqs_gen_file(OPCODE_SQS_LOGGER_ERROR_OXYGEN, *args)
 
 
-def sqs_msg_logger_low_battery(*args):
-    _sqs_gen_file(OPCODE_SQS_LOGGER_LOW_BATTERY, *args)
-
-
 def sqs_msg_sms():
     # we do it here so old versions don't crash
     # from liu.ddn_msg import OPCODE_SQS_SMS
@@ -225,36 +207,6 @@ def sqs_msg_sms():
     lon = '0.000000'
     data = 'sms'
     _sqs_gen_file('DDH_SMS_TEST', mac, lg_sn, lat, lon, m_ver=1, data=data)
-
-
-def sqs_msg_ddh_alarm_crash(s):
-    # hardcoded opcode so deployed DDH w/ old LIU library don't crash
-    mac = ''
-    lg_sn = ''
-    lat = ''
-    lon = ''
-    data = f'sms/{s}'
-    _sqs_gen_file('DDH_SMS_CRASH', mac, lg_sn, lat, lon, m_ver=1, data=data)
-
-
-def sqs_msg_notes_cc26x2r(*args):
-    notes, mac, sn, lat, lon = args
-    v = notes["battery_level"]
-    if v < 1800:
-        sqs_msg_logger_low_battery(mac, sn, lat, lon)
-
-
-# DDH_NOTIFICATION_STATUS_ALIVE = 'DDH is still online'
-# DDH_NOTIFICATION_STATUS_IN_PORT = 'DDH is around a port'
-# DDH_NOTIFICATION_STATUS_NEED_SW_UPDATE = 'DDH may use a software update'
-# DDH_NOTIFICATION_ERROR_HW_BLE = 'DDH had a Bluetooth error'
-# DDH_NOTIFICATION_ERROR_HW_GPS = 'DDH had a GPS error'
-# DDH_NOTIFICATION_ERROR_HW_LOGGER_OXYGEN = 'check oxygen sensor in logger'
-# DDH_NOTIFICATION_ERROR_HW_LOGGER_BATTERY = 'check battery in logger'
-# DDH_NOTIFICATION_ERROR_HW_LOGGER_RETRIES = 'too many bad download attempts on logger'
-# DDH_NOTIFICATION_ERROR_SW_AWS_S3 = 'too long since a good AWS sync'
-# DDH_NOTIFICATION_ERROR_SW_CRASH = 'DDH just crashed, or at least restarted'
-# DDH_NOTIFICATION_OK_LOGGER_DL = 'logger was download OK'
 
 
 def sqs_serve():

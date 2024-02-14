@@ -12,6 +12,7 @@ from dds.macs import (
     is_mac_in_orange,
     add_mac_orange,
 )
+from dds.notifications import ddh_notification_based_on_notes
 from dds.timecache import its_time_to
 from mat.ble.ble_mat_utils import ble_mat_bluetoothctl_power_cycle, ble_mat_disconnect_all_devices_ll
 from dds.ble_dl_rn4020 import ble_interact_rn4020
@@ -20,7 +21,6 @@ from dds.gps import gps_tell_position_logger
 from dds.sqs import (
     sqs_msg_logger_error_max_retries,
     sqs_msg_logger_download,
-    sqs_msg_notes_cc26x2r,
 )
 from mat.utils import linux_is_rpi
 from utils.ddh_config import dds_get_cfg_flag_purge_this_mac_dl_files_folder, dds_get_cfg_logger_sn_from_mac
@@ -142,7 +142,7 @@ async def _ble_id_n_interact_logger(mac, info: str, h, g):
     # --------------------
     if _ble_logger_is_cc26x2r(info):
         rv, notes = await ble_interact_cc26x2(mac, info, g, hs)
-        sqs_msg_notes_cc26x2r(notes, mac, sn, lat, lon)
+        ddh_notification_based_on_notes(notes, g, mac)
         _crit_error = notes['error']
 
     elif _ble_logger_is_rn4020(mac, info):

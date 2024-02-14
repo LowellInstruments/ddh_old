@@ -24,13 +24,12 @@ from dds.gps import (
 )
 from dds.macs import dds_create_folder_macs_color, dds_macs_color_show_at_boot
 from dds.net import net_serve
-from dds.notifications import ddh_notification_boot
+from dds.notifications import ddh_notification_boot, ddh_notification_alarm_crash
 from dds.rbl import rbl_loop
 from dds.sqs import (
     dds_create_folder_sqs,
     sqs_serve,
-    sqs_msg_ddh_booted,
-    sqs_msg_ddh_alive, sqs_msg_ddh_alarm_crash, sqs_msg_ddh_needs_update
+    sqs_msg_ddh_alive, sqs_msg_ddh_needs_update
 )
 from dds.lef import dds_create_folder_lef
 from dds.ble_utils_dds import (
@@ -187,14 +186,7 @@ def _alarm_dds_crash(n):
     if n == 0:
         return
     if its_time_to('tell_dds_child_crash', 3600):
-        vs = dds_get_cfg_vessel_name()
-        box_sn = dds_get_cfg_box_sn()
-        prj = dds_get_cfg_box_project()
-        ip_vpn = get_ip_vpn()
-        u = str(uuid.uuid4())[:5]
-        s = f'DDH just crashed, check it: '
-        s += f'BOAT {vs} PRJ {prj} SN{box_sn} IP_VPN {ip_vpn} CODE {n} ID {u}'
-        sqs_msg_ddh_alarm_crash(s)
+        ddh_notification_alarm_crash()
 
 
 def controller_main_dds():
