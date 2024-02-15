@@ -187,6 +187,13 @@ def dds_get_cfg_box_project():
     return cfg["credentials"]["cred_ddh_project_name"]
 
 
+def ddh_get_cfg_maps_en():
+    try:
+        return int(cfg['flags']['maps_en'])
+    except (Exception, ):
+        return False
+
+
 if __name__ == '__main__':
     print('vessel_name', dds_get_cfg_vessel_name())
     print('aws_en', dds_get_cfg_aws_en())
@@ -205,3 +212,4 @@ if __name__ == '__main__':
     print('get_moving_speed', dds_get_cfg_moving_speed())
     print('dds_get_flag_rbl_en', dds_get_cfg_flag_rbl_en())
     print('dds_get_flag_sqs_en', dds_get_cfg_flag_sqs_en())
+    print('ddh_flag_maps_en', ddh_get_cfg_maps_en())

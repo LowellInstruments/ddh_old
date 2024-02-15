@@ -29,7 +29,7 @@ from utils.ddh_config import (
     dds_get_cfg_logger_sn_from_mac,
     dds_get_cfg_forget_time_secs,
     dds_get_cfg_monitored_macs,
-    dds_get_cfg_monitored_pairs)
+    dds_get_cfg_monitored_pairs, ddh_get_cfg_maps_en)
 
 from utils.ddh_shared import (
     STATE_DDS_BLE_SCAN,
@@ -148,11 +148,7 @@ def gui_center_window(my_app):
 
 
 def gui_populate_maps_tab(my_app):
-    # todo: remove this
-    if linux_is_rpi():
-        return
     a = my_app
-    gui_show_map_tab(a)
     f = str(ddh_get_root_folder_path()) + '/tests/300.gif'
     a.lbl_map_txt.setText('maps_text')
     a.gif_map = QMovie(f)
@@ -315,6 +311,8 @@ def gui_hide_edit_tab(ui):
 
 
 def gui_hide_map_tab(ui):
+    if ddh_get_cfg_maps_en():
+        return
     p = ui.tabs.findChild(QWidget, "tab_map")
     i = ui.tabs.indexOf(p)
     ui.tab_map_wgt_ref = ui.tabs.widget(i)

@@ -103,15 +103,15 @@ class DDH(QMainWindow, d_m.Ui_MainWindow):
         self.lbl_net_pressed = 0
         self.gif_map = None
 
-        gui_hide_edit_tab(self)
+        gui_populate_maps_tab(self)
         gui_hide_map_tab(self)
+        gui_hide_edit_tab(self)
         gui_hide_advanced_tab(self)
         gui_hide_note_tab(self)
         gui_populate_history_tab(self)
         gui_ddh_set_brightness(self)
         gui_ddh_populate_note_tab_dropdown(self)
         gui_ddh_populate_graph_dropdown_sn(self)
-        gui_populate_maps_tab(self)
 
         # s3 uplink type field
         if this_box_has_grouped_s3_uplink():

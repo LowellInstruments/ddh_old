@@ -28,6 +28,7 @@ aws_en = 1
 sqs_en = 1
 ble_en = 1
 rbl_en = 0
+maps_en = 1
 g_gps_is_external = 0
 sms_en = 0
 hook_graph_test_mode = 1
