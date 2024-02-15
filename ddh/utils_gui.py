@@ -153,7 +153,7 @@ def gui_populate_maps_tab(my_app):
         return
     a = my_app
     gui_show_map_tab(a)
-    f = str(ddh_get_root_folder_path()) + '/tests/6300.gif'
+    f = str(ddh_get_root_folder_path()) + '/tests/300.gif'
     a.lbl_map_txt.setText('maps_text')
     a.gif_map = QMovie(f)
     a.lbl_map.setMovie(a.gif_map)
