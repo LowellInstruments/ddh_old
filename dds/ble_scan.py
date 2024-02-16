@@ -62,7 +62,7 @@ def _ble_scan_banner(_h, _h_desc):
     _u(STATE_DDS_BLE_SCAN)
 
 
-async def ble_scan(g, _h: int, _h_desc, t=10.0):
+async def ble_scan(g, _h: int, _h_desc, t=5.0):
     """
     SCANs for loggers, quits fast if all found
     """
