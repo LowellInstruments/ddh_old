@@ -91,7 +91,7 @@ class _DDHNotification:
 
     def display_details(self):
         if self.logger_mac:
-            s = "{} for logger {} ({}) at {}, {}"
+            s = "{} for logger {} ({}) at {}"
             lg.a(s.format(self.reason,
                           self.logger_sn,
                           self.logger_mac,
