@@ -25,7 +25,7 @@ from utils.ddh_shared import (
 )
 from utils.logs import lg_aws as lg
 
-
+g_fresh_boot = 1
 PATH_FILE_AWS_TS = get_ddh_folder_path_dl_files()
 PERIOD_AWS_S3_SECS = 3600 * 6
 PERIOD_ALARM_AWS_S3 = 86400 * 7
@@ -175,6 +175,13 @@ def _aws_s3_sync_process():
 
 
 def aws_serve():
+
+    # useful on RPi3 to prevent BLE and AWS (wi-fi) collisions
+    global g_fresh_boot
+    if g_fresh_boot:
+        lg.a("debug: AWS politely waiting upon boot")
+        time.sleep(60)
+        g_fresh_boot = 0
 
     # check someone asked for AWS sync from GUI
     flag_gui = dds_get_aws_has_something_to_do_via_gui_flag_file()
