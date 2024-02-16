@@ -62,23 +62,23 @@ def _ble_scan_banner(_h, _h_desc):
     _u(STATE_DDS_BLE_SCAN)
 
 
-async def ble_scan(g, _h: int, _h_desc, t=5.0):
+async def ble_scan(g, _h: int, _h_desc, t=10.0):
     """
     SCANs for loggers, quits fast if all found
     """
 
     def _scan_cb(d: BLEDevice, _):
-        # returns lower-case macs
+        mac = d.address.lower()
+        _all[mac] = d.name
         if _ble_is_supported_logger(d.name):
-            _our_devs[d.address.lower()] = d.name
-        _all_devs[d.address.lower()] = d.name
+            _our[mac] = d.name
         # allows scan to end faster
         global _g_ble_scan_early_leave
-        _g_ble_scan_early_leave = len(_our_devs) == len(_g_monitored_macs)
+        _g_ble_scan_early_leave = len(_our) == len(_g_monitored_macs)
 
     # classify devs
-    _our_devs = {}
-    _all_devs = {}
+    _our = {}
+    _all = {}
     _ble_scan_banner(_h, _h_desc)
 
     try:
@@ -117,11 +117,11 @@ async def ble_scan(g, _h: int, _h_desc, t=5.0):
         await asyncio.sleep(.1)
 
         # _our_devs: {'60:77:71:22:ca:6d': 'DO-2', ...}
-        if len(_all_devs) > 15:
+        if len(_all) > 15:
             s = "warning: detected crowded BLE environment"
             if its_time_to(s, t=3600 * 6):
                 lg.a(s)
-        return _our_devs
+        return _our
 
     except (asyncio.TimeoutError, BleakError, OSError) as ex:
         e = "hardware error during scan! {}"
