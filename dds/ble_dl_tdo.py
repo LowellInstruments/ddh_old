@@ -4,7 +4,7 @@ import os
 
 from dds.csv_data import file_lowell_raw_csv_to_emolt_lt_csv
 from dds.lef import dds_create_file_lef
-from dds.notifications import notify_logger_error_sensor_pressure
+from dds.notifications import notify_logger_error_sensor_pressure, notify_logger_error_low_battery
 from mat.ble.ble_mat_utils import (
     ble_mat_crc_local_vs_remote,
     DDH_GUI_UDP_PORT, ble_mat_disconnect_all_devices_ll,
@@ -16,7 +16,6 @@ from mat.utils import linux_is_rpi
 from utils.ddh_config import ddh_get_cfg_gear_type
 from utils.ddh_shared import (
     send_ddh_udp_gui as _u,
-    STATE_DDS_BLE_LOW_BATTERY,
     STATE_DDS_BLE_RUN_STATUS, STATE_DDS_BLE_ERROR_RUN,
     STATE_DDS_BLE_DOWNLOAD_ERROR_TP_SENSOR,
     BLEAppException, ael, get_ddh_rerun_flag_li
@@ -77,8 +76,9 @@ class BleTDODownload:
         lg.a("BAT | {} mV".format(b))
         notes["battery_level"] = b
         if b < 982:
+            notify_logger_error_low_battery(g, mac, b)
+            _u("f{STATE_DDS_BLE_LOW_BATTERY}/{mac}")
             # give time to GUI to display
-            _u("{}/{}".format(STATE_DDS_BLE_LOW_BATTERY, mac))
             await asyncio.sleep(3)
 
         rv, v = await lc.cmd_gfv()

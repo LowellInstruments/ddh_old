@@ -2,7 +2,7 @@ import asyncio
 import datetime
 import os
 from dds.lef import dds_create_file_lef
-from dds.notifications import notify_logger_error_sensor_oxygen
+from dds.notifications import notify_logger_error_sensor_oxygen, notify_logger_error_low_battery
 from mat.ble.ble_mat_utils import (
     ble_mat_crc_local_vs_remote,
     DDH_GUI_UDP_PORT, ble_mat_disconnect_all_devices_ll,
@@ -80,8 +80,9 @@ class BleCC26X2Download:
         lg.a("BAT | {} mV".format(b))
         notes["battery_level"] = b
         if b < 1500:
-            # give time to GUI to display
+            notify_logger_error_low_battery(g, mac, b)
             _u(f"{STATE_DDS_BLE_LOW_BATTERY}/{mac}")
+            # give time to GUI to display
             await asyncio.sleep(5)
 
         rv, v = await lc.cmd_gfv()

@@ -12,7 +12,7 @@ from dds.macs import (
     is_mac_in_orange,
     add_mac_orange,
 )
-from dds.notifications import notify_according_to_notes, notify_logger_download, \
+from dds.notifications import notify_logger_download, \
     notify_logger_error_retries
 from dds.timecache import its_time_to
 from mat.ble.ble_mat_utils import ble_mat_bluetoothctl_power_cycle, ble_mat_disconnect_all_devices_ll
@@ -28,7 +28,7 @@ from utils.ddh_shared import (
     STATE_DDS_BLE_DOWNLOAD_WARNING,
     get_dl_folder_path_from_mac,
     STATE_DDS_BLE_DOWNLOAD, dds_get_aws_has_something_to_do_via_gui_flag_file,
-    STATE_DDS_NOTIFY_HISTORY, STATE_DDS_BLE_ERROR_MOANA_PLUGIN,
+    STATE_DDS_NOTIFY_HISTORY, STATE_DDS_BLE_ERROR_MOANA_PLUGIN, STATE_DDS_BLE_CONNECTING,
 )
 from utils.logs import lg_dds as lg
 from dds.ble_dl_moana import ble_interact_moana
@@ -70,7 +70,7 @@ def _ble_analyze_logger_result(rv, mac, g, sn, err_critical):
         add_mac_black(mac)
         e = "error: logger {}/{} totally failed, critical = {}"
         lg.a(e.format(mac, sn, err_critical))
-        _u("{}/{}".format(STATE_DDS_BLE_DOWNLOAD_ERROR, mac))
+        _u(f"{STATE_DDS_BLE_DOWNLOAD_ERROR}/{sn}")
         notify_logger_error_retries(g, mac)
         _g_logger_errors[mac] = 0
 
@@ -78,7 +78,7 @@ def _ble_analyze_logger_result(rv, mac, g, sn, err_critical):
         rm_mac_orange(mac)
         add_mac_orange(mac)
         lg.a("warning: logger {}/{} NOT done".format(mac, sn))
-        _u("{}/{}".format(STATE_DDS_BLE_DOWNLOAD_WARNING, sn))
+        _u(f"{STATE_DDS_BLE_DOWNLOAD_WARNING}/{sn}")
 
 
 def _ble_logger_is_cc26x2r(info: str):
@@ -135,12 +135,14 @@ async def _ble_id_n_interact_logger(mac, info: str, h, g):
     _crit_error = False
     _error_dl = ""
 
+    # some GUI update
+    _u(f"{STATE_DDS_BLE_CONNECTING}/{sn}")
+
     # --------------------
     # logger interaction
     # --------------------
     if _ble_logger_is_cc26x2r(info):
         rv, notes = await ble_interact_cc26x2(mac, info, g, hs)
-        notify_according_to_notes(notes, g, mac)
         _crit_error = notes["crit_error"]
         _error_dl = notes["error"]
 
@@ -159,7 +161,6 @@ async def _ble_id_n_interact_logger(mac, info: str, h, g):
 
     elif _ble_logger_is_tdo(info):
         rv, notes = await ble_interact_tdo(mac, info, g, hs)
-        notify_according_to_notes(notes, g, mac)
         _crit_error = notes["crit_error"]
         _error_dl = notes["error"]
 

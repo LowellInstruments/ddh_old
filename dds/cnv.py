@@ -184,7 +184,7 @@ def _cnv_serve():
 
     # general banner
     s = 'conversion sequence started'
-    lg.a('-' * (len(s) +1))
+    lg.a('-' * (len(s) + 1))
     lg.a(s)
 
     # error variable

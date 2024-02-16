@@ -19,7 +19,7 @@ from utils.ddh_shared import (get_ddh_commit,
 
 
 DDH_NOTIFICATION_STATUS_BOOT = 'DDH just booted'
-DDH_NOTIFICATION_STATUS_ALIVE = 'DDH is still online'
+DDH_NOTIFICATION_STATUS_ALIVE = 'DDH is alive'
 DDH_NOTIFICATION_STATUS_IN_PORT = 'DDH is around a port'
 DDH_NOTIFICATION_STATUS_NEED_SW_UPDATE = 'DDH may use a software update'
 DDH_NOTIFICATION_ERROR_HW_BLE = 'DDH had a Bluetooth error'
@@ -30,7 +30,7 @@ DDH_NOTIFICATION_ERROR_HW_LOGGER_PRESSURE = 'check pressure sensor in logger'
 DDH_NOTIFICATION_ERROR_HW_LOGGER_RETRIES = 'too many bad download attempts on logger'
 DDH_NOTIFICATION_ERROR_SW_AWS_S3 = 'too long since a good AWS sync'
 DDH_NOTIFICATION_ERROR_SW_CRASH = 'DDH just crashed, or at least restarted'
-DDH_NOTIFICATION_OK_LOGGER_DL = 'logger was download OK'
+DDH_NOTIFICATION_OK_LOGGER_DL = 'logger download OK'
 DDH_NOTIFICATION_SMS = 'DDH sent a SMS'
 
 
@@ -128,8 +128,8 @@ def notify_logger_error_sensor_pressure(g, mac):
     return _n(DDH_NOTIFICATION_ERROR_HW_LOGGER_PRESSURE, g, mac)
 
 
-def notify_logger_error_low_battery(g, mac):
-    return _n(DDH_NOTIFICATION_ERROR_HW_LOGGER_BATTERY, g, mac)
+def notify_logger_error_low_battery(g, mac, bat_mv):
+    return _n(DDH_NOTIFICATION_ERROR_HW_LOGGER_BATTERY, g, mac, extra=bat_mv)
 
 
 def notify_error_sw_aws_s3():
@@ -138,12 +138,6 @@ def notify_error_sw_aws_s3():
 
 def notify_error_sw_crash():
     return _n(DDH_NOTIFICATION_ERROR_SW_CRASH)
-
-
-def notify_according_to_notes(n, g, mac):
-    v = n["battery_level"]
-    if v < 1800:
-        notify_logger_error_low_battery(g, mac)
 
 
 def notify_ddh_alive(g):

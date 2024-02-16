@@ -107,15 +107,12 @@ def main_dds():
 
     # do nothing if we never had a GPS clock sync
     gps_banner_clock_sync_at_boot()
-    lat = ''
-    lon = ''
     while not gps_did_we_ever_clock_sync():
         g = gps_measure()
         if g:
             lat, lon, tg, speed = g
             if gps_clock_sync_if_so(tg):
                 break
-        # todo ---> Feb. 2024 I changed this from 5 to 1, check if OK
         time.sleep(1)
 
     if notify_ddh_needs_sw_update(g):

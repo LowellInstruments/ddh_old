@@ -13,7 +13,7 @@ from tzlocal import get_localzone
 from utils.ddh_config import (dds_get_cfg_vessel_name,
                               dds_get_cfg_flag_gps_external,
                               dds_get_cfg_flag_gps_error_forced,
-    dds_get_cfg_fake_gps_position)
+                              dds_get_cfg_fake_gps_position)
 from utils.ddh_shared import (
     send_ddh_udp_gui as _u,
     STATE_DDS_NOTIFY_GPS,
@@ -268,7 +268,7 @@ def _gps_measure():
         if g[3] == "":
             g[3] = "0"
         # float, float, datetime UTC, speed
-        _u("{}/{}, {}".format(STATE_DDS_NOTIFY_GPS, lat, lon))
+        _u(f"{STATE_DDS_NOTIFY_GPS}/{lat}, {lon}")
         _g_ts_cached_gps_valid_for = now + PERIOD_GPS_CACHE_VALID_SECS
         _g_cached_gps = lat, lon, g[2], float(g[3])
         return g
@@ -355,17 +355,17 @@ def gps_boot_wait_first():
     # Wikipedia: GPS-Time-To-First-Fix for cold start is typ.
     # 2 to 5 minutes, warm <= 45 secs, hot <= 22 secs
 
-    till = int(PERIOD_GPS_AT_BOOT_SECS)
-    lg.a(f"boot: wait up to {till} seconds")
+    t_till = int(time.perf_counter() + PERIOD_GPS_AT_BOOT_SECS)
+    lg.a(f"boot: wait up to {PERIOD_GPS_AT_BOOT_SECS} seconds")
 
-    while till > 0:
-        _u(f"{STATE_DDS_NOTIFY_GPS_BOOT}/{till}")
-        till -= 1
+    while time.perf_counter() < t_till:
+        t_left = int(t_till - time.perf_counter())
+        _u(f"{STATE_DDS_NOTIFY_GPS_BOOT}/{t_left}")
         g = gps_measure()
         if g:
             lg.a(f"gps_boot_wait_first g = {str(g)}")
             return g
-        lg.a(f"{till} seconds remaining GPS at boot")
+        lg.a(f"{t_left} seconds remaining GPS at boot")
         time.sleep(1)
 
     lg.a("warning: gps_boot_wait_first did not get GPS lock")

@@ -68,7 +68,7 @@ from utils.ddh_shared import (
     STATE_DDS_BLE_DOWNLOAD_ERROR_TP_SENSOR,
     ddh_get_db_history_file,
     STATE_DDS_BLE_NO_ASSIGNED_LOGGERS, get_ddh_commit,
-    get_ddh_rerun_flag_li, ddh_get_root_folder_path,
+    get_ddh_rerun_flag_li, ddh_get_root_folder_path, STATE_DDS_BLE_CONNECTING,
 )
 from utils.logs import lg_gui as lg
 
@@ -495,6 +495,11 @@ def _parse_udp(my_app, s, ip="127.0.0.1"):
     elif f == STATE_DDS_SOFTWARE_UPDATED:
         ct = "DDH updated!"
         ci = "update.png"
+
+    elif f == STATE_DDS_BLE_CONNECTING:
+        ct = f'connecting {v}'
+        ci = f'ble_connecting.png'
+        print(i)
 
     elif f == STATE_DDS_BLE_DOWNLOAD:
         ct = "downloading {}".format(v)

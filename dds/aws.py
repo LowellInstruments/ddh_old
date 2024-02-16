@@ -236,7 +236,7 @@ def aws_serve():
     # run as a different process for smoother GUI
     # --------------------------------------------
     if dev:
-        lg.a("warning: dev platform detected, AWS sync with --dryrun flag")
+        lg.a("debug: dev platform detected, AWS sync with --dryrun flag")
     p = Process(target=_aws_s3_sync_process)
     p.start()
 

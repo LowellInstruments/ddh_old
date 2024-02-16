@@ -476,13 +476,16 @@ def _process_n_graph(a, r=''):
 
                 # add arrows
                 for i in li:
-                    a = pg.ArrowItem(angle=180, # 180 faces right
-                                     tipAngle=60,
-                                     headLen=20,
-                                     tailLen=20,
-                                     tailWidth=10,
-                                     pen=pen3,
-                                     brush=clr_3)
+                    a = pg.ArrowItem(
+                        # 180 faces right
+                        angle=180,
+                        tipAngle=60,
+                        headLen=20,
+                        tailLen=20,
+                        tailWidth=10,
+                        pen=pen3,
+                        brush=clr_3
+                    )
                     a.setPos(x[i], y5[i])
                     p3.addItem(a)
 
