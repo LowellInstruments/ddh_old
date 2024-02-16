@@ -184,8 +184,6 @@ def aws_serve():
     if not its_time_to("aws_s3_sync", PERIOD_AWS_S3_SECS) \
             and not exists_flag_gui:
         return
-    print(time.time())
-
 
     # nothing to do, in fact, disabled
     if not dds_get_cfg_aws_en():

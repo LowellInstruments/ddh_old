@@ -9,7 +9,7 @@ from mat.ble.ble_mat_utils import (
 )
 from mat.ble.bleak.cc26x2r import BleCC26X2
 from mat.ble.bleak.cc26x2r_sim import BleCC26X2Sim, ble_logger_is_cc26x2r_simulated
-from dds.ble_utils_dds import ble_logger_ccx26x2r_needs_a_reset
+from dds.ble_utils_dds import ble_logger_ccx26x2r_needs_a_reset, dds_ble_init_rv_notes
 from utils.ddh_config import dds_get_cfg_logger_sn_from_mac
 from utils.ddh_shared import (
     send_ddh_udp_gui as _u,
@@ -28,11 +28,12 @@ import json
 MC_FILE = "MAT.cfg"
 
 
-def _une(rv, notes, e):
+def _une(rv, notes, e, ce=0):
     # une: update notes error
     if not rv:
         return
     notes["error"] = "error " + str(e)
+    notes["crit_error"] = int(ce)
 
 
 def _rae(rv, s):
@@ -44,10 +45,7 @@ class BleCC26X2Download:
     @staticmethod
     async def download_recipe(lc, mac, info, g, notes: dict):
 
-        # initialize variables
-        notes["battery_level"] = 0xFFFF
-        notes["error"] = ""
-        simulation = ble_logger_is_cc26x2r_simulated(mac)
+        dds_ble_init_rv_notes(notes)
         rerun_flag = get_ddh_rerun_flag_li()
         create_folder_logger_by_mac(mac)
         _is_a_lix_logger = False
@@ -55,7 +53,7 @@ class BleCC26X2Download:
         rv = await lc.connect(mac)
         _une(rv, notes, "comm.")
         _rae(rv, "connecting")
-        lg.a("connected to {}".format(mac))
+        lg.a(f"connected to {mac}")
 
         if ble_logger_ccx26x2r_needs_a_reset(mac):
             await lc.cmd_rst()
@@ -123,23 +121,22 @@ class BleCC26X2Download:
             file_data = lc.ans
 
             # calculate crc
-            if not simulation:
-                path = "/tmp/ddh_crc_file"
-                with open(path, "wb") as f:
-                    f.write(lc.ans)
-                rv, r_crc = await lc.cmd_crc(name)
-                _rae(rv, "crc")
-                rv, l_crc = ble_mat_crc_local_vs_remote(path, r_crc)
-                if (not rv) and os.path.exists(path):
-                    e = "error: bad CRC so removing local file {}"
-                    lg.a(e.format(path))
-                    os.unlink(path)
+            path = "/tmp/ddh_crc_file"
+            with open(path, "wb") as f:
+                f.write(lc.ans)
+            rv, r_crc = await lc.cmd_crc(name)
+            _rae(rv, "crc")
+            rv, l_crc = ble_mat_crc_local_vs_remote(path, r_crc)
+            if (not rv) and os.path.exists(path):
+                e = "error: bad CRC so removing local file {}"
+                lg.a(e.format(path))
+                os.unlink(path)
 
-                # save file in our local disk
-                path = str(get_dl_folder_path_from_mac(mac) / name)
-                with open(path, "wb") as f:
-                    f.write(file_data)
-                lg.a("downloaded file {}".format(name))
+            # save file in our local disk
+            path = str(get_dl_folder_path_from_mac(mac) / name)
+            with open(path, "wb") as f:
+                f.write(file_data)
+            lg.a("downloaded file {}".format(name))
 
             # no-deleting the logger configuration file
             if name == MC_FILE:
@@ -161,21 +158,20 @@ class BleCC26X2Download:
 
         # restore the logger config file
         path = str(get_dl_folder_path_from_mac(mac) / MC_FILE)
-        if not simulation:
-            with open(path) as f:
-                j = json.load(f)
-                rv = await lc.cmd_cfg(j)
-                _rae(rv, "cfg")
-                lg.a("CFG | OK")
+        with open(path) as f:
+            j = json.load(f)
+            rv = await lc.cmd_cfg(j)
+            _rae(rv, "cfg")
+            lg.a("CFG | OK")
 
         # see if the DO sensor works
         if "DO-" in info:
             rv = await lc.cmd_gdo()
             bad_rv = not rv or (rv and rv[0] == "0000")
             if bad_rv:
-                lg.a("GDO | error {}".format(rv))
+                lg.a(f"GDO | error {rv}")
                 _u(STATE_DDS_BLE_DOWNLOAD_ERROR_GDO)
-                _une(bad_rv, notes, "ox_sensor_error")
+                _une(bad_rv, notes, "ox_sensor_error", ce=1)
                 if rv and rv[0] == "0000":
                     sn = dds_get_cfg_logger_sn_from_mac(mac)
                     lat, lon, _, __ = g

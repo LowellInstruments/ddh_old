@@ -206,3 +206,9 @@ def dds_check_bluez_version():
         lg.a("warning: --------------------")
         lg.a("warning: check bluez version")
         lg.a("warning: --------------------")
+
+
+def dds_ble_init_rv_notes(d: dict):
+    d["battery_level"] = 0xFFFF
+    d["error"] = ""
+    d["crit_error"] = 0

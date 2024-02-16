@@ -48,7 +48,7 @@ def _ble_analyze_logger_result(rv, mac, g, sn, err_critical):
         if mac in _g_logger_errors.keys():
             del _g_logger_errors[mac]
         lg.a("OK! logger {}/{}".format(mac, sn))
-        _u("{}/{}".format(STATE_DDS_BLE_DOWNLOAD_OK, sn))
+        _u(f"{STATE_DDS_BLE_DOWNLOAD_OK}/{sn}")
         time.sleep(1)
         return
 
@@ -133,6 +133,7 @@ async def _ble_id_n_interact_logger(mac, info: str, h, g):
 
     # allows discarding loggers faster
     _crit_error = False
+    _error_dl = ""
 
     # --------------------
     # logger interaction
@@ -140,7 +141,8 @@ async def _ble_id_n_interact_logger(mac, info: str, h, g):
     if _ble_logger_is_cc26x2r(info):
         rv, notes = await ble_interact_cc26x2(mac, info, g, hs)
         notify_according_to_notes(notes, g, mac)
-        _crit_error = notes['error']
+        _crit_error = notes["crit_error"]
+        _error_dl = notes["error"]
 
     elif _ble_logger_is_rn4020(mac, info):
         rv = await ble_interact_rn4020(mac, info, g, hs)
@@ -157,8 +159,9 @@ async def _ble_id_n_interact_logger(mac, info: str, h, g):
 
     elif _ble_logger_is_tdo(info):
         rv, notes = await ble_interact_tdo(mac, info, g, hs)
-        # sqs_msg_notes_tdo(notes, mac, sn, lat, lon)
-        _crit_error = notes['error']
+        notify_according_to_notes(notes, g, mac)
+        _crit_error = notes["crit_error"]
+        _error_dl = notes["error"]
 
     else:
         lg.a(f'error: this should not happen, info {info}')
@@ -175,13 +178,12 @@ async def _ble_id_n_interact_logger(mac, info: str, h, g):
     # ------------------------------------
     # so GUI can update its HISTORY tab
     # ------------------------------------
+    epoch = int(dt_local.timestamp())
     s = "{}/add&{}&{}&{}&{}&{}"
-    e = 'ok'
-    if rv:
-        # a bit more info
-        e = 'error' if not _crit_error else _crit_error
-    epoch_time = int(dt_local.timestamp())
-    _u(s.format(STATE_DDS_NOTIFY_HISTORY, mac, e, lat, lon, epoch_time))
+    e = 'ok' if not rv else _error_dl
+    _u(s.format(STATE_DDS_NOTIFY_HISTORY, mac, e, lat, lon, epoch))
+
+    # on error, some sort of restart bluetooth
     if rv:
         # for RPi
         ble_mat_bluetoothctl_power_cycle()
@@ -193,12 +195,12 @@ async def _ble_id_n_interact_logger(mac, info: str, h, g):
     if not linux_is_rpi():
         return
 
-    # this flag will be checked by DDS later, after
-    # ALL loggers are downloaded, not only current one
+    # AWS flag checked later, after ALL loggers download
     try:
-        flag = dds_get_aws_has_something_to_do_via_gui_flag_file()
-        pathlib.Path(flag).touch()
-        lg.a("created AWS flag file")
+        if not rv:
+            flag = dds_get_aws_has_something_to_do_via_gui_flag_file()
+            pathlib.Path(flag).touch()
+            lg.a("created AWS flag file")
     except (Exception, ):
         lg.a('error: creating AWS flag file')
 

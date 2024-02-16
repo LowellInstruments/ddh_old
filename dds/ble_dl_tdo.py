@@ -10,7 +10,7 @@ from mat.ble.ble_mat_utils import (
     DDH_GUI_UDP_PORT, ble_mat_disconnect_all_devices_ll,
 )
 from mat.ble.bleak.cc26x2r import BleCC26X2
-from dds.ble_utils_dds import ble_logger_ccx26x2r_needs_a_reset
+from dds.ble_utils_dds import ble_logger_ccx26x2r_needs_a_reset, dds_ble_init_rv_notes
 from mat.lix import convert_lix_file
 from mat.utils import linux_is_rpi
 from utils.ddh_config import ddh_get_cfg_gear_type
@@ -28,11 +28,12 @@ from utils.ddh_shared import (
 )
 
 
-def _une(rv, notes, e):
+def _une(rv, notes, e, ce=0):
     # une: update notes error
     if not rv:
         return
     notes["error"] = "error " + str(e)
+    notes["crit_error"] = int(ce)
 
 
 def _rae(rv, s):
@@ -44,9 +45,7 @@ class BleTDODownload:
     @staticmethod
     async def download_recipe(lc, mac, info, g, notes):
 
-        # initialize variables
-        notes["battery_level"] = 0xFFFF
-        notes["error"] = ""
+        dds_ble_init_rv_notes(notes)
         rerun_flag = get_ddh_rerun_flag_li()
         create_folder_logger_by_mac(mac)
         dl_files = []
@@ -169,7 +168,7 @@ class BleTDODownload:
         # rv: (0, 46741)
         bad_rv = not rv or rv[0] == 1 or rv[1] == 0xFFFF or rv[1] == 0
         if bad_rv:
-            _une(bad_rv, notes, "T_sensor_error")
+            _une(bad_rv, notes, "T_sensor_error", ce=1)
             lg.a('GST | error {}'.format(rv))
             _u(STATE_DDS_BLE_DOWNLOAD_ERROR_TP_SENSOR)
             await asyncio.sleep(5)
@@ -180,7 +179,7 @@ class BleTDODownload:
         # rv: (0, 1241)
         bad_rv = not rv or rv[0] == 1 or rv[1] == 0xFFFF or rv[1] == 0
         if bad_rv:
-            _une(bad_rv, notes, "P_sensor_error")
+            _une(bad_rv, notes, "P_sensor_error", ce=1)
             lg.a('GSP | error {}'.format(rv))
             notify_logger_error_sensor_pressure(g, mac)
             _u(STATE_DDS_BLE_DOWNLOAD_ERROR_TP_SENSOR)
