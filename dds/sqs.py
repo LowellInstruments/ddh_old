@@ -18,12 +18,15 @@ warnings.filterwarnings("ignore",
                         module="botocore.client")
 
 
-# ------------------------------------
-# allows for double credential system
-# ------------------------------------
-sqs_key_id = dds_get_cfg_aws_credential("cred_aws_key_id")
+# used when S3 and SQS keys are the same
+# getenv() keys are useful for development :)
+sqs_key_id = (dds_get_cfg_aws_credential("cred_aws_key_id") or
+              os.getenv('CRED_AWS_KEY_ID'))
+sqs_access_key = (dds_get_cfg_aws_credential("cred_aws_secret") or
+                  os.getenv('CRED_AWS_SECRET'))
+
+# only used when S3 and SQS keys are different
 custom_sqs_key_id = dds_get_cfg_aws_credential("cred_aws_custom_sqs_key_id")
-sqs_access_key = dds_get_cfg_aws_credential("cred_aws_secret")
 custom_sqs_access_key = dds_get_cfg_aws_credential("cred_aws_custom_sqs_access_key")
 if custom_sqs_key_id:
     sqs_key_id = custom_sqs_key_id
