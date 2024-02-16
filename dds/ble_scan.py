@@ -4,7 +4,7 @@ from math import ceil
 from bleak.assigned_numbers import AdvertisementDataType
 from bleak.backends.bluezdbus.advertisement_monitor import OrPattern
 
-from dds.sqs import sqs_msg_ddh_error_ble_hw
+from dds.notifications import notify_ddh_error_hw_ble
 from dds.timecache import its_time_to
 from mat.ble.ble_mat_utils import ble_mat_get_bluez_version
 from utils.ddh_config import dds_get_cfg_monitored_macs
@@ -124,11 +124,10 @@ async def ble_scan(g, _h: int, _h_desc, t=5.0):
         return _our_devs
 
     except (asyncio.TimeoutError, BleakError, OSError) as ex:
-        _lat, _lon, _dt, _ = g
         e = "hardware error during scan! {}"
         if its_time_to(e, 600):
             lg.a(e.format(ex))
-            sqs_msg_ddh_error_ble_hw(_lat, _lon)
+            notify_ddh_error_hw_ble(g)
         _u(STATE_DDS_BLE_HARDWARE_ERROR)
         await asyncio.sleep(5)
         return {}

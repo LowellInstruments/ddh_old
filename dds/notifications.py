@@ -6,6 +6,7 @@ import time
 import pytz
 import tzlocal
 
+from dds.timecache import its_time_to
 from utils.logs import lg_sqs as lg
 from utils.ddh_config import (dds_get_cfg_box_sn,
                               dds_get_cfg_box_project,
@@ -14,7 +15,7 @@ from utils.ddh_config import (dds_get_cfg_box_sn,
 from utils.ddh_shared import (get_ddh_commit,
                               get_ddh_sw_version,
                               get_ddh_platform,
-                              get_ddh_folder_path_sqs)
+                              get_ddh_folder_path_sqs, ddh_get_root_folder_path)
 
 
 DDH_NOTIFICATION_STATUS_BOOT = 'DDH just booted'
@@ -30,6 +31,7 @@ DDH_NOTIFICATION_ERROR_HW_LOGGER_RETRIES = 'too many bad download attempts on lo
 DDH_NOTIFICATION_ERROR_SW_AWS_S3 = 'too long since a good AWS sync'
 DDH_NOTIFICATION_ERROR_SW_CRASH = 'DDH just crashed, or at least restarted'
 DDH_NOTIFICATION_OK_LOGGER_DL = 'logger was download OK'
+DDH_NOTIFICATION_SMS = 'DDH sent a SMS'
 
 
 DDH_ALL_NOTIFICATIONS = [
@@ -118,30 +120,85 @@ def _n(s, g='', mac='', v=2, extra=''):
     n.to_file()
 
 
-def ddh_notification_boot(g):
+def notify_boot(g):
     return _n(DDH_NOTIFICATION_STATUS_BOOT, g)
 
 
-def ddh_notification_error_sensor_pressure(g, mac):
+def notify_logger_error_sensor_pressure(g, mac):
     return _n(DDH_NOTIFICATION_ERROR_HW_LOGGER_PRESSURE, g, mac)
 
 
-def ddh_notification_error_battery(g, mac):
+def notify_logger_error_low_battery(g, mac):
     return _n(DDH_NOTIFICATION_ERROR_HW_LOGGER_BATTERY, g, mac)
 
 
-def ddh_notification_alarm_s3():
+def notify_error_sw_aws_s3():
     return _n(DDH_NOTIFICATION_ERROR_SW_AWS_S3)
 
 
-def ddh_notification_alarm_crash():
+def notify_error_sw_crash():
     return _n(DDH_NOTIFICATION_ERROR_SW_CRASH)
 
 
-def ddh_notification_based_on_notes(n, g, mac):
+def notify_according_to_notes(n, g, mac):
     v = n["battery_level"]
     if v < 1800:
-        ddh_notification_error_battery(g, mac)
+        notify_logger_error_low_battery(g, mac)
+
+
+def notify_ddh_alive(g):
+    if its_time_to("ddh_notification_alive", 3600 * 12):
+        return _n(DDH_NOTIFICATION_STATUS_ALIVE, g)
+
+
+def notify_ddh_error_hw_ble(g):
+    return _n(DDH_NOTIFICATION_ERROR_HW_BLE, g)
+
+
+def notify_ddh_error_hw_gps():
+    return _n(DDH_NOTIFICATION_ERROR_HW_GPS)
+
+
+def notify_logger_download(g, mac):
+    return _n(DDH_NOTIFICATION_OK_LOGGER_DL, g, mac)
+
+
+def notify_logger_error_retries(g, mac):
+    return _n(DDH_NOTIFICATION_ERROR_HW_LOGGER_RETRIES, g, mac)
+
+
+def notify_logger_error_sensor_oxygen(g, mac):
+    return _n(DDH_NOTIFICATION_ERROR_HW_LOGGER_OXYGEN, g, mac)
+
+
+def notify_ddh_needs_sw_update(g):
+    try:
+        s = '.ddh_version'
+        p = str(ddh_get_root_folder_path()) + '/' + s
+        # get local version
+        with open(p, 'r') as f:
+            vl = f.readline().replace('\n', '')
+
+        # get github version
+        c = f'wget https://raw.githubusercontent.com/LowellInstruments/ddh/master/{s}'
+        c += f' -O /tmp/{s}'
+        rv = sp.run(c, shell=True, stdout=sp.PIPE, stderr=sp.PIPE)
+        if rv.returncode == 0:
+            with open(f'/tmp/{s}', 'r') as f:
+                vg = f.readline().replace('\n', '')
+
+            if vl < vg:
+                _n(DDH_NOTIFICATION_STATUS_NEED_SW_UPDATE, g)
+                return 1
+
+    except (Exception, ) as ex:
+        lg.a(f'error: sqs_msg_ddh_needs_update -> {ex}')
+
+
+def notify_via_sms(s):
+    return _n(DDH_NOTIFICATION_SMS,
+              g='', mac='', v=2,
+              extra=s)
 
 
 if __name__ == '__main__':

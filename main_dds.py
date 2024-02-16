@@ -4,8 +4,6 @@
 from multiprocessing import Process
 import threading
 import time
-import uuid
-from api.api_utils import get_ip_vpn
 from dds.aws import aws_serve
 from dds.ble import ble_interact_all_loggers
 from dds.ble_scan import ble_scan
@@ -24,12 +22,12 @@ from dds.gps import (
 )
 from dds.macs import dds_create_folder_macs_color, dds_macs_color_show_at_boot
 from dds.net import net_serve
-from dds.notifications import ddh_notification_boot, ddh_notification_alarm_crash
+from dds.notifications import notify_boot, notify_error_sw_crash, notify_ddh_needs_sw_update, \
+    notify_ddh_alive
 from dds.rbl import rbl_loop
 from dds.sqs import (
     dds_create_folder_sqs,
     sqs_serve,
-    sqs_msg_ddh_alive, sqs_msg_ddh_needs_update
 )
 from dds.lef import dds_create_folder_lef
 from dds.ble_utils_dds import (
@@ -47,8 +45,8 @@ from mat.ble.ble_mat_utils import (
 )
 from rpc.rpc_rx import th_srv_cmd
 from rpc.rpc_tx import th_cli_notify
-from utils.ddh_config import dds_get_cfg_vessel_name, dds_check_cfg_has_box_info, \
-    dds_get_cfg_monitored_macs, dds_get_cfg_box_sn, dds_get_cfg_box_project
+from utils.ddh_config import dds_check_cfg_has_box_info, \
+    dds_get_cfg_monitored_macs
 from utils.ddh_shared import (
     PID_FILE_DDS,
     dds_create_folder_dl_files,
@@ -58,7 +56,6 @@ from utils.ddh_shared import (
     NAME_EXE_DDS_CONTROLLER,
     NAME_EXE_DDS, ael,
 )
-from utils.flags import ble_aws_sem_set, ble_aws_sem_clr
 from utils.logs import (
     lg_dds as lg,
     dds_log_tracking_add,
@@ -106,7 +103,7 @@ def main_dds():
     if g:
         lat, lon, tg, speed = g
         gps_clock_sync_if_so(tg)
-        ddh_notification_boot(g)
+        notify_boot(g)
 
     # do nothing if we never had a GPS clock sync
     gps_banner_clock_sync_at_boot()
@@ -121,7 +118,7 @@ def main_dds():
         # todo ---> Feb. 2024 I changed this from 5 to 1, check if OK
         time.sleep(1)
 
-    if sqs_msg_ddh_needs_update(lat, lon):
+    if notify_ddh_needs_sw_update(g):
         s = 'warning: this DDH needs an update'
         lg.a('-' * len(s))
         lg.a(s)
@@ -130,9 +127,6 @@ def main_dds():
     # Rockblocks stuff is slow, launch its loop as a thread
     th = threading.Thread(target=rbl_loop)
     th.start()
-
-    # ensure first AWS serve won't act to prioritize BLE
-    ble_aws_sem_set()
 
     # =============
     # main loop
@@ -162,11 +156,13 @@ def main_dds():
         gps_clock_sync_if_so(tg)
 
         # send SQS ping
-        sqs_msg_ddh_alive(lat, lon)
+        notify_ddh_alive(g)
 
         # check we do Bluetooth or not
         ble_tell_gui_antenna_type(h, h_d)
-        if not ble_check_antenna_up_n_running(lat, lon, h):
+
+        if not ble_check_antenna_up_n_running(g, h):
+            # note: ensure hciconfig is installed
             continue
         if not ble_op_conditions_met(speed):
             continue
@@ -176,17 +172,15 @@ def main_dds():
         det = ael.run_until_complete(ble_scan(*args))
 
         # BLE download stage
-        ble_aws_sem_set()
         args = [det, m_j, g, h, h_d]
         ael.run_until_complete(ble_interact_all_loggers(*args))
-        ble_aws_sem_clr()
 
 
 def _alarm_dds_crash(n):
     if n == 0:
         return
     if its_time_to('tell_dds_child_crash', 3600):
-        ddh_notification_alarm_crash()
+        notify_error_sw_crash()
 
 
 def controller_main_dds():

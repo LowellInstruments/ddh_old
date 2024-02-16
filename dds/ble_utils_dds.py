@@ -5,7 +5,7 @@ import shutil
 import time
 
 from dds.macs import dds_create_folder_macs_color
-from dds.sqs import sqs_msg_ddh_error_ble_hw
+from dds.notifications import notify_ddh_error_hw_ble
 from dds.timecache import its_time_to
 from mat.ble.ble_mat_utils import ble_mat_get_bluez_version
 from mat.utils import linux_is_rpi
@@ -139,7 +139,7 @@ def ble_tell_gui_antenna_type(_h, desc):
     _g_ant_ble = desc
 
 
-def ble_check_antenna_up_n_running(lat, lon, h: int):
+def ble_check_antenna_up_n_running(g, h: int):
     cr = "hciconfig hci{} | grep 'UP RUNNING'".format(h)
     rv = sp.run(cr, shell=True, stdout=sp.PIPE, stderr=sp.PIPE)
     if rv.returncode == 0:
@@ -177,7 +177,7 @@ def ble_check_antenna_up_n_running(lat, lon, h: int):
     time.sleep(5)
     if its_time_to(e, 600):
         lg.a(e.format(e))
-        sqs_msg_ddh_error_ble_hw(lat, lon)
+        notify_ddh_error_hw_ble(g)
 
 
 def dds_tell_software_update():

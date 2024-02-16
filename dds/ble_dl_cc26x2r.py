@@ -2,7 +2,7 @@ import asyncio
 import datetime
 import os
 from dds.lef import dds_create_file_lef
-from dds.sqs import sqs_msg_logger_error_oxygen_zeros
+from dds.notifications import notify_logger_error_sensor_oxygen
 from mat.ble.ble_mat_utils import (
     ble_mat_crc_local_vs_remote,
     DDH_GUI_UDP_PORT, ble_mat_disconnect_all_devices_ll,
@@ -179,9 +179,7 @@ class BleCC26X2Download:
                 if rv and rv[0] == "0000":
                     sn = dds_get_cfg_logger_sn_from_mac(mac)
                     lat, lon, _, __ = g
-                    sqs_msg_logger_error_oxygen_zeros(mac,
-                                                      sn,
-                                                      lat, lon)
+                    notify_logger_error_sensor_oxygen(g, mac)
                 await asyncio.sleep(5)
             _rae(bad_rv, "gdo")
             lg.a("GDO | {}".format(rv))

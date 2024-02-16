@@ -9,7 +9,7 @@ import time
 from multiprocessing import Process
 import setproctitle
 from dds.emolt import this_box_has_grouped_s3_uplink
-from dds.notifications import ddh_notification_alarm_s3
+from dds.notifications import notify_error_sw_aws_s3
 from dds.timecache import its_time_to
 from mat.linux import linux_is_process_running
 from mat.utils import linux_is_rpi
@@ -23,7 +23,6 @@ from utils.ddh_shared import (
     STATE_DDS_NOTIFY_CLOUD_OK,
     dds_get_aws_has_something_to_do_via_gui_flag_file
 )
-from utils.flags import FILE_SEMAPHORE_BLE_AWS
 from utils.logs import lg_aws as lg
 
 
@@ -60,7 +59,9 @@ def _get_s3_ts():
         with open(name, 'r') as f:
             return f.readline()
     except FileNotFoundError:
-        return
+        # first time ever
+        lg.a(f'error: not found {name}')
+        return 0
 
 
 def _aws_s3_sync_process():
@@ -156,7 +157,7 @@ def _aws_s3_sync_process():
             if delta > PERIOD_ALARM_AWS_S3:
                 lg.a('error: too many bad S3, creating alarm SQS file')
                 _touch_s3_ts()
-                ddh_notification_alarm_s3()
+                notify_error_sw_aws_s3()
             else:
                 lg.a('warning: bad S3, but not critical yet')
         else:
@@ -175,11 +176,6 @@ def _aws_s3_sync_process():
 
 def aws_serve():
 
-    # semaphore to not mess with BLE process
-    if os.path.exists(FILE_SEMAPHORE_BLE_AWS):
-        lg.a("warning: semaphore BLE AWS active, will do AWS later")
-        return
-
     # check someone asked for AWS sync from GUI
     flag_gui = dds_get_aws_has_something_to_do_via_gui_flag_file()
     exists_flag_gui = os.path.exists(flag_gui)
@@ -188,6 +184,8 @@ def aws_serve():
     if not its_time_to("aws_s3_sync", PERIOD_AWS_S3_SECS) \
             and not exists_flag_gui:
         return
+    print(time.time())
+
 
     # nothing to do, in fact, disabled
     if not dds_get_cfg_aws_en():
@@ -199,7 +197,7 @@ def aws_serve():
         lg.a("debug: the aws_do_flag_gui is set")
         os.unlink(flag_gui)
     else:
-        lg.a("maybe it's time for some AWS S3 syncing")
+        lg.a("it seems it's time for some AWS S3 syncing")
 
     # nothing to do, number of files did not change
     # todo ---> test this

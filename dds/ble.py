@@ -12,16 +12,13 @@ from dds.macs import (
     is_mac_in_orange,
     add_mac_orange,
 )
-from dds.notifications import ddh_notification_based_on_notes
+from dds.notifications import notify_according_to_notes, notify_logger_download, \
+    notify_logger_error_retries
 from dds.timecache import its_time_to
 from mat.ble.ble_mat_utils import ble_mat_bluetoothctl_power_cycle, ble_mat_disconnect_all_devices_ll
 from dds.ble_dl_rn4020 import ble_interact_rn4020
 from dds.ble_dl_cc26x2r import ble_interact_cc26x2
 from dds.gps import gps_tell_position_logger
-from dds.sqs import (
-    sqs_msg_logger_error_max_retries,
-    sqs_msg_logger_download,
-)
 from mat.utils import linux_is_rpi
 from utils.ddh_config import dds_get_cfg_flag_purge_this_mac_dl_files_folder, dds_get_cfg_logger_sn_from_mac
 from utils.ddh_shared import (
@@ -40,14 +37,14 @@ from dds.ble_dl_moana import ble_interact_moana
 _g_logger_errors = {}
 
 
-def _ble_analyze_logger_result(rv, mac, lat, lon, sn, err_critical):
+def _ble_analyze_logger_result(rv, mac, g, sn, err_critical):
 
     # success :)
     if rv == 0:
         rm_mac_black(mac)
         rm_mac_orange(mac)
         add_mac_black(mac)
-        sqs_msg_logger_download(mac, sn, lat, lon)
+        notify_logger_download(g, mac)
         if mac in _g_logger_errors.keys():
             del _g_logger_errors[mac]
         lg.a("OK! logger {}/{}".format(mac, sn))
@@ -74,7 +71,7 @@ def _ble_analyze_logger_result(rv, mac, lat, lon, sn, err_critical):
         e = "error: logger {}/{} totally failed, critical = {}"
         lg.a(e.format(mac, sn, err_critical))
         _u("{}/{}".format(STATE_DDS_BLE_DOWNLOAD_ERROR, mac))
-        sqs_msg_logger_error_max_retries(mac, sn, lat, lon)
+        notify_logger_error_retries(g, mac)
         _g_logger_errors[mac] = 0
 
     else:
@@ -142,7 +139,7 @@ async def _ble_id_n_interact_logger(mac, info: str, h, g):
     # --------------------
     if _ble_logger_is_cc26x2r(info):
         rv, notes = await ble_interact_cc26x2(mac, info, g, hs)
-        ddh_notification_based_on_notes(notes, g, mac)
+        notify_according_to_notes(notes, g, mac)
         _crit_error = notes['error']
 
     elif _ble_logger_is_rn4020(mac, info):
@@ -168,7 +165,7 @@ async def _ble_id_n_interact_logger(mac, info: str, h, g):
         return
 
     # tell GUI how it went, also do MAC colors stuff
-    _ble_analyze_logger_result(rv, mac, lat, lon, sn, _crit_error)
+    _ble_analyze_logger_result(rv, mac, g, sn, _crit_error)
 
     # on GUI, all times are local, not UTC
     tz_ddh = get_localzone()
@@ -215,7 +212,7 @@ async def ble_interact_all_loggers(macs_det, macs_mon, g, _h: int, _h_desc):
             continue
 
         # helps in distance-detection issues
-        if its_time_to(f'tell_saw_mac_{mac}', 900):
+        if its_time_to(f'tell_saw_mac_{mac}', 1800):
             sn = dds_get_cfg_logger_sn_from_mac(mac)
             lg.a(f"debug: logger {sn} / mac {mac} seen, it's been a while")
 

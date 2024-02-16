@@ -175,7 +175,7 @@ def _cnv_serve():
     ls += glob.glob(f'{fol}/**/*.lix', recursive=True)
     forced = len(ls) != _g_last_nf
     if forced:
-        lg.a(f'OK: #files {_g_last_nf} -> {len(ls)}, conversion forced')
+        lg.a(f'warning: #files {_g_last_nf} -> {len(ls)}, conversion forced')
     _g_last_nf = len(ls)
 
     # this function does not run always, only from time to time
@@ -183,8 +183,8 @@ def _cnv_serve():
         return
 
     # general banner
-    s = 'debug: conversion sequence started'
-    lg.a('-' * len(s))
+    s = 'conversion sequence started'
+    lg.a('-' * (len(s) +1))
     lg.a(s)
 
     # error variable

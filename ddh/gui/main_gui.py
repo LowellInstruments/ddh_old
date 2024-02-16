@@ -32,11 +32,11 @@ from ddh.utils_gui import (
     gui_show_advanced_tab,
     gui_hide_graph_tab,
     gui_show_graph_tab, gui_ddh_populate_graph_dropdown_sn, gui_manage_graph_test_files, gui_populate_maps_tab,
-    gui_hide_map_tab, gui_show_map_tab
+    gui_hide_map_tab
 )
 
 from dds.emolt import this_box_has_grouped_s3_uplink, GROUPED_S3_FILE_FLAG
-from dds.sqs import sqs_msg_sms
+from dds.notifications import notify_via_sms
 from dds.timecache import its_time_to
 from mat.linux import linux_is_process_running
 from mat.utils import linux_is_rpi
@@ -357,7 +357,8 @@ class DDH(QMainWindow, d_m.Ui_MainWindow):
 
     @staticmethod
     def click_btn_adv_sms():
-        sqs_msg_sms()
+        s = 'test_sms_button'
+        notify_via_sms(s)
 
     def click_btn_map(self):
         self.lbl_map_txt.setText('retrieving latest...')

@@ -4,7 +4,7 @@ import os
 
 from dds.csv_data import file_lowell_raw_csv_to_emolt_lt_csv
 from dds.lef import dds_create_file_lef
-from dds.notifications import ddh_notification_error_sensor_pressure
+from dds.notifications import notify_logger_error_sensor_pressure
 from mat.ble.ble_mat_utils import (
     ble_mat_crc_local_vs_remote,
     DDH_GUI_UDP_PORT, ble_mat_disconnect_all_devices_ll,
@@ -182,7 +182,7 @@ class BleTDODownload:
         if bad_rv:
             _une(bad_rv, notes, "P_sensor_error")
             lg.a('GSP | error {}'.format(rv))
-            ddh_notification_error_sensor_pressure(g, mac)
+            notify_logger_error_sensor_pressure(g, mac)
             _u(STATE_DDS_BLE_DOWNLOAD_ERROR_TP_SENSOR)
             await asyncio.sleep(5)
         _rae(bad_rv, "gsp")

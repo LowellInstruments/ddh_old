@@ -3,14 +3,17 @@ import json
 import subprocess as sp
 import time
 import serial
-from dds.sqs import sqs_msg_ddh_error_gps_hw
+
+from dds.notifications import notify_ddh_error_hw_gps
 from dds.timecache import its_time_to
 from mat.gps import PORT_CTRL, PORT_DATA
 from mat.utils import linux_is_rpi, linux_set_datetime
 from tzlocal import get_localzone
 
-from utils.ddh_config import dds_get_cfg_vessel_name, dds_get_cfg_flag_gps_external, dds_get_cfg_flag_gps_error_forced, \
-    dds_get_cfg_fake_gps_position
+from utils.ddh_config import (dds_get_cfg_vessel_name,
+                              dds_get_cfg_flag_gps_external,
+                              dds_get_cfg_flag_gps_error_forced,
+    dds_get_cfg_fake_gps_position)
 from utils.ddh_shared import (
     send_ddh_udp_gui as _u,
     STATE_DDS_NOTIFY_GPS,
@@ -390,7 +393,7 @@ def gps_check_for_errors(g) -> int:
     # don't log GPS error too often
     if its_time_to("tell_gps_hw_error", PERIOD_GPS_TELL_GPS_HW_ERROR_SECS):
         lg.a("error: no GPS frame, examine further log messages")
-        sqs_msg_ddh_error_gps_hw("", "")
+        notify_ddh_error_hw_gps()
         return 1
 
     # detect errors in GPS frame
