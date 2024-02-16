@@ -66,6 +66,13 @@ def _get_s3_ts():
 
 def _aws_s3_sync_process():
 
+    # useful on RPi3 to prevent BLE and AWS (wi-fi) collisions
+    global g_fresh_boot
+    if g_fresh_boot:
+        lg.a("debug: AWS politely waiting upon boot")
+        g_fresh_boot = 0
+        time.sleep(60)
+
     # sys.exit() instead of return prevents zombie processes
     setproctitle.setproctitle(AWS_S3_SYNC_PROC_NAME)
     fol_dl_files = get_ddh_folder_path_dl_files()
@@ -175,13 +182,6 @@ def _aws_s3_sync_process():
 
 
 def aws_serve():
-
-    # useful on RPi3 to prevent BLE and AWS (wi-fi) collisions
-    global g_fresh_boot
-    if g_fresh_boot:
-        lg.a("debug: AWS politely waiting upon boot")
-        time.sleep(60)
-        g_fresh_boot = 0
 
     # check someone asked for AWS sync from GUI
     flag_gui = dds_get_aws_has_something_to_do_via_gui_flag_file()
