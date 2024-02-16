@@ -23,10 +23,10 @@ warnings.filterwarnings("ignore",
 # ------------------------------------
 sqs_key_id = dds_get_cfg_aws_credential("cred_aws_key_id")
 custom_sqs_key_id = dds_get_cfg_aws_credential("cred_aws_custom_sqs_key_id")
-if custom_sqs_key_id:
-    sqs_key_id = custom_sqs_key_id
 sqs_access_key = dds_get_cfg_aws_credential("cred_aws_secret")
 custom_sqs_access_key = dds_get_cfg_aws_credential("cred_aws_custom_sqs_access_key")
+if custom_sqs_key_id:
+    sqs_key_id = custom_sqs_key_id
 if custom_sqs_access_key:
     sqs_access_key = custom_sqs_access_key
 
@@ -98,7 +98,7 @@ def sqs_serve():
                 os.unlink(_)
 
         except (Exception,) as ex:
-            lg.a("error sqs_serve: {}".format(ex))
+            lg.a(f"error sqs_serve: {ex}")
         finally:
             if f:
                 f.close()

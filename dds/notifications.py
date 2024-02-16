@@ -18,6 +18,7 @@ from utils.ddh_shared import (get_ddh_commit,
                               get_ddh_folder_path_sqs, ddh_get_root_folder_path)
 
 
+# these MUST match the ones in DDN file "notifications.py"
 DDH_NOTIFICATION_STATUS_BOOT = 'DDH just booted'
 DDH_NOTIFICATION_STATUS_ALIVE = 'DDH is alive'
 DDH_NOTIFICATION_STATUS_IN_PORT = 'DDH is around a port'
@@ -48,6 +49,7 @@ DDH_ALL_NOTIFICATIONS = [
     DDH_NOTIFICATION_ERROR_SW_AWS_S3,
     DDH_NOTIFICATION_ERROR_SW_CRASH,
     DDH_NOTIFICATION_OK_LOGGER_DL,
+    DDH_NOTIFICATION_SMS
 ]
 
 
