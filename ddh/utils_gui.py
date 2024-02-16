@@ -98,6 +98,7 @@ def gui_setup_view(my_win):
     a.tabs.setTabIcon(3, QIcon("ddh/gui/res/icon_history.ico"))
     a.tabs.setTabIcon(4, QIcon("ddh/gui/res/icon_tweak.png"))
     a.tabs.setTabIcon(5, QIcon("ddh/gui/res/icon_graph.ico"))
+    a.tabs.setTabIcon(6, QIcon("ddh/gui/res/icon_waves.png"))
     a.setWindowIcon(QIcon("ddh/gui/res/icon_lowell.ico"))
     a.lbl_brightness.setPixmap(QPixmap("ddh/gui/res/bright.png"))
     a.lbl_boat.setPixmap(QPixmap("ddh/gui/res/img_boat.png"))
@@ -364,7 +365,7 @@ def gui_show_advanced_tab(ui):
 
 
 def gui_show_map_tab(ui):
-    icon = QIcon("ddh/gui/res/icon_setup.png")
+    icon = QIcon("ddh/gui/res/icon_waves.png")
     ui.tabs.addTab(ui.tab_map_wgt_ref, icon, " Maps")
     p = ui.tabs.findChild(QWidget, "tab_map")
     i = ui.tabs.indexOf(p)
