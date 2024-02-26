@@ -112,10 +112,8 @@ class DDH(QMainWindow, d_m.Ui_MainWindow):
         gui_ddh_populate_note_tab_dropdown(self)
         gui_ddh_populate_graph_dropdown_sn(self)
 
-
         # disable this by default
         # map_prototype(self)
-
 
         # s3 uplink type field
         if this_box_has_grouped_s3_uplink():
