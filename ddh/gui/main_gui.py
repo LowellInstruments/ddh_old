@@ -35,7 +35,7 @@ from ddh.utils_gui import (
     gui_hide_advanced_tab,
     gui_show_advanced_tab,
     gui_hide_graph_tab,
-    gui_show_graph_tab, gui_ddh_populate_graph_dropdown_sn, gui_manage_graph_test_files
+    gui_show_graph_tab, gui_ddh_populate_graph_dropdown_sn, gui_manage_graph_test_files, map_prototype
 )
 
 from dds.emolt import this_box_has_grouped_s3_uplink, GROUPED_S3_FILE_FLAG
@@ -111,6 +111,11 @@ class DDH(QMainWindow, d_m.Ui_MainWindow):
         gui_ddh_set_brightness(self)
         gui_ddh_populate_note_tab_dropdown(self)
         gui_ddh_populate_graph_dropdown_sn(self)
+
+
+        # disable this by default
+        # map_prototype(self)
+
 
         # s3 uplink type field
         if this_box_has_grouped_s3_uplink():

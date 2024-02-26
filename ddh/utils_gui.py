@@ -7,7 +7,7 @@ import time
 import shutil
 import yaml
 from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QPixmap, QIcon
+from PyQt5.QtGui import QPixmap, QIcon, QMovie
 from PyQt5.QtWidgets import (
     QDesktopWidget,
     QWidget,
@@ -808,6 +808,14 @@ def gui_refresh_dl_folder_list(d):
         return f_l
     else:
         os.makedirs(d, exist_ok=True)
+
+
+def map_prototype(app):
+    a = app
+    p = str(ddh_get_folder_path_res()) + '/300.gif'
+    a.gif = QMovie(p)
+    a.lbl_map.setMovie(a.gif)
+    a.gif.start()
 
 
 class ButtonPressEvent:
