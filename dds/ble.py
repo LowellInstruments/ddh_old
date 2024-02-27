@@ -15,7 +15,7 @@ from dds.macs import (
 from dds.notifications import notify_logger_download, \
     notify_logger_error_retries
 from dds.timecache import its_time_to
-from mat.ble.ble_mat_utils import ble_mat_bluetoothctl_power_cycle, ble_mat_disconnect_all_devices_ll
+from mat.ble.ble_mat_utils import ble_mat_bluetoothctl_power_cycle, ble_mat_disconnect_all_devices_ll, ble_mat_get_antenna_type
 from dds.ble_dl_rn4020 import ble_interact_rn4020
 from dds.ble_dl_cc26x2r import ble_interact_cc26x2
 from dds.gps import gps_tell_position_logger
@@ -32,6 +32,7 @@ from utils.ddh_shared import (
 )
 from utils.logs import lg_dds as lg
 from dds.ble_dl_moana import ble_interact_moana
+import subprocess as sp
 
 
 _g_logger_errors = {}
@@ -191,6 +192,14 @@ async def _ble_id_n_interact_logger(mac, info: str, h, g):
         # for laptop
         if not linux_is_rpi():
             ble_mat_disconnect_all_devices_ll()
+
+    # to fix issue external antenna not scanning after downloading one
+    _, ta = ble_mat_get_antenna_type()
+    if ta == 'external' and linux_is_rpi():
+        lg.a('warning: external antenna requires reset tweak')
+        c = 'sudo systemctl restart bluetooth'
+        sp.run(c, shell=True)
+        time.sleep(5)
 
     # only sync AWS when NOT on development machine
     if not linux_is_rpi():
