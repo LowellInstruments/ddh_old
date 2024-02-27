@@ -189,7 +189,7 @@ async def _ble_id_n_interact_logger(mac, info: str, h, g):
     _, ta = ble_mat_get_antenna_type()
     if ta == 'external' and linux_is_rpi():
         lg.a('warning: external antenna requires this tweak')
-        c = 'systemctl restart bluetooth'
+        c = 'sudo systemctl restart bluetooth'
         sp.run(c, shell=True)
 
     # only sync AWS when NOT on development machine
