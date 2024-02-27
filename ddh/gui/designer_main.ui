@@ -1546,7 +1546,7 @@ font: 19pt &quot;DejaVu Sans&quot;;</string>
         </item>
        </layout>
       </widget>
-      <widget class="QWidget" name="tab_2">
+      <widget class="QWidget" name="tab_map">
        <attribute name="title">
         <string>Maps</string>
        </attribute>

@@ -35,7 +35,8 @@ from ddh.utils_gui import (
     gui_hide_advanced_tab,
     gui_show_advanced_tab,
     gui_hide_graph_tab,
-    gui_show_graph_tab, gui_ddh_populate_graph_dropdown_sn, gui_manage_graph_test_files, map_prototype
+    gui_show_graph_tab, gui_ddh_populate_graph_dropdown_sn, gui_manage_graph_test_files, map_prototype,
+    gui_hide_maps_tab
 )
 
 from dds.emolt import this_box_has_grouped_s3_uplink, GROUPED_S3_FILE_FLAG
@@ -94,6 +95,7 @@ class DDH(QMainWindow, d_m.Ui_MainWindow):
         self.tab_graph_hide = True
         self.tab_edit_wgt_ref = None
         self.tab_note_wgt_ref = None
+        self.tab_map_wgt_ref = None
         self.tab_recipe_wgt_ref = None
         self.tab_graph_wgt_ref = None
         self.key_pressed = None
@@ -115,6 +117,7 @@ class DDH(QMainWindow, d_m.Ui_MainWindow):
 
         # disable this by default
         # map_prototype(self)
+        gui_hide_maps_tab(self)
 
 
         # s3 uplink type field

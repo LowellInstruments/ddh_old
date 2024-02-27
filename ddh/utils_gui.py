@@ -333,6 +333,13 @@ def gui_hide_note_tab(ui):
     ui.tabs.removeTab(i)
 
 
+def gui_hide_maps_tab(ui):
+    p = ui.tabs.findChild(QWidget, "tab_map")
+    i = ui.tabs.indexOf(p)
+    ui.tab_map_wgt_ref = ui.tabs.widget(i)
+    ui.tabs.removeTab(i)
+
+
 def gui_show_note_tab_delete_black_macs(ui):
     icon = QIcon("ddh/gui/res/icon_exclamation.png")
     ui.tabs.addTab(ui.tab_note_wgt_ref, icon, " Note")
