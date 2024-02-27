@@ -1,6 +1,8 @@
 import datetime
 import pathlib
 import shutil
+import time
+
 from tzlocal import get_localzone
 from dds.ble_dl_tap import ble_interact_tap
 from dds.macs import (
@@ -191,6 +193,7 @@ async def _ble_id_n_interact_logger(mac, info: str, h, g):
         lg.a('warning: external antenna requires this tweak')
         c = 'sudo systemctl restart bluetooth'
         sp.run(c, shell=True)
+        time.sleep(5)
 
     # only sync AWS when NOT on development machine
     if not linux_is_rpi():
