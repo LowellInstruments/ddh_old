@@ -17,11 +17,6 @@ fake_gps_position = [ 11.0, -83.0,]
 
 [monitored_macs]
 "60:77:71:22:CA:6A" = "1000000"
-"D0:2E:AB:D9:E7:B3" = "2311735"
-
-[all_macs]
-"60:77:71:22:CA:6A" = "1000000"
-"D0:2E:AB:D9:E7:B3" = "2311735"
 
 [flags]
 aws_en = 1
