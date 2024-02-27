@@ -167,7 +167,6 @@ def main_dds():
         # BLE scan stage
         args = [m_j, g, h, h_d]
         det = ael.run_until_complete(ble_scan(*args))
-        print('scan complete')
 
         # BLE download stage
         args = [det, m_j, g, h, h_d]

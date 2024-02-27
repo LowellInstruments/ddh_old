@@ -554,7 +554,6 @@ def _parse_udp(my_app, s, ip="127.0.0.1"):
         ci = "blue{}.png".format(i)
 
     elif f == STATE_DDS_NOTIFY_GPS_BOOT:
-        print(f'----- debug gps gui {f} {i} {v}')
         v = int(v)
         ct = f"waiting GPS {v} seconds"
         ci = f"gps_boot{i}.png"
