@@ -26,7 +26,11 @@ hci1:   Type: Primary  Bus: USB
             Manufacturer: Realtek Semiconductor Corporation (93)
 ```
 
-Release year 2022 accepts BLE dongles v4.2. Release year 2023 accepts BLE external dongles v4.2 and 5.x.
+Release year 2022 accepts BLE dongles v4.2. Release year 2023 seems to also accept BLE external 5.x.
+
+5.x EDUP dongles have VID/PID 2550:8761 Realtek Bluetooth Radio
+4.x EDUP dongles have VID/PID 0bda:c820 Realtek Semiconductor Corp. 802.11ac NIC
+4.x LM   dongles have VID/PID 0a5c:21e8 Broadcom Corp. BCM20702A0 Bluetooth 4.0
 
 ## GUI shortcuts
 
