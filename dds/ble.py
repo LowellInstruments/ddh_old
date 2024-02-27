@@ -11,7 +11,8 @@ from dds.macs import (
     is_mac_in_orange,
     add_mac_orange,
 )
-from mat.ble.ble_mat_utils import ble_mat_bluetoothctl_power_cycle, ble_mat_disconnect_all_devices_ll
+from mat.ble.ble_mat_utils import ble_mat_bluetoothctl_power_cycle, ble_mat_disconnect_all_devices_ll, \
+    ble_mat_get_antenna_type
 from mat.ble.bleak.cc26x2r_sim import ble_logger_is_cc26x2r_simulated
 
 from dds.ble_dl_rn4020 import ble_interact_rn4020
@@ -36,6 +37,7 @@ from utils.ddh_shared import (
 )
 from settings.ctx import hook_ble_purge_this_mac_dl_files_folder
 from utils.logs import lg_dds as lg
+import subprocess as sp
 
 
 _g_logger_errors = {}
@@ -182,6 +184,13 @@ async def _ble_id_n_interact_logger(mac, info: str, h, g):
         # for laptop
         if not linux_is_rpi():
             ble_mat_disconnect_all_devices_ll()
+
+    # to deal with problem external antenna not scanning after downloading one
+    _, ta = ble_mat_get_antenna_type()
+    if ta == 'external' and linux_is_rpi():
+        lg.a('warning: external antenna requires this tweak')
+        c = 'systemctl restart bluetooth'
+        sp.run(c, shell=True)
 
     # only sync AWS when NOT on development machine
     if not linux_is_rpi():

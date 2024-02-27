@@ -485,8 +485,8 @@ def _parse_udp(my_app, s, ip="127.0.0.1"):
         ci = "error.png"
 
     elif f == STATE_DDS_BLE_HARDWARE_ERROR:
-        _g_ts_gui_expire_icon = time.perf_counter() + 60
-        ct = "radio error"
+        _g_ts_gui_expire_icon = time.perf_counter() + 10
+        ct = "radio restarting"
         ci = "blue_err.png"
 
     elif f == STATE_DDS_BLE_DISABLED:
