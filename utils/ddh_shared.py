@@ -331,9 +331,7 @@ def get_ddh_platform():
 
 
 def get_ddh_toml_all_macs_content():
-    p = str(ddh_get_root_folder_path())
-    p = f"{p}/settings/all_macs.toml"
-
+    p = f"{str(get_ddh_folder_path_settings())}/all_macs.toml"
     try:
         with open(p, 'r') as f:
             # d: {'11:22:33:44:55:66': 'sn1234567'}
@@ -344,9 +342,7 @@ def get_ddh_toml_all_macs_content():
 
 
 def set_ddh_toml_all_macs_content(d):
-    p = str(ddh_get_root_folder_path())
-    p = f"{p}/settings/all_macs.toml"
-
+    p = f"{str(get_ddh_folder_path_settings())}/all_macs.toml"
     try:
         with open(p, 'w') as f:
             # d: {'11:22:33:44:55:66': 'sn1234567'}
@@ -358,24 +354,41 @@ def set_ddh_toml_all_macs_content(d):
 
 
 def get_ddh_rerun_flag_li():
-    p = str(ddh_get_root_folder_path())
-    f = f'{p}/settings/rerun_flag.toml'
-    return os.path.exists(f)
+    p = f"{str(get_ddh_folder_path_settings())}/rerun_flag.toml"
+    return os.path.exists(p)
 
 
 def set_ddh_rerun_flag_li():
-    p = str(ddh_get_root_folder_path())
-    f = f'{p}/settings/rerun_flag.toml'
-    pathlib.Path(f).touch()
+    p = f"{str(get_ddh_folder_path_settings())}/rerun_flag.toml"
+    pathlib.Path(p).touch()
 
 
 def clr_ddh_rerun_flag_li():
-    p = str(ddh_get_root_folder_path())
-    f = f'{p}/settings/rerun_flag.toml'
+    p = f"{str(get_ddh_folder_path_settings())}/rerun_flag.toml"
     try:
-        os.unlink(f)
+        os.unlink(p)
     except (Exception, ) as ex:
         print(f'error clr_ddh_rerun_flag_li -> {ex}')
+
+
+def get_ddh_language_file_content():
+    p = f"{str(get_ddh_folder_path_settings())}/language.toml"
+    if not os.path.exists(p):
+        return 'en'
+    with open(p) as f:
+        c = toml.load(f)
+        try:
+            lang = c['language']
+            if lang in ['en', 'fr', 'pt', 'ca']:
+                return lang
+        except (Exception, ) as ex:
+            print(f'error: get_ddh_language_file_content {ex}')
+
+
+def set_ddh_language_file_content(lang):
+    p = f"{str(get_ddh_folder_path_settings())}/language.toml"
+    with open(p, 'w') as f:
+        f.write('language = ' + lang)
 
 
 def main():

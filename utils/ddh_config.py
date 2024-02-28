@@ -1,6 +1,8 @@
 import toml
 import os
 
+from utils.ddh_shared import get_ddh_language_file_content
+
 
 def _get_relative_config_file_path():
     # when DDH
@@ -50,12 +52,6 @@ cfg = cfg_load_from_file()
 
 def dds_get_cfg_vessel_name():
     return cfg['behavior']['ship_name']
-
-
-def ddh_get_locale():
-    # todo ---> we can also check a /tmp file for this
-    # to change the language dynamically preference
-    return cfg['behavior']['language']
 
 
 def dds_get_cfg_aws_en():
