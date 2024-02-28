@@ -499,7 +499,7 @@ def _parse_udp(my_app, s, ip="127.0.0.1"):
         ci = "update.png"
 
     elif f == STATE_DDS_BLE_CONNECTING:
-        ct = f'connecting {v}'
+        ct = f'{_x('connecting')} {v}'
         ci = f'ble_connecting.png'
         print(i)
 
@@ -638,7 +638,7 @@ def _parse_udp(my_app, s, ip="127.0.0.1"):
 
     elif f == STATE_DDS_NOTIFY_GPS_CLOCK:
         # time controlled via function calling this state
-        ct = "syncing GPS time"
+        ct = _x("syncing GPS time")
         ci = "gps_clock.png"
 
     elif f == STATE_DDS_NOTIFY_GPS_NUM_SAT:

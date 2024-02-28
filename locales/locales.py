@@ -11,7 +11,14 @@ g_lang = get_ddh_language_file_content()
 
 lang_msg_db = {
     'searching for loggers': {
-        'fr': 'le_xerxe'
+        'fr': 'le_xerxe',
+        'ca': 'buscant loggers'
+    },
+    'connecting': {
+        'ca': 'connectant'
+    },
+    'syncing GPS time': {
+        'ca': 'rellotge GPS'
     }
 }
 
