@@ -18,6 +18,7 @@ from gpiozero import Button
 from ddh.db.db_his import DBHis
 from ddh.graph import process_n_graph
 from ddh.utils_net import net_get_my_current_wlan_ssid
+from locales.locales import _x
 from mat.ble.ble_mat_utils import DDH_GUI_UDP_PORT
 from mat.utils import linux_is_rpi
 import subprocess as sp
@@ -490,7 +491,7 @@ def _parse_udp(my_app, s, ip="127.0.0.1"):
     # BLE service states
     # -------------------
     if f in (STATE_DDS_BLE_SCAN, STATE_DDS_BLE_SCAN_FIRST_EVER):
-        ct = "searching for loggers"
+        ct = _x("searching for loggers")
         ci = "blue{}.png".format(i)
 
     elif f == STATE_DDS_SOFTWARE_UPDATED:
@@ -720,7 +721,7 @@ def gui_timer_fxn(my_app):
         a.tabs.setCurrentIndex(0)
 
     # animate BLE icon
-    if a.lbl_ble.text() == "searching for loggers":
+    if a.lbl_ble.text() == _x("searching for loggers"):
         ci = "blue{}.png".format(i)
         fol_res = str(ddh_get_folder_path_res())
         ci = "{}/{}".format(fol_res, ci)

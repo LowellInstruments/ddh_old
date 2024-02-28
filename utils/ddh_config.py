@@ -52,6 +52,12 @@ def dds_get_cfg_vessel_name():
     return cfg['behavior']['ship_name']
 
 
+def ddh_get_locale():
+    # todo ---> we can also check a /tmp file for this
+    # to change the language dynamically preference
+    return cfg['behavior']['language']
+
+
 def dds_get_cfg_aws_en():
     return cfg['flags']['aws_en']
 

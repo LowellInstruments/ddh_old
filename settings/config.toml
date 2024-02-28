@@ -14,6 +14,7 @@ forget_time = 36000
 gear_type = 0
 moving_speed = [ 0.5, 7.0,]
 fake_gps_position = [ 11.0, -83.0,]
+language = 'fr'
 
 [monitored_macs]
 "60:77:71:22:CA:6A" = "1000000"
