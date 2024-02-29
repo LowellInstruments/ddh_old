@@ -1,8 +1,6 @@
 import toml
 import os
 
-from utils.ddh_shared import get_ddh_language_file_content
-
 
 def _get_relative_config_file_path():
     # when DDH
