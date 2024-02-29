@@ -41,8 +41,9 @@ from dds.timecache import its_time_to
 from mat.linux import linux_app_write_pid_to_tmp, linux_is_process_running
 from mat.ble.ble_mat_utils import (
     ble_mat_get_antenna_type,
-    ble_mat_bluetoothctl_power_cycle, ble_mat_disconnect_all_devices_ll
+    ble_mat_bluetoothctl_power_cycle, ble_mat_disconnect_all_devices_ll, ble_mat_systemctl_restart_bluetooth
 )
+from mat.utils import linux_is_rpi
 from rpc.rpc_rx import th_srv_cmd
 from rpc.rpc_tx import th_cli_notify
 from utils.ddh_config import dds_check_cfg_has_box_info, \
@@ -171,7 +172,13 @@ def main_dds():
 
         # BLE download stage
         args = [det, m_j, g, h, h_d]
-        ael.run_until_complete(ble_interact_all_loggers(*args))
+        rv = ael.run_until_complete(ble_interact_all_loggers(*args))
+
+        # recovery situations
+        if rv:
+            # todo ---> test this does not happen when all OK
+            ble_mat_disconnect_all_devices_ll()
+            ble_mat_bluetoothctl_power_cycle()
 
 
 def _alarm_dds_crash(n):

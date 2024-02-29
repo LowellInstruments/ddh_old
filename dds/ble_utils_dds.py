@@ -114,17 +114,10 @@ def ble_op_conditions_met(knots) -> bool:
 
 
 def ble_tell_gui_antenna_type(_h, desc):
-    if desc == "internal":
-        desc = "BT_internal"
-    elif desc == "external":
-        desc = "BT_external"
-
-    global _g_ant_ble
-
     # from time to time
     s = "using {} antenna, adapter {}"
     if its_time_to(s, 60):
-        _u("{}/{}".format(STATE_DDS_BLE_ANTENNA, desc))
+        _u(f"{STATE_DDS_BLE_ANTENNA}/BT_{desc}")
 
     # we only ever run this function once
     if _g_ant_ble != "undefined":
@@ -136,6 +129,7 @@ def ble_tell_gui_antenna_type(_h, desc):
     lg.a("-" * len(s))
     lg.a(s)
     lg.a("-" * len(s))
+    global _g_ant_ble
     _g_ant_ble = desc
 
 

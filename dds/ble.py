@@ -15,9 +15,8 @@ from dds.macs import (
 from dds.notifications import notify_logger_download, \
     notify_logger_error_retries
 from dds.timecache import its_time_to
-from mat.ble.ble_mat_utils import (ble_mat_bluetoothctl_power_cycle,
-                                   ble_mat_disconnect_all_devices_ll,
-                                   ble_mat_get_antenna_type, ble_mat_systemctl_restart_bluetooth)
+from mat.ble.ble_mat_utils import (ble_mat_get_antenna_type,
+                                   ble_mat_systemctl_restart_bluetooth)
 from dds.ble_dl_rn4020 import ble_interact_rn4020
 from dds.ble_dl_cc26x2r import ble_interact_cc26x2
 from dds.gps import gps_tell_position_logger
@@ -133,7 +132,7 @@ async def _ble_id_n_interact_logger(mac, info: str, h, g):
     if lat == "":
         lg.a("error: lat is empty for logger {}".format(sn))
         _u("history/add&{}&error&{}&{}&{}".format(mac, lat, lon, dt))
-        return
+        return 1
 
     # allows discarding loggers faster
     _crit_error = False
@@ -161,7 +160,7 @@ async def _ble_id_n_interact_logger(mac, info: str, h, g):
             if its_time_to(f'tell_error_moana_plugin', 900):
                 lg.a('error: no Moana plugin installed')
             time.sleep(5)
-            return
+            return 1
 
     elif _ble_logger_is_tdo(info):
         rv, notes = await ble_interact_tdo(mac, info, g, hs)
@@ -170,10 +169,16 @@ async def _ble_id_n_interact_logger(mac, info: str, h, g):
 
     else:
         lg.a(f'error: this should not happen, info {info}')
-        return
+        return 1
 
     # tell GUI how it went, also do MAC colors stuff
     _ble_analyze_logger_result(rv, mac, g, sn, _crit_error)
+
+    # on OK and error, w/o this some external antennas don't scan again
+    _, ta = ble_mat_get_antenna_type()
+    if ta == 'external' and linux_is_rpi():
+        lg.a('warning: external antenna requires reset tweak')
+        ble_mat_systemctl_restart_bluetooth()
 
     # on GUI, all times are local, not UTC
     tz_ddh = get_localzone()
@@ -188,29 +193,15 @@ async def _ble_id_n_interact_logger(mac, info: str, h, g):
     e = 'ok' if not rv else _error_dl
     _u(s.format(STATE_DDS_NOTIFY_HISTORY, mac, e, lat, lon, epoch))
 
-    # on error, some sort of restart bluetooth
-    if rv:
-        ble_mat_disconnect_all_devices_ll()
-        ble_mat_bluetoothctl_power_cycle()
-
-    # on OK and on error, do this or some external antennas don't scan properly
-    _, ta = ble_mat_get_antenna_type()
-    if ta == 'external' and linux_is_rpi():
-        lg.a('warning: external antenna requires reset tweak')
-        ble_mat_systemctl_restart_bluetooth()
-
-    # only sync AWS when NOT on development machine
-    if not linux_is_rpi():
-        return
-
-    # AWS flag checked later, after ALL loggers download
+    # AWS flag only set on rpi, it is checked later after all loggers end
     try:
-        if not rv:
+        if linux_is_rpi() and not rv:
             flag = dds_get_aws_has_something_to_do_via_gui_flag_file()
             pathlib.Path(flag).touch()
             lg.a("created AWS flag file")
     except (Exception, ):
         lg.a('error: creating AWS flag file')
+    return rv
 
 
 async def ble_interact_all_loggers(macs_det, macs_mon, g, _h: int, _h_desc):
@@ -235,4 +226,4 @@ async def ble_interact_all_loggers(macs_det, macs_mon, g, _h: int, _h_desc):
         gps_tell_position_logger(g)
 
         # MAC passed all filters, work with it
-        await _ble_id_n_interact_logger(mac, model, _h, g)
+        return await _ble_id_n_interact_logger(mac, model, _h, g)
