@@ -23,7 +23,7 @@ from utils.logs import lg_dds as lg
 PERIOD_BLE_TELL_HW_ERR_SECS = 600
 _g_first_ble_scan_ever = True
 _g_monitored_macs = dds_get_cfg_monitored_macs()
-_g_ble_scan_early_leave = False
+_g_ble_scan_early_leave = None
 
 
 # to activate BLE experimental features you need:
@@ -154,7 +154,7 @@ async def ble_scan(macs_mon, g, _h: int, _h_desc, t=6.0):
         # allows scan to end faster
         if mac in macs_mon and mac not in macs_bad:
             global _g_ble_scan_early_leave
-            _g_ble_scan_early_leave = True
+            _g_ble_scan_early_leave = mac
 
     # classify devs
     _all = {}
@@ -164,7 +164,7 @@ async def ble_scan(macs_mon, g, _h: int, _h_desc, t=6.0):
     try:
         # trick to go faster
         global _g_ble_scan_early_leave
-        _g_ble_scan_early_leave = False
+        _g_ble_scan_early_leave = None
 
         # convert hci format integer to string
         ad = "hci{}".format(_h)
@@ -191,7 +191,8 @@ async def ble_scan(macs_mon, g, _h: int, _h_desc, t=6.0):
             # * 10 to be able to sleep 100 ms
             await asyncio.sleep(.1)
             if _g_ble_scan_early_leave:
-                lg.a("OK: fast scan succeeded")
+                m = _g_ble_scan_early_leave
+                lg.a(f"OK: fast scan for {m}")
                 break
         await scanner.stop()
 
