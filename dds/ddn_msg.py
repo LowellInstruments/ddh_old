@@ -1,3 +1,8 @@
+# ---------------------------
+# old v1 notification system
+# ---------------------------
+
+
 OPCODE_SQS_DDH_BOOT = 'DDH_BOOT'
 OPCODE_SQS_DDH_NEEDS_UPDATE = 'DDH_NEEDS_UPDATE'
 OPCODE_SQS_DDH_ALARM_S3 = 'DDH_ALARM_S3'

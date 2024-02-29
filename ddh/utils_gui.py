@@ -388,7 +388,7 @@ def gui_show_note_tab_delete_black_macs(ui):
     ui.tabs.setCurrentIndex(i)
 
 
-def dict_from_list_view(l_v):
+def gui_dict_from_list_view(l_v):
     """grab listview entries 'name mac' and build a dict"""
     d = dict()
     n = l_v.count()
@@ -470,7 +470,7 @@ def _gui_update_icon(my_app, ci, ct, cf):
         my_app.lbl_ble.setText(ct)
 
 
-def _parse_udp(my_app, s, ip="127.0.0.1"):
+def _gui_parse_udp(my_app, s, ip="127.0.0.1"):
 
     a = my_app
     i = int(time.perf_counter()) % 4
@@ -705,7 +705,10 @@ def gui_timer_fxn(my_app):
         while 1:
             _u, addr = _skg.recvfrom(1024)
             _parse_addr(my_app, addr)
-            _parse_udp(my_app, _u.decode())
+            # -------------------------------
+            # attend to queue of GUI messages
+            # -------------------------------
+            _gui_parse_udp(my_app, _u.decode())
     except socket.timeout:
         pass
 

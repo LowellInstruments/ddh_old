@@ -15,12 +15,15 @@ from dds.macs import (
 from dds.notifications import notify_logger_download, \
     notify_logger_error_retries
 from dds.timecache import its_time_to
-from mat.ble.ble_mat_utils import ble_mat_bluetoothctl_power_cycle, ble_mat_disconnect_all_devices_ll, ble_mat_get_antenna_type
+from mat.ble.ble_mat_utils import (ble_mat_bluetoothctl_power_cycle,
+                                   ble_mat_disconnect_all_devices_ll,
+                                   ble_mat_get_antenna_type, ble_mat_systemctl_restart_bluetooth)
 from dds.ble_dl_rn4020 import ble_interact_rn4020
 from dds.ble_dl_cc26x2r import ble_interact_cc26x2
 from dds.gps import gps_tell_position_logger
 from mat.utils import linux_is_rpi
-from utils.ddh_config import dds_get_cfg_flag_purge_this_mac_dl_files_folder, dds_get_cfg_logger_sn_from_mac
+from utils.ddh_config import (dds_get_cfg_flag_purge_this_mac_dl_files_folder,
+                              dds_get_cfg_logger_sn_from_mac)
 from utils.ddh_shared import (
     send_ddh_udp_gui as _u,
     STATE_DDS_BLE_DOWNLOAD_OK,
@@ -187,19 +190,14 @@ async def _ble_id_n_interact_logger(mac, info: str, h, g):
 
     # on error, some sort of restart bluetooth
     if rv:
-        # for RPi
+        ble_mat_disconnect_all_devices_ll()
         ble_mat_bluetoothctl_power_cycle()
-        # for laptop
-        if not linux_is_rpi():
-            ble_mat_disconnect_all_devices_ll()
 
-    # to fix issue external antenna not scanning after downloading one
+    # on OK and on error, do this or some external antennas don't scan properly
     _, ta = ble_mat_get_antenna_type()
     if ta == 'external' and linux_is_rpi():
         lg.a('warning: external antenna requires reset tweak')
-        c = 'sudo systemctl restart bluetooth'
-        sp.run(c, shell=True)
-        time.sleep(5)
+        ble_mat_systemctl_restart_bluetooth()
 
     # only sync AWS when NOT on development machine
     if not linux_is_rpi():

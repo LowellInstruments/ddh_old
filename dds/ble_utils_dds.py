@@ -151,12 +151,13 @@ def ble_check_antenna_up_n_running(g, h: int):
 
     lg.a('warning: BLE interface hci{} seems down'.format(h))
 
-    # try to recover it
+    # only on rpi, try to recover it
     for c in [
         'sudo modprobe -r btusb',
         'sudo modprobe btusb',
         'sudo rfkill unblock bluetooth',
         'sudo systemctl restart hciuart',
+        'sudo systemctl restart bluetooth',
         'sudo hciconfig hci{} up'.format(h)
     ]:
         sp.run('sleep 1', shell=True, stdout=sp.PIPE, stderr=sp.PIPE)

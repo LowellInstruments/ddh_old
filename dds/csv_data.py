@@ -7,7 +7,10 @@ from utils.ddh_shared import get_ddh_folder_path_dl_files
 from utils.logs import lg_cnv as lg
 
 
+# --------------------------------------------------
 # outputs a CST file (CSV file + tracking GPS info)
+# --------------------------------------------------
+
 def _file_lowell_raw_csv_to_emolt_lt_csv(filename):
 
     # correct a bad input parameter filename

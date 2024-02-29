@@ -20,7 +20,7 @@ from ddh.utils_gui import (
     gui_setup_buttons,
     gui_center_window,
     gui_setup_buttons_rpi,
-    dict_from_list_view,
+    gui_dict_from_list_view,
     gui_show_edit_tab,
     gui_json_get_forget_time_secs,
     STR_NOTE_PURGE_BLACKLIST,
@@ -232,7 +232,7 @@ class DDH(QMainWindow, d_m.Ui_MainWindow):
 
         # dict from all items in lower box
         b = self.lst_mac_dst
-        d_b = dict_from_list_view(b)
+        d_b = gui_dict_from_list_view(b)
         d_b.update(o)
 
         # update lower box
@@ -245,7 +245,7 @@ class DDH(QMainWindow, d_m.Ui_MainWindow):
         """creates a config file"""
 
         l_v = self.lst_mac_dst
-        pairs = dict_from_list_view(l_v)
+        pairs = gui_dict_from_list_view(l_v)
         # pairs: {'11:22:33:44:55:66': '1234567'}
 
         # input: forget_time
