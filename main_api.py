@@ -20,6 +20,7 @@ from fastapi import FastAPI, UploadFile, File
 import os
 from fastapi.responses import FileResponse
 import concurrent.futures
+import subprocess as sp
 
 
 DDH_PORT_API = 8000
@@ -221,6 +222,26 @@ async def ep_crontab_disable():
         return {'cron_dis': 'not RPi, not disabling crontab'}
     set_crontab(0)
     return {'cron_dis': get_crontab_ddh()}
+
+
+@app.get("/rpi_temperature")
+async def ep_rpi_temperature():
+    if not linux_is_rpi():
+        return {'cron_dis': 'not RPi, not measuring board temperature'}
+    c = "/usr/bin/vcgencmd measure_temp"
+    rv = sp.run(c, shell=True, stderr=sp.PIPE, stdout=sp.PIPE)
+
+    try:
+        ans = rv.stdout
+        if ans:
+            # ans: b"temp=30.1'C"
+            ans = ans.replace(b"\n", b"")
+            ans = ans.replace(b"'C", b"")
+            ans = ans.replace(b"temp=", b"")
+            ans = float(ans.decode())
+            return {'rpi_temperature': str(ans)}
+    except (Exception,) as ex:
+        return {'rpi_temperature': 'error'}
 
 
 def main_api():

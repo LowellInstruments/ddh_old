@@ -184,11 +184,12 @@ class DDH(QMainWindow, d_m.Ui_MainWindow):
                 ans = ans.replace(b"temp=", b"")
                 ans = float(ans.decode())
                 if ans > 55:
-                    lg.a("debug: {} degrees Celsius".format(ans))
+                    lg.a(f"debug: box temperature {ans} degrees Celsius")
 
         except (Exception,) as ex:
             lg.a("error: getting vcgencmd -> {}".format(ex))
 
+        # 600 seconds = 10 minutes
         self.tt.start(600000)
 
     @staticmethod
