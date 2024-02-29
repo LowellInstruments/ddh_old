@@ -172,10 +172,10 @@ def main_dds():
 
         # BLE download stage
         args = [det, m_j, g, h, h_d]
-        rv = ael.run_until_complete(ble_interact_all_loggers(*args))
+        rvi = ael.run_until_complete(ble_interact_all_loggers(*args))
 
         # recovery situations
-        if rv:
+        if rvi:
             # todo ---> test this does not happen when all OK
             ble_mat_disconnect_all_devices_ll()
             ble_mat_bluetoothctl_power_cycle()

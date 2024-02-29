@@ -132,7 +132,8 @@ async def _ble_id_n_interact_logger(mac, info: str, h, g):
     if lat == "":
         lg.a("error: lat is empty for logger {}".format(sn))
         _u("history/add&{}&error&{}&{}&{}".format(mac, lat, lon, dt))
-        return 1
+        # 0 because this is not a BLE interaction error
+        return 0
 
     # allows discarding loggers faster
     _crit_error = False
@@ -160,7 +161,8 @@ async def _ble_id_n_interact_logger(mac, info: str, h, g):
             if its_time_to(f'tell_error_moana_plugin', 900):
                 lg.a('error: no Moana plugin installed')
             time.sleep(5)
-            return 1
+            # 0 because this is not a BLE interaction error
+            return 0
 
     elif _ble_logger_is_tdo(info):
         rv, notes = await ble_interact_tdo(mac, info, g, hs)
@@ -169,7 +171,8 @@ async def _ble_id_n_interact_logger(mac, info: str, h, g):
 
     else:
         lg.a(f'error: this should not happen, info {info}')
-        return 1
+        # 0 because this is not a BLE interaction error
+        return 0
 
     # tell GUI how it went, also do MAC colors stuff
     _ble_analyze_logger_result(rv, mac, g, sn, _crit_error)
