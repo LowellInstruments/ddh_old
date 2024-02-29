@@ -41,7 +41,7 @@ async def ep_ping():
         "ping": "OK",
         "ip_vpn": get_ip_vpn(),
         "ip_wlan": get_ip_wlan(),
-        "vessel": dds_get_cfg_vessel_name(),
+        "boat_name": dds_get_cfg_vessel_name(),
         "last_gps": get_gps(),
         "is_rpi": linux_is_rpi(),
         "uptime": get_uptime()
