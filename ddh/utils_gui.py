@@ -29,8 +29,7 @@ from utils.ddh_config import (
     dds_get_cfg_flag_graph_test_mode,
     dds_get_cfg_logger_sn_from_mac,
     dds_get_cfg_forget_time_secs,
-    dds_get_cfg_monitored_macs,
-    dds_get_cfg_monitored_pairs, ddh_get_cfg_maps_en)
+    ddh_get_cfg_maps_en)
 
 from utils.ddh_shared import (
     STATE_DDS_BLE_SCAN,
@@ -499,7 +498,7 @@ def _parse_udp(my_app, s, ip="127.0.0.1"):
         ci = "update.png"
 
     elif f == STATE_DDS_BLE_CONNECTING:
-        ct = f'{_x('connecting')} {v}'
+        ct = f'{_x("connecting")} {v}'
         ci = f'ble_connecting.png'
         print(i)
 
