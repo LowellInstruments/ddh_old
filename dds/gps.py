@@ -135,8 +135,8 @@ def _gps_parse_rmc_frame(data: bytes):
     # save to disk for other apps such as DDH API
     try:
         d = {
-           "lat": lat,
-           "lon": lon,
+           "lat": "{:.4f}".format(lat),
+           "lon": "{:.4f}".format(lon),
            "gps_time": str(gps_time),
            "speed": speed
         }
