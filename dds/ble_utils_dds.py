@@ -119,18 +119,13 @@ def ble_tell_gui_antenna_type(_h, desc):
     if its_time_to(s, 60):
         _u(f"{STATE_DDS_BLE_ANTENNA}/BT_{desc}")
 
-    # we only ever run this function once
-    if _g_ant_ble != "undefined":
-        return
-
     # run this once
-    _ad = "hci{}".format(_h)
-    s = s.format(desc, _ad)
-    lg.a("-" * len(s))
-    lg.a(s)
-    lg.a("-" * len(s))
-    global _g_ant_ble
-    _g_ant_ble = desc
+    if its_time_to('tell_gui_antenna_type', 3600):
+        _ad = "hci{}".format(_h)
+        s = s.format(desc, _ad)
+        lg.a("-" * len(s))
+        lg.a(s)
+        lg.a("-" * len(s))
 
 
 def ble_check_antenna_up_n_running(g, h: int):
