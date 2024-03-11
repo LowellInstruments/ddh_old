@@ -4,6 +4,7 @@ import pathlib
 import shutil
 import time
 
+from dds.gps import gps_simulate_boat_speed
 from dds.macs import dds_create_folder_macs_color
 from dds.notifications import notify_ddh_error_hw_ble
 from dds.timecache import its_time_to
@@ -75,41 +76,21 @@ def ble_op_conditions_met(knots) -> bool:
     l_h = ddh_get_cfg_gear_type()
     speed_range = dds_get_cfg_moving_speed()
     if not l_h:
+        # CASE: normal
         return True
 
-    # simulation of boat speed
-    sim_boat_speed = False
-    try:
-        with open("/tmp/ddh_boat_speed.json", "r") as f:
-            # file content
-            # {
-            #     "knots_min": 3,
-            #     "knots_max": 5,
-            #     "knots_set": 4
-            # }
-            j = json.load(f)
-            k_min = j['knots_min']
-            k_max = j['knots_max']
-            k_set = j['knots_set']
-            sim_boat_speed = True
-    except (Exception, ):
-        pass
-
-    # case: trawling, we know for sure l_h is set here
+    # CASE: trawling, we know for sure l_h is set here
     s_lo, s_hi = speed_range
     s_lo = float(s_lo)
     knots = float(knots)
     s_hi = float(s_hi)
-    if sim_boat_speed:
-        lg.a("warning: using simulated boat speeds")
-        lg.a(f"set {k_set} min {k_min} max {k_max}")
-        s_lo = float(k_min)
-        s_hi = float(k_max)
-        knots = float(k_set)
-    if s_lo <= knots <= s_hi:
-        # valid moving range
-        return True
 
+    # simulation of boat speed, check if enabled
+    s_lo, knots, s_hi = gps_simulate_boat_speed(s_lo, knots, s_hi)
+
+    # check we are on valid moving range
+    if s_lo <= knots <= s_hi:
+        return True
     _u("{}/{}".format(STATE_DDS_BLE_APP_GPS_ERROR_SPEED, knots))
 
 

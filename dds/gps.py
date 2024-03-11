@@ -597,6 +597,27 @@ def gps_know_hat_firmware_version():
     time.sleep(0.1)
 
 
+def gps_simulate_boat_speed(s_lo, knots, s_hi):
+    try:
+        with open("/tmp/ddh_boat_speed.json", "r") as f:
+            # file content
+            # {
+            #     "knots_min": 3,
+            #     "knots_max": 5,
+            #     "knots_set": 4
+            # }
+            j = json.load(f)
+            k_min = j['knots_min']
+            k_max = j['knots_max']
+            k_set = j['knots_set']
+            lg.a("warning: using simulated boat speeds")
+            lg.a(f"set {k_set} min {k_min} max {k_max}")
+            return float(k_min), float(k_set), float(k_max)
+
+    except (Exception, ):
+        return s_lo, knots, s_hi
+
+
 if __name__ == "__main__":
     if not dds_get_cfg_flag_gps_external():
         gps_configure_shield()
