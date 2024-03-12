@@ -12,6 +12,8 @@ import subprocess as sp
 from mat.utils import linux_is_rpi, linux_is_rpi3, linux_is_rpi4
 import toml
 
+from settings.tmp_paths import TMP_PATH_GUI_CLOSED_FLAG, TMP_PATH_DISABLE_BLE, TMP_PATH_AWS_HAS_WORK_VIA_GUI, \
+    TMP_PATH_DDH_GOT_UPDATE, TMP_PATH_DDH_APP_OVERRIDE, TMP_PATH_GPS_DUMMY
 
 STATE_DDS_NOTIFY_BOAT_NAME = "boat_name"
 STATE_DDS_NOTIFY_GPS = "gps"
@@ -136,30 +138,31 @@ def ddh_get_folder_path_res() -> Path:
 
 
 def ddh_get_gui_closed_flag_file() -> Path:
-    return Path("/tmp/gui_closed.flag")
+    return Path(TMP_PATH_GUI_CLOSED_FLAG)
 
 
 def dds_get_is_emolt_box_flag_file() -> str:
-    return "/home/pi/li/.ddt_this_is_emolt_box.flag"
+    p = str(ddh_get_root_folder_path())
+    return f"{p}/../.ddt_this_is_emolt_box.flag"
 
 
 def ddh_get_disabled_ble_flag_file() -> str:
-    return "/tmp/ddh_disabled_ble_file.flag"
+    return TMP_PATH_DISABLE_BLE
 
 
 def ddh_get_app_override_flag_file() -> str:
     # set this with the clear-lockout physical button
     # to force at least one execution even with
     # boat not moving on haul mode
-    return "/tmp/ddh_app_override_file.flag"
+    return TMP_PATH_DDH_APP_OVERRIDE
 
 
 def dds_get_ddh_got_an_update_flag_file() -> str:
-    return "/tmp/ddh_got_update_file.flag"
+    return TMP_PATH_DDH_GOT_UPDATE
 
 
 def dds_get_aws_has_something_to_do_via_gui_flag_file() -> str:
-    return "/tmp/ddh_aws_has_something_to_do_via_gui.flag"
+    return TMP_PATH_AWS_HAS_WORK_VIA_GUI
 
 
 def ddh_get_db_history_file() -> str:
@@ -311,13 +314,10 @@ def ddh_get_root_folder_path() -> Path:
     return Path(p)
 
 
-GPS_DUMMY_MODE_FILE = '/tmp/gps_dummy_mode.json'
-
-
 def check_gps_dummy_mode():
     if not linux_is_rpi():
         return True
-    return os.path.exists(GPS_DUMMY_MODE_FILE)
+    return os.path.exists(TMP_PATH_GPS_DUMMY)
 
 
 def get_ddh_platform():
@@ -330,10 +330,14 @@ def get_ddh_platform():
     return "unk"
 
 
+FILE_ALL_MACS_TOML = f"{str(get_ddh_folder_path_settings())}/all_macs.toml"
+FILE_RERUN_TOML = f"{str(get_ddh_folder_path_settings())}/rerun_flag.toml"
+FILE_LANGUAGE_TOML = f"{str(get_ddh_folder_path_settings())}/language.toml"
+
+
 def get_ddh_toml_all_macs_content():
-    p = f"{str(get_ddh_folder_path_settings())}/all_macs.toml"
     try:
-        with open(p, 'r') as f:
+        with open(FILE_ALL_MACS_TOML, 'r') as f:
             # d: {'11:22:33:44:55:66': 'sn1234567'}
             return toml.load(f)
     except (Exception,) as ex:
@@ -342,9 +346,8 @@ def get_ddh_toml_all_macs_content():
 
 
 def set_ddh_toml_all_macs_content(d):
-    p = f"{str(get_ddh_folder_path_settings())}/all_macs.toml"
     try:
-        with open(p, 'w') as f:
+        with open(FILE_ALL_MACS_TOML, 'w') as f:
             # d: {'11:22:33:44:55:66': 'sn1234567'}
             toml.dump(d, f)
             print(d)
@@ -354,28 +357,24 @@ def set_ddh_toml_all_macs_content(d):
 
 
 def get_ddh_rerun_flag_li():
-    p = f"{str(get_ddh_folder_path_settings())}/rerun_flag.toml"
-    return os.path.exists(p)
+    return os.path.exists(FILE_RERUN_TOML)
 
 
 def set_ddh_rerun_flag_li():
-    p = f"{str(get_ddh_folder_path_settings())}/rerun_flag.toml"
-    pathlib.Path(p).touch()
+    pathlib.Path(FILE_RERUN_TOML).touch()
 
 
 def clr_ddh_rerun_flag_li():
-    p = f"{str(get_ddh_folder_path_settings())}/rerun_flag.toml"
     try:
-        os.unlink(p)
+        os.unlink(FILE_RERUN_TOML)
     except (Exception, ) as ex:
         print(f'error clr_ddh_rerun_flag_li -> {ex}')
 
 
 def get_ddh_language_file_content():
-    p = f"{str(get_ddh_folder_path_settings())}/language.toml"
-    if not os.path.exists(p):
+    if not os.path.exists(FILE_LANGUAGE_TOML):
         return 'en'
-    with open(p) as f:
+    with open(FILE_LANGUAGE_TOML) as f:
         c = toml.load(f)
         try:
             lang = c['language']
@@ -386,8 +385,7 @@ def get_ddh_language_file_content():
 
 
 def set_ddh_language_file_content(lang):
-    p = f"{str(get_ddh_folder_path_settings())}/language.toml"
-    with open(p, 'w') as f:
+    with open(FILE_LANGUAGE_TOML, 'w') as f:
         f.write('language = ' + lang)
 
 

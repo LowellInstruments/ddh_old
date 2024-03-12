@@ -1,9 +1,12 @@
 #!/usr/bin/env bash
-FOL_SCR=/home/pi/li/ddh/scripts/
-VENV=/home/pi/li/venv
+
+
+source utils.sh
 
 
 echo '----------------------------------------------------------------------------------'
 echo 'DDH SCRIPT -> in progress'
-source $VENV/bin/activate && cd $FOL_SCR && $VENV/bin/python ./script_logger_do_deploy.py
+source "$FOL_VEN"/bin/activate && \
+cd "$FOL_DDH"/scripts && \
+"$FOL_VEN"/bin/python ./script_logger_do_deploy.py
 echo '----------------------------------------------------------------------------------'

@@ -2,7 +2,7 @@
 
 
 # script called by DDU-text utility, not used by DDU-gui
-API_STR=/home/pi/li/ddt/_dt_files/crontab_api.sh
+DDT_CF_RUN_API=/home/pi/li/ddt/_dt_files/crontab_api.sh
 CF=/etc/crontab
 
 
@@ -12,7 +12,7 @@ grep -q crontab_api.sh $CF
 rv=$?
 if [ $rv -eq 1 ]; then
     # no string found in whole crontab, add it
-    echo -e "* * * * * pi $API_STR\n" | sudo tee -a $CF
+    echo -e "* * * * * pi $DDT_CF_RUN_API\n" | sudo tee -a $CF
     echo "added API to empty crontab"
     exit 0
 fi
@@ -26,11 +26,11 @@ sudo sed -i '/crontab_api/d' $CF
 
 if [ $rv -eq 0 ]; then
     echo "crontab API was OFF, trying toggle"
-    echo "* * * * * pi $API_STR" | sudo tee -a $CF
+    echo "* * * * * pi $DDT_CF_RUN_API" | sudo tee -a $CF
     echo "crontab API ON"
 else
     echo "crontab API was ON, disabling it..."
-    echo "#* * * * * pi $API_STR" | sudo tee -a $CF
+    echo "#* * * * * pi $DDT_CF_RUN_API" | sudo tee -a $CF
     echo "crontab API OFF"
 fi
 

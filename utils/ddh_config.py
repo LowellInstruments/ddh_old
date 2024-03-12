@@ -57,11 +57,13 @@ def dds_get_cfg_aws_en():
 
 
 def dds_get_cfg_flag_graph_test_mode():
-    return cfg['flags']['hook_graph_test_mode']
+    p = '/tmp/ddh_graph_test_mode.json'
+    return os.path.exists(p)
 
 
 def dds_get_cfg_flag_gps_external():
-    return cfg['flags']['g_gps_is_external']
+    p = '/home/pi/li/.ddt_gps_external.flag'
+    return os.path.exists(p)
 
 
 def dds_get_cfg_flag_gps_error_forced():
@@ -162,6 +164,7 @@ def dds_get_cfg_moving_speed():
 
 
 def dds_get_cfg_flag_ble_en():
+    # works altogether with file TMP_PATH_DISABLE_BLE
     return cfg['flags']['ble_en']
 
 

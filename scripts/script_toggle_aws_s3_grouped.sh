@@ -1,9 +1,8 @@
 #!/usr/bin/env bash
 
 
-# script called by DDU-text utility, not used by DDU-gui
+source utils.sh
 
-GROUPED_S3_FILE_FLAG=/home/pi/li/.ddt_this_box_has_grouped_s3_uplink.flag
 
 echo; echo;
 if [ -f "$GROUPED_S3_FILE_FLAG" ]; then

@@ -1,0 +1,8 @@
+TMP_PATH_GPS_DUMMY = "/tmp/gps_dummy_mode.json"
+TMP_PATH_GPS_LAST_JSON = "/tmp/gps_last.json"
+TMP_PATH_DDH_BOAT_SPEED_JSON = "/tmp/ddh_boat_speed.json"
+TMP_PATH_GUI_CLOSED_FLAG = "/tmp/gui_closed.flag"
+TMP_PATH_DISABLE_BLE = "/tmp/ddh_disabled_ble_file.flag"
+TMP_PATH_AWS_HAS_WORK_VIA_GUI = "/tmp/ddh_aws_has_something_to_do_via_gui.flag"
+TMP_PATH_DDH_GOT_UPDATE = "/tmp/ddh_got_update_file.flag"
+TMP_PATH_DDH_APP_OVERRIDE = "/tmp/ddh_app_override_file.flag"

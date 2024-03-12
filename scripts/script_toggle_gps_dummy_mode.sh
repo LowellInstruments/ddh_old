@@ -1,9 +1,8 @@
 #!/usr/bin/env bash
 
 
-# script called by DDU-text utility, not used by DDU-gui
+source utils.sh
 
-GPS_DUMMY_MODE_FILE=/tmp/gps_dummy_mode.json
 
 echo; echo;
 if [ -f "$GPS_DUMMY_MODE_FILE" ]; then

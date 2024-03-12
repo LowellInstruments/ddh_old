@@ -10,6 +10,7 @@ from mat.gps import PORT_CTRL, PORT_DATA
 from mat.utils import linux_is_rpi, linux_set_datetime
 from tzlocal import get_localzone
 
+from settings.tmp_paths import TMP_PATH_GPS_LAST_JSON, TMP_PATH_DDH_BOAT_SPEED_JSON
 from utils.ddh_config import (dds_get_cfg_vessel_name,
                               dds_get_cfg_flag_gps_external,
                               dds_get_cfg_flag_gps_error_forced,
@@ -140,7 +141,7 @@ def _gps_parse_rmc_frame(data: bytes):
            "gps_time": str(gps_time),
            "speed": speed
         }
-        with open("/tmp/gps_last.json", "w") as f:
+        with open(TMP_PATH_GPS_LAST_JSON, "w") as f:
             json.dump(d, f)
     except (Exception, ) as ex:
         lg.a(f'error: saving /tmp/gps_last.json -> {ex}')
@@ -599,7 +600,7 @@ def gps_know_hat_firmware_version():
 
 def gps_simulate_boat_speed(s_lo, knots, s_hi):
     try:
-        with open("/tmp/ddh_boat_speed.json", "r") as f:
+        with open(TMP_PATH_DDH_BOAT_SPEED_JSON, "r") as f:
             # file content
             # {
             #     "knots_min": 3,

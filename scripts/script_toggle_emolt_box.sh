@@ -1,9 +1,8 @@
 #!/usr/bin/env bash
 
 
-# script called by DDU-text utility, not used by DDU-gui
+source utils.sh
 
-EMOLT_FILE_FLAG=/home/pi/li/.ddt_this_is_emolt_box.flag
 
 echo; echo;
 if [ -f "$EMOLT_FILE_FLAG" ]; then
