@@ -35,7 +35,7 @@ from ddh.utils_gui import (
     gui_hide_map_tab
 )
 
-from dds.emolt import this_box_has_grouped_s3_uplink, GROUPED_S3_FILE_FLAG
+from dds.emolt import this_box_has_grouped_s3_uplink
 from dds.notifications import notify_via_sms
 from dds.timecache import its_time_to
 from mat.linux import linux_is_process_running
@@ -65,6 +65,7 @@ from utils.ddh_shared import (
 from utils.logs import lg_gui as lg  # noqa: E402
 import subprocess as sp  # noqa: E402
 
+from utils.tmp_paths import LI_PATH_GROUPED_S3_FILE_FLAG
 
 _g_flag_ble_en = dds_get_cfg_flag_ble_en()
 
@@ -552,10 +553,11 @@ class DDH(QMainWindow, d_m.Ui_MainWindow):
 
     def click_cb_s3_uplink_type(self, _):
         s = self.cb_s3_uplink_type.currentText()
+        p = LI_PATH_GROUPED_S3_FILE_FLAG
         if s == 'raw':
-            os.unlink(GROUPED_S3_FILE_FLAG)
+            os.unlink(p)
         if s == 'group':
-            Path(GROUPED_S3_FILE_FLAG).touch(exist_ok=True)
+            Path(p).touch(exist_ok=True)
 
     def click_lbl_cloud_img(self, _):
         self.lbl_cloud_txt.setText("checking")

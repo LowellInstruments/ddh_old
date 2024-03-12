@@ -1,12 +1,14 @@
 import toml
 import os
 
+from utils.tmp_paths import TMP_PATH_GRAPH_TEST_MODE_JSON, LI_PATH_DDH_GPS_EXTERNAL
+
 
 def _get_relative_config_file_path():
     # when DDH
     if os.getcwd().endswith('ddh'):
         return 'settings/config.toml'
-    # when developing / testing this file
+    # when developing / testing / running this file's main()
     return '../settings/config.toml'
 
 
@@ -57,13 +59,11 @@ def dds_get_cfg_aws_en():
 
 
 def dds_get_cfg_flag_graph_test_mode():
-    p = '/tmp/ddh_graph_test_mode.json'
-    return os.path.exists(p)
+    return os.path.exists(TMP_PATH_GRAPH_TEST_MODE_JSON)
 
 
 def dds_get_cfg_flag_gps_external():
-    p = '/home/pi/li/.ddt_gps_external.flag'
-    return os.path.exists(p)
+    return os.path.exists(LI_PATH_DDH_GPS_EXTERNAL)
 
 
 def dds_get_cfg_flag_gps_error_forced():

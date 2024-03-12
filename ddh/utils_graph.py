@@ -10,13 +10,9 @@ from utils.ddh_config import dds_get_cfg_flag_graph_test_mode
 from utils.ddh_shared import (get_ddh_folder_path_dl_files,
                               get_dl_folder_path_from_mac)
 from utils.logs import lg_gra as lg
-
+from utils.tmp_paths import TMP_PATH_GRAPH_REQ_JSON
 
 CTT_ATM_PRESSURE_DBAR = 10.1325
-
-
-# this file contains full path to mac folder to graph
-GRAPH_REQ_JSON_FILE = '/tmp/graph_req.json'
 
 
 def utils_graph_get_abs_fol_list() -> list:
@@ -43,17 +39,17 @@ def utils_graph_get_abs_fol_list() -> list:
 
 def utils_graph_read_fol_req_file():
     """
-    reads GRAPH_REQ_JSON_FILE to get ABSOLUTE folder path to graph
+    reads TMP_PATH_GRAPH_REQ_JSON to get ABSOLUTE folder path to graph
     """
     if dds_get_cfg_flag_graph_test_mode():
         return
 
     # file written by DDS_BLE when requesting a graph
-    with open(GRAPH_REQ_JSON_FILE) as f:
+    with open(TMP_PATH_GRAPH_REQ_JSON) as f:
         fol = f.read().strip()
     if not os.path.exists(fol):
         e = 'error: {} contains a non-existent graph folder {}'
-        lg.a(e.format(GRAPH_REQ_JSON_FILE, fol))
+        lg.a(e.format(TMP_PATH_GRAPH_REQ_JSON, fol))
         return
 
     return fol
@@ -62,14 +58,14 @@ def utils_graph_read_fol_req_file():
 def utils_graph_does_exist_fol_req_file():
     if dds_get_cfg_flag_graph_test_mode():
         return
-    return os.path.exists(GRAPH_REQ_JSON_FILE)
+    return os.path.exists(TMP_PATH_GRAPH_REQ_JSON)
 
 
 def utils_graph_delete_fol_req_file():
     if dds_get_cfg_flag_graph_test_mode():
         return
     try:
-        os.unlink(GRAPH_REQ_JSON_FILE)
+        os.unlink(TMP_PATH_GRAPH_REQ_JSON)
     except (Exception, ) as ex:
         lg.a("error: graph_delete_fol_req_file() {}".format(ex))
 
@@ -78,7 +74,7 @@ def utils_graph_set_fol_req_file(mac):
     if dds_get_cfg_flag_graph_test_mode():
         return
     try:
-        with open(GRAPH_REQ_JSON_FILE, "w") as f:
+        with open(TMP_PATH_GRAPH_REQ_JSON, "w") as f:
             content = str(get_dl_folder_path_from_mac(mac))
             f.write(content)
     except (Exception, ) as ex:

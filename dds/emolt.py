@@ -8,8 +8,7 @@ import pandas as pd
 import os
 from os.path import exists
 
-
-GROUPED_S3_FILE_FLAG = '/home/pi/li/.ddt_this_box_has_grouped_s3_uplink.flag'
+from utils.tmp_paths import LI_PATH_GROUPED_S3_FILE_FLAG
 
 # ----------------------------------------------------------------------
 # RAW CSV file -> emolt CSV file 'zt_*' -> header-less file %85 -> msg
@@ -35,11 +34,11 @@ EmoltMsgShortHaul = namedtuple(
 
 
 def this_box_has_grouped_s3_uplink():
-    return exists(GROUPED_S3_FILE_FLAG)
+    return exists(LI_PATH_GROUPED_S3_FILE_FLAG)
 
 
 def ddh_is_emolt_box():
-    return os.path.exists(dds_get_is_emolt_box_flag_file())
+    return exists(dds_get_is_emolt_box_flag_file())
 
 
 def ddh_is_dev_platform():
