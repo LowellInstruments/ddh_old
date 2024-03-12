@@ -12,7 +12,7 @@ import subprocess as sp
 from mat.utils import linux_is_rpi, linux_is_rpi3, linux_is_rpi4
 import toml
 
-from settings.tmp_paths import TMP_PATH_GUI_CLOSED_FLAG, TMP_PATH_DISABLE_BLE, TMP_PATH_AWS_HAS_WORK_VIA_GUI, \
+from utils.tmp_paths import TMP_PATH_GUI_CLOSED_FLAG, TMP_PATH_DISABLE_BLE, TMP_PATH_AWS_HAS_WORK_VIA_GUI, \
     TMP_PATH_DDH_GOT_UPDATE, TMP_PATH_DDH_APP_OVERRIDE, TMP_PATH_GPS_DUMMY
 
 STATE_DDS_NOTIFY_BOAT_NAME = "boat_name"

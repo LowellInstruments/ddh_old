@@ -10,7 +10,7 @@ from mat.gps import PORT_CTRL, PORT_DATA
 from mat.utils import linux_is_rpi, linux_set_datetime
 from tzlocal import get_localzone
 
-from settings.tmp_paths import TMP_PATH_GPS_LAST_JSON, TMP_PATH_DDH_BOAT_SPEED_JSON
+from utils.tmp_paths import TMP_PATH_GPS_LAST_JSON, TMP_PATH_DDH_BOAT_SPEED_JSON
 from utils.ddh_config import (dds_get_cfg_vessel_name,
                               dds_get_cfg_flag_gps_external,
                               dds_get_cfg_flag_gps_error_forced,

@@ -10,10 +10,12 @@ cred_aws_custom_sqs_access_key = ""
 
 
 
+# intended to be changed using DDH "edit tab"
 [behavior]
 ship_name = "nameofboat"
 forget_time = 36000
 gear_type = 0
+# range it considers a boat to be trawling
 moving_speed = [ 0.5, 7.0,]
 # works altogether w/ GPS_DUMMY_MODE_FILE
 fake_gps_position = [ 11.0, -83.0,]
@@ -26,8 +28,8 @@ fake_gps_position = [ 11.0, -83.0,]
 
 
 
+# intended to be changed manually since are debug flags
 [flags]
-# administrator flags
 aws_en = 1
 sqs_en = 1
 ble_en = 1
