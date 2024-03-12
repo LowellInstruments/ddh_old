@@ -3,6 +3,8 @@ import pathlib
 import shutil
 import time
 from tzlocal import get_localzone
+
+from ddh.utils_graph import utils_graph_set_fol_req_file
 from dds.ble_dl_tdo import ble_interact_tdo
 from dds.macs import (
     rm_mac_black,
@@ -20,6 +22,7 @@ from mat.ble.ble_mat_utils import (ble_mat_get_antenna_type,
 from dds.ble_dl_rn4020 import ble_interact_rn4020
 from dds.ble_dl_cc26x2r import ble_interact_cc26x2
 from dds.gps import gps_tell_position_logger
+from mat.lix import id_lid_file_flavor, LID_FILE_V2, convert_lix_file
 from mat.utils import linux_is_rpi
 from utils.ddh_config import (dds_get_cfg_flag_purge_this_mac_dl_files_folder,
                               dds_get_cfg_logger_sn_from_mac)
@@ -30,14 +33,35 @@ from utils.ddh_shared import (
     STATE_DDS_BLE_DOWNLOAD_WARNING,
     get_dl_folder_path_from_mac,
     STATE_DDS_BLE_DOWNLOAD, dds_get_aws_has_something_to_do_via_gui_flag_file,
-    STATE_DDS_NOTIFY_HISTORY, STATE_DDS_BLE_ERROR_MOANA_PLUGIN, STATE_DDS_BLE_CONNECTING,
+    STATE_DDS_NOTIFY_HISTORY, STATE_DDS_BLE_ERROR_MOANA_PLUGIN, STATE_DDS_BLE_CONNECTING, get_mac_from_folder_path,
+    STATE_DDS_REQUEST_GRAPH,
 )
 from utils.logs import lg_dds as lg
 from dds.ble_dl_moana import ble_interact_moana
-import subprocess as sp
 
 
 _g_logger_errors = {}
+
+
+def _ble_convert_lid(ls_lid):
+    fol = ''
+    for f in ls_lid:
+        # f: absolute file path ending in .lid
+        if id_lid_file_flavor(f) != LID_FILE_V2:
+            continue
+        lg.a(f"after download converting LID file v2 {f}")
+        convert_lix_file(f)
+        lg.a(f"OK: after download converted LID file v2 {f}")
+        fol = str(pathlib.Path(f).parent.absolute())
+
+    # try to graph the latest
+    if fol:
+        mac = get_mac_from_folder_path(fol)
+        utils_graph_set_fol_req_file(mac)
+        print('fol ', fol)
+        print('mac ', mac)
+        lg.a(f"requesting auto-graph for {mac}")
+        _u(STATE_DDS_REQUEST_GRAPH)
 
 
 def _ble_analyze_logger_result(rv, mac, g, sn, err_critical):
@@ -149,6 +173,8 @@ async def _ble_id_n_interact_logger(mac, info: str, h, g):
         rv, notes = await ble_interact_cc26x2(mac, info, g, hs)
         _crit_error = notes["crit_error"]
         _error_dl = notes["error"]
+        print('notes_dl_files', notes["dl_files"])
+        _ble_convert_lid(notes["dl_files"])
 
     elif _ble_logger_is_rn4020(mac, info):
         rv = await ble_interact_rn4020(mac, info, g, hs)

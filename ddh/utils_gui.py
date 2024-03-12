@@ -260,12 +260,13 @@ def gui_setup_buttons(my_app):
 
     # clicks in BLE text, boat image, brightness...
     a.lbl_ble.mousePressEvent = a.click_lbl_ble
+    a.lbl_cnv.mousePressEvent = a.click_lbl_cnv
+    a.lbl_cloud_img.mousePressEvent = a.click_lbl_cloud_img
     a.lbl_brightness.mousePressEvent = a.click_lbl_brightness
     a.lbl_brightness_txt.mousePressEvent = a.click_lbl_brightness
     a.lbl_uptime.mousePressEvent = a.click_lbl_uptime
     a.lbl_boat.mousePressEvent = a.click_lbl_boat_pressed
     a.lbl_boat.mouseReleaseEvent = a.click_lbl_boat_released
-    a.lbl_cloud_img.mousePressEvent = a.click_lbl_cloud_img
     a.lbl_commit.mousePressEvent = a.click_lbl_commit_pressed
     a.lbl_commit.mouseReleaseEvent = a.click_lbl_commit_released
     a.lbl_date.mousePressEvent = a.click_lbl_datetime_pressed

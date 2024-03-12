@@ -228,16 +228,7 @@ async def ble_interact_tdo(mac, info, g, h):
         # -------------------------
         lg.a(f"interacting TDO logger, info {info}")
         rv, dl_files = await BleTDODownload.download_recipe(lc, mac, info, g, notes)
-
-        # convert lix files
-        lix_f = [f for f in dl_files if f.endswith(".lix")]
-        for f in lix_f:
-            rv_cnv = convert_lix_file(f)
-            if rv_cnv == 0:
-                if ddh_get_cfg_gear_type() != 0:
-                    file_lowell_raw_csv_to_emolt_lt_csv(f)
-            else:
-                lg.a(f'error: DDH converting TDO file {f}')
+        # todo ---> do the automatic graphing as in DOX loggers
 
     except Exception as ex:
         lg.a("error dl_tdo_exception {}".format(ex))

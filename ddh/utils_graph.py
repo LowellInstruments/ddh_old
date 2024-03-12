@@ -72,6 +72,7 @@ def utils_graph_delete_fol_req_file():
 
 def utils_graph_set_fol_req_file(mac):
     if dds_get_cfg_flag_graph_test_mode():
+        lg.a('warning: not using graph_req_json file but test ones')
         return
     try:
         with open(TMP_PATH_GRAPH_REQ_JSON, "w") as f:
@@ -121,10 +122,10 @@ def cached_read_csv(f):
 def process_graph_csv_data(fol, _, h, hi) -> dict:
 
     # 2nd parameter ignored, only use by lru_cache()
-    _g_ff_t = sorted(glob("{}/{}".format(fol, "*_Temperature.csv")))
-    _g_ff_p = sorted(glob("{}/{}".format(fol, "*_Pressure.csv")))
-    _g_ff_do = sorted(glob("{}/{}".format(fol, "*_DissolvedOxygen.csv")))
-    _g_ff_tap = sorted(glob("{}/{}".format(fol, "*_TDO.csv")))
+    _g_ff_t = sorted(glob(f"{fol}/*_Temperature.csv"))
+    _g_ff_p = sorted(glob(f"{fol}/*_Pressure.csv"))
+    _g_ff_dot = sorted(glob(f"{fol}/*_DissolvedOxygen.csv"))
+    _g_ff_tdo = sorted(glob(f"{fol}/*.TDO.csv"))
 
     # type of haul to graph
     met = ''
@@ -144,22 +145,22 @@ def process_graph_csv_data(fol, _, h, hi) -> dict:
             _g_ff_p = _g_ff_p[-1:]
         else:
             _g_ff_p = [_g_ff_p[hi]]
-    if _g_ff_do:
+    if _g_ff_dot:
         met = 'DO'
         if h == 'all':
-            _g_ff_do = _g_ff_do
+            _g_ff_dot = _g_ff_dot
         elif h == 'last':
-            _g_ff_do = _g_ff_do[-1:]
+            _g_ff_dot = _g_ff_dot[-1:]
         else:
-            _g_ff_do = [_g_ff_do[hi]]
-    if _g_ff_tap:
-        met = 'TAP'
+            _g_ff_dot = [_g_ff_dot[hi]]
+    if _g_ff_tdo:
+        met = 'TDO'
         if h == 'all':
-            _g_ff_tap = _g_ff_tap
+            _g_ff_tdo = _g_ff_tdo
         elif h == 'last':
-            _g_ff_tap = _g_ff_tap[-1:]
+            _g_ff_tdo = _g_ff_tdo[-1:]
         else:
-            _g_ff_tap = [_g_ff_tap[hi]]
+            _g_ff_tdo = [_g_ff_tdo[hi]]
 
     # check
     if not met:
@@ -180,7 +181,7 @@ def process_graph_csv_data(fol, _, h, hi) -> dict:
     x = []
     t, p, pf, mpf = [], [], [], []
     doc, dot = [], []
-    tap_t, tap_p, tap_ax, tap_ay, tap_az = [], [], [], [], []
+    tdo_t, tdo_p, tdo_ax, tdo_ay, tdo_az = [], [], [], [], []
     is_moana = False
 
     if met == 'TP':
@@ -197,7 +198,7 @@ def process_graph_csv_data(fol, _, h, hi) -> dict:
 
     elif met == 'DO':
         di = dict()
-        for f in _g_ff_do:
+        for f in _g_ff_dot:
             lg.a('reading DO file {}'.format(basename(f)))
             df = cached_read_csv(f)
             _ = _data_build_dict_intervals(df, di)
@@ -211,16 +212,16 @@ def process_graph_csv_data(fol, _, h, hi) -> dict:
             lg.a('error: NO _data_build_dict_intervals')
             return {}
 
-    elif met == 'TAP':
-        for f in _g_ff_tap:
-            lg.a('reading TAP file {}'.format(basename(f)))
+    elif met == 'TDO':
+        for f in _g_ff_tdo:
+            lg.a(f'reading {met} file {basename(f)}')
             df = cached_read_csv(f)
             x += list(df['ISO 8601 Time'])
-            tap_t += list(df['Temperature (C)'])
-            tap_p += list(df['Pressure (dbar)'])
-            tap_ax += list(df['Ax'])
-            tap_ay += list(df['Ay'])
-            tap_az += list(df['Az'])
+            tdo_t += list(df['Temperature (C)'])
+            tdo_p += list(df['Pressure (dbar)'])
+            tdo_ax += list(df['Ax'])
+            tdo_ay += list(df['Ay'])
+            tdo_az += list(df['Az'])
 
     # simplify stuff
     if not met:
@@ -236,20 +237,20 @@ def process_graph_csv_data(fol, _, h, hi) -> dict:
     p = p[::n]
     doc = doc[::n]
     dot = dot[::n]
-    tap_t = tap_t[::n]
-    tap_p = tap_p[::n]
-    tap_ax = tap_ax[::n]
-    tap_ay = tap_ay[::n]
-    tap_az = tap_az[::n]
+    tdo_t = tdo_t[::n]
+    tdo_p = tdo_p[::n]
+    tdo_ax = tdo_ax[::n]
+    tdo_ay = tdo_ay[::n]
+    tdo_az = tdo_az[::n]
 
     # Celsius to Fahrenheit
     tf = [(c * 9 / 5) + 32 for c in t]
     dotf = [(c * 9 / 5) + 32 for c in dot]
-    tap_tf = [(c * 9 / 5) + 32 for c in tap_t]
+    tdo_tf = [(c * 9 / 5) + 32 for c in tdo_t]
 
     # Depth calculation, convert: f = (dbar - a) * 0.5468
     pf = [(d - CTT_ATM_PRESSURE_DBAR) * .5468 for d in p]
-    tap_pf = [(d - CTT_ATM_PRESSURE_DBAR) * .5468 for d in tap_p]
+    tdo_pf = [(d - CTT_ATM_PRESSURE_DBAR) * .5468 for d in tdo_p]
     mpf = [d * .5468 for d in p]
     # Moana loggers pressure does not include atm. pressure
     pf = pf if not is_moana else mpf
@@ -277,13 +278,13 @@ def process_graph_csv_data(fol, _, h, hi) -> dict:
         'DO Concentration (mg/l) DO': doc,
         'Temperature (C) DO': dot,
         'Temperature (F) DO': dotf,
-        'Temperature (C) TAP': tap_t,
-        'Temperature (F) TAP': tap_tf,
-        'Pressure (dbar) TAP': tap_p,
-        'Depth (fathoms) TAP': tap_pf,
-        'Ax TAP': tap_ax,
-        'Ay TAP': tap_ay,
-        'Az TAP': tap_az,
+        'Temperature (C) TDO': tdo_t,
+        'Temperature (F) TDO': tdo_tf,
+        'Pressure (dbar) TDO': tdo_p,
+        'Depth (fathoms) TDO': tdo_pf,
+        'Ax TDO': tdo_ax,
+        'Ay TDO': tdo_ay,
+        'Az TDO': tdo_az,
         'pruned': n != 1,
         'logger_type': lg_t
     }

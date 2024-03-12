@@ -13,7 +13,8 @@ from mat.utils import linux_is_rpi, linux_is_rpi3, linux_is_rpi4
 import toml
 
 from utils.tmp_paths import TMP_PATH_GUI_CLOSED_FLAG, TMP_PATH_DISABLE_BLE, TMP_PATH_AWS_HAS_WORK_VIA_GUI, \
-    TMP_PATH_DDH_GOT_UPDATE, TMP_PATH_DDH_APP_OVERRIDE, TMP_PATH_GPS_DUMMY, LI_PATH_EMOLT_FILE_FLAG
+    TMP_PATH_DDH_GOT_UPDATE, TMP_PATH_DDH_APP_OVERRIDE, TMP_PATH_GPS_DUMMY, LI_PATH_EMOLT_FILE_FLAG, \
+    TMP_PATH_CNV_REQUESTED_VIA_GUI
 
 STATE_DDS_NOTIFY_BOAT_NAME = "boat_name"
 STATE_DDS_NOTIFY_GPS = "gps"
@@ -164,6 +165,10 @@ def dds_get_aws_has_something_to_do_via_gui_flag_file() -> str:
     return TMP_PATH_AWS_HAS_WORK_VIA_GUI
 
 
+def dds_get_cnv_requested_via_gui_flag_file() -> str:
+    return TMP_PATH_CNV_REQUESTED_VIA_GUI
+
+
 def ddh_get_db_history_file() -> str:
     p = str(ddh_get_root_folder_path())
     return f"{p}/ddh/db/db_his.json"
@@ -240,6 +245,7 @@ def get_ddh_folder_path_tweak() -> Path:
 
 def get_mac_from_folder_path(fol):
     """returns '11:22:33' from 'dl_files/11-22-33'"""
+    fol = str(fol)
     try:
         return fol.split("/")[-1].replace("-", ":")
     except (ValueError, Exception):

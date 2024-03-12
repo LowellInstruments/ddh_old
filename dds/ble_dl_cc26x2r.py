@@ -136,11 +136,14 @@ class BleCC26X2Download:
             path = str(get_dl_folder_path_from_mac(mac) / name)
             with open(path, "wb") as f:
                 f.write(file_data)
-            lg.a("downloaded file {}".format(name))
+            lg.a(f"downloaded file {name}")
 
             # no-deleting the logger configuration file
             if name == MC_FILE:
                 continue
+
+            # we are going well
+            notes['dl_files'].append(path)
 
             # delete file in logger
             rv = await lc.cmd_del(name)
@@ -205,7 +208,6 @@ class BleCC26X2Download:
         # bye, bye to this logger
         # -----------------------
         await lc.disconnect()
-
         return 0
 
 

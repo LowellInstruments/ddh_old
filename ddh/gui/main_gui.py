@@ -59,7 +59,7 @@ from utils.ddh_shared import (
     dds_get_ddh_got_an_update_flag_file,
     STATE_DDS_SOFTWARE_UPDATED,
     ddh_get_db_history_file, ddh_kill_by_pid_file, get_ddh_toml_all_macs_content, set_ddh_rerun_flag_li,
-    clr_ddh_rerun_flag_li
+    clr_ddh_rerun_flag_li, dds_get_cnv_requested_via_gui_flag_file
 )
 
 from utils.logs import lg_gui as lg  # noqa: E402
@@ -563,7 +563,13 @@ class DDH(QMainWindow, d_m.Ui_MainWindow):
         self.lbl_cloud_txt.setText("checking")
         flag = dds_get_aws_has_something_to_do_via_gui_flag_file()
         pathlib.Path(flag).touch()
-        lg.a("clicked cloud icon")
+        lg.a("user clicked cloud icon")
+
+    def click_lbl_cnv(self, _):
+        self.lbl_cnv.setText("checking")
+        flag = dds_get_cnv_requested_via_gui_flag_file()
+        pathlib.Path(flag).touch()
+        lg.a("user clicked lbl_cnv")
 
     def click_chk_rerun(self, _):
         if self.chk_rerun.isChecked():

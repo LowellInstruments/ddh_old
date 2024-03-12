@@ -4,7 +4,7 @@ import pathlib
 from dds.timecache import its_time_to
 from mat.data_converter import default_parameters, DataConverter
 from mat.data_file_factory import load_data_file
-from mat.lix import convert_lix_file, id_lid_file_flavor, LID_FILE_V1, LID_FILE_V2
+from mat.lix import convert_lix_file, id_lid_file_flavor, LID_FILE_V1, LID_FILE_V2, lid_file_v2_has_sensor_data_type
 from mat.utils import linux_ls_by_ext
 from utils.logs import lg_cnv as lg
 from utils.ddh_shared import (
@@ -15,6 +15,7 @@ from utils.ddh_shared import (
 )
 import pandas as pd
 
+from utils.tmp_paths import TMP_PATH_CNV_REQUESTED_VIA_GUI
 
 """
 code in this file only takes care of LID data files
@@ -28,10 +29,9 @@ DDH_BPSL = BAROMETRIC_PRESSURE_SEA_LEVEL_IN_DECIBAR
 
 _g_files_we_cannot_convert = []
 _g_files_already_converted = []
-_g_last_nf = 0
 
 
-def _lid_file_has_sensor_data_type(path, suffix):
+def _lid_v1_file_has_sensor_data_type(path, suffix):
     _map = {"_DissolvedOxygen": "DOS", "_Temperature": "TMP", "_Pressure": "PRS"}
     header = load_data_file(path).header()
     return header.tag(_map[suffix])
@@ -44,7 +44,7 @@ def _cnv_lid_file_v1(path, suf):
     lg.a(f"converting LID file v1 {f} for suffix {suf}")
 
     # check v1 file header to skip files w/o this sensor data / suffix
-    if not _lid_file_has_sensor_data_type(f, suf):
+    if not _lid_v1_file_has_sensor_data_type(f, suf):
         # s = 'debug: skip conversion, file {} has no {} data'
         # lg.a(s.format(f, suf))
         return
@@ -71,9 +71,11 @@ def _cnv_lid_file_v2(f, suf):
     # f: absolute file path ending in .lid
     if id_lid_file_flavor(f) != LID_FILE_V2:
         return
-    lg.a(f"converting LID file v2 {f}")
+    if not lid_file_v2_has_sensor_data_type(f, suf):
+        return
+    lg.a(f"converting LID file v2 {f} suffix {suf}")
     convert_lix_file(f)
-    lg.a(f"OK: converted LID file v2 {f}")
+    lg.a(f"OK: converted LID file v2 {f} suffix {suf}")
 
 
 def _cnv_fol_lid(fol, suf) -> list:
@@ -101,7 +103,7 @@ def _cnv_fol_lid(fol, suf) -> list:
             continue
 
         # IGNORE when CSV files already exists
-        f_csv = "{}{}.csv".format(f.split(".")[0], suf)
+        f_csv = f"{f.split('.')[0]}{suf}.csv"
         if pathlib.Path(f_csv).is_file():
             if f_csv not in _g_files_already_converted:
                 lg.a(f"debug: skip conversion, file {f_csv} already exists")
@@ -117,14 +119,6 @@ def _cnv_fol_lid(fol, suf) -> list:
             _cnv_lid_file_v1(f, suf)
             _cnv_lid_file_v2(f, suf)
 
-            # try to graph the latest
-            # # todo ---> test this, move this somewhere else
-            # print('****** fol', fol)
-            # mac = get_mac_from_folder_path(fol)
-            # print('****** mac', mac)
-            # utils_graph_set_fol_req_file(mac)
-            # _u(STATE_DDS_REQUEST_GRAPH)
-
         except (ValueError, Exception) as ex:
             lg.a(f"error: converting file {f}, metric {suf} --> {str(ex)}")
             # add to black list of files
@@ -137,31 +131,32 @@ def _cnv_fol_lid(fol, suf) -> list:
 
 def _cnv_serve():
 
-    # smart detect we have to force a conversion sequence
-    fol = str(get_ddh_folder_path_dl_files())
-    global _g_last_nf
-    ls = glob.glob(f'{fol}/**/*.lid', recursive=True)
-    ls += glob.glob(f'{fol}/**/*.lix', recursive=True)
-    forced = len(ls) != _g_last_nf
+    # see if someone asked conversions
+    forced = os.path.exists(TMP_PATH_CNV_REQUESTED_VIA_GUI)
     if forced:
-        lg.a(f'warning: #files {_g_last_nf} -> {len(ls)}, conversion forced')
-    _g_last_nf = len(ls)
+        lg.a(f'warning: conversion forced via GUI')
+        os.unlink(TMP_PATH_CNV_REQUESTED_VIA_GUI)
 
     # this function does not run always, only from time to time
     if not its_time_to("do_some_conversions", PERIOD_CNV_SECS) and not forced:
         return
 
     # general banner
-    s = 'conversion sequence started'
+    s = 'cnv_serve sequence started'
     lg.a('-' * (len(s) + 1))
     lg.a(s)
 
-    # this only CONVERTS Lowell files
-    for m in ("_DissolvedOxygen", "_Temperature", "_Pressure", "_TDO"):
-        # 1 file can be processed first for _Temperature, next for _Pressure
-        _cnv_fol_lid(fol, m)
+    # iterate mac folders
+    fol = str(get_ddh_folder_path_dl_files())
+    mac_folders = [f.path for f in os.scandir(fol) if f.is_dir()]
+    mac_folders = [f for f in mac_folders if '#' not in f]
+    for f in mac_folders:
+        # this routine only converts LID files, not BIN or anything
+        for m in ("_DissolvedOxygen", "_Temperature", "_Pressure", "_TDO"):
+            # same file is processed for multiple metrics
+            _cnv_fol_lid(f, m)
 
-    s = 'conversion sequence finished'
+    s = 'cnv_serve sequence finished'
     lg.a(s)
     lg.a('-' * len(s))
 
@@ -185,6 +180,6 @@ def cnv_serve():
 
 
 if __name__ == '__main__':
-    fol = str(get_ddh_folder_path_dl_files())
-    f = fol + '/d0-2e-ab-d9-29-48/9999999_BIL_20240209_165512.lix'
+    _fol = str(get_ddh_folder_path_dl_files())
+    f = _fol + '/d0-2e-ab-d9-29-48/9999999_BIL_20240209_165512.lix'
     convert_lix_file(f)

@@ -32,6 +32,9 @@ TMP_PATH_GUI_CLOSED_FLAG = "/tmp/gui_closed.flag"
 # indicates the DDH GUI wants to force an AWS sync
 TMP_PATH_AWS_HAS_WORK_VIA_GUI = "/tmp/ddh_aws_has_something_to_do_via_gui.flag"
 
+# indicates the DDH GUI requested a CNV process
+TMP_PATH_CNV_REQUESTED_VIA_GUI = "/tmp/ddh_cnv_requested_via_gui.flag"
+
 # indicates the DDH GUI updated itself (beta)
 TMP_PATH_DDH_GOT_UPDATE = "/tmp/ddh_got_update_file.flag"
 
