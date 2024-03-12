@@ -12,7 +12,7 @@ from utils.ddh_config import dds_get_cfg_monitored_macs
 from utils.ddh_shared import (
     send_ddh_udp_gui as _u,
     STATE_DDS_BLE_SCAN_FIRST_EVER,
-    STATE_DDS_BLE_SCAN, STATE_DDS_BLE_HARDWARE_ERROR,
+    STATE_DDS_BLE_SCAN, STATE_DDS_BLE_HARDWARE_ERROR, get_mac_from_folder_path,
 )
 from bleak import BleakScanner, BleakError
 from bleak.backends.bluezdbus.scanner import BlueZScannerArgs
@@ -141,6 +141,7 @@ async def ble_scan(macs_mon, g, _h: int, _h_desc, t=6.0):
     """
 
     macs_bad = set(macs_black()).union(set(macs_orange()))
+    macs_bad = [get_mac_from_folder_path(i) for i in macs_bad]
 
     def _scan_cb(d: BLEDevice, _):
         mac = d.address.lower()

@@ -4,14 +4,14 @@ import pathlib
 from dds.timecache import its_time_to
 from mat.data_converter import default_parameters, DataConverter
 from mat.data_file_factory import load_data_file
-from mat.lix import convert_lix_file
+from mat.lix import convert_lix_file, id_lid_file_flavor, LID_FILE_V1, LID_FILE_V2
 from mat.utils import linux_ls_by_ext
 from utils.logs import lg_cnv as lg
 from utils.ddh_shared import (
     send_ddh_udp_gui as _u,
     get_ddh_folder_path_dl_files,
     STATE_DDS_NOTIFY_CONVERSION_ERR,
-    STATE_DDS_NOTIFY_CONVERSION_OK,
+    STATE_DDS_NOTIFY_CONVERSION_OK
 )
 import pandas as pd
 
@@ -37,138 +37,107 @@ def _lid_file_has_sensor_data_type(path, suffix):
     return header.tag(_map[suffix])
 
 
-def _cnv_lid(fol, suf) -> (bool, list):
+def _cnv_lid_file_v1(path, suf):
+    f = path
+    if id_lid_file_flavor(f) != LID_FILE_V1:
+        return
+    lg.a(f"converting LID file v1 {f} for suffix {suf}")
+
+    # check v1 file header to skip files w/o this sensor data / suffix
+    if not _lid_file_has_sensor_data_type(f, suf):
+        # s = 'debug: skip conversion, file {} has no {} data'
+        # lg.a(s.format(f, suf))
+        return
+
+    # do the v1 conversion
+    parameters = default_parameters()
+    DataConverter(f, parameters).convert()
+    lg.a(f"OK: converted LID file v1 {f} for suffix {suf}")
+
+    # --------------------------------
+    # RN4020: hack for pressure adjust
+    # --------------------------------
+    if ("_Pressure" in suf) and ("moana" not in f.lower()):
+        lg.a("debug: adjusting LI file {}".format(f))
+        fp_csv = f[:-4] + "_Pressure.csv"
+        df = pd.read_csv(fp_csv)
+        c = "Pressure (dbar)"
+        df[c] = df["Pressure (dbar)"] - DDH_BPSL
+        df[c] = df[c].apply(lambda x: x if x > 0 else 0)
+        df.to_csv(fp_csv, index=False)
+
+
+def _cnv_lid_file_v2(f, suf):
+    # f: absolute file path ending in .lid
+    if id_lid_file_flavor(f) != LID_FILE_V2:
+        return
+    lg.a(f"converting LID file v2 {f}")
+    convert_lix_file(f)
+    lg.a(f"OK: converted LID file v2 {f}")
+
+
+def _cnv_fol_lid(fol, suf) -> list:
 
     # check asked folder (ex: dl_files/e5-fc-4e-94-ed-dd) exists
     if not pathlib.Path(fol).is_dir():
-        lg.a("error: folder {} not found".format(fol))
-        return False, []
+        lg.a(f"error: folder {fol} not found")
+        return 1
 
     # check asked suffix (ex: _DissolvedOxygen) exists
-    valid_suffixes = ("_DissolvedOxygen", "_Temperature", "_Pressure")
+    valid_suffixes = ("_DissolvedOxygen", "_Temperature", "_Pressure", "_TDO")
     if suf not in valid_suffixes:
-        lg.a("error: unknown suffix {}".format(suf))
-        return False, []
+        lg.a(f"error: unknown suffix {suf}")
+        return 1
 
     # --------------------------
     # we only convert LID files
     # --------------------------
-    parameters = default_parameters()
-    err_files = []
-    all_ok = True
-    global _g_files_we_cannot_convert
-    lid_files = linux_ls_by_ext(fol, "lid")
-
-    for f in lid_files:
-        # do not convert test_files
-        if os.path.basename(f).startswith('test'):
-            continue
-        # do not convert when already have CSV files for this LID file
-        _ = "{}{}.csv".format(f.split(".")[0], suf)
-        if pathlib.Path(_).is_file():
-            global _g_files_already_converted
-            s = "debug: skip conversion, file {} already exists"
-            if _ not in _g_files_already_converted:
-                lg.a(s.format(_))
-                _g_files_already_converted.append(_)
-            continue
-
-        # do not convert when LID file already known as defective
-        if f in _g_files_we_cannot_convert:
-            continue
-
-        # -----------------------------
-        # try to convert this LID file
-        # -----------------------------
-        try:
-            # skip files not containing this sensor data
-            if not _lid_file_has_sensor_data_type(f, suf):
-                # s = 'debug: skip conversion, file {} has no {} data'
-                # lg.a(s.format(f, suf))
-                continue
-
-            DataConverter(f, parameters).convert()
-            lg.a("converted file {} for suffix {}".format(f, suf))
-
-            # --------------------------------
-            # RN4020: hack for pressure adjust
-            # --------------------------------
-            if ("_Pressure" in suf) and ("moana" not in f.lower()):
-                lg.a("debug: adjusting LI file {}".format(f))
-                fp_csv = f[:-4] + "_Pressure.csv"
-                df = pd.read_csv(fp_csv)
-                c = "Pressure (dbar)"
-                df[c] = df["Pressure (dbar)"] - DDH_BPSL
-                df[c] = df[c].apply(lambda x: x if x > 0 else 0)
-                df.to_csv(fp_csv, index=False)
-
-        except (ValueError, Exception) as ex:
-
-            all_ok = False
-            err_files.append(f)
-            e = "error: converting file {}, metric {} --> {}"
-            lg.a(e.format(f, suf, str(ex)))
-
-            # add to black list of files
-            if f not in _g_files_we_cannot_convert:
-                e = "warning: ignoring file {} for metric {} from now on"
-                lg.a(e.format(f, suf))
-                _g_files_we_cannot_convert.append(f)
-
-    return all_ok, err_files
-
-
-# external alias for this function
-def convert_lid_to_csv(fol, suf) -> (bool, list):
-    return _cnv_lid(fol, suf)
-
-
-def _cnv_lid_metric(m):
-    fol = str(get_ddh_folder_path_dl_files())
-    rv, _ = _cnv_lid(fol, m)
-    return rv
-
-
-def _cnv_all_lix_files():
-    fol = str(get_ddh_folder_path_dl_files())
-    if not fol or not os.path.isdir(fol):
-        # None means error
-        return
-
-    # collect all LIX files generated by any logger type
     global _g_files_we_cannot_convert
     global _g_files_already_converted
-    _g_files_already_converted = glob.glob('/**/*.csv', recursive=True)
+    for f in linux_ls_by_ext(fol, "lid"):
 
-    # global result of all file conversions
-    rv_all = 0
-
-    for f in glob.glob(fol + '/**/*.lix', recursive=True):
-        # cases no conversion needed
-        fc = f[:-4] + '.csv'
-        if fc in _g_files_already_converted:
-            lg.a(f"debug: skip conversion, file {fc} already exists")
+        # IGNORE test_files
+        if os.path.basename(f).startswith('test'):
             continue
+
+        # IGNORE when CSV files already exists
+        f_csv = "{}{}.csv".format(f.split(".")[0], suf)
+        if pathlib.Path(f_csv).is_file():
+            if f_csv not in _g_files_already_converted:
+                lg.a(f"debug: skip conversion, file {f_csv} already exists")
+                _g_files_already_converted.append(f_csv)
+            continue
+
+        # IGNORE when LID file already known as bad
         if f in _g_files_we_cannot_convert:
             continue
-        #
-        # # try to convert it
-        # plf = ParserLixFile(f)
-        # rv = plf.convert_lix_file()
-        #
-        # # populate lists
-        # if rv and f not in _g_files_we_cannot_convert:
-        #     lg.a(f"warning: ignoring file {f} from now on")
-        #     _g_files_we_cannot_convert.append(f)
-        # rv_all += rv
 
-    # check not a single file had errors
-    return rv_all == 0
+        # try to convert this LID file
+        try:
+            _cnv_lid_file_v1(f, suf)
+            _cnv_lid_file_v2(f, suf)
+
+            # try to graph the latest
+            # # todo ---> test this, move this somewhere else
+            # print('****** fol', fol)
+            # mac = get_mac_from_folder_path(fol)
+            # print('****** mac', mac)
+            # utils_graph_set_fol_req_file(mac)
+            # _u(STATE_DDS_REQUEST_GRAPH)
+
+        except (ValueError, Exception) as ex:
+            lg.a(f"error: converting file {f}, metric {suf} --> {str(ex)}")
+            # add to black list of files
+            if f not in _g_files_we_cannot_convert:
+                lg.a(f"warning: ignoring file {f} for metric {suf} from now on")
+                _g_files_we_cannot_convert.append(f)
+
+    return _g_files_we_cannot_convert
 
 
 def _cnv_serve():
 
-    # detect we have to force a conversion sequence
+    # smart detect we have to force a conversion sequence
     fol = str(get_ddh_folder_path_dl_files())
     global _g_last_nf
     ls = glob.glob(f'{fol}/**/*.lid', recursive=True)
@@ -187,43 +156,23 @@ def _cnv_serve():
     lg.a('-' * (len(s) + 1))
     lg.a(s)
 
-    # error variable
-    e = ""
-
-    # this one includes WATER
-    s = "some {} files did not convert"
-    m = "_DissolvedOxygen"
-    rv = _cnv_lid_metric(m)
-    if not rv:
-        e += "O_"
-        lg.a(s.format(m))
-
-    m = "_Temperature"
-    rv = _cnv_lid_metric(m)
-    if not rv:
-        e += "T_"
-        lg.a(s.format(m))
-
-    m = "_Pressure"
-    rv = _cnv_lid_metric(m)
-    if not rv:
-        e += "P_"
-        lg.a(s.format(m))
-
-    # rv = _cnv_all_lix_files()
-    # if not rv:
-    #     e += 'LIX_'
-    #     lg.a(s.format('_LIX'))
+    # this only CONVERTS Lowell files
+    for m in ("_DissolvedOxygen", "_Temperature", "_Pressure", "_TDO"):
+        # 1 file can be processed first for _Temperature, next for _Pressure
+        _cnv_fol_lid(fol, m)
 
     s = 'conversion sequence finished'
     lg.a(s)
     lg.a('-' * len(s))
 
     # GUI update
-    if e:
-        _u("{}/{}".format(STATE_DDS_NOTIFY_CONVERSION_ERR, e))
+    if _g_files_we_cannot_convert:
+        lg.a(f"error: some files are not converted")
+        for f in _g_files_we_cannot_convert:
+            lg.a(f"\t- {f}")
+        _u(f"{STATE_DDS_NOTIFY_CONVERSION_ERR}")
     else:
-        _u("{}/OK".format(STATE_DDS_NOTIFY_CONVERSION_OK))
+        _u(f"{STATE_DDS_NOTIFY_CONVERSION_OK}")
 
 
 def cnv_serve():
