@@ -19,6 +19,7 @@ from ddh.db.db_his import DBHis
 from ddh.graph import process_n_graph
 from ddh.utils_net import net_get_my_current_wlan_ssid
 from locales.locales import _x
+from locales.strings import STR_SEARCHING_FOR_LOGGERS, STR_CONNECTING_LOGGER, STR_SYNCING_GPS_TIME
 from mat.ble.ble_mat_utils import DDH_GUI_UDP_PORT
 from mat.utils import linux_is_rpi
 import subprocess as sp
@@ -491,7 +492,7 @@ def _gui_parse_udp(my_app, s, ip="127.0.0.1"):
     # BLE service states
     # -------------------
     if f in (STATE_DDS_BLE_SCAN, STATE_DDS_BLE_SCAN_FIRST_EVER):
-        ct = _x("searching for loggers")
+        ct = _x(STR_SEARCHING_FOR_LOGGERS)
         ci = "blue{}.png".format(i)
 
     elif f == STATE_DDS_SOFTWARE_UPDATED:
@@ -499,7 +500,7 @@ def _gui_parse_udp(my_app, s, ip="127.0.0.1"):
         ci = "update.png"
 
     elif f == STATE_DDS_BLE_CONNECTING:
-        ct = f'{_x("connecting")} {v}'
+        ct = f'{_x(STR_CONNECTING_LOGGER)} {v}'
         ci = f'ble_connecting.png'
         print(i)
 
@@ -638,7 +639,7 @@ def _gui_parse_udp(my_app, s, ip="127.0.0.1"):
 
     elif f == STATE_DDS_NOTIFY_GPS_CLOCK:
         # time controlled via function calling this state
-        ct = _x("syncing GPS time")
+        ct = _x(STR_SYNCING_GPS_TIME)
         ci = "gps_clock.png"
 
     elif f == STATE_DDS_NOTIFY_GPS_NUM_SAT:

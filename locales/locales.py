@@ -2,7 +2,7 @@
 # this will be moved to gettext module,
 # but it did not work for me when I tried
 # ----------------------------------------
-
+from strings import *
 from utils.ddh_shared import (set_ddh_language_file_content,
                               get_ddh_language_file_content)
 
@@ -10,15 +10,17 @@ from utils.ddh_shared import (set_ddh_language_file_content,
 g_lang = get_ddh_language_file_content()
 
 lang_msg_db = {
-    'searching for loggers': {
-        'fr': 'le_xerxe',
+    STR_SEARCHING_FOR_LOGGERS: {
+        'fr': 'cherchant sondes',
         'ca': 'buscant loggers'
     },
-    'connecting': {
+    STR_CONNECTING_LOGGER: {
+        'fr': 'en cours de connexion',
         'ca': 'connectant'
     },
-    'syncing GPS time': {
-        'ca': 'rellotge GPS'
+    STR_SYNCING_GPS_TIME: {
+        'fr': 'synchronisation GPS',
+        'ca': 'esperant GPS'
     }
 }
 

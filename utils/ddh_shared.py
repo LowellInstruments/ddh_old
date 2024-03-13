@@ -238,6 +238,10 @@ def get_ddh_folder_path_settings() -> Path:
     return Path(f"{p}/settings")
 
 
+def get_ddh_file_path_ts_aws() -> str:
+    return str(ddh_get_root_folder_path()) + '/.ts_aws.txt'
+
+
 def get_ddh_folder_path_tweak() -> Path:
     p = str(ddh_get_root_folder_path())
     return Path(f"{p}/dds/tweak")
@@ -387,6 +391,7 @@ def get_ddh_language_file_content():
                 return lang
         except (Exception, ) as ex:
             print(f'error: get_ddh_language_file_content {ex}')
+            return 'en'
 
 
 def set_ddh_language_file_content(lang):

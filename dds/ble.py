@@ -52,16 +52,6 @@ def _ble_convert_lid(ls_lid):
         lg.a(f"after download converting LID file v2 {f}")
         convert_lix_file(f)
         lg.a(f"OK: after download converted LID file v2 {f}")
-        fol = str(pathlib.Path(f).parent.absolute())
-
-    # try to graph the latest
-    if fol:
-        mac = get_mac_from_folder_path(fol)
-        utils_graph_set_fol_req_file(mac)
-        print('fol ', fol)
-        print('mac ', mac)
-        lg.a(f"requesting auto-graph for {mac}")
-        _u(STATE_DDS_REQUEST_GRAPH)
 
 
 def _ble_analyze_logger_result(rv, mac, g, sn, err_critical):
@@ -74,9 +64,14 @@ def _ble_analyze_logger_result(rv, mac, g, sn, err_critical):
         notify_logger_download(g, mac)
         if mac in _g_logger_errors.keys():
             del _g_logger_errors[mac]
-        lg.a("OK! logger {}/{}".format(mac, sn))
+        lg.a(f"OK! logger {mac}/{sn}")
         _u(f"{STATE_DDS_BLE_DOWNLOAD_OK}/{sn}")
         time.sleep(1)
+
+        # graph loggers just downloaded
+        utils_graph_set_fol_req_file(mac)
+        lg.a(f"requesting auto-graph for {mac}")
+        _u(STATE_DDS_REQUEST_GRAPH)
         return
 
     # NOT success

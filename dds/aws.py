@@ -21,12 +21,12 @@ from utils.ddh_shared import (
     STATE_DDS_NOTIFY_CLOUD_BUSY,
     STATE_DDS_NOTIFY_CLOUD_ERR,
     STATE_DDS_NOTIFY_CLOUD_OK,
-    dds_get_aws_has_something_to_do_via_gui_flag_file
+    dds_get_aws_has_something_to_do_via_gui_flag_file, get_ddh_file_path_ts_aws
 )
 from utils.logs import lg_aws as lg
 
 g_fresh_boot = 1
-PATH_FILE_AWS_TS = get_ddh_folder_path_dl_files()
+PATH_FILE_AWS_TS = get_ddh_file_path_ts_aws()
 PERIOD_AWS_S3_SECS = 3600 * 6
 PERIOD_ALARM_AWS_S3 = 86400 * 7
 AWS_S3_SYNC_PROC_NAME = "dds_aws_sync"
@@ -48,19 +48,17 @@ def _get_aws_bin_path():
 
 def _touch_s3_ts():
     # ts: timestamp
-    name = str(PATH_FILE_AWS_TS) + '/.ts_aws.txt'
-    with open(name, 'w') as f:
+    with open(PATH_FILE_AWS_TS, 'w') as f:
         f.write(str(int(time.time())))
 
 
 def _get_s3_ts():
-    name = str(PATH_FILE_AWS_TS) + '/.ts_aws.txt'
     try:
-        with open(name, 'r') as f:
+        with open(PATH_FILE_AWS_TS, 'r') as f:
             return f.readline()
     except FileNotFoundError:
         # first time ever
-        lg.a(f'error: not found {name}')
+        lg.a(f'warning: AWS timestamp file not found {PATH_FILE_AWS_TS}')
         return 0
 
 
