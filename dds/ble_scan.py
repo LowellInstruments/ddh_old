@@ -46,7 +46,6 @@ def _ble_is_supported_logger(s):
         "MOANA",
         "MAT-2W",
         "MATP-2W",
-        "TAP1",
         "TDO"
     ]
     for t in logger_types:
@@ -96,7 +95,7 @@ def _ble_scan_banner(_h, _h_desc):
 #             # https://github.com/hbldh/bleak/issues/1433
 #             args = BlueZScannerArgs(
 #                 or_patterns=[OrPattern(0, AdvertisementDataType.COMPLETE_LOCAL_NAME, b"ZT-MOANA"),
-#                              OrPattern(0, AdvertisementDataType.COMPLETE_LOCAL_NAME, b"TAP1"),
+#                              OrPattern(0, AdvertisementDataType.COMPLETE_LOCAL_NAME, b"TDO"),
 #                              OrPattern(0, AdvertisementDataType.COMPLETE_LOCAL_NAME, b"DO-1"),
 #                              OrPattern(0, AdvertisementDataType.COMPLETE_LOCAL_NAME, b"DO-2"),
 #                              ]
@@ -176,7 +175,7 @@ async def ble_scan(macs_mon, g, _h: int, _h_desc, t=6.0):
             # https://github.com/hbldh/bleak/issues/1433
             args = BlueZScannerArgs(
                 or_patterns=[OrPattern(0, AdvertisementDataType.COMPLETE_LOCAL_NAME, b"ZT-MOANA"),
-                             OrPattern(0, AdvertisementDataType.COMPLETE_LOCAL_NAME, b"TAP1"),
+                             OrPattern(0, AdvertisementDataType.COMPLETE_LOCAL_NAME, b"TDO"),
                              OrPattern(0, AdvertisementDataType.COMPLETE_LOCAL_NAME, b"DO-1"),
                              OrPattern(0, AdvertisementDataType.COMPLETE_LOCAL_NAME, b"DO-2"),
                              ]

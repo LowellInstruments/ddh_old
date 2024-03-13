@@ -88,8 +88,3 @@ def file_lowell_raw_csv_to_emolt_lt_csv(filename):
         _file_lowell_raw_csv_to_emolt_lt_csv(filename)
     except (Exception, ) as ex:
         lg.a(f'error: file_lowell_raw_csv_to_emolt_lt_csv: {ex}')
-
-
-if __name__ == '__main__':
-    ft = 'dl_files/d0-2e-ab-d9-29-48/9999999_BIL_20231201_142920_TAP.csv'
-    file_lowell_raw_csv_to_emolt_lt_csv(ft)

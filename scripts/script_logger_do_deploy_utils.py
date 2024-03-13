@@ -85,7 +85,7 @@ async def deploy_logger(mac, sn, flag_run, flag_sensor):
             rv = await lc.cmd_wak("on")
         _e(rv, "wak")
 
-        # these stand for First Deployment Get / Set on TAP loggers
+        # these stand for First Deployment Get / Set on TDO loggers
         # rv, v = await lc.cmd_fdg()
         # _e(rv, 'fds')
         # rv, v = await lc.cmd_fds()
@@ -135,7 +135,7 @@ async def ble_scan(t=5.0):
     _dl = []
 
     def _scan_cb(d: BLEDevice, adv_data):
-        logger_types = ["DO-2", "DO-1", "TAP1"]
+        logger_types = ["DO-2", "DO-1", "TDO"]
         if d.name in logger_types:
             _dd[d.address.lower()] = adv_data.rssi
 

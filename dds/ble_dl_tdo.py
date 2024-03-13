@@ -246,7 +246,7 @@ if __name__ == "__main__":
     # we currently in 'ddh/dds'
     os.chdir('..')
     _m = "D0:2E:AB:D9:29:48"
-    _i = "TAP1"
+    _i = "TDO"
     _g = ("+1.111111", "-2.222222", datetime.datetime.now(), 0)
     _h = "hci0"
     _args = [_m, _i, _g, _h]
