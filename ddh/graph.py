@@ -182,11 +182,11 @@ def _graph_calc_hash_filenames(fol):
     _g_ff_t = sorted(glob("{}/{}".format(fol, "*_Temperature.csv")))
     _g_ff_p = sorted(glob("{}/{}".format(fol, "*_Pressure.csv")))
     _g_ff_do = sorted(glob("{}/{}".format(fol, "*_DissolvedOxygen.csv")))
-    _g_ff_tap = sorted(glob("{}/{}".format(fol, "*_TAP.csv")))
+    _g_ff_tdo = sorted(glob("{}/{}".format(fol, "*_TDO.csv")))
 
     # so we can use cache
     return '\n'.join(_g_ff_t) + '\n'.join(_g_ff_p) +\
-        '\n'.join(_g_ff_do) + '\n'.join(_g_ff_tap)
+        '\n'.join(_g_ff_do) + '\n'.join(_g_ff_tdo)
 
 
 def _process_n_graph(a, r=''):
@@ -336,13 +336,13 @@ def _process_n_graph(a, r=''):
     elif met == 'DO':
         lbl1 = 'DO Concentration (mg/l) DO'
         lbl2 = 'Temperature (F) DO'
-    elif met == 'TAP':
-        lbl1 = 'Depth (fathoms) TAP'
-        lbl2 = 'Temperature (F) TAP'
-        lbl3 = 'Ax TAP'
-        y3 = data['Ax TAP']
-        y4 = data['Ay TAP']
-        y5 = data['Az TAP']
+    elif met == 'TDO':
+        lbl1 = 'Depth (fathoms) TDO'
+        lbl2 = 'Temperature (F) TDO'
+        lbl3 = 'Ax TDO'
+        y3 = data['Ax TDO']
+        y4 = data['Ay TDO']
+        y5 = data['Az TDO']
     y1 = data[lbl1]
     y2 = data[lbl2]
 
@@ -350,9 +350,9 @@ def _process_n_graph(a, r=''):
     p1.invertY('Depth' in lbl1)
 
     # colors
-    lbl1 = lbl1.replace(' TP', '').replace(' DO', '').replace(' TAP', '')
-    lbl2 = lbl2.replace(' TP', '').replace(' DO', '').replace(' TAP', '')
-    lbl3 = lbl3.replace(' TP', '').replace(' DO', '').replace(' TAP', '')
+    lbl1 = lbl1.replace(' TP', '').replace(' DO', '').replace(' TDO', '')
+    lbl2 = lbl2.replace(' TP', '').replace(' DO', '').replace(' TDO', '')
+    lbl3 = lbl3.replace(' TP', '').replace(' DO', '').replace(' TDO', '')
     clr_1 = _get_color_by_label(lbl1)
     clr_2 = _get_color_by_label(lbl2)
     clr_3 = _get_color_by_label(lbl3)
@@ -427,14 +427,14 @@ def _process_n_graph(a, r=''):
         p1.getAxis('bottom').setLabel(title, **_sty('black'))
 
     # ------------------
-    # graph TAP loggers
+    # graph TDO loggers
     # ------------------
-    if met == 'TAP':
+    if met == 'TDO':
         a.cb_g_switch_tp.setVisible(True)
-        tap_plot_type = a.cb_g_switch_tp.currentText()
+        tdo_graph_type = a.cb_g_switch_tp.currentText()
 
         # type of TDO plot 1/2: D (y1) & T (y2) vs time
-        if 'time' in tap_plot_type:
+        if 'time' in tdo_graph_type:
             p1.setLabel("left", lbl1, **_sty(clr_1))
             p1.getAxis('right').setLabel(lbl2, **_sty(clr_2))
             # set any pressure value < 0 to 0
@@ -463,31 +463,31 @@ def _process_n_graph(a, r=''):
                 w = 2
                 th = 3
                 li = get_interesting_idx_ma(y5, w, th)
-                print('li', li)
 
                 # simulate arrows height
                 # y5 = [140] * len(y5)
 
                 # add some more accelerometer arrows
                 n = int(len(y5) / 5)
-                yn = [i for i in range(0, len(y5), n)]
-                li += yn
-                print('yn', yn)
+                if n > 0:
+                    yn = [i for i in range(0, len(y5), n)]
+                    li += yn
+                    print('yn', yn)
 
-                # add arrows
-                for i in li:
-                    a = pg.ArrowItem(
-                        # 180 faces right
-                        angle=180,
-                        tipAngle=60,
-                        headLen=20,
-                        tailLen=20,
-                        tailWidth=10,
-                        pen=pen3,
-                        brush=clr_3
-                    )
-                    a.setPos(x[i], y5[i])
-                    p3.addItem(a)
+                    # add arrows
+                    for i in li:
+                        a = pg.ArrowItem(
+                            # 180 faces right
+                            angle=180,
+                            tipAngle=60,
+                            headLen=20,
+                            tailLen=20,
+                            tailWidth=10,
+                            pen=pen3,
+                            brush=clr_3
+                        )
+                        a.setPos(x[i], y5[i])
+                        p3.addItem(a)
 
                 # add text
                 # a = pg.TextItem('alarm', color='orange', border='green', angle=45)
@@ -498,8 +498,8 @@ def _process_n_graph(a, r=''):
                 # range
                 p3.setYRange(0, max(y3), padding=0)
 
-        # type of TAP plot 2/2: T vs D, draw lines
-        elif 'Temp' in tap_plot_type:
+        # type of TDO plot 2/2: T vs D, draw lines
+        elif 'Temp' in tdo_graph_type:
             p1.getAxis('left').setTextPen(clr_4)
             p1.setLabel("left", 'Depth (fathoms)' + ' ─', **_sty(clr_4))
 
@@ -548,7 +548,7 @@ def process_n_graph(a, r=''):
         # not GraphException, but python errors such as IndexError
         e = 'undefined error, see log'
         a.g.setTitle(e, color="red", size="15pt")
-        lg.a("error: graph_embed -> {}".format(ex))
+        lg.a(f"error: graph_embed -> {str(ex)}")
         a.g.getAxis('bottom').setLabel("")
 
     finally:

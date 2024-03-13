@@ -125,7 +125,7 @@ def process_graph_csv_data(fol, _, h, hi) -> dict:
     _g_ff_t = sorted(glob(f"{fol}/*_Temperature.csv"))
     _g_ff_p = sorted(glob(f"{fol}/*_Pressure.csv"))
     _g_ff_dot = sorted(glob(f"{fol}/*_DissolvedOxygen.csv"))
-    _g_ff_tdo = sorted(glob(f"{fol}/*.TDO.csv"))
+    _g_ff_tdo = sorted(glob(f"{fol}/*_TDO.csv"))
 
     # type of haul to graph
     met = ''

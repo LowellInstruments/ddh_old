@@ -2,7 +2,7 @@
 # this will be moved to gettext module,
 # but it did not work for me when I tried
 # ----------------------------------------
-from locales.strings import *
+from locales.strings import STR_SEARCHING_FOR_LOGGERS, STR_CONNECTING_LOGGER, STR_SYNCING_GPS_TIME
 from utils.ddh_shared import (set_ddh_language_file_content,
                               get_ddh_language_file_content)
 

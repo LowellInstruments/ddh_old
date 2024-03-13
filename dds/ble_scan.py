@@ -46,7 +46,8 @@ def _ble_is_supported_logger(s):
         "MOANA",
         "MAT-2W",
         "MATP-2W",
-        "TAP1"
+        "TAP1",
+        "TDO"
     ]
     for t in logger_types:
         if t in s:
