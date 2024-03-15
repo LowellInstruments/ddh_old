@@ -18,10 +18,7 @@ from utils.tmp_paths import (
 
 
 def sh(c):
-    print('\nshell -> ', c)
     rv = sp.run(c, shell=True, stdout=sp.PIPE, stderr=sp.PIPE)
-    print('ou', rv.stdout)
-    print('er', rv.stderr)
     return rv.returncode
 
 
@@ -134,7 +131,6 @@ def cb_quit():
 
 
 op = {
-    "view current flags": cb_view_current_flags,
     "kill ddh": cb_kill_ddh,
     "toggle emolt marker": cb_toggle_emolt_marker,
     "toggle AWS s3 group": cb_toggle_aws_s3_group,
@@ -153,6 +149,11 @@ def main_ddc():
     while 1:
         os.system('clear')
 
+        # show current flags
+        print('DDC current flags are:')
+        cb_view_current_flags()
+
+        # selection
         menu = Bullet(
             prompt="\nChoose what to run:",
             choices=list(op.keys()),
@@ -177,6 +178,3 @@ def main_ddc():
         p = multiprocessing.Process(target=cb)
         p.start()
         p.join()
-
-        # wait some time
-        time.sleep(3)
