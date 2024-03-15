@@ -38,13 +38,13 @@ def cb_view_current_flags():
     if sh(f'grep -q {s2} {cf}') == 0:
         ct_api = 0 if sh(f"grep {s2} {cf} | grep -F '#' > /dev/null") == 0 else 1
 
-    print('emolt       =', os.path.exists(LI_PATH_EMOLT_FILE_FLAG))
-    print('aws group   =', os.path.exists(LI_PATH_GROUPED_S3_FILE_FLAG))
-    print('gps puck    =', os.path.exists(LI_PATH_DDH_GPS_EXTERNAL))
-    print('gps dummy   =', os.path.exists(TMP_PATH_GPS_DUMMY))
-    print('graph test  =', os.path.exists(TMP_PATH_GRAPH_TEST_MODE_JSON))
-    print('crontab_ddh =', ct_ddh)
-    print('crontab_api =', ct_api)
+    print('\temolt       =', os.path.exists(LI_PATH_EMOLT_FILE_FLAG))
+    print('\taws group   =', os.path.exists(LI_PATH_GROUPED_S3_FILE_FLAG))
+    print('\tgps puck    =', os.path.exists(LI_PATH_DDH_GPS_EXTERNAL))
+    print('\tgps dummy   =', os.path.exists(TMP_PATH_GPS_DUMMY))
+    print('\tgraph test  =', os.path.exists(TMP_PATH_GRAPH_TEST_MODE_JSON))
+    print('\tcrontab_ddh =', ct_ddh)
+    print('\tcrontab_api =', ct_api)
 
 
 def cb_kill_ddh():
@@ -150,12 +150,12 @@ def main_ddc():
         os.system('clear')
 
         # show current flags
-        print('DDC current flags are:')
+        print('\nDDC current flags are:')
         cb_view_current_flags()
 
         # selection
         menu = Bullet(
-            prompt="\nChoose what to run:",
+            prompt="\n\nChoose what to run:",
             choices=list(op.keys()),
             indent=0,
             align=5,
