@@ -17,6 +17,8 @@ from utils.tmp_paths import (
 def sh(c):
     print('\nshell -> ', c)
     rv = sp.run(c, shell=True, stdout=sp.PIPE, stderr=sp.PIPE)
+    print('ou', rv.stdout)
+    print('er', rv.stderr)
     return rv.returncode
 
 
