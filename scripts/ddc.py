@@ -139,6 +139,7 @@ op = {
     "toggle emolt marker": cb_toggle_emolt_marker,
     "toggle AWS s3 group": cb_toggle_aws_s3_group,
     "toggle GPS external": cb_toggle_gps_external,
+    "toggle GPS dummy": cb_toggle_gps_dummy,
     "toggle crontab DDH": cb_toggle_crontab_ddh,
     "toggle crontab API": cb_toggle_crontab_api,
     "toggle graph test mode": cb_toggle_graph_test_mode,
