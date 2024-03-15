@@ -55,8 +55,16 @@ def cb_kill_ddh():
             'killall main_dds_controller'
     ):
         sh(c)
-        print('sent kill signal to DDH software')
-        time.sleep(2)
+    print('sent kill signal to DDH software')
+    time.sleep(2)
+
+
+def cb_kill_lxpanel():
+    c = 'lxpanelctl restart'
+    sh(c)
+    print('sent kill signal to lxpanel')
+    print('note: only works when in graphical session')
+    time.sleep(2)
 
 
 def cb_toggle_emolt_marker():
@@ -143,6 +151,7 @@ op = {
     "toggle crontab API": cb_toggle_crontab_api,
     "test GPS Quectel": cb_run_script_gps_test,
     "test box buttons": cb_run_script_buttons_test,
+    "kill lxpanel": cb_kill_lxpanel,
     "quit": cb_quit,
 }
 
