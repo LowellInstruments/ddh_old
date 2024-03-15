@@ -116,7 +116,7 @@ def cb_run_script_do_logger():
 
 
 def cb_run_script_gps_test():
-    return _run_script('gps_test')
+    mp(_run_script('gps_test'))
 
 
 def cb_run_script_buttons_test():
