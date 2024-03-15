@@ -30,23 +30,24 @@ def is_rpi():
 
 
 def cb_view_current_flags():
-    # LI_PATH_EMOLT_FILE_FLAG
-    # LI_PATH_GROUPED_S3_FILE_FLAG
-    # LI_PATH_DDH_GPS_EXTERNAL
-    # TMP_PATH_GPS_DUMMY
-    # TMP_PATH_GRAPH_TEST_MODE_JSON
 
     # assume crontab off
-    ct = 0
-    if sh(f'grep -q crontab_ddh.sh /etc/crontab') == 0:
-        # line is present, we don't know commented or not
-        if sh("grep crontab_ddh.sh /etc/crontab | grep -F '#' > /dev/null"):
-            ct = 0
-        else:
-            ct = 1
-    print('ct_ddh', ct)
+    cf = '/etc/crontab'
+    s1, s2 = 'crontab_ddh.sh', 'crontab_api.sh'
+    ct_ddh, ct_api = 0, 0
+    if sh(f'grep -q {s1} {cf}') == 0:
+        # line present, check if commented or not
+        ct_ddh = 0 if sh(f"grep {s1} {cf} | grep -F '#' > /dev/null") == 0 else 1
+    if sh(f'grep -q {s2} {cf}') == 0:
+        ct_api = 0 if sh(f"grep {s2} {cf} | grep -F '#' > /dev/null") == 0 else 1
 
-    # todo: do crontab api
+    print('emolt       =', os.path.exists(LI_PATH_EMOLT_FILE_FLAG))
+    print('aws group   =', os.path.exists(LI_PATH_GROUPED_S3_FILE_FLAG))
+    print('gps puck    =', os.path.exists(LI_PATH_DDH_GPS_EXTERNAL))
+    print('gps dummy   =', os.path.exists(TMP_PATH_GPS_DUMMY))
+    print('graph test  =', os.path.exists(TMP_PATH_GRAPH_TEST_MODE_JSON))
+    print('crontab_ddh =', ct_ddh)
+    print('crontab_api =', ct_api)
 
 
 def cb_kill_ddh():
