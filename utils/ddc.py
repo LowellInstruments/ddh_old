@@ -140,23 +140,22 @@ op = {
 
 
 def main_ddc():
-    while 1:
-        os.system('clear')
+    os.system('clear')
 
-        menu = Bullet(
-            prompt="\nChoose what to run:",
-            choices=list(op.keys()),
-            indent=0,
-            align=5,
-            margin=2,
-            shift=0,
-            bullet="->",
-            pad_right=5,
-            return_index=True
-        )
+    menu = Bullet(
+        prompt="\nChoose what to run:",
+        choices=list(op.keys()),
+        indent=0,
+        align=5,
+        margin=2,
+        shift=0,
+        bullet="->",
+        pad_right=5,
+        return_index=True
+    )
 
-        # _: text, i: index
-        _, i = menu.launch()
+    # _: text, i: index
+    _, i = menu.launch()
 
-        # run the callbacks
-        list(op.values())[i]()
+    # run the callbacks
+    list(op.values())[i]()
