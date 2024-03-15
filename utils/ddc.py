@@ -112,7 +112,7 @@ def _run_script(s):
 
 
 def cb_run_script_do_logger():
-    return _run_script('logger_do_deploy')
+    mp(_run_script('logger_do_deploy'))
 
 
 def cb_run_script_gps_test():
