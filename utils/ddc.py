@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-
-
+import multiprocessing
 import pathlib
 import subprocess as sp
 import os
@@ -14,9 +13,16 @@ from utils.tmp_paths import (
 
 
 def sh(c):
-    print('\nrunning -> ', c)
+    print('\nshell -> ', c)
     rv = sp.run(c, shell=True, stdout=sp.PIPE, stderr=sp.PIPE)
     return rv.returncode
+
+
+def mp(c):
+    print('\nprocess -> ', c)
+    p = multiprocessing.Process(c)
+    p.start()
+    p.join()
 
 
 def is_rpi():
@@ -100,9 +106,9 @@ def cb_toggle_crontab_api():
 def _run_script(s):
     v = '/home/pi/li/venv/bin'
     c = f'source {v}/activate && '
-    c += 'cd /home/pi/li/ddh && '
-    c += f'{v}/python/script_{s}.sh'
-    sh(c)
+    c += 'cd /home/pi/li/ddh/scripts && '
+    c += f'./run_script_{s}.sh'
+    mp(c)
 
 
 def cb_run_script_do_logger():
@@ -127,8 +133,8 @@ op = {
     "toggle crontab API": cb_toggle_crontab_api,
     "toggle graph test mode": cb_toggle_graph_test_mode,
     "run script deploy DO-X logger": cb_run_script_do_logger,
-    "test DDH GPS": cb_run_script_gps_test,
-    "test DDH buttons": cb_run_script_buttons_test
+    "test GPS Quectel": cb_run_script_gps_test,
+    "test box buttons": cb_run_script_buttons_test
 }
 
 
