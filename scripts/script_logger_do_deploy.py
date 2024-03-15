@@ -3,6 +3,9 @@ import asyncio
 import sys
 import subprocess as sp
 import os
+
+import toml
+
 from mat.utils import PrintColors as PC
 from scripts.script_logger_do_deploy_utils import (
     set_script_cfg_file,
@@ -10,7 +13,10 @@ from scripts.script_logger_do_deploy_utils import (
     get_script_cfg_file,
     ble_scan,
 )
-from utils.ddh_shared import get_ddh_toml_all_macs_content
+
+
+# don't move this from here
+FILE_ALL_MACS_TOML = '/home/pi/li/ddh/settings/all_macs.toml'
 
 
 # ---------------------------------
@@ -18,6 +24,16 @@ from utils.ddh_shared import get_ddh_toml_all_macs_content
 # ---------------------------------
 g_flag_run = False
 g_flag_sensor = True
+
+
+def get_ddh_toml_all_macs_content():
+    try:
+        with open(FILE_ALL_MACS_TOML, 'r') as f:
+            # d: {'11:22:33:44:55:66': 'sn1234567'}
+            return toml.load(f)
+    except (Exception,) as ex:
+        print('error: get_ddh_toml_all_macs_content: ', ex)
+        os._exit(1)
 
 
 def _screen_clear():
