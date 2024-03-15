@@ -4,10 +4,13 @@ import pathlib
 import subprocess as sp
 import os
 import sys
+import time
 
 from bullet import Bullet
 
+from scripts.check_buttons import main_test_box_buttons
 from scripts.check_gps_quectel import main_test_gps_quectel
+from scripts.script_logger_do_deploy import main_logger_do_deploy
 from utils.tmp_paths import (
     LI_PATH_EMOLT_FILE_FLAG,
     LI_PATH_GROUPED_S3_FILE_FLAG,
@@ -102,7 +105,7 @@ def cb_toggle_crontab_api():
 
 
 def cb_run_script_do_logger():
-    pass
+    main_logger_do_deploy()
 
 
 def cb_run_script_gps_test():
@@ -110,7 +113,7 @@ def cb_run_script_gps_test():
 
 
 def cb_run_script_buttons_test():
-    pass
+    main_test_box_buttons()
 
 
 def cb_quit():
@@ -135,26 +138,33 @@ op = {
 
 
 def main_ddc():
-    os.system('clear')
+    while 1:
+        os.system('clear')
 
-    menu = Bullet(
-        prompt="\nChoose what to run:",
-        choices=list(op.keys()),
-        indent=0,
-        align=5,
-        margin=2,
-        shift=0,
-        bullet="->",
-        pad_right=5,
-        return_index=True
-    )
+        menu = Bullet(
+            prompt="\nChoose what to run:",
+            choices=list(op.keys()),
+            indent=0,
+            align=5,
+            margin=2,
+            shift=0,
+            bullet="->",
+            pad_right=5,
+            return_index=True
+        )
 
-    # _: text, i: index
-    _, i = menu.launch()
+        # _: text, i: index
+        txt, i = menu.launch()
 
-    # run the callbacks
-    cb = list(op.values())[i]
+        # run the callbacks
+        cb = list(op.values())[i]
 
-    p = multiprocessing.Process(target=cb)
-    p.start()
-    p.join()
+        if txt == 'quit':
+            break
+
+        p = multiprocessing.Process(target=cb)
+        p.start()
+        p.join()
+
+        # wait some time
+        time.sleep(3)

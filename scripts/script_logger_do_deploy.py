@@ -200,7 +200,7 @@ def _menu_execute(_m, _c, cfg):
     print(s.format(mac))
 
 
-if __name__ == "__main__":
+def main_logger_do_deploy():
     _screen_clear()
     _check_cwd()
 
@@ -222,3 +222,7 @@ if __name__ == "__main__":
 
         _menu_execute(m, c, cfg)
         _screen_separation()
+
+
+if __name__ == "__main__":
+    main_logger_do_deploy()

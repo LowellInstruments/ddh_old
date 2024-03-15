@@ -62,7 +62,11 @@ button_c.when_pressed = button_c_pressed_cb
 button_c.when_released = button_c_released_cb
 
 
-print(f'bounce times A {0} B {btb} C {btc}')
-print(f'pullup confs A {pua} B {pub} C {puc}')
-pause()
+def main_test_box_buttons():
+    print(f'bounce times A {0} B {btb} C {btc}')
+    print(f'pullup confs A {pua} B {pub} C {puc}')
+    pause()
 
+
+if __name__ == '__main__':
+    main_test_box_buttons()
