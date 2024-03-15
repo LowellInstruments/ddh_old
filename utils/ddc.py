@@ -98,7 +98,7 @@ def cb_toggle_crontab_api():
 
 
 def _run_script(s):
-    v = '/home/pi/li/venv'
+    v = 'source /home/pi/li/venv'
     c = f'{v}/bin/activate && '
     c += 'cd /home/pi/li/ddh && '
     c += f'{v}/bin/python/script_{s}.sh'
@@ -130,6 +130,7 @@ op = {
     "test DDH GPS": cb_run_script_gps_test,
     "test DDH buttons": cb_run_script_buttons_test
 }
+
 
 def main_ddc():
     menu = Bullet(
