@@ -1,6 +1,9 @@
 import glob
 import os
 import pathlib
+import pprint
+import threading
+
 from dds.timecache import its_time_to
 from mat.data_converter import default_parameters, DataConverter
 from mat.data_file_factory import load_data_file
@@ -180,6 +183,8 @@ def cnv_serve():
 
 
 if __name__ == '__main__':
-    _fol = str(get_ddh_folder_path_dl_files())
-    f = _fol + '/d0-2e-ab-d9-29-48/9999999_BIL_20240209_165512.lix'
-    convert_lix_file(f)
+    ff = glob.glob("/tmp/my_bkt_waf/**/*.lid", recursive=True)
+    parameters = default_parameters()
+    for i, f in enumerate(ff):
+        print(f'doing file {i} / {len(ff)} {f}')
+        DataConverter(f, parameters).convert()
