@@ -9,9 +9,8 @@ beautifulsoup4==4.11.2
 beautifultable==1.1.0
 bleak==0.21.1
 blinker==1.5
-boto3==1.34.57
-botocore==1.34.57
-Brotli==1.0.9
+boto3==1.34.63
+botocore==1.34.63
 cacheout==0.16.0
 certifi==2022.9.24
 chardet==5.1.0
@@ -21,7 +20,7 @@ colorama==0.4.6
 colorzero==2.0
 cryptography==38.0.4
 cupshelpers==1.0
-dbus-fast @ file:///home/pi/li/ddt/_dt_files/my_wheels/dbus_fast-2.21.1-cp311-cp311-manylinux_2_36_aarch64.whl#sha256=57066982de798a867c92a8bab90ba36a68f6eb8643e19bf3202f2fe493a4d39e
+dbus-fast==2.21.1
 dbus-python==1.3.2
 dill==0.3.6
 distro==1.8.0
@@ -37,7 +36,6 @@ humanize==4.9.0
 idna==3.3
 ieee754==0.11
 importlib-metadata==4.12.0
-iso8601==2.1.0
 isort==5.6.4
 itsdangerous==2.1.2
 jedi==0.18.2
@@ -49,7 +47,7 @@ libevdev==0.5
 logilab-common==1.9.8
 lxml==4.9.2
 MarkupSafe==2.1.2
-mat @ file:///tmp/mat
+mat @ file:///home/pi/li/mat
 mccabe==0.7.0
 more-itertools==8.10.0
 mypy==1.0.1
@@ -78,7 +76,7 @@ pylint==2.16.2
 pyOpenSSL==23.0.0
 PyQt5==5.15.9
 PyQt5-sip==12.11.1
-pyqtgraph==0.13.3
+pyqtgraph==0.13.4
 pyserial==3.5
 pysmbc==1.0.23
 pysondb==1.6.7
@@ -87,7 +85,6 @@ python-dateutil==2.8.2
 python-dotenv==0.21.0
 pytz==2022.7.1
 pyudev==0.24.0
-PyYAML==6.0.1
 reportlab==3.6.12
 requests==2.28.1
 requests-oauthlib==1.3.0
@@ -96,7 +93,7 @@ roman==3.3
 RPi.GPIO==0.7.1a4
 ruamel.yaml==0.17.21
 ruamel.yaml.clib==0.2.7
-s3transfer==0.10.0
+s3transfer==0.10.1
 Send2Trash==1.8.1b0
 setproctitle==1.3.3
 simplejson==3.18.3
