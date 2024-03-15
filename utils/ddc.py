@@ -98,10 +98,10 @@ def cb_toggle_crontab_api():
 
 
 def _run_script(s):
-    v = 'source /home/pi/li/venv'
-    c = f'{v}/bin/activate && '
+    v = '/home/pi/li/venv/bin'
+    c = f'source {v}/activate && '
     c += 'cd /home/pi/li/ddh && '
-    c += f'{v}/bin/python/script_{s}.sh'
+    c += f'{v}/python/script_{s}.sh'
     sh(c)
 
 
