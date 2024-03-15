@@ -104,10 +104,6 @@ def cb_toggle_crontab_api():
     return _toggle_crontab('api')
 
 
-def cb_run_script_do_logger():
-    main_logger_do_deploy()
-
-
 def cb_run_script_gps_test():
     main_test_gps_quectel()
 
@@ -130,7 +126,6 @@ op = {
     "toggle crontab DDH": cb_toggle_crontab_ddh,
     "toggle crontab API": cb_toggle_crontab_api,
     "toggle graph test mode": cb_toggle_graph_test_mode,
-    "run script deploy DO-X logger": cb_run_script_do_logger,
     "test GPS Quectel": cb_run_script_gps_test,
     "test box buttons": cb_run_script_buttons_test,
     "quit": cb_quit,

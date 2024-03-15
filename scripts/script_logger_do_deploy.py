@@ -36,6 +36,14 @@ def _menu_get():
     return input("\t-> ")
 
 
+def _check_cwd():
+    _print_cwd()
+    if not os.getcwd().endswith("scripts"):
+        e = "--> current working directory must be folder containing this script"
+        print(e)
+        assert False
+
+
 def _list_all_macs_file_content():
     ls_macs = get_ddh_toml_all_macs_content()
     if not ls_macs:
@@ -194,10 +202,7 @@ def _menu_execute(_m, _c, cfg):
 
 def main_logger_do_deploy():
     _screen_clear()
-
-    # ensure we are in 'scripts' folder
-    d = os.path.dirname(os.path.realpath(__file__))
-    os.chdir(d)
+    _check_cwd()
 
     while True:
         cfg = get_script_cfg_file()
