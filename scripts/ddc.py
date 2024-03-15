@@ -40,7 +40,7 @@ def cb_view_current_flags():
     ct = 0
     if sh(f'grep -q crontab_ddh.sh /etc/crontab') == 0:
         # line is present, we don't know commented or not
-        if sh("grep crontab_ddh.sh crontab_ddh.sh | grep -F '#' > /dev/null"):
+        if sh("grep crontab_ddh.sh /etc/crontab | grep -F '#' > /dev/null"):
             ct = 0
         else:
             ct = 1
