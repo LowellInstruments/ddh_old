@@ -38,13 +38,13 @@ def cb_view_current_flags():
     if sh(f'grep -q {s2} {cf}') == 0:
         ct_api = 0 if sh(f"grep {s2} {cf} | grep -F '#' > /dev/null") == 0 else 1
 
-    print('\temolt       =', int(os.path.exists(LI_PATH_EMOLT_FILE_FLAG)))
-    print('\taws group   =', int(os.path.exists(LI_PATH_GROUPED_S3_FILE_FLAG)))
-    print('\tgps puck    =', int(os.path.exists(LI_PATH_DDH_GPS_EXTERNAL)))
-    print('\tgps dummy   =', int(os.path.exists(TMP_PATH_GPS_DUMMY)))
-    print('\tgraph test  =', int(os.path.exists(TMP_PATH_GRAPH_TEST_MODE_JSON)))
-    print('\tcrontab_ddh =', ct_ddh)
-    print('\tcrontab_api =', ct_api)
+    print('\temolt flag   =', int(os.path.exists(LI_PATH_EMOLT_FILE_FLAG)))
+    print('\taws group    =', int(os.path.exists(LI_PATH_GROUPED_S3_FILE_FLAG)))
+    print('\tgps external =', int(os.path.exists(LI_PATH_DDH_GPS_EXTERNAL)))
+    print('\tgps dummy    =', int(os.path.exists(TMP_PATH_GPS_DUMMY)))
+    print('\tgraph test   =', int(os.path.exists(TMP_PATH_GRAPH_TEST_MODE_JSON)))
+    print('\tcrontab_ddh  =', ct_ddh)
+    print('\tcrontab_api  =', ct_api)
 
 
 def cb_kill_ddh():
@@ -55,6 +55,8 @@ def cb_kill_ddh():
             'killall main_dds_controller'
     ):
         sh(c)
+        print('sent kill signal to DDH software')
+        time.sleep(2)
 
 
 def cb_toggle_emolt_marker():
@@ -136,9 +138,9 @@ op = {
     "toggle AWS s3 group": cb_toggle_aws_s3_group,
     "toggle GPS external": cb_toggle_gps_external,
     "toggle GPS dummy": cb_toggle_gps_dummy,
+    "toggle graph test mode": cb_toggle_graph_test_mode,
     "toggle crontab DDH": cb_toggle_crontab_ddh,
     "toggle crontab API": cb_toggle_crontab_api,
-    "toggle graph test mode": cb_toggle_graph_test_mode,
     "test GPS Quectel": cb_run_script_gps_test,
     "test box buttons": cb_run_script_buttons_test,
     "quit": cb_quit,

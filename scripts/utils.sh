@@ -5,8 +5,7 @@
 export TERM=xterm-256color
 
 
-# don't remove these, used by DDT
-# todo ---> move to DDT
+# don't remove these, used by scripts both from DDH and DDT
 export FOL_PI=/home/pi
 export FOL_LI=$FOL_PI/li
 export FOL_DDH=$FOL_LI/ddh
