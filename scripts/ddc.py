@@ -153,4 +153,8 @@ def main_ddc():
     _, i = menu.launch()
 
     # run the callbacks
-    list(op.values())[i]()
+    cb = list(op.values())[i]
+
+    p = multiprocessing.Process(target=cb)
+    p.start()
+    p.join()
