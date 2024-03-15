@@ -7,6 +7,7 @@ import sys
 
 from bullet import Bullet
 
+from scripts.check_gps_quectel import main_test_gps_quectel
 from utils.tmp_paths import (
     LI_PATH_EMOLT_FILE_FLAG,
     LI_PATH_GROUPED_S3_FILE_FLAG,
@@ -100,21 +101,16 @@ def cb_toggle_crontab_api():
     return _toggle_crontab('api')
 
 
-def _run_script(s):
-    c = f'/home/pi/li/ddh/scripts/run_script_{s}.sh'
-    sh(c)
-
-
 def cb_run_script_do_logger():
     pass
 
 
 def cb_run_script_gps_test():
-    return _run_script('gps_test')
+    main_test_gps_quectel()
 
 
 def cb_run_script_buttons_test():
-    return _run_script('buttons_test')
+    pass
 
 
 def cb_quit():
