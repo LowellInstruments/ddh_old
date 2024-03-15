@@ -161,12 +161,12 @@ def main_ddc():
         os.system('clear')
 
         # show current flags
-        print('\nDDC current flags are:')
+        print('DDC current flags are:')
         cb_view_current_flags()
 
         # selection
         menu = Bullet(
-            prompt="\n\nChoose what to run:",
+            prompt="\nChoose what to run:",
             choices=list(op.keys()),
             indent=0,
             align=5,
