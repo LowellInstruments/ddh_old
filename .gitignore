@@ -15,6 +15,9 @@ db_his.json*
 *.lef
 *.sqs
 *.rbl
+.ts_aws.txt
+
+
 
 # just in case there are more dl_files here
 dds/dl_files/
