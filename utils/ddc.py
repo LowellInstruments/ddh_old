@@ -3,6 +3,8 @@ import multiprocessing
 import pathlib
 import subprocess as sp
 import os
+import sys
+
 from bullet import Bullet
 
 from utils.tmp_paths import (
@@ -16,13 +18,6 @@ def sh(c):
     print('\nshell -> ', c)
     rv = sp.run(c, shell=True, stdout=sp.PIPE, stderr=sp.PIPE)
     return rv.returncode
-
-
-def mp(c):
-    print('\nprocess -> ', c)
-    p = multiprocessing.Process(c)
-    p.start()
-    p.join()
 
 
 def is_rpi():
@@ -108,19 +103,24 @@ def _run_script(s):
     c = f'source {v}/activate && '
     c += 'cd /home/pi/li/ddh/scripts && '
     c += f'./run_script_{s}.sh'
-    mp(c)
+    sh(c)
 
 
 def cb_run_script_do_logger():
-    mp(_run_script('logger_do_deploy'))
+    pass
 
 
 def cb_run_script_gps_test():
-    mp(_run_script('gps_test'))
+    return _run_script('gps_test')
 
 
 def cb_run_script_buttons_test():
     return _run_script('buttons_test')
+
+
+def cb_quit():
+    print('quitting DDC')
+    sys.exit(0)
 
 
 op = {
@@ -134,25 +134,29 @@ op = {
     "toggle graph test mode": cb_toggle_graph_test_mode,
     "run script deploy DO-X logger": cb_run_script_do_logger,
     "test GPS Quectel": cb_run_script_gps_test,
-    "test box buttons": cb_run_script_buttons_test
+    "test box buttons": cb_run_script_buttons_test,
+    "quit": cb_quit,
 }
 
 
 def main_ddc():
-    menu = Bullet(
-        prompt="\nChoose what to run:",
-        choices=list(op.keys()),
-        indent=0,
-        align=5,
-        margin=2,
-        shift=0,
-        bullet="->",
-        pad_right=5,
-        return_index=True
-    )
+    while 1:
+        os.system('clear')
 
-    # _: text, i: index
-    _, i = menu.launch()
+        menu = Bullet(
+            prompt="\nChoose what to run:",
+            choices=list(op.keys()),
+            indent=0,
+            align=5,
+            margin=2,
+            shift=0,
+            bullet="->",
+            pad_right=5,
+            return_index=True
+        )
 
-    # run the callbacks
-    list(op.values())[i]()
+        # _: text, i: index
+        _, i = menu.launch()
+
+        # run the callbacks
+        list(op.values())[i]()
