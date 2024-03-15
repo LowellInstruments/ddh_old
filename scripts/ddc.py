@@ -8,9 +8,8 @@ import time
 
 from bullet import Bullet
 
-from scripts.check_buttons import main_test_box_buttons
-from scripts.check_gps_quectel import main_test_gps_quectel
-from scripts.script_logger_do_deploy import main_logger_do_deploy
+from scripts.script_test_box_buttons import main_test_box_buttons
+from scripts.script_test_gps_quectel import main_test_gps_quectel
 from utils.tmp_paths import (
     LI_PATH_EMOLT_FILE_FLAG,
     LI_PATH_GROUPED_S3_FILE_FLAG,
@@ -31,7 +30,22 @@ def is_rpi():
 
 
 def cb_view_current_flags():
-    pass
+    # LI_PATH_EMOLT_FILE_FLAG
+    # LI_PATH_GROUPED_S3_FILE_FLAG
+    # LI_PATH_DDH_GPS_EXTERNAL
+    # TMP_PATH_GPS_DUMMY
+    # TMP_PATH_GRAPH_TEST_MODE_JSON
+
+    # assume crontab off
+    ct = 0
+    if sh(f'grep -q crontab_ddh.sh /etc/crontab') == 0:
+        # line is present, we don't know commented or not
+        if sh("grep crontab_ddh.sh $CF | grep -F '#' > /dev/null"):
+            ct = 0
+        else:
+            ct = 1
+
+    # todo: do crontab api
 
 
 def cb_kill_ddh():

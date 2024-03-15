@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 
 
-source utils.sh
 
+FOL_VEN=/home/pi/li/ven
 
 echo '----------------------------------------------------------------------------------'
 echo 'DDH SCRIPT -> in progress'
