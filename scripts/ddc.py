@@ -38,11 +38,11 @@ def cb_view_current_flags():
     if sh(f'grep -q {s2} {cf}') == 0:
         ct_api = 0 if sh(f"grep {s2} {cf} | grep -F '#' > /dev/null") == 0 else 1
 
-    print('\temolt       =', os.path.exists(LI_PATH_EMOLT_FILE_FLAG))
-    print('\taws group   =', os.path.exists(LI_PATH_GROUPED_S3_FILE_FLAG))
-    print('\tgps puck    =', os.path.exists(LI_PATH_DDH_GPS_EXTERNAL))
-    print('\tgps dummy   =', os.path.exists(TMP_PATH_GPS_DUMMY))
-    print('\tgraph test  =', os.path.exists(TMP_PATH_GRAPH_TEST_MODE_JSON))
+    print('\temolt       =', int(os.path.exists(LI_PATH_EMOLT_FILE_FLAG)))
+    print('\taws group   =', int(os.path.exists(LI_PATH_GROUPED_S3_FILE_FLAG)))
+    print('\tgps puck    =', int(os.path.exists(LI_PATH_DDH_GPS_EXTERNAL)))
+    print('\tgps dummy   =', int(os.path.exists(TMP_PATH_GPS_DUMMY)))
+    print('\tgraph test  =', int(os.path.exists(TMP_PATH_GRAPH_TEST_MODE_JSON)))
     print('\tcrontab_ddh =', ct_ddh)
     print('\tcrontab_api =', ct_api)
 
