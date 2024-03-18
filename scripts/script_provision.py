@@ -28,8 +28,8 @@ def _is_rpi():
 
 
 HOME = str(pathlib.Path.home())
-FOL_VPN = f'{HOME}/li/.ddh_vpn' if _is_rpi() else f'{HOME}/.ddh_vpn'
-PBF = f'{HOME}/li/.ddh_prov_req.toml' if _is_rpi() else f'{HOME}/.ddh_prov_req.toml'
+FOL_VPN = f'{HOME}/.ddh_vpn'
+PBF = f'{HOME}/.ddh_prov_req.toml'
 FOL_RESULT = '/tmp/.ddh_prov_ans'
 
 
@@ -51,11 +51,6 @@ def _create_vpn_keys():
 
 
 def _read_provision_bootstrap_file():
-    # example file content
-    # [provision]
-    # vpn_ip="1.2.3.4"
-    # boat_sn="1234567"
-    # boat_prj="kaz"
     with open(PBF, 'r') as f:
         c = toml.load(f)
     pr = c['provision']['boat_prj']
@@ -144,6 +139,11 @@ def _provision_ddh(a=DDN_ADDR):
 
 
 def provision_ddh(a=DDN_ADDR):
+    # example file /home/pi/li/.ddh_prov_req.toml'
+    # [provision]
+    # vpn_ip="1.2.3.4"
+    # boat_sn="1234567"
+    # boat_prj="kaz"
     try:
         _provision_ddh(a)
     except (Exception, ) as ex:
