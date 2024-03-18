@@ -127,13 +127,14 @@ def _provision_ddh(a=DDN_ADDR):
         d = '/home/pi/li/ddh/settings'
         p = f'{FOL_RESULT}/config.toml'
         _p(f'moving {p} to DDH settings folder')
-        #_sh(f'mv {p} {d}')
+        _sh(f'mv {p} {d}')
         p = f'{FOL_RESULT}/all_macs.toml'
         _p(f'moving {p} to DDH settings folder')
-        #_sh(f'mv {p} {d}')
+        _sh(f'mv {p} {d}')
         p = f'{FOL_RESULT}/wg0.conf'
         _p(f'moving {p} to wireguard settings folder')
-        #_sh(f"sudo mv {p} /etc/wireguard/")
+        d = '/etc/wireguard'
+        _sh(f"sudo mv {p} {d}")
         _p('restarting DDH wireguard service')
         _sh("sudo systemctl restart wg-quick@wg0.service")
 
@@ -143,17 +144,21 @@ def _provision_ddh(a=DDN_ADDR):
 
 def provision_ddh(a=DDN_ADDR):
     """
+
     # example file /home/pi/.ddh_prov_req.toml'
     [provision]
     vpn_ip="1.2.3.4"
     boat_sn="1234567"
     boat_prj="kaz"
+
     """
     try:
         _provision_ddh(a)
     except (Exception, ) as ex:
         _p(f'exception provision_ddh -> {str(ex)}')
-        time.sleep(2)
+    finally:
+        # see any message
+        time.sleep(5)
 
 
 if __name__ == '__main__':
