@@ -12,8 +12,6 @@ from os import system
 from bullet import Bullet
 
 from scripts.script_provision import provision_ddh
-from scripts.script_test_box_buttons import main_test_box_buttons
-from scripts.script_test_gps_quectel import main_test_gps_quectel
 from utils.tmp_paths import (
     LI_PATH_EMOLT_FILE_FLAG,
     LI_PATH_GROUPED_S3_FILE_FLAG,
@@ -27,6 +25,10 @@ g_fgd = 0
 g_fgt = 0
 g_fcd = 0
 g_fca = 0
+
+
+def _p(s):
+    print(s)
 
 
 def sh(c):
@@ -73,15 +75,15 @@ def cb_kill_ddh():
             'killall main_dds_controller'
     ):
         sh(c)
-    print('sent kill signal to DDH software')
+    _p('sent kill signal to DDH software')
     time.sleep(2)
 
 
 def cb_kill_lxpanel():
     c = 'lxpanelctl restart'
     sh(c)
-    print('sent kill signal to lxpanel')
-    print('note: only works in graphical session')
+    _p('sent kill signal to lxpanel')
+    _p('note: only works in graphical session')
     time.sleep(2)
 
 
@@ -116,7 +118,7 @@ def _toggle_crontab(s):
     if sh(f'grep -q crontab_{s}.sh {cf}') == 1:
         # string NOT FOUND in file /etc/crontab, add it
         sh('echo -e "* * * * * pi {cf_run}\n" | sudo tee -a $CF')
-        print(f"added {s} to {cf}")
+        _p(f"added {s} to {cf}")
         return
 
     # string is there, detect a "commented" symbol
@@ -126,15 +128,15 @@ def _toggle_crontab(s):
     sh(f"sudo sed -i '/crontab_{s}/d' {cf}")
 
     if rv == 0:
-        print(f"crontab {s} was OFF, enabling it")
+        _p(f"crontab {s} was OFF, enabling it")
         sh(f'echo "* * * * * pi {cf_run}" | sudo tee -a {cf}')
     else:
-        print(f"crontab {s} was ON, disabling it")
+        _p(f"crontab {s} was ON, disabling it")
         sh(f'echo "#* * * * * pi {cf_run}" | sudo tee -a {cf}')
 
     # restart the cron service
     sh("sudo systemctl restart cron.service")
-    print("crontab service restarted")
+    _p("crontab service restarted")
 
 
 def cb_toggle_crontab_ddh():
@@ -146,11 +148,19 @@ def cb_toggle_crontab_api():
 
 
 def cb_run_script_gps_test():
-    main_test_gps_quectel()
+    from scripts.script_test_gps_quectel import main_test_gps_quectel
+    if is_rpi():
+        main_test_gps_quectel()
+    else:
+        _p('no-RPI: no test GPS quectel')
 
 
 def cb_run_script_buttons_test():
-    main_test_box_buttons()
+    from scripts.script_test_box_buttons import main_test_box_buttons
+    if is_rpi():
+        main_test_box_buttons()
+    else:
+        _p('no-RPI: no test box buttons')
 
 
 def cb_provision_ddh():
@@ -158,7 +168,7 @@ def cb_provision_ddh():
 
 
 def cb_quit():
-    print('quitting DDC')
+    _p('quitting DDC')
     sys.exit(0)
 
 
