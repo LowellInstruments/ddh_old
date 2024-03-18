@@ -5,6 +5,8 @@ import os
 import pathlib
 import shutil
 import subprocess as sp
+import time
+
 import toml
 
 
@@ -121,7 +123,7 @@ def curl_files(pr, sn, ip, addr='0.0.0.0', port=DDN_API_PORT):
     print(f'OK: got file {dst}')
 
 
-def provision_ddh(a=DDN_ADDR):
+def _provision_ddh(a=DDN_ADDR):
     pr, sn, ip = _read_provision_bootstrap_file()
     curl_files(pr, sn, ip, a)
     if _is_rpi():
@@ -139,6 +141,14 @@ def provision_ddh(a=DDN_ADDR):
         #_sh(f"sudo mv {p} /etc/wireguard/")
         _p('restarting DDH wireguard service')
         _sh("sudo systemctl restart wg-quick@wg0.service")
+
+
+def provision_ddh(a=DDN_ADDR):
+    try:
+        _provision_ddh(a)
+    except (Exception, ) as ex:
+        _p(f'exception provision_ddh -> {str(ex)}')
+        time.sleep(2)
 
 
 if __name__ == '__main__':
