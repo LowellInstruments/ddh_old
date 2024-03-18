@@ -137,13 +137,18 @@ def _provision_ddh(a=DDN_ADDR):
         _p('restarting DDH wireguard service')
         _sh("sudo systemctl restart wg-quick@wg0.service")
 
+        # get rid of the file so only executes once
+        os.unlink(PBF)
+
 
 def provision_ddh(a=DDN_ADDR):
-    # example file /home/pi/li/.ddh_prov_req.toml'
-    # [provision]
-    # vpn_ip="1.2.3.4"
-    # boat_sn="1234567"
-    # boat_prj="kaz"
+    """
+    # example file /home/pi/.ddh_prov_req.toml'
+    [provision]
+    vpn_ip="1.2.3.4"
+    boat_sn="1234567"
+    boat_prj="kaz"
+    """
     try:
         _provision_ddh(a)
     except (Exception, ) as ex:
