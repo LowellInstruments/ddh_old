@@ -11,6 +11,7 @@ from os import unlink
 from os import system
 from bullet import Bullet
 
+from scripts.script_provision import provision_ddh
 from scripts.script_test_box_buttons import main_test_box_buttons
 from scripts.script_test_gps_quectel import main_test_gps_quectel
 from utils.tmp_paths import (
@@ -152,6 +153,10 @@ def cb_run_script_buttons_test():
     main_test_box_buttons()
 
 
+def cb_provision_ddh():
+    provision_ddh()
+
+
 def cb_quit():
     print('quitting DDC')
     sys.exit(0)
@@ -165,6 +170,7 @@ op = {
     f"{g_fem} toggle graph test mode": cb_toggle_graph_test_mode,
     f"{g_fcd} toggle crontab DDH": cb_toggle_crontab_ddh,
     f"{g_fca} toggle crontab API": cb_toggle_crontab_api,
+    "provision DDH": cb_provision_ddh,
     "test GPS Quectel": cb_run_script_gps_test,
     "test buttons": cb_run_script_buttons_test,
     "kill ddh": cb_kill_ddh,
