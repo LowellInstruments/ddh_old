@@ -155,7 +155,7 @@ def provision_ddh(a=DDN_ADDR):
     try:
         _provision_ddh(a)
     except (Exception, ) as ex:
-        _p(f'exception provision_ddh -> {str(ex)}')
+        _p(f'\nexception provision_ddh -> {str(ex)}')
     finally:
         # see any message
         time.sleep(5)
