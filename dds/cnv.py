@@ -109,7 +109,7 @@ def _cnv_fol_lid(fol, suf) -> list:
         f_csv = f"{f.split('.')[0]}{suf}.csv"
         if pathlib.Path(f_csv).is_file():
             if f_csv not in _g_files_already_converted:
-                lg.a(f"debug: skip conversion, file {f_csv} already exists")
+                lg.a(f"skip conversion, CSV file {f_csv} already exists")
                 _g_files_already_converted.append(f_csv)
             continue
 
@@ -145,9 +145,10 @@ def _cnv_serve():
         return
 
     # general banner
-    s = 'cnv_serve sequence started'
-    lg.a('-' * (len(s) + 1))
-    lg.a(s)
+    lg.a('\n')
+    lg.a('----------------------------')
+    lg.a('cnv_serve sequence started')
+    lg.a('----------------------------\n')
 
     # iterate mac folders
     fol = str(get_ddh_folder_path_dl_files())
@@ -159,9 +160,10 @@ def _cnv_serve():
             # same file is processed for multiple metrics
             _cnv_fol_lid(f, m)
 
-    s = 'cnv_serve sequence finished'
-    lg.a(s)
-    lg.a('-' * len(s))
+    lg.a('\n')
+    lg.a('----------------------------')
+    lg.a('cnv_serve sequence finished')
+    lg.a('----------------------------\n')
 
     # GUI update
     if _g_files_we_cannot_convert:

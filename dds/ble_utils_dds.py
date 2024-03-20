@@ -103,10 +103,10 @@ def ble_tell_gui_antenna_type(_h, desc):
     # run this once
     if its_time_to('tell_gui_antenna_type', 3600):
         _ad = "hci{}".format(_h)
-        s = s.format(desc, _ad)
-        lg.a("-" * len(s))
-        lg.a(s)
-        lg.a("-" * len(s))
+        lg.a('\n')
+        lg.a('-----------------------')
+        lg.a('using {} antenna'.format(desc, _ad))
+        lg.a('-----------------------\n')
 
 
 def ble_check_antenna_up_n_running(g, h: int):

@@ -68,8 +68,9 @@ def sqs_serve():
     fol = get_ddh_folder_path_sqs()
     files = glob.glob("{}/*.sqs".format(fol))
     if files:
+        lg.a('\n')
         lg.a("---------------------")
-        lg.a("serving {} SQS files".format(len(files)))
+        lg.a(f"serving {len(files)} SQS files")
         lg.a("---------------------\n")
 
     for _ in files:
@@ -105,6 +106,12 @@ def sqs_serve():
         finally:
             if f:
                 f.close()
+
+    if files:
+        lg.a('\n')
+        lg.a("---------------------------")
+        lg.a("serving SQS files finished")
+        lg.a("---------------------------\n")
 
 
 if __name__ == "__main__":

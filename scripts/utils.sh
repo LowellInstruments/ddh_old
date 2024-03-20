@@ -35,7 +35,7 @@ function _e {
 
 
 function check_already_running {
-    # $1: main_dds_controller
+    # $1: main_dds_controller, main_api
     pgrep -f "$1"
     rv=$?
     if [ "$rv" -eq 0 ]; then

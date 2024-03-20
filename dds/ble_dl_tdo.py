@@ -42,12 +42,11 @@ def _rae(rv, s):
 
 class BleTDODownload:
     @staticmethod
-    async def download_recipe(lc, mac, info, g, notes):
+    async def download_recipe(lc, mac, g, notes: dict):
 
         dds_ble_init_rv_notes(notes)
         rerun_flag = get_ddh_rerun_flag_li()
         create_folder_logger_by_mac(mac)
-        dl_files = []
 
         rv = await lc.connect(mac)
         _une(rv, notes, "comm.")
@@ -62,10 +61,6 @@ class BleTDODownload:
         rv = await lc.cmd_sws(g)
         _rae(rv, "sws")
         lg.a("SWS | OK")
-
-        rv = await lc.cmd_wak("off")
-        _rae(rv, "wak")
-        lg.a("WAK | off OK")
 
         rv, t = await lc.cmd_utm()
         _rae(rv, "utm")
@@ -147,7 +142,7 @@ class BleTDODownload:
             lg.a("downloaded file {}".format(name))
 
             # add to the output list
-            dl_files.append(path)
+            notes['dl_files'].append(path)
 
             # delete file in logger
             rv = await lc.cmd_del(name)
@@ -187,12 +182,10 @@ class BleTDODownload:
         _rae(bad_rv, "gsp")
 
         # wake mode
-        if rerun_flag:
-            rv = await lc.cmd_wak("on")
-        else:
-            rv = await lc.cmd_wak("off")
+        w = "on" if rerun_flag else "off"
+        rv = await lc.cmd_wak(w)
         _rae(rv, "wak")
-        lg.a("WAK | OK")
+        lg.a(f"WAK | {w} OK")
         await asyncio.sleep(1)
 
         if rerun_flag:
@@ -213,12 +206,12 @@ class BleTDODownload:
         # bye, bye to this logger
         # -----------------------
         await lc.disconnect()
-
-        return 0, dl_files
+        return 0
 
 
 async def ble_interact_tdo(mac, info, g, h):
 
+    rv = 0
     notes = {}
     lc = BleCC26X2(h)
 
@@ -227,8 +220,7 @@ async def ble_interact_tdo(mac, info, g, h):
         # BLE connection done here
         # -------------------------
         lg.a(f"interacting TDO logger, info {info}")
-        rv, dl_files = await BleTDODownload.download_recipe(lc, mac, info, g, notes)
-        # todo ---> do the automatic graphing as in DOX loggers
+        rv = await BleTDODownload.download_recipe(lc, mac, g, notes)
 
     except Exception as ex:
         lg.a("error dl_tdo_exception {}".format(ex))

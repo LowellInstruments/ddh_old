@@ -20,7 +20,7 @@ from dds.timecache import its_time_to
 from mat.ble.ble_mat_utils import (ble_mat_get_antenna_type,
                                    ble_mat_systemctl_restart_bluetooth)
 from dds.ble_dl_rn4020 import ble_interact_rn4020
-from dds.ble_dl_cc26x2r import ble_interact_cc26x2
+from dds.ble_dl_dox import ble_interact_do1_or_do2
 from dds.gps import gps_tell_position_logger
 from mat.lix import id_lid_file_flavor, LID_FILE_V2, convert_lix_file
 from mat.utils import linux_is_rpi
@@ -33,7 +33,8 @@ from utils.ddh_shared import (
     STATE_DDS_BLE_DOWNLOAD_WARNING,
     get_dl_folder_path_from_mac,
     STATE_DDS_BLE_DOWNLOAD, dds_get_aws_has_something_to_do_via_gui_flag_file,
-    STATE_DDS_NOTIFY_HISTORY, STATE_DDS_BLE_ERROR_MOANA_PLUGIN, STATE_DDS_BLE_CONNECTING, get_mac_from_folder_path,
+    STATE_DDS_NOTIFY_HISTORY, STATE_DDS_BLE_ERROR_MOANA_PLUGIN,
+    STATE_DDS_BLE_CONNECTING,
     STATE_DDS_REQUEST_GRAPH,
 )
 from utils.logs import lg_dds as lg
@@ -43,8 +44,17 @@ from dds.ble_dl_moana import ble_interact_moana
 _g_logger_errors = {}
 
 
+def _ble_tell_logger_seen(mac, _b, _o):
+    if its_time_to(f'tell_saw_mac_{mac}', 1800):
+        sn = dds_get_cfg_logger_sn_from_mac(mac)
+        lg.a(f"warning: logger {sn} / mac {mac} nearby")
+        if _b:
+            lg.a(f"warning: logger is under long forget time")
+        if _o:
+            lg.a(f"warning: logger is under short forget time")
+
+
 def _ble_convert_lid(ls_lid):
-    fol = ''
     for f in ls_lid:
         # f: absolute file path ending in .lid
         if id_lid_file_flavor(f) != LID_FILE_V2:
@@ -103,7 +113,7 @@ def _ble_analyze_logger_result(rv, mac, g, sn, err_critical):
         _u(f"{STATE_DDS_BLE_DOWNLOAD_WARNING}/{sn}")
 
 
-def _ble_logger_is_cc26x2r(info: str):
+def _ble_logger_is_do1_or_do2(info: str):
     return "DO-" in info
 
 
@@ -164,11 +174,10 @@ async def _ble_id_n_interact_logger(mac, info: str, h, g):
     # --------------------
     # logger interaction
     # --------------------
-    if _ble_logger_is_cc26x2r(info):
-        rv, notes = await ble_interact_cc26x2(mac, info, g, hs)
+    if _ble_logger_is_do1_or_do2(info):
+        rv, notes = await ble_interact_do1_or_do2(mac, info, g, hs)
         _crit_error = notes["crit_error"]
         _error_dl = notes["error"]
-        print('notes_dl_files', notes["dl_files"])
         _ble_convert_lid(notes["dl_files"])
 
     elif _ble_logger_is_rn4020(mac, info):
@@ -189,6 +198,7 @@ async def _ble_id_n_interact_logger(mac, info: str, h, g):
         rv, notes = await ble_interact_tdo(mac, info, g, hs)
         _crit_error = notes["crit_error"]
         _error_dl = notes["error"]
+        _ble_convert_lid(notes["dl_files"])
 
     else:
         lg.a(f'error: this should not happen, info {info}')
@@ -236,14 +246,13 @@ async def ble_interact_all_loggers(macs_det, macs_mon, g, _h: int, _h_desc):
         if mac not in macs_mon:
             continue
 
-        # helps in distance-detection issues
-        if its_time_to(f'tell_saw_mac_{mac}', 1800):
-            sn = dds_get_cfg_logger_sn_from_mac(mac)
-            lg.a(f"debug: just saw logger {sn} / mac {mac}")
+        _b = is_mac_in_black(mac)
+        _o = is_mac_in_orange(mac)
 
-        if is_mac_in_black(mac):
-            continue
-        if is_mac_in_orange(mac):
+        # helps in distance-detection issues
+        _ble_tell_logger_seen(mac, _b, _o)
+
+        if _b or _o:
             continue
 
         # show the position of the logger we will download

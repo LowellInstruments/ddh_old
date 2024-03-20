@@ -46,7 +46,7 @@ def _macs_get_them_by_color(s) -> list:
     for f in glob.glob(wc):
         mac, t = f.split("@")
         if now > int(t):
-            lg.a("MACS purge {}".format(f))
+            lg.a(f"macs {s} purge {f}")
             os.unlink(f)
         else:
             valid.append(mac)

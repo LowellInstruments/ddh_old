@@ -42,12 +42,12 @@ def _rae(rv, s):
 
 class BleCC26X2Download:
     @staticmethod
-    async def download_recipe(lc, mac, info, g, notes: dict):
+    async def download_recipe(lc, mac, g, notes: dict):
 
         dds_ble_init_rv_notes(notes)
         rerun_flag = get_ddh_rerun_flag_li()
         create_folder_logger_by_mac(mac)
-        _is_a_lix_logger = False
+        _is_a_lid_v2_logger = False
 
         rv = await lc.connect(mac)
         _une(rv, notes, "comm.")
@@ -61,8 +61,8 @@ class BleCC26X2Download:
 
         # to know if this DO-X logger uses LID or LIX files
         rv = await lc.cmd_xod()
-        _is_a_lix_logger = rv == 0
-        lg.a(f"XOD | LIX {_is_a_lix_logger}")
+        _is_a_lid_v2_logger = rv == 0
+        lg.a(f"XOD | LIX {_is_a_lid_v2_logger}")
 
         # STOP with STRING
         rv = await lc.cmd_sws(g)
@@ -136,7 +136,7 @@ class BleCC26X2Download:
             path = str(get_dl_folder_path_from_mac(mac) / name)
             with open(path, "wb") as f:
                 f.write(file_data)
-            lg.a(f"downloaded file {name}")
+            lg.a(f"OK: downloaded file {name}")
 
             # no-deleting the logger configuration file
             if name == MC_FILE:
@@ -168,28 +168,28 @@ class BleCC26X2Download:
             lg.a("CFG | OK")
 
         # see if the DO sensor works
-        if "DO-" in info:
-            rv = await lc.cmd_gdo()
-            bad_rv = not rv or (rv and rv[0] == "0000")
-            if bad_rv:
-                lg.a(f"GDO | error {rv}")
-                _u(STATE_DDS_BLE_DOWNLOAD_ERROR_GDO)
-                _une(bad_rv, notes, "ox_sensor_error", ce=1)
-                if rv and rv[0] == "0000":
-                    lat, lon, _, __ = g
-                    notify_logger_error_sensor_oxygen(g, mac)
-                await asyncio.sleep(5)
-            _rae(bad_rv, "gdo")
-            lg.a("GDO | {}".format(rv))
+        rv = await lc.cmd_gdo()
+        bad_rv = not rv or (rv and rv[0] == "0000")
+        if bad_rv:
+            lg.a(f"GDO | error {rv}")
+            _u(STATE_DDS_BLE_DOWNLOAD_ERROR_GDO)
+            _une(bad_rv, notes, "ox_sensor_error", ce=1)
+            if rv and rv[0] == "0000":
+                lat, lon, _, __ = g
+                notify_logger_error_sensor_oxygen(g, mac)
+            await asyncio.sleep(5)
+        _rae(bad_rv, "gdo")
+        lg.a("GDO | {}".format(rv))
+
+        # see if this guy has GDX (better GDO) instruction
+        rv = await lc.cmd_gdx()
+        lg.a("GDX | (beta) {}".format(rv))
 
         # wake mode
-        if rerun_flag:
-            rv = await lc.cmd_wak("on")
-        else:
-            rv = await lc.cmd_wak("off")
-
+        w = "on" if rerun_flag else "off"
+        rv = await lc.cmd_wak(w)
         _rae(rv, "wak")
-        lg.a("WAK | OK")
+        lg.a(f"WAK | {w} OK")
 
         if rerun_flag:
             rv = await lc.cmd_rws(g)
@@ -211,21 +211,18 @@ class BleCC26X2Download:
         return 0
 
 
-async def ble_interact_cc26x2(mac, info, g, h):
+async def ble_interact_do1_or_do2(mac, info, g, h):
 
+    rv = 0
     notes = {}
-    if ble_logger_is_cc26x2r_simulated(mac):
-        lc = BleCC26X2Sim()
-    else:
-        lc = BleCC26X2(h)
+    lc = BleCC26X2(h)
 
     try:
         # -------------------------
         # BLE connection done here
         # -------------------------
-        s = "interacting with CC26X2 logger, info {}"
-        lg.a(s.format(info))
-        rv = await BleCC26X2Download.download_recipe(lc, mac, info, g, notes)
+        lg.a(f"interacting with DO logger: {info}")
+        rv = await BleCC26X2Download.download_recipe(lc, mac, g, notes)
 
     except Exception as ex:
         lg.a("error dl_cc26x2r_exception {}".format(ex))
@@ -247,4 +244,4 @@ if __name__ == "__main__":
     _g = ("+1.111111", "-2.222222", datetime.datetime.now(), 0)
     _h = "hci0"
     _args = [_m, _i, _g, _h]
-    ael.run_until_complete(ble_interact_cc26x2(*_args))
+    ael.run_until_complete(ble_interact_do1_or_do2(*_args))

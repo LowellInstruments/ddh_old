@@ -70,6 +70,7 @@ def _aws_s3_sync_process():
         lg.a("debug: AWS politely waiting upon boot")
         g_fresh_boot = 0
         time.sleep(60)
+        lg.a("debug: AWS politely resuming after boot")
 
     # sys.exit() instead of return prevents zombie processes
     setproctitle.setproctitle(AWS_S3_SYNC_PROC_NAME)

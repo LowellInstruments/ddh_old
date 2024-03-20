@@ -91,8 +91,8 @@ def dds_log_core_start_at_boot():
     # create NORMAL log folder if it does not exist
     d = str(get_ddh_folder_path_logs())
     Path(d).mkdir(parents=True, exist_ok=True)
-    ts = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
-    lg_dds.a("started normal logs on {}".format(ts))
+    ts = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    lg_dds.a(f"started DDS logs on {ts}")
 
 
 # these TRACKING logs get uploaded

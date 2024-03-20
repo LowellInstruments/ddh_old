@@ -25,7 +25,9 @@ fake_gps_position = [ 11.0, -83.0,]
 [monitored_macs]
 # "mac" = "sn
 #"60:77:71:22:C8:49" = "do1_wo_rtc"
-"D0:2E:AB:D9:E7:B3" = "2311735"
+# "D0:2E:AB:D9:E7:B3" = "2311735"
+"D0:2E:AB:D9:29:48" = "tdo_bread"
+
 
 
 
