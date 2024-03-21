@@ -16,6 +16,8 @@ db_his.json*
 *.sqs
 *.rbl
 .ts_aws.txt
+ddh/gui/res/*_F.gif
+ddh/gui/res/*_C.gif
 
 
 
