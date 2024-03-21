@@ -23,6 +23,7 @@ import concurrent.futures
 import subprocess as sp
 
 
+# instead, the DDN port is 9000
 DDH_PORT_API = 8000
 NAME_EXE_API = "main_api"
 PID_FILE_API = "/tmp/{}.pid".format(NAME_EXE_API)

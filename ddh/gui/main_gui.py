@@ -104,7 +104,6 @@ class DDH(QMainWindow, d_m.Ui_MainWindow):
         self.lbl_net_pressed = 0
         self.gif_map = None
 
-        gui_populate_maps_tab(self)
         gui_hide_map_tab(self)
         gui_hide_edit_tab(self)
         gui_hide_advanced_tab(self)
@@ -164,6 +163,7 @@ class DDH(QMainWindow, d_m.Ui_MainWindow):
         gui_timer_fxn(self)
 
     def _tt_fxn(self):
+
         # measure RAM usage of DDH box
         m = psutil.virtual_memory()
         if int(m.percent) > 75:
@@ -361,10 +361,6 @@ class DDH(QMainWindow, d_m.Ui_MainWindow):
     def click_btn_adv_sms():
         s = 'test_sms_button'
         notify_via_sms(s)
-
-    def click_btn_map(self):
-        self.lbl_map_txt.setText('retrieving latest...')
-        self.gif_map.stop()
 
     def click_btn_purge_his_db(self):
         """deletes contents in history database"""

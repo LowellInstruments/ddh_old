@@ -4,6 +4,8 @@ import shlex
 import socket
 import time
 import shutil
+
+import requests
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QPixmap, QIcon, QMovie
 from PyQt5.QtWidgets import (
@@ -14,10 +16,12 @@ from PyQt5.QtWidgets import (
     QHeaderView,
 )
 from gpiozero import Button
+from requests import HTTPError
 
 from ddh.db.db_his import DBHis
 from ddh.graph import process_n_graph
 from ddh.utils_net import net_get_my_current_wlan_ssid
+from dds.timecache import its_time_to
 from locales.locales import _x
 from locales.strings import STR_SEARCHING_FOR_LOGGERS, STR_CONNECTING_LOGGER, STR_SYNCING_GPS_TIME
 from mat.ble.ble_mat_utils import DDH_GUI_UDP_PORT
@@ -81,6 +85,11 @@ PERIOD_SHOW_LOGGER_DL_ERROR_SECS = 300
 PERIOD_SHOW_LOGGER_DL_WARNING_SECS = 60
 PERIOD_SHOW_BLE_APP_GPS_ERROR_POSITION = 60
 g_lock_icon_timer = 0
+g_app_uptime = time.perf_counter()
+
+
+def _calc_app_uptime():
+    return int(time.perf_counter() - g_app_uptime)
 
 
 def _lock_icon(t):
@@ -150,10 +159,39 @@ def gui_center_window(my_app):
 
 
 def gui_populate_maps_tab(my_app):
+
+    deg = 'F'
+    d = str(datetime.datetime.now().strftime('%Y%m%d'))
+    fe = f"{str(ddh_get_folder_path_res())}/error_maps.gif"
+    fg = f"{str(ddh_get_folder_path_res())}/{d}_{deg}.gif"
+    fl = fg
+
+    # todo: delete all gifs not the current one
+
+    # when developing, force re-download
+    if os.path.exists(fg):
+        os.unlink(fg)
+
+    # not in local file system, download gif from server
+    addr_ddn_api = 'ddn.lowellinstruments.com'
+    port_ddn_api = 9000
+    if not os.path.exists(fg):
+        t = 5
+        url = f'http://{addr_ddn_api}:{port_ddn_api}/dtm?t={d}&deg={deg}'
+        try:
+            rsp = requests.get(url, timeout=t)
+            rsp.raise_for_status()
+            # save gif to local file system
+            with open(fg, 'wb') as f:
+                f.write(rsp.content)
+                fl = fg
+        except (Exception,) as err:
+            lg.a(f'error: maps request -> {err}')
+            fl = fe
+
+    # load the map
     a = my_app
-    f = str(ddh_get_root_folder_path()) + '/tests/300.gif'
-    a.lbl_map_txt.setText('maps_text')
-    a.gif_map = QMovie(f)
+    a.gif_map = QMovie(fl)
     a.lbl_map.setMovie(a.gif_map)
     a.gif_map.start()
 
@@ -294,7 +332,6 @@ def gui_setup_buttons(my_app):
     a.chk_rerun.toggled.connect(a.click_chk_rerun)
     a.cb_s3_uplink_type.activated.connect(a.click_cb_s3_uplink_type)
     a.btn_adv_sms.clicked.connect(a.click_btn_adv_sms)
-    a.btn_map.clicked.connect(a.click_btn_map)
 
     # graph stuff
     a.btn_g_reset.clicked.connect(a.click_graph_btn_reset)
@@ -688,6 +725,11 @@ _skg.bind(("127.0.0.1", DDH_GUI_UDP_PORT))
 
 def gui_timer_fxn(my_app):
     a = my_app
+
+    # update the maps tab, prevent freeze at boot
+    if _calc_app_uptime() > 10 and\
+            its_time_to('update_maps_tab', 3600):
+        gui_populate_maps_tab(a)
 
     _gui_update_icon_timer()
     i = int(time.perf_counter()) % 4
