@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import datetime
+import json
 import shutil
 import setproctitle
 from api.api_utils import (get_git_commit_mat_local,
@@ -13,7 +14,7 @@ from api.api_utils import (get_git_commit_mat_local,
                            api_get_full_ddh_config_file_path,
                            linux_app_write_pid_to_tmp, linux_is_rpi,
                            api_get_folder_path_root, ddt_get_folder_path_root,
-                           get_uptime, get_crontab_api)
+                           get_uptime, get_crontab_api, api_read_aws_sqs_ts)
 from utils.ddh_config import dds_get_cfg_vessel_name, dds_get_cfg_box_sn, dds_get_cfg_box_project
 import uvicorn
 from fastapi import FastAPI, UploadFile, File
@@ -49,6 +50,17 @@ async def ep_ping():
         "uptime": get_uptime()
     }
     return d
+
+
+@app.get('/history')
+async def ep_history():
+    # p: path relative to this current file
+    p = 'ddh/db/db_his.json'
+    try:
+        with open(p, 'r') as f:
+            return {"history": "ok", "entries": json.load(f)}
+    except (Exception, ):
+        return {"history": "error", "entries": {}}
 
 
 ep = 'upload_conf'
@@ -96,6 +108,7 @@ async def api_get_info():
         "last_gps": _th(get_gps),
         "uptime": _th(get_uptime),
         "ble_state": _th(get_ble_state),
+        "aws_sqs_state": _th(api_read_aws_sqs_ts),
         "boat_prj": _th(dds_get_cfg_box_project),
         "boat_sn": _th(dds_get_cfg_box_sn),
         "boat_name": _th(dds_get_cfg_vessel_name),

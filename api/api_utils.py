@@ -288,3 +288,20 @@ def linux_is_rpi():
         return False
     # better than checking architecture
     return os.uname().nodename in ('raspberrypi', 'rpi')
+
+
+# shared with DDH aws.py
+TMP_JSON_LAST_AWS_SQS_ACCESS = '/tmp/last_aws_sqs.json'
+
+
+def api_read_aws_sqs_ts():
+    now = str(datetime.datetime.now(tz=datetime.timezone.utc))
+    try:
+        with open(TMP_JSON_LAST_AWS_SQS_ACCESS, 'r') as f:
+            j = json.load(f)
+    except (Exception, ):
+        j = {
+            'aws': ('unknown', now),
+            'sqs': ('unknown', now)
+        }
+    return j

@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import datetime
 import glob
+import json
 import multiprocessing
 import os
 import subprocess as sp
@@ -37,6 +38,34 @@ past_n_files = 0
 def _get_aws_bin_path():
     # requires $ sudo pip install awscli
     return "aws"
+
+
+# shared between this file and API
+TMP_JSON_LAST_AWS_SQS_ACCESS = '/tmp/last_aws_sqs.json'
+
+
+def ddh_write_aws_sqs_ts(k, v):
+    assert k in ('aws', 'sqs')
+    assert v in ('ok', 'error')
+
+    now = str(datetime.datetime.now(tz=datetime.timezone.utc))
+
+    try:
+        with open(TMP_JSON_LAST_AWS_SQS_ACCESS, 'r') as f:
+            j = json.load(f)
+    except (Exception, ):
+        j = {
+            'aws': ('unknown', now),
+            'sqs': ('unknown', now)
+        }
+
+    try:
+        j[k] = (v, now)
+        with open(TMP_JSON_LAST_AWS_SQS_ACCESS, 'w') as f:
+            json.dump(j, f)
+            lg.a('error: cannot record last AWS / SQS state')
+    except (Exception, ):
+        pass
 
 
 # ------------------------------------------
