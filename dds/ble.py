@@ -222,10 +222,11 @@ async def _ble_id_n_interact_logger(mac, info: str, h, g):
     # ------------------------------------
     # so GUI can update its HISTORY tab
     # ------------------------------------
-    epoch = int(dt_local.timestamp())
-    s = "{}/add&{}&{}&{}&{}&{}"
+    ep_loc = int(dt_local.timestamp())
+    ep_utc = int(dt.timestamp())
     e = 'ok' if not rv else _error_dl
-    _u(s.format(STATE_DDS_NOTIFY_HISTORY, mac, e, lat, lon, epoch))
+    _u(f"{STATE_DDS_NOTIFY_HISTORY}/add&"
+       f"{mac}&{e}&{lat}&{lon}&{ep_loc}&{ep_utc}")
 
     # AWS flag only set on rpi, it is checked later after all loggers end
     try:

@@ -8,7 +8,7 @@ class DBHis:
         # hf: path to history file
         self.db = getDb(hf)
 
-    def add(self, mac, sn, e, lat, lon, sws_time):
+    def add(self, mac, sn, e, lat, lon, ep_loc, ep_utc):
         a = {
             # all of these are strings
             "mac": mac,
@@ -17,7 +17,8 @@ class DBHis:
             "e": e,
             "lat": lat,
             "lon": lon,
-            "sws_time": sws_time
+            "sws_time": ep_loc,
+            "utc_epoch": ep_utc
         }
         q = {"SN": sn}
         try:

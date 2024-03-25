@@ -6,7 +6,7 @@ import shutil
 import setproctitle
 from api.api_utils import (get_git_commit_mat_local,
                            get_ip_vpn, get_ip_wlan, get_ip_cell,
-                           get_running, get_crontab_ddh, shell,
+                           get_running, get_crontab_ddh, _sh,
                            set_crontab,
                            get_git_commit_ddh_local,
                            get_ble_state, get_gps, get_logger_mac_reset_files,
@@ -14,7 +14,7 @@ from api.api_utils import (get_git_commit_mat_local,
                            api_get_full_ddh_config_file_path,
                            linux_app_write_pid_to_tmp, linux_is_rpi,
                            api_get_folder_path_root, ddt_get_folder_path_root,
-                           get_uptime, get_crontab_api, api_read_aws_sqs_ts)
+                           get_uptime, get_crontab_api, api_read_aws_sqs_ts, get_utc_epoch, get_timezone)
 from utils.ddh_config import dds_get_cfg_vessel_name, dds_get_cfg_box_sn, dds_get_cfg_box_project
 import uvicorn
 from fastapi import FastAPI, UploadFile, File
@@ -84,7 +84,7 @@ async def api_upload_conf(file: UploadFile = File(...)):
         return {ep: 'no_install_not_Rpi'}
 
     p = api_get_full_ddh_config_file_path()
-    rv = shell(f'cp {uploaded_name} {p}')
+    rv = _sh(f'cp {uploaded_name} {p}')
     if rv.returncode:
         return {ep: 'error_installing'}
 
@@ -117,6 +117,8 @@ async def api_get_info():
         "crontab_api": _th(get_crontab_api),
         "mac_reset_files": _th(get_logger_mac_reset_files),
         "versions": _th(get_versions),
+        "utc_time": _th(get_utc_epoch),
+        "time_zone": _th(get_timezone)
         # "commit_mat": _th(get_git_commit_mat_local),
         # "commit_ddh": _th(get_git_commit_ddh_local),
     }
@@ -131,7 +133,7 @@ async def ep_logs_get():
     d = api_get_folder_path_root()
     # zip ONLY .log files
     c = f'rm {f}; cd {d}/logs && zip -r {f} *.log'
-    rv = shell(c)
+    rv = _sh(c)
     if rv.returncode == 0:
         return FileResponse(path=f, filename=os.path.basename(f))
 
@@ -145,7 +147,7 @@ async def ep_dl_files_get():
     # zip it, -o flag overwrites if already exists
     s = _get_ddh_folder_path_dl_files()
     c = f'rm {f}; cd {s} && zip -r {f} *'
-    rv = shell(c)
+    rv = _sh(c)
 
     # send it as response
     if rv.returncode == 0:
@@ -162,7 +164,7 @@ async def ep_conf_get():
     f = f'/tmp/conf_{vn}.zip'
     d = api_get_folder_path_root()
     c = f'rm {f}; cd {d}/settings && zip -o {f} config.toml'
-    rv = shell(c)
+    rv = _sh(c)
 
     # send it as response
     if rv.returncode == 0:
@@ -172,7 +174,7 @@ async def ep_conf_get():
 def _ep_update(_ep, c):
     if not linux_is_rpi():
         return {ep: 'not RPi, not updating DDH'}
-    rv = shell(c)
+    rv = _sh(c)
     with open('/tmp/ddr_update_log.txt', 'w') as f:
         f.write(f'rc {rv.returncode}')
         f.write(f'er {rv.stderr.decode()}')
@@ -203,7 +205,7 @@ async def ep_kill_ddh():
     d = dict()
     for i in ('main_ddh', 'main_ddh_controller',
               'main_dds', 'main_dds_controller'):
-        rv = shell(f'killall {i}')
+        rv = _sh(f'killall {i}')
         s = rv.stderr.decode().replace('\n', '')
         if rv.returncode == 0:
             s = 'OK'
@@ -217,7 +219,7 @@ async def ep_kill_ddh():
 
 @app.get('/kill_api')
 async def ep_kill_api():
-    shell('killall main_api')
+    _sh('killall main_api')
     # does not matter, won't answer
     return {'kill_api': 'OK'}
 

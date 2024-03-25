@@ -6,9 +6,10 @@ import pathlib
 import platform
 import subprocess as sp
 import sys
+import time
 
 
-def shell(c):
+def _sh(c):
     rv = sp.run(c, shell=True, stdout=sp.PIPE, stderr=sp.PIPE)
     if rv.returncode:
         e = ''
@@ -28,40 +29,34 @@ def shell(c):
     return rv
 
 
+def linux_is_rpi():
+    if platform.system() == 'Windows':
+        return False
+    # better than checking architecture
+    return os.uname().nodename in ('raspberrypi', 'rpi')
+
+
+_r = str(pathlib.Path.home())
+_r += '/li' if linux_is_rpi() else '/PycharmProjects'
+
+
 def api_get_full_ddh_config_file_path():
-    p = pathlib.Path.home()
-    if linux_is_rpi():
-        # /home/pi/li/ddh/settings/config.toml
-        p = str(p) + '/li/ddh/settings/config.toml'
-    else:
-        # /home/kaz/PycharmProjects/ddh/settings/config.toml
-        p = str(p) + '/PycharmProjects/ddh/settings/config.toml'
-    return p
+    return _r + '/ddh/settings/config.toml'
 
 
 def api_get_folder_path_root():
-    p = pathlib.Path.home()
-    if linux_is_rpi():
-        p = str(p) + '/li/ddh'
-    else:
-        p = str(p) + '/PycharmProjects/ddh'
-    return p
+    return _r + '/ddh'
 
 
 def ddt_get_folder_path_root():
-    p = pathlib.Path.home()
-    if linux_is_rpi():
-        p = str(p) + '/li/ddt'
-    else:
-        p = str(p) + '/PycharmProjects/ddt'
-    return p
+    return _r + '/ddt'
 
 
 def _get_remote_commit(s):
     assert s in ('mat', 'ddh', 'ddt', 'liu')
-    url = 'https://github.com/lowellinstruments/{}.git'.format(s)
-    c = 'git ls-remote {} refs/heads/master'.format(url)
-    rv = shell(c)
+    url = f'https://github.com/lowellinstruments/{s}.git'
+    c = f'git ls-remote {url} refs/heads/master'
+    rv = _sh(c)
     if rv.returncode == 0:
         a = rv.stdout.decode().split()
         # a: dd3d0a...	refs/heads/master
@@ -71,8 +66,8 @@ def _get_remote_commit(s):
 def _get_local_commit(s):
     # main_api.py runs in ddh root
     assert s in ('ddh', 'ddt')
-    c = 'cd ../{} && git log -1 | grep commit | cut -f 2 -d " "'.format(s)
-    rv = shell(c)
+    c = f'cd ../{s} && git log -1 | grep commit | cut -f 2 -d " "'
+    rv = _sh(c)
     s = rv.stdout.decode().replace('\n', '')
     return s
 
@@ -91,8 +86,8 @@ def get_git_commit_mat_remote():
 
 def _get_git_commit_mat_local_from_file(s):
     # MAT is installed so different way to get the commit
-    c = 'cat /etc/com_{}_loc.txt'.format(s)
-    rv = shell(c)
+    c = f'cat /etc/com_{s}_loc.txt'
+    rv = _sh(c)
     commit_id = ''
     if rv.returncode == 0:
         commit_id = rv.stdout.decode().replace('\n', '')
@@ -124,7 +119,7 @@ def _get_iface_ip(iface):
     if iface not in ('wg0', 'wlan0', 'ppp0'):
         return ''
     c = "ip -4 addr show {} | grep inet ".format(iface)
-    rv = shell(c)
+    rv = _sh(c)
     ip = ''
     if rv.returncode == 0:
         # ['inet', '10.0.0.205/24', 'brd', ...]
@@ -134,6 +129,20 @@ def _get_iface_ip(iface):
 
 def get_ip_vpn():
     return _get_iface_ip('wg0')
+
+
+def get_timezone():
+    # dirty but works
+    c = 'timedatectl | grep "Time zone"'
+    rv = _sh(c)
+    if rv.returncode == 0:
+        # b'Time zone: America/New_York (EDT, -0400)'
+        return rv.stdout.decode().split(': ')[1]
+    return 'error: get_local_timezone()'
+
+
+def get_utc_epoch():
+    return int(time.time())
 
 
 def get_ip_wlan():
@@ -146,7 +155,7 @@ def get_ip_cell():
 
 def get_uptime():
     c = 'uptime -p'
-    rv = shell(c)
+    rv = _sh(c)
     s = rv.stdout.decode()
     # s: "up 3 days, 14 hours, 29 minutes\n"
     s = s[3:-1]
@@ -161,13 +170,13 @@ def get_uptime():
 
 def _get_crontab(s):
     c = f'cat /etc/crontab | grep crontab_{s}.sh'
-    rv = shell(c)
+    rv = _sh(c)
     if rv.returncode:
         # no "crontab_*.sh" string found in whole crontab
         return -1
 
     c = f'cat /etc/crontab | grep crontab_{s}.sh | grep "#"'
-    rv = shell(c)
+    rv = _sh(c)
     if rv.returncode == 0:
         # string "# crontab_*.sh" found, but it is disabled
         return 0
@@ -200,19 +209,19 @@ def set_crontab(on_flag):
         # is enabled, comment it
         print('commenting')
         c = "sudo sed -i '/crontab_ddh.sh/s/^/#/g' /etc/crontab"
-    rv = shell(c)
+    rv = _sh(c)
     if rv.returncode == 0:
         # need to restart crontab service
         c = "sudo systemctl restart crond.service"
-        rv = shell(c)
+        rv = _sh(c)
         return rv.returncode == 0
 
 
 def get_running():
-    rv_h = shell('ps -aux | grep "main_ddh" | grep -v grep')
-    rv_s = shell('ps -aux | grep "main_dds" | grep -v grep')
-    rv_hc = shell('ps -aux | grep "main_ddh_controller" | grep -v grep')
-    rv_hs = shell('ps -aux | grep "main_dds_controller" | grep -v grep')
+    rv_h = _sh('ps -aux | grep "main_ddh" | grep -v grep')
+    rv_s = _sh('ps -aux | grep "main_dds" | grep -v grep')
+    rv_hc = _sh('ps -aux | grep "main_ddh_controller" | grep -v grep')
+    rv_hs = _sh('ps -aux | grep "main_dds_controller" | grep -v grep')
     return {
         'ddh': int(rv_h.returncode == 0),
         'dds': int(rv_s.returncode == 0),
@@ -223,8 +232,8 @@ def get_running():
 
 def get_ble_state():
     h = '/usr/bin/hciconfig'
-    rv_0 = shell('{} -a | grep hci0'.format(h))
-    rv_1 = shell('{} -a | grep hci1'.format(h))
+    rv_0 = _sh('{} -a | grep hci0'.format(h))
+    rv_1 = _sh('{} -a | grep hci1'.format(h))
     d = dict()
     d['hci0_present'] = 'no'
     d['hci1_present'] = 'no'
@@ -232,11 +241,11 @@ def get_ble_state():
     d['hci1_running'] = 'no'
     if rv_0.returncode == 0:
         d['hci0_present'] = 'yes'
-        rv = shell('{} hci0'.format(h))
+        rv = _sh('{} hci0'.format(h))
         d['hci0_running'] = 'UP RUNNING' in rv.stdout.decode()
     if rv_1.returncode == 0:
         d['hci1_present'] = 'yes'
-        rv = shell('{} hci1'.format(h))
+        rv = _sh('{} hci1'.format(h))
         d['hci1_running'] = 'UP RUNNING' in rv.stdout.decode()
     return d
 
@@ -283,21 +292,12 @@ def linux_app_write_pid_to_tmp(name):
     f.close()
 
 
-def linux_is_rpi():
-    if platform.system() == 'Windows':
-        return False
-    # better than checking architecture
-    return os.uname().nodename in ('raspberrypi', 'rpi')
-
-
-# shared with DDH aws.py
-TMP_JSON_LAST_AWS_SQS_ACCESS = '/tmp/last_aws_sqs.json'
-
-
 def api_read_aws_sqs_ts():
+    # path relative to main_api.py
+    p = "ddh/db/db_status.json"
     now = str(datetime.datetime.now(tz=datetime.timezone.utc))
     try:
-        with open(TMP_JSON_LAST_AWS_SQS_ACCESS, 'r') as f:
+        with open(p, 'r') as f:
             j = json.load(f)
     except (Exception, ):
         j = {
@@ -305,3 +305,7 @@ def api_read_aws_sqs_ts():
             'sqs': ('unknown', now)
         }
     return j
+
+
+if __name__ == '__main__':
+    print(get_timezone())

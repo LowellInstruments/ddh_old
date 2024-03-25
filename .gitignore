@@ -4,6 +4,7 @@ logs/*
 
 
 db_his.json*
+db_status.json*
 *.so
 *.lid
 *.lix

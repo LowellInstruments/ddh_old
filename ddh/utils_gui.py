@@ -466,10 +466,10 @@ def gui_setup_buttons_rpi(my_app):
     a.button3.when_pressed = button3_pressed_cb
 
 
-def gui_add_to_history_database(mac, e, lat, lon, t):
+def gui_add_to_history_database(mac, e, lat, lon, ep_loc, ep_utc):
     sn = dds_get_cfg_logger_sn_from_mac(mac)
     db = DBHis(ddh_get_db_history_file())
-    db.add(mac, sn, e, lat, lon, t)
+    db.add(mac, sn, e, lat, lon, ep_loc, ep_utc)
 
 
 def gui_confirm_by_user(s):
@@ -685,9 +685,9 @@ def _gui_parse_udp(my_app, s, ip="127.0.0.1"):
 
     elif f == STATE_DDS_NOTIFY_HISTORY:
         if v.startswith("add"):
-            # history/add&{mac}&{ok|error}&{lat}&{lon}&{t_epoch}
+            # history/add&{mac}&{ok|error}&{lat}&{lon}&{ep_loc}&{ep_utc}
             v = v.split("&")
-            gui_add_to_history_database(v[1], v[2], v[3], v[4], v[5])
+            gui_add_to_history_database(v[1], v[2], v[3], v[4], v[5], v[6])
         gui_populate_history_tab(a)
 
     elif f == STATE_DDS_BLE_LOW_BATTERY:

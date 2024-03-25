@@ -22,12 +22,11 @@ from utils.ddh_shared import (
     STATE_DDS_NOTIFY_CLOUD_BUSY,
     STATE_DDS_NOTIFY_CLOUD_ERR,
     STATE_DDS_NOTIFY_CLOUD_OK,
-    dds_get_aws_has_something_to_do_via_gui_flag_file, get_ddh_file_path_ts_aws
+    dds_get_aws_has_something_to_do_via_gui_flag_file, get_ddh_file_path_ts_aws, ddh_get_db_status_file
 )
 from utils.logs import lg_aws as lg
 
 g_fresh_boot = 1
-PATH_FILE_AWS_TS = get_ddh_file_path_ts_aws()
 PERIOD_AWS_S3_SECS = 3600 * 6
 PERIOD_ALARM_AWS_S3 = 86400 * 7
 AWS_S3_SYNC_PROC_NAME = "dds_aws_sync"
@@ -40,28 +39,28 @@ def _get_aws_bin_path():
     return "aws"
 
 
-# shared between this file and API
-TMP_JSON_LAST_AWS_SQS_ACCESS = '/tmp/last_aws_sqs.json'
-
-
 def ddh_write_aws_sqs_ts(k, v):
     assert k in ('aws', 'sqs')
-    assert v in ('ok', 'error')
 
-    now = str(datetime.datetime.now(tz=datetime.timezone.utc))
+    # epoch utc
+    t = int(time.time())
+    # in API code, this path is also used
+    p = ddh_get_db_status_file()
 
+    # load the file or get custom content
     try:
-        with open(TMP_JSON_LAST_AWS_SQS_ACCESS, 'r') as f:
+        with open(p, 'r') as f:
             j = json.load(f)
     except (Exception, ):
         j = {
-            'aws': ('unknown', now),
-            'sqs': ('unknown', now)
+            'aws': ('unknown', t),
+            'sqs': ('unknown', t)
         }
 
+    # update file content
     try:
-        j[k] = (v, now)
-        with open(TMP_JSON_LAST_AWS_SQS_ACCESS, 'w') as f:
+        j[k] = (v, t)
+        with open(p, 'w') as f:
             json.dump(j, f)
             lg.a('error: cannot record last AWS / SQS state')
     except (Exception, ):
@@ -77,17 +76,19 @@ def ddh_write_aws_sqs_ts(k, v):
 
 def _touch_s3_ts():
     # ts: timestamp
-    with open(PATH_FILE_AWS_TS, 'w') as f:
+    p = get_ddh_file_path_ts_aws()
+    with open(p, 'w') as f:
         f.write(str(int(time.time())))
 
 
 def _get_s3_ts():
+    p = get_ddh_file_path_ts_aws()
     try:
-        with open(PATH_FILE_AWS_TS, 'r') as f:
+        with open(p, 'r') as f:
             return f.readline()
     except FileNotFoundError:
         # first time ever
-        lg.a(f'warning: AWS timestamp file not found {PATH_FILE_AWS_TS}')
+        lg.a(f'warning: AWS timestamp file not found {p}')
         return 0
 
 
@@ -98,7 +99,7 @@ def _aws_s3_sync_process():
     if g_fresh_boot:
         lg.a("debug: AWS politely waiting upon boot")
         g_fresh_boot = 0
-        time.sleep(60)
+        time.sleep(30)
         lg.a("debug: AWS politely resuming after boot")
 
     # sys.exit() instead of return prevents zombie processes
@@ -177,6 +178,8 @@ def _aws_s3_sync_process():
         _u(STATE_DDS_NOTIFY_CLOUD_OK)
         lg.a("success: cloud sync on {}".format(_t))
         _touch_s3_ts()
+        # tell status DB for API purposes all went fine
+        ddh_write_aws_sqs_ts('aws', 'ok')
         # AWS it's a separate process, can exit here
         sys.exit(0)
 
@@ -202,6 +205,7 @@ def _aws_s3_sync_process():
     # something went wrong
     _u(STATE_DDS_NOTIFY_CLOUD_ERR)
     lg.a("error: cloud sync on {}, rv {}".format(_t, all_rv))
+    ddh_write_aws_sqs_ts('aws', 'error')
     sys.exit(2)
 
 
