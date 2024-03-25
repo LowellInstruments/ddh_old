@@ -363,7 +363,7 @@ class DDH(QMainWindow, d_m.Ui_MainWindow):
         s: str
         if its_time_to('sms', 3600):
             s = 'sending'
-            # notify_via_sms('sms')
+            notify_via_sms('sms')
         else:
             s = 'already sent'
         self.btn_sms.setText(s)
