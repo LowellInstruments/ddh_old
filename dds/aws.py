@@ -62,9 +62,8 @@ def ddh_write_aws_sqs_ts(k, v):
         j[k] = (v, t)
         with open(p, 'w') as f:
             json.dump(j, f)
-            lg.a('error: cannot record last AWS / SQS state')
     except (Exception, ):
-        pass
+        lg.a(f'error: cannot record AWS / SQS state to {p}')
 
 
 # ------------------------------------------

@@ -9,13 +9,17 @@ import sys
 import time
 
 
+CTT_API_OK = 'ok'
+CTT_API_ER = 'error'
+
+
 def _sh(c):
     rv = sp.run(c, shell=True, stdout=sp.PIPE, stderr=sp.PIPE)
     if rv.returncode:
         e = ''
         e += '----------------\n'
         e += f'{datetime.datetime.now()}\n'
-        e += 'api shell error\n'
+        e += f'api shell {CTT_API_ER}\n'
         e += '----------------\n'
         e += f'    returncode {rv.returncode}\n'
         e += f'    stdout     {rv.stdout.decode()}\n'
@@ -138,7 +142,7 @@ def get_timezone():
     if rv.returncode == 0:
         # b'Time zone: America/New_York (EDT, -0400)'
         return rv.stdout.decode().split(': ')[1]
-    return 'error: get_local_timezone()'
+    return f'{CTT_API_ER}: get_local_timezone()'
 
 
 def get_utc_epoch():
@@ -255,7 +259,7 @@ def get_gps():
         with open('/tmp/gps_last.json', 'r') as f:
             return json.load(f)
     except (Exception, ) as ex:
-        print(f'error: cannot api_get_gps -> {ex}')
+        print(f'{CTT_API_ER}: cannot api_get_gps -> {ex}')
         return {}
 
 

@@ -295,7 +295,7 @@ def gui_setup_buttons(my_app):
 
     # hidden buttons
     if not linux_is_rpi():
-        a.btn_adv_sms.setEnabled(True)
+        a.btn_sms.setEnabled(True)
 
     # clicks in BLE text, boat image, brightness...
     a.lbl_ble.mousePressEvent = a.click_lbl_ble
@@ -331,7 +331,7 @@ def gui_setup_buttons(my_app):
     a.btn_note_yes_specific.clicked.connect(a.click_btn_note_yes_specific)
     a.chk_rerun.toggled.connect(a.click_chk_rerun)
     a.cb_s3_uplink_type.activated.connect(a.click_cb_s3_uplink_type)
-    a.btn_adv_sms.clicked.connect(a.click_btn_adv_sms)
+    a.btn_sms.clicked.connect(a.click_btn_sms)
 
     # graph stuff
     a.btn_g_reset.clicked.connect(a.click_graph_btn_reset)
@@ -486,8 +486,8 @@ def gui_confirm_by_user(s):
 
 def _parse_addr(my_app, addr):
     ip, _ = addr
-    if ip != "127.0.0.1":
-        my_app.lbl_ip.setText("remote DDH")
+    # if ip != "127.0.0.1":
+    #     my_app.lbl_ip.setText("remote DDH")
 
 
 def _gui_update_icon_timer():

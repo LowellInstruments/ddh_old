@@ -14,7 +14,8 @@ from api.api_utils import (get_git_commit_mat_local,
                            api_get_full_ddh_config_file_path,
                            linux_app_write_pid_to_tmp, linux_is_rpi,
                            api_get_folder_path_root, ddt_get_folder_path_root,
-                           get_uptime, get_crontab_api, api_read_aws_sqs_ts, get_utc_epoch, get_timezone)
+                           get_uptime, get_crontab_api, api_read_aws_sqs_ts, get_utc_epoch, get_timezone, CTT_API_OK,
+                           CTT_API_ER)
 from utils.ddh_config import dds_get_cfg_vessel_name, dds_get_cfg_box_sn, dds_get_cfg_box_project
 import uvicorn
 from fastapi import FastAPI, UploadFile, File
@@ -41,7 +42,7 @@ def _get_ddh_folder_path_dl_files():
 @app.get('/ping')
 async def ep_ping():
     d = {
-        "ping": "OK",
+        "ping": CTT_API_OK,
         "ip_vpn": get_ip_vpn(),
         "ip_wlan": get_ip_wlan(),
         "boat_name": dds_get_cfg_vessel_name(),
@@ -58,9 +59,9 @@ async def ep_history():
     p = 'ddh/db/db_his.json'
     try:
         with open(p, 'r') as f:
-            return {"history": "ok", "entries": json.load(f)}
+            return {"history": CTT_API_OK, "entries": json.load(f)}
     except (Exception, ):
-        return {"history": "error", "entries": {}}
+        return {"history": CTT_API_ER, "entries": {}}
 
 
 ep = 'upload_conf'
@@ -69,7 +70,7 @@ ep = 'upload_conf'
 @app.post(f"/{ep}")
 async def api_upload_conf(file: UploadFile = File(...)):
     if not file.filename == 'config.toml':
-        return {ep: 'error_name'}
+        return {ep: f'{CTT_API_ER}_filename'}
 
     # accept the upload and save it to /tmp folder
     uploaded_name = f'/tmp/{file.filename}'
@@ -77,7 +78,7 @@ async def api_upload_conf(file: UploadFile = File(...)):
         with open(uploaded_name, "wb") as buf:
             shutil.copyfileobj(file.file, buf)
     except (Exception, ):
-        return {ep: 'error_uploading'}
+        return {ep: f'{CTT_API_ER}_file_uploading'}
 
     # overwrite DDH configuration only on DDH boxes
     if not linux_is_rpi():
@@ -86,10 +87,10 @@ async def api_upload_conf(file: UploadFile = File(...)):
     p = api_get_full_ddh_config_file_path()
     rv = _sh(f'cp {uploaded_name} {p}')
     if rv.returncode:
-        return {ep: 'error_installing'}
+        return {ep: f'{CTT_API_ER}_file_install'}
 
     # response back
-    return {ep: 'OK'}
+    return {ep: CTT_API_OK}
 
 
 @app.get('/info')
@@ -101,7 +102,7 @@ async def api_get_info():
             return future.result()
 
     d = {
-        'info': "OK",
+        'info': CTT_API_OK,
         "ip_vpn": _th(get_ip_vpn),
         "ip_wlan": _th(get_ip_wlan),
         "ip_cell": _th(get_ip_cell),
@@ -179,7 +180,7 @@ def _ep_update(_ep, c):
         f.write(f'rc {rv.returncode}')
         f.write(f'er {rv.stderr.decode()}')
         f.write(f'ou {rv.stdout.decode()}')
-    return {_ep: 'OK' if rv.returncode == 0 else 'error'}
+    return {_ep: CTT_API_OK if rv.returncode == 0 else CTT_API_ER}
 
 
 @app.get('/update_ddt')
@@ -208,7 +209,7 @@ async def ep_kill_ddh():
         rv = _sh(f'killall {i}')
         s = rv.stderr.decode().replace('\n', '')
         if rv.returncode == 0:
-            s = 'OK'
+            s = CTT_API_OK
         if 'no process found' in s:
             s = 'N/A'
         # shorter name
@@ -221,7 +222,7 @@ async def ep_kill_ddh():
 async def ep_kill_api():
     _sh('killall main_api')
     # does not matter, won't answer
-    return {'kill_api': 'OK'}
+    return {'kill_api': CTT_API_OK}
 
 
 @app.get("/cron_ena")
@@ -257,7 +258,7 @@ async def ep_rpi_temperature():
             ans = float(ans.decode())
             return {'rpi_temperature': str(ans)}
     except (Exception,) as ex:
-        return {'rpi_temperature': 'error'}
+        return {'rpi_temperature': API_CTT_ER}
 
 
 def main_api():

@@ -1,3 +1,5 @@
+import time
+
 import pyqtgraph as pg
 from pathlib import Path
 import psutil
@@ -6,7 +8,7 @@ import os
 import pathlib
 import shutil
 import sys
-from PyQt5.QtCore import QTimer, Qt
+from PyQt5.QtCore import QTimer, Qt, QCoreApplication
 from PyQt5.QtWidgets import QMainWindow
 import ddh.gui.designer_main as d_m
 from ddh.db.db_his import DBHis
@@ -357,10 +359,17 @@ class DDH(QMainWindow, d_m.Ui_MainWindow):
     def click_btn_adv_purge_lo(self):
         gui_show_note_tab_delete_black_macs(self)
 
-    @staticmethod
-    def click_btn_adv_sms():
-        s = 'test_sms_button'
-        notify_via_sms(s)
+    def click_btn_sms(self):
+        s: str
+        if its_time_to('sms', 3600):
+            s = 'sending'
+            # notify_via_sms('sms')
+        else:
+            s = 'already sent'
+        self.btn_sms.setText(s)
+        QCoreApplication.processEvents()
+        time.sleep(2)
+        self.btn_sms.setText("tech support")
 
     def click_btn_purge_his_db(self):
         """deletes contents in history database"""
