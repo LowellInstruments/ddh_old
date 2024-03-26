@@ -58,6 +58,10 @@ class BleTDODownload:
             # out of here for sure
             raise BLEAppException("TDO interact logger reset file")
 
+        rv, state = await lc.cmd_sts()
+        _rae(rv, "sts")
+        lg.a(f"STS | logger was {state}")
+
         rv = await lc.cmd_sws(g)
         _rae(rv, "sws")
         lg.a("SWS | OK")

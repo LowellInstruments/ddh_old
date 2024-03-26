@@ -2,7 +2,6 @@
 source /home/pi/li/ddh/scripts/utils.sh
 
 
-clear
 echo
 
 

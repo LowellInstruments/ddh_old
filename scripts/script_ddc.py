@@ -87,6 +87,15 @@ def cb_kill_lxpanel():
     time.sleep(2)
 
 
+def cb_message_box():
+    c = "export XAUTHORITY=/home/pi/.Xauthority;"\
+        "export DISPLAY=:0;"\
+        "zenity --info 'this DDH says hello'"
+    sh(c)
+    _p('check pop up in DDH screen')
+    time.sleep(2)
+
+
 def cb_toggle_emolt_marker():
     p = LI_PATH_EMOLT_FILE_FLAG if is_rpi() else '/tmp/emolt'
     unlink(p) if exists(p) else pathlib.Path(p).touch()
@@ -185,6 +194,7 @@ op = {
     "test buttons": cb_run_script_buttons_test,
     "kill ddh": cb_kill_ddh,
     "kill lxpanel": cb_kill_lxpanel,
+    "message pop": cb_message_box,
     "quit": cb_quit,
 }
 
