@@ -16,7 +16,6 @@ db_status.json*
 *.lef
 *.sqs
 *.rbl
-.ts_aws.txt
 ddh/gui/res/*_F.gif
 ddh/gui/res/*_C.gif
 .ts_aws.txt
@@ -32,13 +31,12 @@ settings/config.toml
 
 
 
-
-
 # Byte-compiled / optimized / DLL files
 __pycache__/
 apps/__pycache__/
 *.py[cod]
 *$py.class
+
 
 # Distribution / packaging
 .Python
