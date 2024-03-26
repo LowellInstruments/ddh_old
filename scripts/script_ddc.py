@@ -88,9 +88,10 @@ def cb_kill_lxpanel():
 
 
 def cb_message_box():
+    # src: ostechnix zenity-create-gui-dialog-boxes-in-bash-scripts/
     c = "export XAUTHORITY=/home/pi/.Xauthority;"\
         "export DISPLAY=:0;"\
-        "zenity --info 'this DDH says hello'"
+        "zenity --info --title \"DDC test\" --text \"DDH says hi\""
     sh(c)
     _p('check pop up in DDH screen')
     time.sleep(2)
