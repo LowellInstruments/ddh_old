@@ -1,0 +1,45 @@
+[credentials]
+cred_aws_bucket = "bkt-kaz"
+cred_aws_key_id = ""
+cred_aws_secret = ""
+cred_aws_sqs_queue_name = "ddw_in.fifo"
+cred_ddh_serial_number = "9999999"
+cred_ddh_project_name = "kaz"
+cred_aws_custom_sqs_key_id = ""
+cred_aws_custom_sqs_access_key = ""
+
+
+
+# intended to be changed using DDH "edit tab"
+[behavior]
+ship_name = "nameofboat"
+forget_time = 36000
+gear_type = 0
+# range it considers a boat to be trawling
+moving_speed = [ 0.5, 7.0,]
+# works altogether w/ GPS_DUMMY_MODE_FILE
+fake_gps_position = [ 11.0, -83.0,]
+
+
+
+[monitored_macs]
+# "mac" = "sn
+#"60:77:71:22:C8:49" = "do1_wo_rtc"
+# "D0:2E:AB:D9:E7:B3" = "2311735"
+"D0:2E:AB:D9:29:48" = "tdo_bread"
+
+
+
+
+
+# intended to be changed manually since are debug flags
+[flags]
+aws_en = 1
+sqs_en = 1
+ble_en = 1
+rbl_en = 0
+maps_en = 1
+sms_en = 0
+hook_gps_error_measurement_forced = 0
+hook_ble_purge_black_macs_on_boot = 0
+hook_ble_purge_this_mac_dl_files_folder = 0
