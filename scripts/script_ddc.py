@@ -11,7 +11,7 @@ from os import unlink
 from os import system
 from bullet import Bullet
 
-from scripts.script_provision import provision_ddh
+from scripts.script_provision_get import provision_ddh
 from utils.tmp_paths import (
     LI_PATH_EMOLT_FILE_FLAG,
     LI_PATH_GROUPED_S3_FILE_FLAG,

@@ -36,6 +36,8 @@ def main():
     # todo ---> mount harddisk
     # todo ---> copy created toml file
 
+    # todo ---> start wireguard and also ENABLE at boot
+
 
 if __name__ == '__main__':
     main()
