@@ -20,11 +20,11 @@ from dds.gps import (
     gps_power_cycle_if_so,
     gps_know_hat_firmware_version,
 )
+from dds.in_ports_geo import dds_ask_in_port_to_ddn
 from dds.macs import dds_create_folder_macs_color, dds_macs_color_show_at_boot
 from dds.net import net_serve
 from dds.notifications import notify_boot, notify_error_sw_crash, notify_ddh_needs_sw_update, \
     notify_ddh_alive
-from dds.ports_geo import ddh_load_fishing_ports_db, ddh_is_in_port
 from dds.rbl import rbl_loop
 from dds.sqs import (
     dds_create_folder_sqs,
@@ -128,9 +128,6 @@ def main_dds():
     th = threading.Thread(target=rbl_loop)
     th.start()
 
-    # load fishing ports database
-    ddh_load_fishing_ports_db()
-
     # =============
     # main loop
     # =============
@@ -175,7 +172,7 @@ def main_dds():
         det = ael.run_until_complete(ble_scan(*args))
 
         # don't download when in port
-        if ddh_is_in_port(lat, lon, dl=True):
+        if dds_ask_in_port_to_ddn(lat, lon, dl=True):
             continue
 
         # BLE download stage

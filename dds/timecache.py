@@ -14,6 +14,10 @@ def its_time_to(k, t):
     return True
 
 
+def check_if_its_time_to(k):
+    return k in _g_timecache
+
+
 def main():
     v = its_time_to("test", 3)
     print(v)
