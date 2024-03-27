@@ -160,6 +160,8 @@ def gui_center_window(my_app):
 
 def gui_populate_maps_tab(my_app):
 
+    addr_ddn_api = 'ddn.lowellinstruments.com'
+    port_ddn_api = 9000
     deg = 'F'
     d = str(datetime.datetime.now().strftime('%Y%m%d'))
     fe = f"{str(ddh_get_folder_path_res())}/error_maps.gif"
@@ -169,12 +171,11 @@ def gui_populate_maps_tab(my_app):
     # todo: delete all gifs not the current one
 
     # when developing, force re-download
-    if os.path.exists(fg):
+    if not linux_is_rpi() and os.path.exists(fg):
         os.unlink(fg)
 
-    # not in local file system, download gif from server
-    addr_ddn_api = 'ddn.lowellinstruments.com'
-    port_ddn_api = 9000
+    #  we don't have today's file, download gif from server
+    # todo ---> check this condition on raspberry
     if not os.path.exists(fg):
         t = 5
         url = f'http://{addr_ddn_api}:{port_ddn_api}/dtm?t={d}&deg={deg}'

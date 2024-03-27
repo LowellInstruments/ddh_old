@@ -1,7 +1,7 @@
 [credentials]
 cred_aws_bucket = "bkt-kaz"
-cred_aws_key_id = ""
-cred_aws_secret = ""
+cred_aws_key_id = "AKIA2SU3QQX6Z4TX4VO3"
+cred_aws_secret = "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"
 cred_aws_sqs_queue_name = "ddw_in.fifo"
 cred_ddh_serial_number = "9999999"
 cred_ddh_project_name = "kaz"
@@ -18,7 +18,10 @@ gear_type = 0
 # range it considers a boat to be trawling
 moving_speed = [ 0.5, 7.0,]
 # works altogether w/ GPS_DUMMY_MODE_FILE
-fake_gps_position = [ 11.0, -83.0,]
+# fake_gps_position = [ 11.0, -83.0,]
+
+fake_gps_position = [41.63, -70.91,]
+
 
 
 
