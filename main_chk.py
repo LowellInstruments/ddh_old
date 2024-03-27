@@ -5,7 +5,7 @@ import sys
 
 from mat.ble.ble_mat_utils import ble_mat_get_bluez_version
 from utils.ddh_config import cfg_load_from_file
-from utils.tmp_paths import (LI_PATH_DDH_GPS_EXTERNAL, LI_PATH_EMOLT_FILE_FLAG,
+from utils.tmp_paths import (LI_PATH_DDH_GPS_EXTERNAL,
                              TMP_PATH_GPS_DUMMY)
 
 vp_rb = '0403:6001'
@@ -59,7 +59,6 @@ rv_clone_balena, _ = _sh(f'[ ! -f {FLAG_CLONED_BALENA} ]')
 rv_gps_external, _ = _sh(f'[ ! -f {LI_PATH_DDH_GPS_EXTERNAL} ]')
 rv_vp_gps_puck1, _ = _sh(f'lsusb | grep {vp_gps_puck_1}')
 rv_vp_gps_puck2, _ = _sh(f'lsusb | grep {vp_gps_puck_2}')
-rv_box_emolt, _ = _sh(f'[ ! -f {LI_PATH_EMOLT_FILE_FLAG} ]')
 rv_gps_dummy, _ = _sh(f'[ ! -f {TMP_PATH_GPS_DUMMY} ]')
 # disk: Bus 001 Device 004: ID 045b:0229 Hitachi, Ltd mSATA...
 _, disk_ssd = _sh(f'lsusb | grep {vp_ssd}')
@@ -93,8 +92,6 @@ if is_rpi3 and not mod_btuart:
     _e(f'is_rpi3 {is_rpi3} mod_uart {mod_btuart}')
 if rbl_en and not vp_rb:
     _e(f'rbl_en {rbl_en} vp_rb {vp_rb}')
-if rv_box_emolt and disk_ssd:
-    _e(f'rv_box_emolt {rv_box_emolt}, file {LI_PATH_EMOLT_FILE_FLAG} disk_ssd {disk_ssd}')
 
 
 print('\n[ OK ] all checks\n')

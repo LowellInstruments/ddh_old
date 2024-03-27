@@ -18,7 +18,7 @@ from utils.ddh_shared import (get_ddh_commit,
                               get_ddh_folder_path_sqs, ddh_get_root_folder_path)
 
 
-# these MUST match the ones in DDN file "notifications.py"
+# these MUST match the ones in DDN file "sqs/notifications.py"
 DDH_NOTIFICATION_STATUS_BOOT = 'DDH just booted'
 DDH_NOTIFICATION_STATUS_ALIVE = 'DDH is alive'
 DDH_NOTIFICATION_STATUS_IN_PORT = 'DDH is around a port'
@@ -93,13 +93,13 @@ class _DDHNotification:
 
     def display_details(self):
         if self.logger_mac:
-            s = "{} for logger {} ({}) at {}"
+            s = "notification details: {} for logger {} ({}) at {}"
             lg.a(s.format(self.reason,
                           self.logger_sn,
                           self.logger_mac,
                           self.ddh_gps_position))
         else:
-            s = "{} at {}"
+            s = "notification details: {} at {}"
             lg.a(s.format(self.reason,
                           self.ddh_gps_position))
 
@@ -153,6 +153,10 @@ def notify_ddh_error_hw_ble(g):
 
 def notify_ddh_error_hw_gps():
     return _n(DDH_NOTIFICATION_ERROR_HW_GPS)
+
+
+def notify_ddh_in_port(g):
+    return _n(DDH_NOTIFICATION_STATUS_IN_PORT, g)
 
 
 def notify_logger_download(g, mac):

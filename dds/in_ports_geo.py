@@ -2,11 +2,18 @@ import json
 
 import requests
 
-from dds.timecache import its_time_to
+from dds.notifications import notify_ddh_in_port
+from dds.timecache import its_time_to, check_if_its_time_to
 from utils.logs import lg_gps as lg
 
 
-def dds_ask_in_port_to_ddn(lat, lon, dl=False):
+def dds_ask_in_port_to_ddn(g, dl=False):
+
+    lat, lon, tg, speed = g
+    s = 'tell_we_in_port'
+    if check_if_its_time_to(s):
+        # True, prevent asking again to API
+        return 1
 
     addr_ddn_api = 'ddn.lowellinstruments.com'
     port_ddn_api = 9000
@@ -20,8 +27,10 @@ def dds_ask_in_port_to_ddn(lat, lon, dl=False):
         j = json.loads(rsp.content.decode())
         # j: {'in_port': True}
         in_port = int(j['in_port'])
-        if dl and in_port and its_time_to('tell_its_in_port', 600):
-            lg.a(f'warning: not downloading, DDH is in port')
+        if dl and in_port and its_time_to('tell_no_dl_bc_in_port', 600):
+            lg.a(f'warning: not downloading because we in port')
+        if in_port and its_time_to(s, 600):
+            notify_ddh_in_port(g)
         return in_port
     except (Exception,) as err:
         lg.a(f'error: dds_ask_in_port_to_ddn request -> {err}')

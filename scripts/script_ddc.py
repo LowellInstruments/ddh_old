@@ -13,12 +13,10 @@ from bullet import Bullet
 
 from scripts.script_provision_get import provision_ddh
 from utils.tmp_paths import (
-    LI_PATH_EMOLT_FILE_FLAG,
     LI_PATH_GROUPED_S3_FILE_FLAG,
     LI_PATH_DDH_GPS_EXTERNAL,
     TMP_PATH_GPS_DUMMY, TMP_PATH_GRAPH_TEST_MODE_JSON)
 
-g_fem = 0
 g_fag = 0
 g_fge = 0
 g_fgd = 0
@@ -43,7 +41,6 @@ def is_rpi():
 def cb_get_current_flags():
 
     # will use global vars
-    global g_fem
     global g_fag
     global g_fge
     global g_fgd
@@ -60,7 +57,6 @@ def cb_get_current_flags():
     if sh(f'grep -q {s2} {cf}') == 0:
         g_fca = 0 if sh(f"grep {s2} {cf} | grep -F '#' > /dev/null") == 0 else 1
 
-    g_fem = int(exists(LI_PATH_EMOLT_FILE_FLAG))
     g_fag = int(exists(LI_PATH_GROUPED_S3_FILE_FLAG))
     g_fge = int(exists(LI_PATH_DDH_GPS_EXTERNAL))
     g_fgd = int(exists(TMP_PATH_GPS_DUMMY))
@@ -95,11 +91,6 @@ def cb_message_box():
     _p('check for pop up in DDH screen')
     sh(c)
     time.sleep(2)
-
-
-def cb_toggle_emolt_marker():
-    p = LI_PATH_EMOLT_FILE_FLAG if is_rpi() else '/tmp/emolt'
-    unlink(p) if exists(p) else pathlib.Path(p).touch()
 
 
 def cb_toggle_aws_s3_group():
@@ -183,11 +174,10 @@ def cb_quit():
 
 
 op = {
-    f"{g_fem} toggle emolt marker": cb_toggle_emolt_marker,
     f"{g_fag} toggle AWS s3 group": cb_toggle_aws_s3_group,
     f"{g_fge} toggle GPS external": cb_toggle_gps_external,
     f"{g_fgd} toggle GPS dummy": cb_toggle_gps_dummy,
-    f"{g_fem} toggle graph test mode": cb_toggle_graph_test_mode,
+    f"{g_fgt} toggle graph test mode": cb_toggle_graph_test_mode,
     f"{g_fcd} toggle crontab DDH": cb_toggle_crontab_ddh,
     f"{g_fca} toggle crontab API": cb_toggle_crontab_api,
     "provision DDH": cb_provision_ddh,

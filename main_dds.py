@@ -162,7 +162,7 @@ def main_dds():
         ble_tell_gui_antenna_type(h, h_d)
 
         if not ble_check_antenna_up_n_running(g, h):
-            # note: ensure hciconfig command is installed
+            # note: ensure 'hciconfig' command is installed
             continue
         if not ble_op_conditions_met(speed):
             continue
@@ -171,8 +171,8 @@ def main_dds():
         args = [m_j, g, h, h_d]
         det = ael.run_until_complete(ble_scan(*args))
 
-        # don't download when in port
-        if dds_ask_in_port_to_ddn(lat, lon, dl=True):
+        # dl only if detected ones
+        if dds_ask_in_port_to_ddn(g, dl=det):
             continue
 
         # BLE download stage

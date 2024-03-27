@@ -3,7 +3,6 @@ from collections import namedtuple
 from mat.utils import linux_is_rpi
 from utils.ddh_config import dds_get_cfg_vessel_name, dds_get_cfg_box_sn
 from utils.logs import lg_emo as lg
-from utils.ddh_shared import dds_get_is_emolt_box_flag_file
 import pandas as pd
 import os
 from os.path import exists
@@ -35,10 +34,6 @@ EmoltMsgShortHaul = namedtuple(
 
 def this_box_has_grouped_s3_uplink():
     return exists(LI_PATH_GROUPED_S3_FILE_FLAG)
-
-
-def ddh_is_emolt_box():
-    return exists(dds_get_is_emolt_box_flag_file())
 
 
 def ddh_is_dev_platform():
