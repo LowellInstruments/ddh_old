@@ -12,6 +12,10 @@ import toml
 
 DDN_API_PORT = 9000
 DDN_ADDR = 'ddn.lowellinstruments.com'
+HOME = str(pathlib.Path.home())
+FOL_VPN = f'{HOME}/.ddh_vpn'
+PBF = f'{HOME}/.ddh_prov_req.toml'
+FOL_ANSWER = '/tmp/.ddh_prov_ans'
 
 
 def _p(s):
@@ -27,12 +31,6 @@ def _is_rpi():
     return _sh('cat /proc/cpuinfo | grep aspberry') == 0
 
 
-HOME = str(pathlib.Path.home())
-FOL_VPN = f'{HOME}/.ddh_vpn'
-PBF = f'{HOME}/.ddh_prov_req.toml'
-FOL_RESULT = '/tmp/.ddh_prov_ans'
-
-
 def _create_vpn_keys():
     os.makedirs(FOL_VPN, exist_ok=True)
     kip = f'{FOL_VPN}/.key_pri'
@@ -42,7 +40,7 @@ def _create_vpn_keys():
     if rvi or rvu:
         print('error: _create_vpn_keys')
         return
-    _sh('chmod 600 {kip}')
+    _sh(f'chmod 600 {kip}')
     rv = sp.run(f'cat {kip}', shell=True, stdout=sp.PIPE)
     ki = rv.stdout.replace(b'\n', b'').decode()
     rv = sp.run(f'cat {kup}', shell=True, stdout=sp.PIPE)
@@ -50,20 +48,10 @@ def _create_vpn_keys():
     return ki, ku
 
 
-def _read_provision_bootstrap_file():
-    with open(PBF, 'r') as f:
-        c = toml.load(f)
-    pr = c['provision']['boat_prj']
-    sn = c['provision']['boat_sn']
-    ip = c['provision']['vpn_ip']
-    _p(f'read provision request file: prj {pr} sn {sn} ip {ip}')
-    return pr, sn, ip
-
-
-def curl_files(pr, sn, ip, addr='0.0.0.0', port=DDN_API_PORT):
+def curl_get_files_from_server(pr, sn, ip, addr='0.0.0.0', port=DDN_API_PORT):
 
     # ensuring the results will be new
-    d = FOL_RESULT
+    d = FOL_ANSWER
     if os.path.exists(d):
         shutil.rmtree(d)
     os.makedirs(d)
@@ -89,7 +77,7 @@ def curl_files(pr, sn, ip, addr='0.0.0.0', port=DDN_API_PORT):
     wg = rv.stdout.decode()
     with open(dst, 'w') as f:
         f.write(wg.format(ki))
-    print(f'OK: got file {dst}')
+    _p(f'OK: got file {dst}')
 
     # -------------------------------------------------
     # file 2 of 3: obtain DDH settings file config.toml
@@ -102,7 +90,7 @@ def curl_files(pr, sn, ip, addr='0.0.0.0', port=DDN_API_PORT):
               f"-H 'accept: application/json' -o {dst}")
     if rvc:
         raise Exception(f"error curl config.toml, prj {pr} sn {sn} ip {ip}")
-    print(f'OK: got file {dst}')
+    _p(f'OK: got file {dst}')
 
     # ----------------------------------------------------
     # file 3 of 3: obtain DDH settings file all_macs.toml
@@ -115,23 +103,33 @@ def curl_files(pr, sn, ip, addr='0.0.0.0', port=DDN_API_PORT):
               f"-H 'accept: application/json' -o {dst}")
     if rvm:
         raise Exception(f"error curl all_macs, prj {pr} sn {sn} ip {ip}")
-    print(f'OK: got file {dst}')
+    _p(f'OK: got file {dst}')
+
+
+def _read_provision_bootstrap_file():
+    with open(PBF, 'r') as f:
+        c = toml.load(f)
+    pr = c['provision']['boat_prj']
+    sn = c['provision']['boat_sn']
+    ip = c['provision']['vpn_ip']
+    _p(f'read provision request file: prj {pr} sn {sn} ip {ip}')
+    return pr, sn, ip
 
 
 def _provision_ddh(a=DDN_ADDR):
     pr, sn, ip = _read_provision_bootstrap_file()
-    curl_files(pr, sn, ip, a)
+    curl_get_files_from_server(pr, sn, ip, a)
     if _is_rpi():
         # we have VPN keys in FOL_VPN
         # we have the obtained files in FOL_RESULT
         d = '/home/pi/li/ddh/settings'
-        p = f'{FOL_RESULT}/config.toml'
+        p = f'{FOL_ANSWER}/config.toml'
         _p(f'moving {p} to DDH settings folder')
         _sh(f'mv {p} {d}')
-        p = f'{FOL_RESULT}/all_macs.toml'
+        p = f'{FOL_ANSWER}/all_macs.toml'
         _p(f'moving {p} to DDH settings folder')
         _sh(f'mv {p} {d}')
-        p = f'{FOL_RESULT}/wg0.conf'
+        p = f'{FOL_ANSWER}/wg0.conf'
         _p(f'moving {p} to wireguard settings folder')
         d = '/etc/wireguard'
         _sh(f"sudo mv {p} {d}")
@@ -145,7 +143,7 @@ def _provision_ddh(a=DDN_ADDR):
 def provision_ddh(a=DDN_ADDR):
     """
 
-    # example file /home/pi/.ddh_prov_req.toml'
+    # example bootstrap provision file /home/pi/.ddh_prov_req.toml'
     [provision]
     vpn_ip="1.2.3.4"
     boat_sn="1234567"
@@ -155,6 +153,7 @@ def provision_ddh(a=DDN_ADDR):
     try:
         _provision_ddh(a)
     except (Exception, ) as ex:
+        # such as "no bootstrap provision file"
         _p(f'\nexception provision_ddh -> {str(ex)}')
     finally:
         # see any message
