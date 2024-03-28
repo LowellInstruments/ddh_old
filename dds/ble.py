@@ -95,13 +95,12 @@ def _ble_analyze_logger_result(rv, mac, g, sn, err_critical):
 
     # speed up things
     if err_critical:
-        _g_logger_errors[mac] = 10
+        _g_logger_errors[mac] = 5
 
-    if _g_logger_errors[mac] >= 10:
+    if _g_logger_errors[mac] >= 5:
         rm_mac_orange(mac)
         add_mac_black(mac)
-        e = "error: logger {}/{} totally failed, critical = {}"
-        lg.a(e.format(mac, sn, err_critical))
+        lg.a(f"error: logger {mac}/{sn} totally failed, critical = {err_critical}")
         _u(f"{STATE_DDS_BLE_DOWNLOAD_ERROR}/{sn}")
         notify_logger_error_retries(g, mac)
         _g_logger_errors[mac] = 0
@@ -109,7 +108,7 @@ def _ble_analyze_logger_result(rv, mac, g, sn, err_critical):
     else:
         rm_mac_orange(mac)
         add_mac_orange(mac)
-        lg.a("warning: logger {}/{} NOT done".format(mac, sn))
+        lg.a(f"warning: logger {mac}/{sn} NOT done")
         _u(f"{STATE_DDS_BLE_DOWNLOAD_WARNING}/{sn}")
 
 

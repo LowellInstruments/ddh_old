@@ -33,7 +33,7 @@ from ddh.utils_gui import (
     gui_hide_advanced_tab,
     gui_show_advanced_tab,
     gui_hide_graph_tab,
-    gui_show_graph_tab, gui_ddh_populate_graph_dropdown_sn, gui_manage_graph_test_files, gui_populate_maps_tab,
+    gui_show_graph_tab, gui_ddh_populate_graph_dropdown_sn, gui_manage_graph_test_files,
     gui_hide_map_tab
 )
 
@@ -160,6 +160,9 @@ class DDH(QMainWindow, d_m.Ui_MainWindow):
         # new, run RPC threads for DDH GUI
         # th_srv_notify()
         # th_cli_cmd()
+
+        # indicate
+        lg.a("OK: DDH GUI finished booting")
 
     def _tg_fxn(self):
         gui_timer_fxn(self)

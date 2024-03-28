@@ -1,4 +1,5 @@
 import datetime
+import glob
 import os
 import shlex
 import socket
@@ -159,24 +160,32 @@ def gui_center_window(my_app):
 
 
 def gui_populate_maps_tab(my_app):
-
     addr_ddn_api = 'ddn.lowellinstruments.com'
     port_ddn_api = 9000
     deg = 'F'
+    fr = str(ddh_get_folder_path_res())
     d = str(datetime.datetime.now().strftime('%Y%m%d'))
-    fe = f"{str(ddh_get_folder_path_res())}/error_maps.gif"
-    fg = f"{str(ddh_get_folder_path_res())}/{d}_{deg}.gif"
+    fe = f"{fr}/error_maps.gif"
+    fg = f"{fr}/{d}_{deg}.gif"
     fl = fg
 
-    # todo: delete all gifs not the current one
+    # delete tdm gifs which are not the current one
+    ls = glob.glob(f"{fr}/*.gif")
+    for fi in ls:
+        if fi == fl:
+            continue
+        lg.a(f'deleting old tdm file {fi}')
+        os.unlink(fi)
 
     # when developing, force re-download
     if not linux_is_rpi() and os.path.exists(fg):
+        lg.a(f'we developing, deleting tdm file {fg}')
         os.unlink(fg)
 
     #  we don't have today's file, download gif from server
     # todo ---> check this condition on raspberry
     if not os.path.exists(fg):
+        lg.a(f"debug: requesting today's tdm file {fg}")
         t = 5
         url = f'http://{addr_ddn_api}:{port_ddn_api}/dtm?t={d}&deg={deg}'
         try:
@@ -189,6 +198,8 @@ def gui_populate_maps_tab(my_app):
         except (Exception,) as err:
             lg.a(f'error: maps request -> {err}')
             fl = fe
+    else:
+        lg.a(f"debug: re-using today's tdm file {fg}")
 
     # load the map
     a = my_app
