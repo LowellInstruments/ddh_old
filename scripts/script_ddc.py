@@ -76,7 +76,7 @@ def cb_kill_ddh():
 
 
 def cb_kill_lxpanel():
-    c = 'lxpanelctl restart'
+    c = 'sudo lxpanelctl restart'
     sh(c)
     _p('sent kill signal to lxpanel')
     _p('note: only works in graphical session')
