@@ -41,7 +41,7 @@ def main_lxp():
         print(f'error {NAME_EXE_LXP}: mem 0 should not happen')
         return
     if m < LIMIT:
-        print(f'{NAME_EXE_LXP} not consuming that much, leaving')
+        print(f'{NAME_EXE_LXP} taking {m} < {LIMIT}%), no need to kill')
         return
 
     # kill lxpanel if too demanding
