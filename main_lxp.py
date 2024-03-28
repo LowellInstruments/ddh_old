@@ -3,7 +3,7 @@
 import subprocess as sp
 
 
-NAME_EXE_LXP = "main_lxp"
+EXE = "main_lxp"
 LIMIT = 20
 
 
@@ -23,33 +23,32 @@ def main_lxp():
     # get pid of lxpanel
     pid = sh("pidof lxpanel").stdout.decode().replace('\n', '')
     if not pid:
-        print('error: no pid for lxpanel, leaving')
+        print('error: no PID for lxpanel, bye')
         return
 
     # get used memory by lxpanel by using its PID
-    print(f"lxpanel pid {pid}")
+    print(f"lxpanel PID = {pid}")
     rv = sh(f"ps -p {pid} -o %mem")
     s = rv.stdout.replace(b'%MEM\n', b'').decode()
     try:
         m = float(s)
     except (Exception,) as ex:
-        print(f'error {NAME_EXE_LXP}: cannot get float -> {str(ex)}')
+        print(f'error {EXE}: cannot get float -> {str(ex)}')
         return
 
     # display how much memory is using
     if m == 0:
-        print(f'error {NAME_EXE_LXP}: mem 0 should not happen')
+        print(f'error {EXE}: mem 0 should not happen')
         return
     if m < LIMIT:
-        print(f'{NAME_EXE_LXP} taking {m} < {LIMIT}%), no need to kill')
+        print(f'{EXE} uses {m} < limit {LIMIT}%, no need to restart')
         return
 
-    # kill lxpanel if too demanding
-    print(f'{NAME_EXE_LXP} consuming > {LIMIT}% total RAM, restarting it')
+    # maybe kill lxpanel
+    print(f'{EXE} uses {m} > {LIMIT}% total RAM, restarting it')
     rv = sh('sudo lxpanelctl restart')
-    if rv.returncode == 0:
-        print('OK restarting lxpanel')
-    else:
+    if rv.returncode:
+        # the exports in run_lxp.sh solve this
         print('error: main_lxp, only works on graphical session')
 
 
