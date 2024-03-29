@@ -46,8 +46,6 @@ PERIOD_GPS_TELL_PUCK_NO_PC = 3600 * 6
 PERIOD_GPS_POWER_CYCLE = 300
 
 
-# todo -=--> move check_gps_dummy_mode() here and only check once
-
 def _gps_ll_check_hat_out_stream():
     # ll: stands for 'low-level'
     def _check():

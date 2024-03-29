@@ -183,7 +183,6 @@ def gui_populate_maps_tab(my_app):
         os.unlink(fg)
 
     #  we don't have today's file, download gif from server
-    # todo ---> check this condition on raspberry
     if not os.path.exists(fg):
         lg.a(f"debug: requesting today's tdm file {fg}")
         t = 5

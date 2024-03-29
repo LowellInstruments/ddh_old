@@ -231,14 +231,15 @@ def aws_serve():
     else:
         lg.a("it seems it's time for some AWS S3 syncing")
 
-    # nothing to do, number of files did not change
+    # ---------------------------------------------------
+    # nothing to AWS sync, number of files did not change
+    # ---------------------------------------------------
     # todo ---> test this
-    fol = get_ddh_folder_path_dl_files()
     mon_ls = []
     for i in ('lid', 'lix', 'csv', 'cst', 'gps', 'bin'):
-        mon_ls += glob.glob(f'{fol}/**/*.{i}')
+        mon_ls += glob.glob(f'{get_ddh_folder_path_dl_files()}/**/*.{i}')
     global past_n_files
-    ff_ctt = (not exists_flag_gui) and past_n_files == len(mon_ls)
+    ff_ctt = (not exists_flag_gui) and len(mon_ls) == past_n_files
     past_n_files = len(mon_ls)
     if len(mon_ls) == 0:
         lg.a('warning: AWS zero number of files, not syncing')
@@ -246,9 +247,9 @@ def aws_serve():
     if ff_ctt:
         lg.a('warning: AWS same number of files, not syncing')
         return
-    lg.a(f'debug: AWS folder currently has {len(mon_ls)} monitored files')
+    lg.a(f'debug: "dl_files" folder currently has {len(mon_ls)} files')
 
-    # useful to remove zombie processes
+    # useful to remove past AWS bin zombie processes
     multiprocessing.active_children()
 
     # don't run if already doing so

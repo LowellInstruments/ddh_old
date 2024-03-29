@@ -27,7 +27,7 @@ class _RPCClient:
     def __getattr__(self, __name: str):
         def execute(*args, **kwargs):
             print(f'\nc <- {__name} {args}')
-            # todo ---> add a uuid here
+            # add a uuid here
             # kwargs['uuid'] = 1
             self.sk.sendall(json.dumps((__name, args, kwargs)).encode())
             try:

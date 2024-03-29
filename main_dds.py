@@ -171,7 +171,7 @@ def main_dds():
         args = [m_j, g, h, h_d]
         det = ael.run_until_complete(ble_scan(*args))
 
-        # dl only if detected ones
+        # download only in case "detected" is not empty
         if dds_ask_in_port_to_ddn(g, dl=det):
             continue
 
@@ -182,6 +182,7 @@ def main_dds():
         # recovery situations
         if rvi:
             # todo ---> test this does not happen when all OK
+            lg.a("warning: resetting Bluetooth interface due to error")
             ble_mat_disconnect_all_devices_ll()
             ble_mat_bluetoothctl_power_cycle()
 

@@ -207,7 +207,9 @@ async def _ble_id_n_interact_logger(mac, info: str, h, g):
     # tell GUI how it went, also do MAC colors stuff
     _ble_analyze_logger_result(rv, mac, g, sn, _crit_error)
 
+    # -----------------------------------------------------------------
     # on OK and error, w/o this some external antennas don't scan again
+    # -----------------------------------------------------------------
     _, ta = ble_mat_get_antenna_type()
     if ta == 'external' and linux_is_rpi():
         lg.a('warning: external antenna requires reset tweak')
@@ -259,4 +261,7 @@ async def ble_interact_all_loggers(macs_det, macs_mon, g, _h: int, _h_desc):
         gps_tell_position_logger(g)
 
         # MAC passed all filters, work with it
-        return await _ble_id_n_interact_logger(mac, model, _h, g)
+        rv = await _ble_id_n_interact_logger(mac, model, _h, g)
+        if rv:
+            return rv
+    

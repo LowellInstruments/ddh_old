@@ -297,24 +297,29 @@ def get_utc_offset():
 def get_number_of_hauls(path):
     # path: /home/kaz/PycharmProjects/ddh/dl_files/<mac>
     ls_lid = len(glob.glob('{}/*.lid'.format(path)))
-    ls_lix = len(glob.glob('{}/*.lix'.format(path)))
     ls_bin = (len(glob.glob('{}/moana*.bin'.format(path))) +
               len(glob.glob('{}/MOANA*.bin'.format(path))))
     mask = '__what__'
     if ls_lid:
-        # for DO & TP loggers
+        # for DO & TP & TDO loggers
         mask_do = f'{path}/*_DissolvedOxygen.csv'
-        mask_tp = f'{path}/*_Pressure.csv'
+        mask_mat = f'{path}/*_Pressure.csv'
+        mask_tdo = f'{path}/*_TDO.csv'
         n_do = len(glob.glob(mask_do))
-        n_tp = len(glob.glob(mask_tp))
-        mask = mask_do if n_do else mask_tp
-    elif ls_lix:
-        # todo ---> check this
-        mask = f'{path}/*.lix'
+        n_tdo = len(glob.glob(mask_tdo))
+        if n_tdo:
+            mask = mask_tdo
+        elif n_do:
+            mask = mask_do
+        else:
+            mask = mask_mat
     elif ls_bin:
         # NOT MOANA*.csv but Lowell generated files
         mask = f'{path}/*_Pressure.csv'
 
+    print('-------------')
+    print(f"debug: mask used for get_number_of_hauls = {mask}")
+    print('-------------')
     n = len(glob.glob(mask))
     return n
 
