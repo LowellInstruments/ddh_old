@@ -16,4 +16,4 @@ _pb "###############"
 _pb "     DDH LXP   "
 _pb "###############"
 echo
-python main_lxp.py
+cd "$FOL_DDH" && python main_lxp.py
