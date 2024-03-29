@@ -69,29 +69,29 @@ ble_v = ble_mat_get_bluez_version()
 _, service_cell_sw = _sh(f'systemctl is-active unit_switch_net.service')
 _, fw_cell = _fw_cell()
 
-# checks
-if not fw_cell:
-    _e(f'bad fw_cell {fw_cell}')
-if not rv_clone_balena:
-    _w('box NOT cloned with balena')
-if rv_gps_dummy:
-    _w(f'GPS dummy active, file {TMP_PATH_GPS_DUMMY}')
-if service_cell_sw != 'active':
-    _e(f'bad service_cell_sw {service_cell_sw}')
-if ble_v != '5.66':
-    _e(f'bad ble_v {ble_v}')
-if not issue_2023_05_03:
-    _e(f'bad issue {issue_2023_05_03}')
-if not arch_armv7l:
-    _e(f'bad arch {arch_armv7l}')
-if not hostname:
-    _e(f'bad hostname {hostname}')
-if rv_gps_external and not rv_vp_gps_puck1 and not rv_vp_gps_puck2:
-    _e(f'rv_gps_external {rv_gps_external}, file {LI_PATH_DDH_GPS_EXTERNAL}')
-if is_rpi3 and not mod_btuart:
-    _e(f'is_rpi3 {is_rpi3} mod_uart {mod_btuart}')
-if rbl_en and not vp_rb:
-    _e(f'rbl_en {rbl_en} vp_rb {vp_rb}')
 
+def run_check():
+    if not fw_cell:
+        _e(f'bad fw_cell {fw_cell}')
+    if not rv_clone_balena:
+        _w('box NOT cloned with balena')
+    if rv_gps_dummy:
+        _w(f'GPS dummy active, file {TMP_PATH_GPS_DUMMY}')
+    if service_cell_sw != 'active':
+        _e(f'bad service_cell_sw {service_cell_sw}')
+    if ble_v != '5.66':
+        _e(f'bad ble_v {ble_v}')
+    if not issue_2023_05_03:
+        _e(f'bad issue {issue_2023_05_03}')
+    if not arch_armv7l:
+        _e(f'bad arch {arch_armv7l}')
+    if not hostname:
+        _e(f'bad hostname {hostname}')
+    if rv_gps_external and not rv_vp_gps_puck1 and not rv_vp_gps_puck2:
+        _e(f'rv_gps_external {rv_gps_external}, file {LI_PATH_DDH_GPS_EXTERNAL}')
+    if is_rpi3 and not mod_btuart:
+        _e(f'is_rpi3 {is_rpi3} mod_uart {mod_btuart}')
+    if rbl_en and not vp_rb:
+        _e(f'rbl_en {rbl_en} vp_rb {vp_rb}')
 
-print('\n[ OK ] all checks\n')
+    print('\n[ OK ] all checks\n')

@@ -11,6 +11,7 @@ from os import unlink
 from os import system
 from bullet import Bullet
 
+from main_chk import run_check
 from scripts.script_provision_get import provision_ddh
 from utils.tmp_paths import (
     LI_PATH_GROUPED_S3_FILE_FLAG,
@@ -170,6 +171,10 @@ def cb_provision_ddh():
     provision_ddh()
 
 
+def cb_check_run():
+    run_check()
+
+
 def cb_quit():
     _p('quitting DDC')
     sys.exit(0)
@@ -182,12 +187,13 @@ op = {
     f"{g_fgt} toggle graph test mode": cb_toggle_graph_test_mode,
     f"{g_fcd} toggle crontab DDH": cb_toggle_crontab_ddh,
     f"{g_fca} toggle crontab API": cb_toggle_crontab_api,
-    "provision DDH": cb_provision_ddh,
-    "test GPS Quectel": cb_run_script_gps_test,
-    "test buttons": cb_run_script_buttons_test,
-    "kill ddh": cb_kill_ddh,
-    "kill lxpanel": cb_kill_lxpanel,
-    "message pop": cb_message_box,
+    "DDH check run": cb_check_run,
+    "DDH kill application": cb_kill_ddh,
+    "DDH provision": cb_provision_ddh,
+    "DDH message hello": cb_message_box,
+    "DDH test GPS Quectel": cb_run_script_gps_test,
+    "DDH test buttons": cb_run_script_buttons_test,
+    "DDH kill lxpanel": cb_kill_lxpanel,
     "quit": cb_quit,
 }
 

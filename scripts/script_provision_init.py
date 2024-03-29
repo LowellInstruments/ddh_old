@@ -32,6 +32,7 @@ def main():
     # todo ---> create file /home/pi/.ddh_prov_req.toml
 
     # copy the file to the destination disk
+    # todo ---> create the flag FLAG_CLONED_BALENA = '/home/pi/.ddh_cloned_w_balena'
     # todo ---> detect harddisks with auto-port
     # todo ---> mount harddisk
     # todo ---> copy created toml file

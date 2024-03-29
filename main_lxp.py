@@ -48,12 +48,16 @@ def main_lxp():
         print(f'{EXE} uses {m} < limit {LIMIT}%, no need to restart')
         return
 
-    # kill lxpanel
+    # ------------------------------------------------
+    # kill lxpanel, script run_lxp.sh does the export
+    # $ su pi
+    # $ export XAUTHORITY=/home/pi/.Xauthority; \
+    #   export DISPLAY=:0; sudo lxpanelctl restart
+    # ------------------------------------------------
     print(f'{EXE} uses {m} > {LIMIT}% total RAM, restarting it')
     rv = sh('sudo lxpanelctl restart')
     sh(f"echo 'killed' >> {LOG_FILE}")
     if rv.returncode:
-        # the exports in run_lxp.sh solve this
         print('error: main_lxp, only works on graphical session')
 
 
