@@ -37,6 +37,9 @@ def main_lxp():
         print(f'error {EXE}: cannot get float -> {str(ex)}')
         return
 
+    # log the consumption that lead us to kill lxpanel
+    sh(f"echo {m} >> {LOG_FILE}")
+
     # display how much memory is using
     if m == 0:
         print(f'error {EXE}: mem 0 should not happen')
@@ -45,12 +48,10 @@ def main_lxp():
         print(f'{EXE} uses {m} < limit {LIMIT}%, no need to restart')
         return
 
-    # log the consumption that lead us to kill lxpanel
-    sh(f"echo {m} >> {LOG_FILE}")
-
     # kill lxpanel
     print(f'{EXE} uses {m} > {LIMIT}% total RAM, restarting it')
     rv = sh('sudo lxpanelctl restart')
+    sh(f"echo 'killed' >> {LOG_FILE}")
     if rv.returncode:
         # the exports in run_lxp.sh solve this
         print('error: main_lxp, only works on graphical session')
