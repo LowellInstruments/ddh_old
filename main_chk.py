@@ -95,3 +95,7 @@ def run_check():
         _e(f'rbl_en {rbl_en} vp_rb {vp_rb}')
 
     print('\n[ OK ] all checks\n')
+
+
+if __name__ == '__main__':
+    run_check()
