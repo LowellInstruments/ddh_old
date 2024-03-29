@@ -76,21 +76,23 @@ def cb_kill_ddh():
 
 
 def cb_kill_lxpanel():
-    c = 'sudo lxpanelctl restart'
+    c = "export XAUTHORITY=/home/pi/.Xauthority; " \
+        "export DISPLAY=:0; " \
+        "sudo lxpanelctl restart"
     sh(c)
     _p('sent kill signal to lxpanel')
-    _p('note: only works in graphical session')
     time.sleep(2)
 
 
 def cb_message_box():
     # src: ostechnix zenity-create-gui-dialog-boxes-in-bash-scripts/
-    c = "export XAUTHORITY=/home/pi/.Xauthority;"\
-        "export DISPLAY=:0;"\
-        "zenity --info --title \"DDC test\" --text \"DDH says hi\" &"
+    c = "export XAUTHORITY=/home/pi/.Xauthority; "\
+        "export DISPLAY=:0; "\
+        "zenity --info --title \"DDC test\" --text \"DDH says hi\" "\
+        "--timeout 3"
     _p('check for pop up in DDH screen')
     sh(c)
-    time.sleep(2)
+    time.sleep(3)
 
 
 def cb_toggle_aws_s3_group():
