@@ -84,11 +84,13 @@ class _DDHNotification:
         self.ddh_platform = get_ddh_platform()
         self.logger_mac = ""
         self.logger_sn = ""
+        # -----------------------------
+        # todo ---> do this logger_type
+        # ------------------------------
         self.logger_type = "will_do_soon"
         if mac:
             self.logger_mac = mac
             self.logger_sn = dds_get_cfg_logger_sn_from_mac(mac)
-            self.logger_type = 'will_do_soon'
         self.extra = str(extra)
 
     def display_details(self):
