@@ -5,6 +5,7 @@ import subprocess as sp
 
 EXE = "main_lxp"
 LIMIT = 20
+LOG_FILE = '/tmp/mem_lxpanel.log'
 
 
 def sh(c):
@@ -44,7 +45,10 @@ def main_lxp():
         print(f'{EXE} uses {m} < limit {LIMIT}%, no need to restart')
         return
 
-    # maybe kill lxpanel
+    # log the consumption that lead us to kill lxpanel
+    sh(f"echo {m} >> {LOG_FILE}")
+
+    # kill lxpanel
     print(f'{EXE} uses {m} > {LIMIT}% total RAM, restarting it')
     rv = sh('sudo lxpanelctl restart')
     if rv.returncode:
