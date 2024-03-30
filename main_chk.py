@@ -66,11 +66,18 @@ _, mod_btuart = _sh(f'md5sum /usr/bin/btuart | grep {MD5_OF_MODIFIED_BTUART}')
 cfg = cfg_load_from_file()
 rbl_en = int(cfg['flags']['rbl_en'])
 ble_v = ble_mat_get_bluez_version()
-_, service_cell_sw = _sh(f'systemctl is-active unit_switch_net.service')
+_, service_cell_sw = _sh('systemctl is-active unit_switch_net.service')
 _, fw_cell = _fw_cell()
+rv_cell_internet, _ = _sh('ping -I ppp0 www.google.com -c 1')
+# dwservice
+rv_dws, dws_running = _sh('ps -aux | grep dwagent')
 
 
 def run_check():
+    if rv_cell_internet:
+        _e('no cell internet')
+    if not dws_running:
+        _e(f'dws not running')
     if not fw_cell:
         _e(f'bad fw_cell {fw_cell}')
     if not rv_clone_balena:
@@ -93,6 +100,7 @@ def run_check():
         _e(f'is_rpi3 {is_rpi3} mod_uart {mod_btuart}')
     if rbl_en and not vp_rb:
         _e(f'rbl_en {rbl_en} vp_rb {vp_rb}')
+
 
     print('\n[ OK ] all checks\n')
 

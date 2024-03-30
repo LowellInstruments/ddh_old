@@ -133,6 +133,7 @@ def dds_get_cfg_logger_mac_from_sn(sn):
 
 
 def ddh_get_cfg_gear_type():
+    # 0 normal 1 trawling
     return cfg['behavior']['gear_type']
 
 

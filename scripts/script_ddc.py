@@ -13,6 +13,7 @@ from bullet import Bullet
 
 from main_chk import run_check
 from scripts.script_provision_get import provision_ddh
+from utils.ddh_config import cfg_load_from_file, cfg_save_to_file
 from utils.tmp_paths import (
     LI_PATH_GROUPED_S3_FILE_FLAG,
     LI_PATH_DDH_GPS_EXTERNAL,
@@ -116,6 +117,20 @@ def cb_toggle_graph_test_mode():
     unlink(p) if exists(p) else pathlib.Path(p).touch()
 
 
+def cb_set_boat_info():
+    cfg = cfg_load_from_file()
+    a = None
+    # d
+    while a not in ("0", "1"):
+        a = input('fishing gear? static (0) trawling(1) ->')
+    cfg['behavior']['gear_type'] = a
+    a = None
+    while not a:
+        a = input('boat name? ->')
+    cfg['behavior']['ship_name'] = a
+    cfg_save_to_file(cfg)
+
+
 def _toggle_crontab(s):
     cf = '/etc/crontab'
     cf_run = f'/home/pi/li/ddt/_dt_files/crontab_{s}.sh'
@@ -187,6 +202,7 @@ op = {
     f"{g_fgt} toggle graph test mode": cb_toggle_graph_test_mode,
     f"{g_fcd} toggle crontab DDH": cb_toggle_crontab_ddh,
     f"{g_fca} toggle crontab API": cb_toggle_crontab_api,
+    "DDH set boat info": cb_set_boat_info,
     "DDH check run": cb_check_run,
     "DDH kill application": cb_kill_ddh,
     "DDH provision": cb_provision_ddh,
@@ -230,3 +246,8 @@ def main_ddc():
         p = multiprocessing.Process(target=cb)
         p.start()
         p.join()
+
+
+if __name__ == '__main__':
+    # don't run from here but main_ddc.py
+    assert 0
