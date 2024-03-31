@@ -6,7 +6,6 @@ import pathlib
 import subprocess as sp
 import sys
 import time
-from collections import namedtuple
 from os.path import exists
 from os import unlink
 from os import system
@@ -30,27 +29,6 @@ FLAG_CLONED_BALENA = '/home/pi/.ddh_cloned_w_balena'
 MD5_MOD_BTUART = '95da1d6d0bea327aa5426b7f90303778'
 
 
-# run hardware check
-g_rhc = 0
-
-# run software check
-nt_rsc = namedtuple("nt_rsc",
-                    # aws group
-                    ["fag",
-                     # gps external
-                     "fge",
-                     # gps dummy
-                     "fgd",
-                     # graph test
-                     "fgt",
-                     # crontab ddh
-                     "fcd",
-                     # crontab api
-                     "fca",
-                     # config file
-                     "cfg"])
-
-
 def _p(s):
     print(s)
 
@@ -69,10 +47,33 @@ def cb_get_crontab(s):
     s = f'crontab_{s}.sh'
     # assume crontab off
     cf = '/etc/crontab'
-    if sh(f'grep -q {s} {cf}') == 0:
-        # line crontab ddh present, check if commented or not
-        return sh(f"grep {s} {cf} | grep -F '#' > /dev/null")
-        # todo ---> test this
+    if sh(f'grep -q {s} {cf}'):
+        # line NOT even present
+        return 0
+    # line IS present, search for special character with 'F'
+    if sh(f"grep {s} {cf} | grep -F '#' > /dev/null") == 0:
+        return 0
+    # line IS present and uncommented
+    return 1
+
+
+# run check
+g_c = {
+    # aws group
+    "fag": int(exists(LI_PATH_GROUPED_S3_FILE_FLAG)),
+    # gps external
+    "fge": int(exists(LI_PATH_DDH_GPS_EXTERNAL)),
+    # gps dummy
+    "fgd": int(exists(TMP_PATH_GPS_DUMMY)),
+    # graph test
+    "fgt": int(exists(TMP_PATH_GRAPH_TEST_MODE_JSON)),
+    # crontab ddh
+    "fcd": int(cb_get_crontab('ddh')),
+    # crontab api
+    "fca": int(cb_get_crontab('api')),
+    # config file
+    "cfg": cfg_load_from_file()
+}
 
 
 def cb_kill_ddh():
@@ -187,52 +188,27 @@ def cb_quit():
     sys.exit(0)
 
 
-# start empty
-g_rsc = nt_rsc(
-    fag=None,
-    fge=None,
-    fgd=None,
-    fgt=None,
-    fcd=None,
-    fca=None,
-    cfg=None
-)
-
-
-def cb_get_current_rsc():
-    global g_rsc
-    g_rsc = nt_rsc(
-        fag=int(exists(LI_PATH_GROUPED_S3_FILE_FLAG)),
-        fge=int(exists(LI_PATH_DDH_GPS_EXTERNAL)),
-        fgd=int(exists(TMP_PATH_GPS_DUMMY)),
-        fgt=int(exists(TMP_PATH_GRAPH_TEST_MODE_JSON)),
-        fcd=int(cb_get_crontab('ddh')),
-        fca=int(cb_get_crontab('api')),
-        cfg=cfg_load_from_file()
-    )
-
-
 def cb_set_boat_name():
     a = input('enter boat name ->')
-    global g_rsc
-    g_rsc.cfg['behavior']['ship_name'] = a
-    cfg_save_to_file(g_rsc.cfg)
+    g_c['cfg']['behavior']['ship_name'] = a
+    cfg_save_to_file(g_c['cfg'])
 
 
 def cb_set_boat_gear_type():
-    global g_rsc
     a = None
     while a not in ('0', '1'):
         a = input('enter application gear type ->')
-    g_rsc.cfg['behavior']['gear_type'] = a
-    cfg_save_to_file(g_rsc.cfg)
+    g_c['cfg']['behavior']['gear_type'] = a
+    cfg_save_to_file(g_c['cfg'])
 
 
-def cb_run_hardware_check():
+def _run_check():
 
     def _e(s):
-        print(f'error hardware check -> {s}')
-        sys.exit(1)
+        print(f'    - error -> {s}')
+
+    def _w(s):
+        print(f'    - alert -> {s}')
 
     def _fw_cell():
         c = "echo -ne 'AT+CVERSION\r' > /dev/ttyUSB2"
@@ -240,8 +216,13 @@ def cb_run_hardware_check():
         c = "cat -v < /dev/ttyUSB2 | grep 2022"
         return sh(c) == 0
 
-    global g_rhc
-    g_rhc = 0
+    def _aws_credentials():
+        f = g_c['cfg']['credentials']
+        for k, v in f.items():
+            if not v:
+                _e(f'config.toml no credential {k}')
+                return 0
+        return 1
 
     # issue: Raspberry Pi reference 2023-05-03
     ok_issue = sh('cat /boot/issue.txt | grep 2023-05-03') == 0
@@ -254,11 +235,11 @@ def cb_run_hardware_check():
     ok_hostname = sh('hostname | grep raspberrypi') == 0
     # hardware flags
     flag_clone_balena = sh(f'[ -f {FLAG_CLONED_BALENA} ]') == 0
-    flag_gps_external = sh(f'[ -f {LI_PATH_DDH_GPS_EXTERNAL} ]') == 0
+    flag_gps_ext = sh(f'[ -f {LI_PATH_DDH_GPS_EXTERNAL} ]') == 0
     flag_vp_gps_puck1 = sh(f'lsusb | grep {vp_gps_puck_1}') == 0
     flag_vp_gps_puck2 = sh(f'lsusb | grep {vp_gps_puck_2}') == 0
     flag_mod_btuart = sh(f'md5sum /usr/bin/btuart | grep {MD5_MOD_BTUART}') == 0
-    flag_rbl_en = int(g_rsc.cfg['flags']['rbl_en'])
+    flag_rbl_en = int(g_c['cfg']['flags']['rbl_en'])
     ble_v = ble_mat_get_bluez_version()
     # todo ---> improve this one
     service_cell_sw = sh('systemctl is-active unit_switch_net.service')
@@ -266,66 +247,80 @@ def cb_run_hardware_check():
     ok_internet_via_cell = sh('ping -I ppp0 www.google.com -c 1') == 0
     # dwservice
     ok_dwservice = sh('ps -aux | grep dwagent') == 0
+    ok_aws_cred = _aws_credentials()
 
-    # ---------------------------
-    # check hardware conflicts
-    # ---------------------------
+    # -----------------
+    # check conflicts
+    # -----------------
+    rv = 0
+    if not ok_aws_cred:
+        # error indicated inside other function
+        rv += 1
     if not ok_internet_via_cell:
-        _e('no cell internet')
+        _e('bad, no cell internet')
+        rv += 1
     if not ok_dwservice:
-        _e(f'dws not running')
+        _e(f'bad dws, not running')
+        rv += 1
     if not ok_fw_cell:
         _e(f'bad fw_cell')
-    if not flag_clone_balena:
-        _e('box NOT cloned with balena')
+        rv += 1
     # if service_cell_sw != 'active':
     #     _e(f'bad service_cell_sw')
     if ble_v != '5.66':
-        _e(f'bad ble_v {ble_v}')
+        _e(f'bad bluez version = {ble_v}')
+        rv += 1
     if not ok_issue:
-        _e(f'bad issue')
+        _e(f'bad raspberryos file /boot/issue.txt')
+        rv += 1
     if not ok_arch_armv7l:
         _e(f'bad arch')
+        rv += 1
     if not ok_hostname:
         _e(f'bad hostname')
-    if flag_gps_external and not flag_vp_gps_puck1 and not flag_vp_gps_puck2:
+        rv += 1
+    if flag_gps_ext and not flag_vp_gps_puck1 and not flag_vp_gps_puck2:
         _e(f'rv_gps_external but not detected')
+        rv += 1
     if is_rpi3 and not flag_mod_btuart:
         _e(f'is_rpi3 {is_rpi3} mod_uart')
+        rv += 1
     if flag_rbl_en and not vp_rb:
         _e(f'rbl_en but not detected')
+        rv += 1
+    if not flag_clone_balena:
+        _w('box NOT cloned with balena')
 
-# -----------------------
-# todo ---> check AWS credentials present or not
-# ------------------------
-
-
-menu_options = {
-    f"{g_rhc} run hardware check": cb_run_hardware_check,
-    f"{g_rsc.fag} toggle AWS s3 group": cb_toggle_aws_s3_group,
-    f"{g_rsc.fge} toggle GPS external": cb_toggle_gps_external,
-    f"{g_rsc.fgd} toggle GPS dummy": cb_toggle_gps_dummy,
-    f"{g_rsc.fgt} toggle graph test mode": cb_toggle_graph_test_mode,
-    f"{g_rsc.fcd} toggle crontab DDH": cb_toggle_crontab_ddh,
-    f"{g_rsc.fca} toggle crontab API": cb_toggle_crontab_api,
-    "DDH set boat info": cb_set_boat_name,
-    "DDH set boat gear": cb_set_boat_gear_type,
-    "DDH provision": cb_provision_ddh,
-    "DDH test GPS Quectel": cb_run_script_gps_test,
-    "DDH test buttons": cb_run_script_buttons_test,
-    "DDH kill application": cb_kill_ddh,
-    "DDH kill lxpanel": cb_kill_lxpanel,
-    "DDH message hello": cb_message_box,
-    "quit": cb_quit,
-}
+    # summary
+    return 'BAD'
 
 
 def main_ddc():
     while 1:
         system('clear')
 
+        # show summary
+        g_c['sum'] = _run_check()
+        print(f"[ {g_c['sum']} ] DDH system check:")
+
         # obtain current flags
-        cb_get_current_rsc()
+        menu_options = {
+            f"[ {g_c['fag']} ] toggle AWS s3 group": cb_toggle_aws_s3_group,
+            f"[ {g_c['fge']} ] toggle GPS external": cb_toggle_gps_external,
+            f"[ {g_c['fgd']} ] toggle GPS dummy": cb_toggle_gps_dummy,
+            f"[ {g_c['fgt']} ] toggle graph test mode": cb_toggle_graph_test_mode,
+            f"[ {g_c['fcd']} ] toggle crontab DDH": cb_toggle_crontab_ddh,
+            f"[ {g_c['fca']} ] toggle crontab API": cb_toggle_crontab_api,
+            "DDH set boat info": cb_set_boat_name,
+            "DDH set boat gear": cb_set_boat_gear_type,
+            "DDH provision": cb_provision_ddh,
+            "DDH test GPS Quectel": cb_run_script_gps_test,
+            "DDH test buttons": cb_run_script_buttons_test,
+            "DDH kill application": cb_kill_ddh,
+            "DDH kill lxpanel": cb_kill_lxpanel,
+            "DDH message hello": cb_message_box,
+            "quit": cb_quit,
+        }
 
         # selection
         menu = Bullet(
