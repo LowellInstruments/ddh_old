@@ -57,6 +57,7 @@ def main_lxp():
     print(f'{EXE} uses {m} > {LIMIT}% total RAM, restarting it')
     rv = sh('sudo lxpanelctl restart')
     sh(f"echo 'killed' >> {LOG_FILE}")
+    sh(f"date >> {LOG_FILE}")
     if rv.returncode:
         print('error: main_lxp, only works on graphical session')
 
