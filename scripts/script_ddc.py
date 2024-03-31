@@ -6,12 +6,13 @@ import pathlib
 import subprocess as sp
 import sys
 import time
+from collections import namedtuple
 from os.path import exists
 from os import unlink
 from os import system
 from bullet import Bullet
 
-from main_chk import run_check
+from main_chk import run_hardware_check
 from scripts.script_provision_get import provision_ddh
 from utils.ddh_config import cfg_load_from_file, cfg_save_to_file
 from utils.tmp_paths import (
@@ -19,12 +20,25 @@ from utils.tmp_paths import (
     LI_PATH_DDH_GPS_EXTERNAL,
     TMP_PATH_GPS_DUMMY, TMP_PATH_GRAPH_TEST_MODE_JSON)
 
-g_fag = 0
-g_fge = 0
-g_fgd = 0
-g_fgt = 0
-g_fcd = 0
-g_fca = 0
+# run hardware check
+g_rhc = 0
+
+# run software check
+nt_rsc = namedtuple("nt_rsc",
+                    # aws group
+                    ["fag",
+                     # gps external
+                     "fge",
+                     # gps dummy
+                     "fgd",
+                     # graph test
+                     "fgt",
+                     # crontab ddh
+                     "fcd",
+                     # crontab api
+                     "fca",
+                     # config file
+                     "cfg"])
 
 
 def _p(s):
@@ -40,29 +54,15 @@ def is_rpi():
     return sh('cat /proc/cpuinfo | grep aspberry') == 0
 
 
-def cb_get_current_flags():
-
-    # will use global vars
-    global g_fag
-    global g_fge
-    global g_fgd
-    global g_fgt
-    global g_fcd
-    global g_fca
-
+def cb_get_crontab(s):
+    assert s in ('api', 'ddh')
+    s = f'crontab_{s}.sh'
     # assume crontab off
     cf = '/etc/crontab'
-    s1, s2 = 'crontab_ddh.sh', 'crontab_api.sh'
-    if sh(f'grep -q {s1} {cf}') == 0:
-        # line present, check if commented or not
-        g_fcd = 0 if sh(f"grep {s1} {cf} | grep -F '#' > /dev/null") == 0 else 1
-    if sh(f'grep -q {s2} {cf}') == 0:
-        g_fca = 0 if sh(f"grep {s2} {cf} | grep -F '#' > /dev/null") == 0 else 1
-
-    g_fag = int(exists(LI_PATH_GROUPED_S3_FILE_FLAG))
-    g_fge = int(exists(LI_PATH_DDH_GPS_EXTERNAL))
-    g_fgd = int(exists(TMP_PATH_GPS_DUMMY))
-    g_fgt = int(exists(TMP_PATH_GRAPH_TEST_MODE_JSON))
+    if sh(f'grep -q {s} {cf}') == 0:
+        # line crontab ddh present, check if commented or not
+        return sh(f"grep {s} {cf} | grep -F '#' > /dev/null")
+        # todo ---> test this
 
 
 def cb_kill_ddh():
@@ -115,20 +115,6 @@ def cb_toggle_gps_dummy():
 def cb_toggle_graph_test_mode():
     p = TMP_PATH_GRAPH_TEST_MODE_JSON if is_rpi() else '/tmp/graph_test_mode'
     unlink(p) if exists(p) else pathlib.Path(p).touch()
-
-
-def cb_set_boat_info():
-    cfg = cfg_load_from_file()
-    a = None
-    # d
-    while a not in ("0", "1"):
-        a = input('fishing gear? static (0) trawling(1) ->')
-    cfg['behavior']['gear_type'] = a
-    a = None
-    while not a:
-        a = input('boat name? ->')
-    cfg['behavior']['ship_name'] = a
-    cfg_save_to_file(cfg)
 
 
 def _toggle_crontab(s):
@@ -187,7 +173,8 @@ def cb_provision_ddh():
 
 
 def cb_check_run():
-    run_check()
+    # HARDWARE test
+    run_hardware_check()
 
 
 def cb_quit():
@@ -195,13 +182,54 @@ def cb_quit():
     sys.exit(0)
 
 
-op = {
-    f"{g_fag} toggle AWS s3 group": cb_toggle_aws_s3_group,
-    f"{g_fge} toggle GPS external": cb_toggle_gps_external,
-    f"{g_fgd} toggle GPS dummy": cb_toggle_gps_dummy,
-    f"{g_fgt} toggle graph test mode": cb_toggle_graph_test_mode,
-    f"{g_fcd} toggle crontab DDH": cb_toggle_crontab_ddh,
-    f"{g_fca} toggle crontab API": cb_toggle_crontab_api,
+# start empty
+g_rsc = nt_rsc(
+    fag=None,
+    fge=None,
+    fgd=None,
+    fgt=None,
+    fcd=None,
+    fca=None,
+    cfg=None
+)
+
+
+def cb_get_current_flags():
+    global g_rsc
+    g_rsc = nt_rsc(
+        fag=int(exists(LI_PATH_GROUPED_S3_FILE_FLAG)),
+        fge=int(exists(LI_PATH_DDH_GPS_EXTERNAL)),
+        fgd=int(exists(TMP_PATH_GPS_DUMMY)),
+        fgt=int(exists(TMP_PATH_GRAPH_TEST_MODE_JSON)),
+        fcd=int(cb_get_crontab('ddh')),
+        fca=int(cb_get_crontab('api')),
+        cfg=cfg_load_from_file()
+    )
+
+
+def cb_set_boat_info():
+    a = input('enter boat name ->')
+    global g_rsc
+    g_rsc.cfg['behavior']['ship_name'] = a
+    while a not in ('0', '1'):
+        a = input('enter application gear type ->')
+    g_rsc.cfg['behavior']['gear_type'] = a
+    cfg_save_to_file(g_rsc.cfg)
+
+
+def cb_run_hardware_check():
+    global g_rhc
+    g_rhc = run_hardware_check()
+
+
+menu_options = {
+    f"{g_rhc} run hardware check": cb_run_hardware_check,
+    f"{g_rsc.fag} toggle AWS s3 group": cb_toggle_aws_s3_group,
+    f"{g_rsc.fge} toggle GPS external": cb_toggle_gps_external,
+    f"{g_rsc.fgd} toggle GPS dummy": cb_toggle_gps_dummy,
+    f"{g_rsc.fgt} toggle graph test mode": cb_toggle_graph_test_mode,
+    f"{g_rsc.fcd} toggle crontab DDH": cb_toggle_crontab_ddh,
+    f"{g_rsc.fca} toggle crontab API": cb_toggle_crontab_api,
     "DDH set boat info": cb_set_boat_info,
     "DDH check run": cb_check_run,
     "DDH kill application": cb_kill_ddh,
@@ -224,7 +252,7 @@ def main_ddc():
         # selection
         menu = Bullet(
             prompt="\nChoose operation to perform:",
-            choices=list(op.keys()),
+            choices=list(menu_options.keys()),
             indent=0,
             align=5,
             margin=2,
@@ -238,12 +266,12 @@ def main_ddc():
         txt, i = menu.launch()
 
         # run the callbacks
-        cb = list(op.values())[i]
+        chosen_cb = list(menu_options.values())[i]
 
         if txt == 'quit':
             break
 
-        p = multiprocessing.Process(target=cb)
+        p = multiprocessing.Process(target=chosen_cb)
         p.start()
         p.join()
 

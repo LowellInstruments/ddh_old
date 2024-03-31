@@ -73,7 +73,7 @@ rv_cell_internet, _ = _sh('ping -I ppp0 www.google.com -c 1')
 rv_dws, dws_running = _sh('ps -aux | grep dwagent')
 
 
-def run_check():
+def run_hardware_check():
     if rv_cell_internet:
         _e('no cell internet')
     if not dws_running:
@@ -106,4 +106,4 @@ def run_check():
 
 
 if __name__ == '__main__':
-    run_check()
+    run_hardware_check()
