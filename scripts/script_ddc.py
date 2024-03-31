@@ -12,13 +12,23 @@ from os import unlink
 from os import system
 from bullet import Bullet
 
-from main_chk import run_hardware_check
+from mat.ble.ble_mat_utils import ble_mat_get_bluez_version
 from scripts.script_provision_get import provision_ddh
 from utils.ddh_config import cfg_load_from_file, cfg_save_to_file
 from utils.tmp_paths import (
     LI_PATH_GROUPED_S3_FILE_FLAG,
     LI_PATH_DDH_GPS_EXTERNAL,
     TMP_PATH_GPS_DUMMY, TMP_PATH_GRAPH_TEST_MODE_JSON)
+
+
+vp_rb = '0403:6001'
+vp_quectel = '2c7c:0125'
+vp_gps_puck_1 = '067B:2303'
+vp_gps_puck_2 = '067B:23A3'
+vp_ssd = '045b:0229'
+FLAG_CLONED_BALENA = '/home/pi/.ddh_cloned_w_balena'
+MD5_MOD_BTUART = '95da1d6d0bea327aa5426b7f90303778'
+
 
 # run hardware check
 g_rhc = 0
@@ -219,8 +229,75 @@ def cb_set_boat_gear_type():
 
 
 def cb_run_hardware_check():
+
+    def _e(s):
+        print(f'error hardware check -> {s}')
+        sys.exit(1)
+
+    def _fw_cell():
+        c = "echo -ne 'AT+CVERSION\r' > /dev/ttyUSB2"
+        sh(c)
+        c = "cat -v < /dev/ttyUSB2 | grep 2022"
+        return sh(c) == 0
+
     global g_rhc
-    g_rhc = run_hardware_check()
+    g_rhc = 0
+
+    # issue: Raspberry Pi reference 2023-05-03
+    ok_issue = sh('cat /boot/issue.txt | grep 2023-05-03') == 0
+    # arch: armv7l
+    ok_arch_armv7l = sh('arch | grep armv7l') == 0
+    # is_rpi3:  Model		: Raspberry Pi 3 Model B Plus Rev 1.3
+    is_rpi3 = sh("cat /proc/cpuinfo | grep 'aspberry Pi 3'") == 0
+    is_rpi4 = sh("cat /proc/cpuinfo | grep 'aspberry Pi 4'") == 0
+    # hostname: raspberrypi
+    ok_hostname = sh('hostname | grep raspberrypi') == 0
+    # hardware flags
+    flag_clone_balena = sh(f'[ -f {FLAG_CLONED_BALENA} ]') == 0
+    flag_gps_external = sh(f'[ -f {LI_PATH_DDH_GPS_EXTERNAL} ]') == 0
+    flag_vp_gps_puck1 = sh(f'lsusb | grep {vp_gps_puck_1}') == 0
+    flag_vp_gps_puck2 = sh(f'lsusb | grep {vp_gps_puck_2}') == 0
+    flag_mod_btuart = sh(f'md5sum /usr/bin/btuart | grep {MD5_MOD_BTUART}') == 0
+    flag_rbl_en = int(g_rsc.cfg['flags']['rbl_en'])
+    ble_v = ble_mat_get_bluez_version()
+    # todo ---> improve this one
+    service_cell_sw = sh('systemctl is-active unit_switch_net.service')
+    ok_fw_cell = _fw_cell()
+    ok_internet_via_cell = sh('ping -I ppp0 www.google.com -c 1') == 0
+    # dwservice
+    ok_dwservice = sh('ps -aux | grep dwagent') == 0
+
+    # ---------------------------
+    # check hardware conflicts
+    # ---------------------------
+    if not ok_internet_via_cell:
+        _e('no cell internet')
+    if not ok_dwservice:
+        _e(f'dws not running')
+    if not ok_fw_cell:
+        _e(f'bad fw_cell')
+    if not flag_clone_balena:
+        _e('box NOT cloned with balena')
+    # if service_cell_sw != 'active':
+    #     _e(f'bad service_cell_sw')
+    if ble_v != '5.66':
+        _e(f'bad ble_v {ble_v}')
+    if not ok_issue:
+        _e(f'bad issue')
+    if not ok_arch_armv7l:
+        _e(f'bad arch')
+    if not ok_hostname:
+        _e(f'bad hostname')
+    if flag_gps_external and not flag_vp_gps_puck1 and not flag_vp_gps_puck2:
+        _e(f'rv_gps_external but not detected')
+    if is_rpi3 and not flag_mod_btuart:
+        _e(f'is_rpi3 {is_rpi3} mod_uart')
+    if flag_rbl_en and not vp_rb:
+        _e(f'rbl_en but not detected')
+
+# -----------------------
+# todo ---> check AWS credentials present or not
+# ------------------------
 
 
 menu_options = {
