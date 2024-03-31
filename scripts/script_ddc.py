@@ -172,11 +172,6 @@ def cb_provision_ddh():
     provision_ddh()
 
 
-def cb_check_run():
-    # HARDWARE test
-    run_hardware_check()
-
-
 def cb_quit():
     _p('quitting DDC')
     sys.exit(0)
@@ -194,7 +189,7 @@ g_rsc = nt_rsc(
 )
 
 
-def cb_get_current_flags():
+def cb_get_current_rsc():
     global g_rsc
     g_rsc = nt_rsc(
         fag=int(exists(LI_PATH_GROUPED_S3_FILE_FLAG)),
@@ -207,10 +202,16 @@ def cb_get_current_flags():
     )
 
 
-def cb_set_boat_info():
+def cb_set_boat_name():
     a = input('enter boat name ->')
     global g_rsc
     g_rsc.cfg['behavior']['ship_name'] = a
+    cfg_save_to_file(g_rsc.cfg)
+
+
+def cb_set_boat_gear_type():
+    global g_rsc
+    a = None
     while a not in ('0', '1'):
         a = input('enter application gear type ->')
     g_rsc.cfg['behavior']['gear_type'] = a
@@ -230,14 +231,14 @@ menu_options = {
     f"{g_rsc.fgt} toggle graph test mode": cb_toggle_graph_test_mode,
     f"{g_rsc.fcd} toggle crontab DDH": cb_toggle_crontab_ddh,
     f"{g_rsc.fca} toggle crontab API": cb_toggle_crontab_api,
-    "DDH set boat info": cb_set_boat_info,
-    "DDH check run": cb_check_run,
-    "DDH kill application": cb_kill_ddh,
+    "DDH set boat info": cb_set_boat_name,
+    "DDH set boat gear": cb_set_boat_gear_type,
     "DDH provision": cb_provision_ddh,
-    "DDH message hello": cb_message_box,
     "DDH test GPS Quectel": cb_run_script_gps_test,
     "DDH test buttons": cb_run_script_buttons_test,
+    "DDH kill application": cb_kill_ddh,
     "DDH kill lxpanel": cb_kill_lxpanel,
+    "DDH message hello": cb_message_box,
     "quit": cb_quit,
 }
 
@@ -247,7 +248,7 @@ def main_ddc():
         system('clear')
 
         # obtain current flags
-        cb_get_current_flags()
+        cb_get_current_rsc()
 
         # selection
         menu = Bullet(
