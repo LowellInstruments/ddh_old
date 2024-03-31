@@ -71,6 +71,8 @@ g_c = {
     "fcd": int(cb_get_crontab('ddh')),
     # crontab api
     "fca": int(cb_get_crontab('api')),
+    # cloned with balena
+    "bal": int(exists(FLAG_CLONED_BALENA)),
     # config file
     "cfg": cfg_load_from_file()
 }
@@ -188,6 +190,10 @@ def cb_quit():
     sys.exit(0)
 
 
+def cb_see_flag_balena():
+    print('caca')
+
+
 def cb_set_boat_name():
     a = input('enter boat name ->')
     g_c['cfg']['behavior']['ship_name'] = a
@@ -202,13 +208,17 @@ def cb_set_boat_gear_type():
     cfg_save_to_file(g_c['cfg'])
 
 
+str_e = ''
+
+
 def _run_check():
 
-    def _e(s):
-        print(f'    - error -> {s}')
+    global str_e
+    str_e = ''
 
-    def _w(s):
-        print(f'    - alert -> {s}')
+    def _e(s):
+        global str_e
+        str_e += f'    - {s}\n'
 
     def _fw_cell():
         c = "echo -ne 'AT+CVERSION\r' > /dev/ttyUSB2"
@@ -234,7 +244,6 @@ def _run_check():
     # hostname: raspberrypi
     ok_hostname = sh('hostname | grep raspberrypi') == 0
     # hardware flags
-    flag_clone_balena = sh(f'[ -f {FLAG_CLONED_BALENA} ]') == 0
     flag_gps_ext = sh(f'[ -f {LI_PATH_DDH_GPS_EXTERNAL} ]') == 0
     flag_vp_gps_puck1 = sh(f'lsusb | grep {vp_gps_puck_1}') == 0
     flag_vp_gps_puck2 = sh(f'lsusb | grep {vp_gps_puck_2}') == 0
@@ -257,10 +266,10 @@ def _run_check():
         # error indicated inside other function
         rv += 1
     if not ok_internet_via_cell:
-        _e('bad, no cell internet')
+        _e('no cell internet')
         rv += 1
     if not ok_dwservice:
-        _e(f'bad dws, not running')
+        _e(f'dws not running')
         rv += 1
     if not ok_fw_cell:
         _e(f'bad fw_cell')
@@ -280,19 +289,15 @@ def _run_check():
         _e(f'bad hostname')
         rv += 1
     if flag_gps_ext and not flag_vp_gps_puck1 and not flag_vp_gps_puck2:
-        _e(f'rv_gps_external but not detected')
+        _e(f'GPS external set but not detected')
         rv += 1
     if is_rpi3 and not flag_mod_btuart:
-        _e(f'is_rpi3 {is_rpi3} mod_uart')
+        _e(f'is_rpi3 {is_rpi3}, bad mod_uart')
         rv += 1
     if flag_rbl_en and not vp_rb:
         _e(f'rbl_en but not detected')
         rv += 1
-    if not flag_clone_balena:
-        _w('box NOT cloned with balena')
-
-    # summary
-    return 'BAD'
+    return rv, str_e
 
 
 def main_ddc():
@@ -300,8 +305,12 @@ def main_ddc():
         system('clear')
 
         # show summary
-        g_c['sum'] = _run_check()
-        print(f"[ {g_c['sum']} ] DDH system check:")
+        rv, e = _run_check()
+        if rv:
+            print(f'[ ER ] DDH is NOT ready, errors:')
+            print(str_e)
+        else:
+            print(f'[ OK ] system check :)')
 
         # obtain current flags
         menu_options = {
@@ -311,6 +320,7 @@ def main_ddc():
             f"[ {g_c['fgt']} ] toggle graph test mode": cb_toggle_graph_test_mode,
             f"[ {g_c['fcd']} ] toggle crontab DDH": cb_toggle_crontab_ddh,
             f"[ {g_c['fca']} ] toggle crontab API": cb_toggle_crontab_api,
+            f"[ {g_c['bal']} ] see flag balena": cb_see_flag_balena,
             "DDH set boat info": cb_set_boat_name,
             "DDH set boat gear": cb_set_boat_gear_type,
             "DDH provision": cb_provision_ddh,
@@ -324,7 +334,7 @@ def main_ddc():
 
         # selection
         menu = Bullet(
-            prompt="\nChoose operation to perform:",
+            prompt="Choose operation to perform:",
             choices=list(menu_options.keys()),
             indent=0,
             align=5,
