@@ -19,7 +19,7 @@ def _sh(c):
         e = ''
         e += '----------------\n'
         e += f'{datetime.datetime.now()}\n'
-        e += f'api shell {CTT_API_ER}\n'
+        e += f'api shell {CTT_API_ER} for command {c}\n'
         e += '----------------\n'
         e += f'    returncode {rv.returncode}\n'
         e += f'    stdout     {rv.stdout.decode()}\n'
