@@ -109,6 +109,7 @@ async def api_get_info():
         "ip_cell": _th(get_ip_cell),
         "last_gps": _th(get_gps),
         "uptime": _th(get_uptime),
+        "uptime_secs": _th(get_uptime_secs),
         "ble_state": _th(get_ble_state),
         "aws_sqs_state": _th(api_read_aws_sqs_ts),
         "boat_prj": _th(dds_get_cfg_box_project),

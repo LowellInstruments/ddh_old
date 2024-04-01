@@ -172,6 +172,13 @@ def get_uptime():
     return s
 
 
+def get_uptime_secs():
+    c = "awk '{print $1}' /proc/uptime"
+    rv = _sh(c)
+    s = rv.stdout.decode().replace('\n', '')
+    return int(float(s))
+
+
 def _get_crontab(s):
     c = f'cat /etc/crontab | grep crontab_{s}.sh'
     rv = _sh(c)
@@ -312,4 +319,5 @@ def api_read_aws_sqs_ts():
 
 
 if __name__ == '__main__':
-    print(get_timezone())
+    # print(get_timezone())
+    print(get_uptime_secs())
