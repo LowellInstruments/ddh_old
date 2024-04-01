@@ -31,11 +31,11 @@ def _p(s):
 
 
 def _per(s):
-    print(f"{'\033[91m'}{s}{'\033[0m'}")
+    print("{}{}{}".format('\033[91m', s, '\033[0m'))
 
 
 def _pok(s):
-    print(f"{'\033[92m'}{s}{'\033[0m'}")
+    print("{}{}{}".format('\033[92m', s, '\033[0m'))
 
 
 def sh(c):
@@ -62,26 +62,29 @@ def cb_get_crontab(s):
     return 1
 
 
+def refresh_menu_options():
+    return {
+        # aws group
+        "fag": 'yes' if exists(LI_PATH_GROUPED_S3_FILE_FLAG) else 'not',
+        # gps external
+        "fge": 'yes' if exists(LI_PATH_DDH_GPS_EXTERNAL) else 'not',
+        # gps dummy
+        "fgd": 'yes' if exists(TMP_PATH_GPS_DUMMY) else 'not',
+        # application gear type
+        "agt": 'yes' if g_cfg['behavior']['gear_type'] else 'not',
+        # graph test
+        "fgt": 'yes' if exists(TMP_PATH_GRAPH_TEST_MODE_JSON) else 'not',
+        # crontab ddh
+        "fcd": 'yes' if cb_get_crontab('ddh') else 'not',
+        # crontab api
+        "fca": 'yes' if cb_get_crontab('api') else 'not',
+        # cloned with balena
+        "bal": 'yes' if exists(FLAG_CLONED_BALENA) else 'not',
+    }
+
+
 # run check
 g_cfg = cfg_load_from_file()
-g_chk = {
-    # aws group
-    "fag": 'yes' if exists(LI_PATH_GROUPED_S3_FILE_FLAG) else 'not',
-    # gps external
-    "fge": 'yes' if exists(LI_PATH_DDH_GPS_EXTERNAL) else 'not',
-    # gps dummy
-    "fgd": 'yes' if exists(TMP_PATH_GPS_DUMMY) else 'not',
-    # application gear type
-    "agt": 'yes' if g_cfg['behavior']['gear_type'] else 'not',
-    # graph test
-    "fgt": 'yes' if exists(TMP_PATH_GRAPH_TEST_MODE_JSON) else 'not',
-    # crontab ddh
-    "fcd": 'yes' if cb_get_crontab('ddh') else 'not',
-    # crontab api
-    "fca": 'yes' if cb_get_crontab('api') else 'not',
-    # cloned with balena
-    "bal": 'yes' if exists(FLAG_CLONED_BALENA) else 'not',
-}
 
 
 def cb_toggle_gear_type():
@@ -326,12 +329,13 @@ def main_ddc():
         rv, e = _run_check()
         print('\nDDH system check:')
         if rv:
-            _per(f'     [ ER ] DDH system NOT ready, see error list')
+            _per(f'     [ ER ] DDH system NOT ready, see errors next')
             print(str_e)
         else:
             _pok(f'     [ OK ] DDH system ready')
 
         # obtain current flags
+        g_chk = refresh_menu_options()
         menu_options = {
             f"[ {g_chk['fag']} ] is AWS s3 group": cb_toggle_aws_s3_group,
             f"[ {g_chk['fge']} ] is GPS hardware puck": cb_toggle_gps_external,
@@ -351,7 +355,7 @@ def main_ddc():
 
         # selection
         menu = Bullet(
-            prompt="Choose operation to perform:",
+            prompt="Available commands:",
             choices=list(menu_options.keys()),
             indent=0,
             align=5,
@@ -379,8 +383,8 @@ def main_ddc():
         p.join()
 
         # see results
-        os.system('clear')
-        # print('\n\n\n\n\n')
+        # os.system('clear')
+        print('\n\n\n\n\n')
 
 
 if __name__ == '__main__':
