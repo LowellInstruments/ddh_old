@@ -53,22 +53,8 @@ def is_rpi():
 
 
 def cb_get_crontab(s):
-    assert s in ('api', 'ddh')
+    assert s in ('api', 'ddh', 'lxp')
     s = f'crontab_{s}.sh'
-    # assume crontab off
-    cf = '/etc/crontab'
-    if sh(f'grep -q {s} {cf}'):
-        # line NOT even present
-        return 0
-    # line IS present, search for special character with 'F'
-    if sh(f"grep {s} {cf} | grep -F '#' > /dev/null") == 0:
-        return 0
-    # line IS present and uncommented
-    return 1
-
-
-def cb_get_crontab_lxp():
-    s = f'crontab_lxp.sh'
     # assume crontab off
     cf = '/etc/crontab'
     if sh(f'grep -q {s} {cf}'):
@@ -313,7 +299,7 @@ def _run_check():
     ok_aws_cred = _check_aws_credentials()
     ok_crontab_ddh = cb_get_crontab('ddh') == 1
     ok_crontab_api = cb_get_crontab('api') == 1
-    ok_crontab_lxp = cb_get_crontab_lxp() == 1
+    ok_crontab_lxp = cb_get_crontab('lxp') == 1
 
     # -----------------
     # check conflicts
@@ -358,6 +344,8 @@ def _run_check():
         _e('crontab DDH not set')
     if not ok_crontab_api:
         _e('crontab API not set')
+    if not ok_crontab_lxp:
+        _e('crontab LXP not set')
     if not (flag_vp_quectel or flag_vp_gps_puck1 or flag_vp_gps_puck2):
         _e('no real GPS hardware present')
     return rv, str_e
