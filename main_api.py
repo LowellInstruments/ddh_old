@@ -16,7 +16,7 @@ from api.api_utils import (get_git_commit_mat_local,
                            api_get_folder_path_root, ddt_get_folder_path_root,
                            get_uptime, get_crontab_api, api_read_aws_sqs_ts,
                            get_utc_epoch, get_timezone, CTT_API_OK,
-                           CTT_API_ER)
+                           CTT_API_ER, get_uptime_secs)
 from utils.ddh_config import dds_get_cfg_vessel_name, dds_get_cfg_box_sn, dds_get_cfg_box_project
 import uvicorn
 from fastapi import FastAPI, UploadFile, File
