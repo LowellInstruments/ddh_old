@@ -30,6 +30,11 @@ def _p(s):
     print(s)
 
 
+def _tdr(t=3):
+    # some time so user can read results displayed
+    time.sleep(t)
+
+
 def _per(s):
     print("{}{}{}".format('\033[91m', s, '\033[0m'))
 
@@ -104,7 +109,23 @@ def cb_kill_ddh():
     ):
         sh(c)
     _p('sent kill signal to DDH software')
-    time.sleep(2)
+    _tdr()
+
+
+def cb_calibrate_display():
+    ok_arch_aarch64 = sh('arch | grep aarch64') == 0
+    if ok_arch_aarch64:
+        c = "export XAUTHORITY=/home/pi/.Xauthority; " \
+            "export DISPLAY=:0; " \
+            "xinput_calibrator"
+        sh(c)
+    else:
+        print('only need to calibrate 64-bits systems')
+        return
+
+    # file has to be copied to
+    # /etc/X11/xorg.conf.d/99-calibration.conf
+    _tdr(10)
 
 
 def cb_message_box():
@@ -115,7 +136,7 @@ def cb_message_box():
         "--timeout 3"
     _p('check for pop up in DDH screen')
     sh(c)
-    time.sleep(3)
+    _tdr()
 
 
 def cb_toggle_aws_s3_group():
@@ -181,13 +202,13 @@ def cb_run_script_gps_test():
                 main_test_gps_quectel()
             else:
                 _per('no GPS quectel hardware detected')
-                time.sleep(3)
+                _tdr()
         else:
             _p('no-RPI: no test GPS quectel')
-            time.sleep(3)
+            _tdr()
     except (Exception, ) as ex:
         _per(f'exception cb_run_script_gps_test -> {ex}')
-        time.sleep(3)
+        _tdr()
 
 
 def cb_run_script_buttons_test():
@@ -197,10 +218,10 @@ def cb_run_script_buttons_test():
             main_test_box_buttons()
         else:
             _per('no-RPI: no test box buttons')
-            time.sleep(3)
+            _tdr()
     except (Exception, ) as ex:
         _per(f'exception cb_run_script_buttons_test -> {ex}')
-        time.sleep(3)
+        _tdr()
 
 
 def cb_provision_ddh():
@@ -349,6 +370,7 @@ def main_ddc():
             "test GPS Quectel": cb_run_script_gps_test,
             "test box side buttons": cb_run_script_buttons_test,
             "kill DDH application": cb_kill_ddh,
+            "calibrate DDH display": cb_calibrate_display,
             "say hi to desktop": cb_message_box,
             "quit": cb_quit,
         }

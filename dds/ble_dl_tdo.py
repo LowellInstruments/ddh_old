@@ -4,7 +4,7 @@ import os
 
 from dds.csv_data import file_lowell_raw_csv_to_emolt_lt_csv
 from dds.lef import dds_create_file_lef
-from dds.notifications import notify_logger_error_sensor_pressure, notify_logger_error_low_battery
+from dds.notifications import notify_logger_error_sensor_pressure, notify_logger_error_low_battery, LoggerNotification
 from mat.ble.ble_mat_utils import (
     ble_mat_crc_local_vs_remote,
     DDH_GUI_UDP_PORT, ble_mat_disconnect_all_devices_ll,
@@ -13,7 +13,7 @@ from mat.ble.bleak.cc26x2r import BleCC26X2
 from dds.ble_utils_dds import ble_logger_ccx26x2r_needs_a_reset, dds_ble_init_rv_notes
 from mat.lix import convert_lix_file
 from mat.utils import linux_is_rpi
-from utils.ddh_config import ddh_get_cfg_gear_type
+from utils.ddh_config import ddh_get_cfg_gear_type, dds_get_cfg_logger_sn_from_mac
 from utils.ddh_shared import (
     send_ddh_udp_gui as _u,
     STATE_DDS_BLE_RUN_STATUS, STATE_DDS_BLE_ERROR_RUN,
@@ -47,6 +47,7 @@ class BleTDODownload:
         dds_ble_init_rv_notes(notes)
         rerun_flag = get_ddh_rerun_flag_li()
         create_folder_logger_by_mac(mac)
+        sn = dds_get_cfg_logger_sn_from_mac(mac)
 
         rv = await lc.connect(mac)
         _une(rv, notes, "comm.")
@@ -75,7 +76,8 @@ class BleTDODownload:
         lg.a("BAT | {} mV".format(b))
         notes["battery_level"] = b
         if b < 982:
-            notify_logger_error_low_battery(g, mac, b)
+            ln = LoggerNotification(mac, sn, 'TDO', b)
+            notify_logger_error_low_battery(g, ln)
             _u("f{STATE_DDS_BLE_LOW_BATTERY}/{mac}")
             # give time to GUI to display
             await asyncio.sleep(3)
@@ -180,7 +182,8 @@ class BleTDODownload:
         if bad_rv:
             _une(bad_rv, notes, "P_sensor_error", ce=1)
             lg.a('GSP | error {}'.format(rv))
-            notify_logger_error_sensor_pressure(g, mac)
+            ln = LoggerNotification(mac, sn, 'TDO', b)
+            notify_logger_error_sensor_pressure(g, ln)
             _u(STATE_DDS_BLE_DOWNLOAD_ERROR_TP_SENSOR)
             await asyncio.sleep(5)
         _rae(bad_rv, "gsp")

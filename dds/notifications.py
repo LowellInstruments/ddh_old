@@ -18,7 +18,7 @@ from utils.ddh_shared import (get_ddh_commit,
                               get_ddh_folder_path_sqs, ddh_get_root_folder_path)
 
 
-# these MUST match the ones in DDN file "sqs/notifications.py"
+# these MUST match the ones in DDN file "sqs/notifications_v2.py"
 DDH_NOTIFICATION_STATUS_BOOT = 'DDH just booted'
 DDH_NOTIFICATION_STATUS_ALIVE = 'DDH is alive'
 DDH_NOTIFICATION_STATUS_IN_PORT = 'DDH is around a port'
@@ -53,8 +53,16 @@ DDH_ALL_NOTIFICATIONS = [
 ]
 
 
+class LoggerNotification:
+    def __init__(self, mac, sn, kind, bat):
+        self.mac = str(mac)
+        self.sn = str(sn)
+        self.kind = str(kind)
+        self.bat = str(bat)
+
+
 class _DDHNotification:
-    def __init__(self, s, g, mac, ver, extra):
+    def __init__(self, s, g, ln: LoggerNotification, ver, extra):
         now = datetime.now()
         now_utc = datetime.utcnow()
         rv = sp.run("uptime -p", shell=True, stdout=sp.PIPE)
@@ -84,13 +92,13 @@ class _DDHNotification:
         self.ddh_platform = get_ddh_platform()
         self.logger_mac = ""
         self.logger_sn = ""
-        # -----------------------------
-        # todo ---> do this logger_type
-        # ------------------------------
-        self.logger_type = "will_do_soon"
-        if mac:
-            self.logger_mac = mac
-            self.logger_sn = dds_get_cfg_logger_sn_from_mac(mac)
+        self.logger_type = ""
+        self.logger_bat = ""
+        if ln:
+            self.logger_mac = ln.mac
+            self.logger_sn = ln.sn
+            self.logger_type = ln.kind
+            self.logger_bat = ln.bat
         self.extra = str(extra)
 
     def display_details(self):
@@ -116,11 +124,11 @@ class _DDHNotification:
         self.display_details()
 
 
-def _n(s, g='', mac='', v=2, extra=''):
+def _n(s, g='', ln=None, v=2, extra=''):
     if s not in DDH_ALL_NOTIFICATIONS:
         print(f'ddh_notification unknown opcode {s}')
         return
-    n = _DDHNotification(s, g, mac, v, extra)
+    n = _DDHNotification(s, g, ln, v, extra)
     n.to_file()
 
 
@@ -128,12 +136,12 @@ def notify_boot(g):
     return _n(DDH_NOTIFICATION_STATUS_BOOT, g)
 
 
-def notify_logger_error_sensor_pressure(g, mac):
-    return _n(DDH_NOTIFICATION_ERROR_HW_LOGGER_PRESSURE, g, mac)
+def notify_logger_error_sensor_pressure(g, ln):
+    return _n(DDH_NOTIFICATION_ERROR_HW_LOGGER_PRESSURE, g, ln)
 
 
-def notify_logger_error_low_battery(g, mac, bat_mv):
-    return _n(DDH_NOTIFICATION_ERROR_HW_LOGGER_BATTERY, g, mac, extra=bat_mv)
+def notify_logger_error_low_battery(g, ln):
+    return _n(DDH_NOTIFICATION_ERROR_HW_LOGGER_BATTERY, g, ln)
 
 
 def notify_error_sw_aws_s3():
@@ -161,16 +169,16 @@ def notify_ddh_in_port(g):
     return _n(DDH_NOTIFICATION_STATUS_IN_PORT, g)
 
 
-def notify_logger_download(g, mac):
-    return _n(DDH_NOTIFICATION_OK_LOGGER_DL, g, mac)
+def notify_logger_download(g, ln):
+    return _n(DDH_NOTIFICATION_OK_LOGGER_DL, g, ln)
 
 
-def notify_logger_error_retries(g, mac):
-    return _n(DDH_NOTIFICATION_ERROR_HW_LOGGER_RETRIES, g, mac)
+def notify_logger_error_retries(g, ln):
+    return _n(DDH_NOTIFICATION_ERROR_HW_LOGGER_RETRIES, g, ln)
 
 
-def notify_logger_error_sensor_oxygen(g, mac):
-    return _n(DDH_NOTIFICATION_ERROR_HW_LOGGER_OXYGEN, g, mac)
+def notify_logger_error_sensor_oxygen(g, ln):
+    return _n(DDH_NOTIFICATION_ERROR_HW_LOGGER_OXYGEN, g, ln)
 
 
 def notify_ddh_needs_sw_update(g):

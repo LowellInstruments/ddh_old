@@ -2,7 +2,7 @@ import asyncio
 import datetime
 import os
 from dds.lef import dds_create_file_lef
-from dds.notifications import notify_logger_error_sensor_oxygen, notify_logger_error_low_battery
+from dds.notifications import notify_logger_error_sensor_oxygen, notify_logger_error_low_battery, LoggerNotification
 from mat.ble.ble_mat_utils import (
     ble_mat_crc_local_vs_remote,
     DDH_GUI_UDP_PORT, ble_mat_disconnect_all_devices_ll,
@@ -10,6 +10,7 @@ from mat.ble.ble_mat_utils import (
 from mat.ble.bleak.cc26x2r import BleCC26X2
 from mat.ble.bleak.cc26x2r_sim import BleCC26X2Sim, ble_logger_is_cc26x2r_simulated
 from dds.ble_utils_dds import ble_logger_ccx26x2r_needs_a_reset, dds_ble_init_rv_notes
+from utils.ddh_config import dds_get_cfg_logger_sn_from_mac
 from utils.ddh_shared import (
     send_ddh_udp_gui as _u,
     STATE_DDS_BLE_LOW_BATTERY,
@@ -48,6 +49,7 @@ class BleCC26X2Download:
         rerun_flag = get_ddh_rerun_flag_li()
         create_folder_logger_by_mac(mac)
         _is_a_lid_v2_logger = False
+        sn = dds_get_cfg_logger_sn_from_mac(mac)
 
         rv = await lc.connect(mac)
         _une(rv, notes, "comm.")
@@ -79,7 +81,8 @@ class BleCC26X2Download:
         lg.a("BAT | {} mV".format(b))
         notes["battery_level"] = b
         if b < 1500:
-            notify_logger_error_low_battery(g, mac, b)
+            ln = LoggerNotification(mac, sn, 'DOX', b)
+            notify_logger_error_low_battery(g, ln)
             _u(f"{STATE_DDS_BLE_LOW_BATTERY}/{mac}")
             # give time to GUI to display
             await asyncio.sleep(5)
@@ -176,7 +179,8 @@ class BleCC26X2Download:
             _une(bad_rv, notes, "ox_sensor_error", ce=1)
             if rv and rv[0] == "0000":
                 lat, lon, _, __ = g
-                notify_logger_error_sensor_oxygen(g, mac)
+                ln = LoggerNotification(mac, sn, 'DOX', b)
+                notify_logger_error_sensor_oxygen(g, ln)
             await asyncio.sleep(5)
         _rae(bad_rv, "gdo")
         lg.a("GDO | {}".format(rv))

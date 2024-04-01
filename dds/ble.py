@@ -15,7 +15,7 @@ from dds.macs import (
     add_mac_orange,
 )
 from dds.notifications import notify_logger_download, \
-    notify_logger_error_retries
+    notify_logger_error_retries, LoggerNotification
 from dds.timecache import its_time_to
 from mat.ble.ble_mat_utils import (ble_mat_get_antenna_type,
                                    ble_mat_systemctl_restart_bluetooth)
@@ -64,14 +64,18 @@ def _ble_convert_lid(ls_lid):
         lg.a(f"OK: after download converted LID file v2 {f}")
 
 
-def _ble_analyze_logger_result(rv, mac, g, sn, err_critical):
+def _ble_analyze_logger_result(rv, g, ln: LoggerNotification, err_critical):
+
+    # grab variables
+    mac = ln.mac
+    sn = ln.sn
 
     # success :)
     if rv == 0:
         rm_mac_black(mac)
         rm_mac_orange(mac)
         add_mac_black(mac)
-        notify_logger_download(g, mac)
+        notify_logger_download(g, ln)
         if mac in _g_logger_errors.keys():
             del _g_logger_errors[mac]
         lg.a(f"OK! logger {mac}/{sn}")
@@ -102,7 +106,7 @@ def _ble_analyze_logger_result(rv, mac, g, sn, err_critical):
         add_mac_black(mac)
         lg.a(f"error: logger {mac}/{sn} totally failed, critical = {err_critical}")
         _u(f"{STATE_DDS_BLE_DOWNLOAD_ERROR}/{sn}")
-        notify_logger_error_retries(g, mac)
+        notify_logger_error_retries(g, ln)
         _g_logger_errors[mac] = 0
 
     else:
@@ -205,7 +209,13 @@ async def _ble_id_n_interact_logger(mac, info: str, h, g):
         return 0
 
     # tell GUI how it went, also do MAC colors stuff
-    _ble_analyze_logger_result(rv, mac, g, sn, _crit_error)
+    try:
+        bat = notes["battery_level"]
+    except (Exception, ):
+        # moana does not have this
+        bat = 0
+    ln = LoggerNotification(mac, sn, info, bat)
+    _ble_analyze_logger_result(rv, g, ln, _crit_error)
 
     # -----------------------------------------------------------------
     # on OK and error, w/o this some external antennas don't scan again
