@@ -135,12 +135,14 @@ def _provision_ddh(a=DDN_ADDR):
         _sh(f"sudo mv {p} {d}")
         _p('restarting DDH wireguard service')
         _sh("sudo systemctl restart wg-quick@wg0.service")
+        _p('enabling DDH wireguard service')
+        _sh("sudo systemctl enable wg-quick@wg0.service")
 
         # get rid of the file so only executes once
         os.unlink(PBF)
 
 
-def provision_ddh(a=DDN_ADDR):
+def get_provision_ddh(a=DDN_ADDR):
     """
 
     # example bootstrap provision file /home/pi/.ddh_prov_req.toml'
@@ -161,5 +163,5 @@ def provision_ddh(a=DDN_ADDR):
 
 
 if __name__ == '__main__':
-    provision_ddh()
+    get_provision_ddh()
     # provision('0.0.0.0')

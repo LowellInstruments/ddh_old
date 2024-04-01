@@ -10,9 +10,7 @@ from os.path import exists
 from os import unlink
 from os import system
 from bullet import Bullet
-
-from mat.ble.ble_mat_utils import ble_mat_get_bluez_version
-from scripts.script_provision_get import provision_ddh
+from scripts.script_provision_get import get_provision_ddh
 from utils.ddh_config import cfg_load_from_file, cfg_save_to_file
 from utils.tmp_paths import (
     LI_PATH_GROUPED_S3_FILE_FLAG,
@@ -20,11 +18,10 @@ from utils.tmp_paths import (
     TMP_PATH_GPS_DUMMY, TMP_PATH_GRAPH_TEST_MODE_JSON)
 
 
-vp_rb = '0403:6001'
-vp_quectel = '2c7c:0125'
-vp_gps_puck_1 = '067B:2303'
-vp_gps_puck_2 = '067B:23A3'
-vp_ssd = '045b:0229'
+VP_RBL = '0403:6001'
+VP_QUECTEL = '2c7c:0125'
+VP_GPS_PUCK_1 = '067B:2303'
+VP_GPS_PUCK_2 = '067B:23A3'
 FLAG_CLONED_BALENA = '/home/pi/.ddh_cloned_w_balena'
 MD5_MOD_BTUART = '95da1d6d0bea327aa5426b7f90303778'
 
@@ -130,7 +127,7 @@ def cb_toggle_graph_test_mode():
     unlink(p) if exists(p) else pathlib.Path(p).touch()
 
 
-def _toggle_crontab(s):
+def _cb_toggle_crontab(s):
     cf = '/etc/crontab'
     cf_run = f'/home/pi/li/ddt/_dt_files/crontab_{s}.sh'
     if sh(f'grep -q crontab_{s}.sh {cf}') == 1:
@@ -158,11 +155,11 @@ def _toggle_crontab(s):
 
 
 def cb_toggle_crontab_ddh():
-    return _toggle_crontab('ddh')
+    return _cb_toggle_crontab('ddh')
 
 
 def cb_toggle_crontab_api():
-    return _toggle_crontab('api')
+    return _cb_toggle_crontab('api')
 
 
 def cb_run_script_gps_test():
@@ -182,7 +179,7 @@ def cb_run_script_buttons_test():
 
 
 def cb_provision_ddh():
-    provision_ddh()
+    get_provision_ddh()
 
 
 def cb_quit():
@@ -190,8 +187,9 @@ def cb_quit():
     sys.exit(0)
 
 
-def cb_see_flag_balena():
-    print('caca')
+def cb_toggle_flag_balena():
+    p = FLAG_CLONED_BALENA if is_rpi() else '/tmp/flag_balena'
+    unlink(p) if exists(p) else pathlib.Path(p).touch()
 
 
 def cb_set_boat_name():
@@ -220,13 +218,13 @@ def _run_check():
         global str_e
         str_e += f'    - {s}\n'
 
-    def _fw_cell():
+    def _check_fw_cell():
         c = "echo -ne 'AT+CVERSION\r' > /dev/ttyUSB2"
         sh(c)
         c = "cat -v < /dev/ttyUSB2 | grep 2022"
         return sh(c) == 0
 
-    def _aws_credentials():
+    def _check_aws_credentials():
         f = g_c['cfg']['credentials']
         for k, v in f.items():
             if not v:
@@ -240,23 +238,23 @@ def _run_check():
     ok_arch_armv7l = sh('arch | grep armv7l') == 0
     # is_rpi3:  Model		: Raspberry Pi 3 Model B Plus Rev 1.3
     is_rpi3 = sh("cat /proc/cpuinfo | grep 'aspberry Pi 3'") == 0
-    is_rpi4 = sh("cat /proc/cpuinfo | grep 'aspberry Pi 4'") == 0
     # hostname: raspberrypi
     ok_hostname = sh('hostname | grep raspberrypi') == 0
     # hardware flags
     flag_gps_ext = sh(f'[ -f {LI_PATH_DDH_GPS_EXTERNAL} ]') == 0
-    flag_vp_gps_puck1 = sh(f'lsusb | grep {vp_gps_puck_1}') == 0
-    flag_vp_gps_puck2 = sh(f'lsusb | grep {vp_gps_puck_2}') == 0
+    flag_vp_gps_puck1 = sh(f'lsusb | grep {VP_GPS_PUCK_1}') == 0
+    flag_vp_gps_puck2 = sh(f'lsusb | grep {VP_GPS_PUCK_2}') == 0
     flag_mod_btuart = sh(f'md5sum /usr/bin/btuart | grep {MD5_MOD_BTUART}') == 0
     flag_rbl_en = int(g_c['cfg']['flags']['rbl_en'])
-    ble_v = ble_mat_get_bluez_version()
-    # todo ---> improve this one
-    service_cell_sw = sh('systemctl is-active unit_switch_net.service')
-    ok_fw_cell = _fw_cell()
+    ok_ble_v = sh('bluetoothctl -v | grep 5.66') == 0
+    # grep exact (-w)
+    _c = 'systemctl is-active unit_switch_net.service | grep -w active'
+    ok_service_cell_sw = sh(_c) == 0
+    ok_fw_cell = _check_fw_cell()
     ok_internet_via_cell = sh('ping -I ppp0 www.google.com -c 1') == 0
     # dwservice
     ok_dwservice = sh('ps -aux | grep dwagent') == 0
-    ok_aws_cred = _aws_credentials()
+    ok_aws_cred = _check_aws_credentials()
 
     # -----------------
     # check conflicts
@@ -274,10 +272,10 @@ def _run_check():
     if not ok_fw_cell:
         _e(f'bad fw_cell')
         rv += 1
-    # if service_cell_sw != 'active':
-    #     _e(f'bad service_cell_sw')
-    if ble_v != '5.66':
-        _e(f'bad bluez version = {ble_v}')
+    if not ok_service_cell_sw:
+        _e(f'not running service_cell_sw')
+    if not ok_ble_v != '5.66':
+        _e(f'bad bluez version')
         rv += 1
     if not ok_issue:
         _e(f'bad raspberryos file /boot/issue.txt')
@@ -294,7 +292,7 @@ def _run_check():
     if is_rpi3 and not flag_mod_btuart:
         _e(f'is_rpi3 {is_rpi3}, bad mod_uart')
         rv += 1
-    if flag_rbl_en and not vp_rb:
+    if flag_rbl_en and not VP_RBL:
         _e(f'rbl_en but not detected')
         rv += 1
     return rv, str_e
@@ -320,7 +318,7 @@ def main_ddc():
             f"[ {g_c['fgt']} ] toggle graph test mode": cb_toggle_graph_test_mode,
             f"[ {g_c['fcd']} ] toggle crontab DDH": cb_toggle_crontab_ddh,
             f"[ {g_c['fca']} ] toggle crontab API": cb_toggle_crontab_api,
-            f"[ {g_c['bal']} ] see flag balena": cb_see_flag_balena,
+            f"| {g_c['bal']} | toggle flag balena": cb_toggle_flag_balena,
             "DDH set boat info": cb_set_boat_name,
             "DDH set boat gear": cb_set_boat_gear_type,
             "DDH provision": cb_provision_ddh,

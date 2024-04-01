@@ -1,11 +1,12 @@
 #!/usr/bin/env python
+
 import os
 import sys
+import subprocess as sp
+
 
 # -------------------------------------------------
-# this script runs on a laptop
-# probably as root because of mounting disks
-# it creates a provision bootstrap file
+# this script  creates a provision bootstrap file
 # and saves it in the recently cloned DDH SSD disk
 # -------------------------------------------------
 
@@ -14,12 +15,26 @@ PRJ = 'abc'
 DEV = ''
 
 
-def main():
-    os.system('clear')
+def sh(c):
+    rv = sp.run(c, shell=True, stdout=sp.PIPE, stderr=sp.PIPE)
+    return rv.returncode
 
-    # check root access
+
+def is_rpi():
+    return sh('cat /proc/cpuinfo | grep aspberry') == 0
+
+
+def main():
+    # checks
+    os.system('clear')
+    if is_rpi():
+        print('let\'s not run this on a raspberry but a laptop')
+        sys.exit(1)
+    if not DEV or '/dev/' not in DEV:
+        print(f'error: bad destination dev -> ({DEV})')
+        sys.exit(1)
     if os.geteuid() != 0:
-        print('error: script PBF must be run as root')
+        print('error: script_provision_init must run as root')
         sys.exit(1)
 
     print("let's create the provision bootstrap file")
@@ -30,14 +45,9 @@ def main():
     dev = f'/dev/{dev}'
     print(ip, sn, prj, dev)
     # todo ---> create file /home/pi/.ddh_prov_req.toml
-
-    # copy the file to the destination disk
-    # todo ---> create the flag FLAG_CLONED_BALENA = '/home/pi/.ddh_cloned_w_balena'
-    # todo ---> detect harddisks with auto-port
-    # todo ---> mount harddisk
-    # todo ---> copy created toml file
-
-    # todo ---> start wireguard and also ENABLE at boot
+    # todo ---> mount harddisk and copy created toml file
+    # todo ---> create file FLAG_CLONED_BALENA = '/home/pi/.ddh_cloned_w_balena'
+    # todo ---> unmount disk
 
 
 if __name__ == '__main__':
