@@ -321,7 +321,7 @@ def main_ddc():
             f"| {g_c['bal']} | toggle flag balena": cb_toggle_flag_balena,
             "DDH set boat info": cb_set_boat_name,
             "DDH set boat gear": cb_set_boat_gear_type,
-            "DDH provision": cb_provision_ddh,
+            "DDH provision (caution)": cb_provision_ddh,
             "DDH test GPS Quectel": cb_run_script_gps_test,
             "DDH test buttons": cb_run_script_buttons_test,
             "DDH kill application": cb_kill_ddh,
@@ -338,7 +338,7 @@ def main_ddc():
             align=5,
             margin=2,
             shift=0,
-            bullet="-->",
+            bullet=">>",
             pad_right=5,
             return_index=True
         )

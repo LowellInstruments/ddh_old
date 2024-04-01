@@ -151,6 +151,10 @@ def get_provision_ddh(a=DDN_ADDR):
     boat_sn="1234567"
     boat_prj="kaz"
 
+    # ----------------------------------
+    # todo --> how do we call this automatically
+    # ----------------------------------
+
     """
     try:
         _provision_ddh(a)
