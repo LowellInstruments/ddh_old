@@ -36,11 +36,18 @@ def _tdr(t=3):
 
 
 def _per(s):
+    # red
     print("{}{}{}".format('\033[91m', s, '\033[0m'))
 
 
 def _pok(s):
+    # green
     print("{}{}{}".format('\033[92m', s, '\033[0m'))
+
+
+def _pwr(s):
+    # yellow
+    print("{}{}{}".format('\033[93m', s, '\033[0m'))
 
 
 def sh(c):
@@ -246,16 +253,23 @@ def cb_toggle_flag_balena():
 
 # contains errors in system check
 str_e = ''
+str_w = ''
 
 
 def _run_check():
 
     global str_e
     str_e = ''
+    global str_w
+    str_w = ''
 
     def _e(s):
         global str_e
         str_e += f'     - {s}\n'
+
+    def _w(s):
+        global str_w
+        str_w += f'     - {s}\n'
 
     def _check_fw_cell():
         c = "echo -ne 'AT+CVERSION\r' > /dev/ttyUSB2"
@@ -267,8 +281,12 @@ def _run_check():
         f = g_cfg['credentials']
         for k, v in f.items():
             if not v:
-                _e(f'config.toml no credential {k}')
-                return 0
+                if 'custom' not in k:
+                    _e(f'config.toml no credential {k}')
+                    return 0
+                else:
+                    _w(f'config.toml no custom credential {k}')
+                    return 1
         return 1
 
     # -----------------------------------------------------
@@ -348,7 +366,7 @@ def _run_check():
         _e('crontab LXP not set')
     if not (flag_vp_quectel or flag_vp_gps_puck1 or flag_vp_gps_puck2):
         _e('no real GPS hardware present')
-    return rv, str_e
+    return rv, str_e, str_w
 
 
 def main_ddc():
@@ -356,13 +374,16 @@ def main_ddc():
     while 1:
 
         # show summary
-        rv, e = _run_check()
-        print('\nDDH system check:')
+        rv, e, w = _run_check()
+        print('\n DDH automatic check:')
         if rv:
-            _per(f'     [ ER ] DDH system NOT ready, see errors next')
+            _per(f'     [ ER ] system NOT ready, see errors next')
             print(str_e)
         else:
-            _pok(f'     [ OK ] DDH system ready')
+            _pok(f'     [ OK ] system ready')
+        if w:
+            _pwr(f'     [ OK ] warning')
+            print(str_w)
 
         # obtain current flags
         g_chk = refresh_menu_options()
@@ -387,7 +408,7 @@ def main_ddc():
 
         # selection
         menu = Bullet(
-            prompt="Available commands:",
+            prompt=" DDH manual checks:",
             choices=list(menu_options.keys()),
             indent=0,
             align=5,
@@ -415,8 +436,10 @@ def main_ddc():
         p.join()
 
         # see results
-        # os.system('clear')
-        print('\n\n\n\n\n')
+        if is_rpi():
+            os.system('clear')
+        else:
+            print('\n\n\n\n\n')
 
 
 if __name__ == '__main__':
