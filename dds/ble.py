@@ -261,7 +261,4 @@ async def ble_interact_all_loggers(macs_det, macs_mon, g, _h: int, _h_desc):
         gps_tell_position_logger(g)
 
         # MAC passed all filters, work with it
-        rv = await _ble_id_n_interact_logger(mac, model, _h, g)
-        if rv:
-            return rv
-    
+        return await _ble_id_n_interact_logger(mac, model, _h, g)
