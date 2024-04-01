@@ -2,13 +2,13 @@
 
 
 import multiprocessing
+import os
 import pathlib
 import subprocess as sp
 import sys
 import time
 from os.path import exists
 from os import unlink
-from os import system
 from bullet import Bullet
 from scripts.script_provision_get import get_provision_ddh
 from utils.ddh_config import cfg_load_from_file, cfg_save_to_file
@@ -28,6 +28,14 @@ MD5_MOD_BTUART = '95da1d6d0bea327aa5426b7f90303778'
 
 def _p(s):
     print(s)
+
+
+def _per(s):
+    print(f"{'\033[91m'}{s}{'\033[0m'}")
+
+
+def _pok(s):
+    print(f"{'\033[92m'}{s}{'\033[0m'}")
 
 
 def sh(c):
@@ -55,24 +63,33 @@ def cb_get_crontab(s):
 
 
 # run check
-g_c = {
+g_cfg = cfg_load_from_file()
+g_chk = {
     # aws group
-    "fag": int(exists(LI_PATH_GROUPED_S3_FILE_FLAG)),
+    "fag": 'yes' if exists(LI_PATH_GROUPED_S3_FILE_FLAG) else 'not',
     # gps external
-    "fge": int(exists(LI_PATH_DDH_GPS_EXTERNAL)),
+    "fge": 'yes' if exists(LI_PATH_DDH_GPS_EXTERNAL) else 'not',
     # gps dummy
-    "fgd": int(exists(TMP_PATH_GPS_DUMMY)),
+    "fgd": 'yes' if exists(TMP_PATH_GPS_DUMMY) else 'not',
+    # application gear type
+    "agt": 'yes' if g_cfg['behavior']['gear_type'] else 'not',
     # graph test
-    "fgt": int(exists(TMP_PATH_GRAPH_TEST_MODE_JSON)),
+    "fgt": 'yes' if exists(TMP_PATH_GRAPH_TEST_MODE_JSON) else 'not',
     # crontab ddh
-    "fcd": int(cb_get_crontab('ddh')),
+    "fcd": 'yes' if cb_get_crontab('ddh') else 'not',
     # crontab api
-    "fca": int(cb_get_crontab('api')),
+    "fca": 'yes' if cb_get_crontab('api') else 'not',
     # cloned with balena
-    "bal": int(exists(FLAG_CLONED_BALENA)),
-    # config file
-    "cfg": cfg_load_from_file()
+    "bal": 'yes' if exists(FLAG_CLONED_BALENA) else 'not',
 }
+
+
+def cb_toggle_gear_type():
+    global g_cfg
+    gt = g_cfg['behavior']['gear_type']
+    gt ^= 1
+    cfg_save_to_file(g_cfg)
+    g_cfg = cfg_load_from_file()
 
 
 def cb_kill_ddh():
@@ -84,15 +101,6 @@ def cb_kill_ddh():
     ):
         sh(c)
     _p('sent kill signal to DDH software')
-    time.sleep(2)
-
-
-def cb_kill_lxpanel():
-    c = "export XAUTHORITY=/home/pi/.Xauthority; " \
-        "export DISPLAY=:0; " \
-        "sudo lxpanelctl restart"
-    sh(c)
-    _p('sent kill signal to lxpanel')
     time.sleep(2)
 
 
@@ -163,19 +171,33 @@ def cb_toggle_crontab_api():
 
 
 def cb_run_script_gps_test():
-    from scripts.script_test_gps_quectel import main_test_gps_quectel
-    if is_rpi():
-        main_test_gps_quectel()
-    else:
-        _p('no-RPI: no test GPS quectel')
+    try:
+        from scripts.script_test_gps_quectel import main_test_gps_quectel
+        if is_rpi():
+            if sh(f'lsusb | grep {VP_QUECTEL}') == 0:
+                main_test_gps_quectel()
+            else:
+                _per('no GPS quectel hardware detected')
+                time.sleep(3)
+        else:
+            _p('no-RPI: no test GPS quectel')
+            time.sleep(3)
+    except (Exception, ) as ex:
+        _per(f'exception cb_run_script_gps_test -> {ex}')
+        time.sleep(3)
 
 
 def cb_run_script_buttons_test():
-    from scripts.script_test_box_buttons import main_test_box_buttons
-    if is_rpi():
-        main_test_box_buttons()
-    else:
-        _p('no-RPI: no test box buttons')
+    try:
+        from scripts.script_test_box_buttons import main_test_box_buttons
+        if is_rpi():
+            main_test_box_buttons()
+        else:
+            _per('no-RPI: no test box buttons')
+            time.sleep(3)
+    except (Exception, ) as ex:
+        _per(f'exception cb_run_script_buttons_test -> {ex}')
+        time.sleep(3)
 
 
 def cb_provision_ddh():
@@ -192,20 +214,7 @@ def cb_toggle_flag_balena():
     unlink(p) if exists(p) else pathlib.Path(p).touch()
 
 
-def cb_set_boat_name():
-    a = input('enter boat name ->')
-    g_c['cfg']['behavior']['ship_name'] = a
-    cfg_save_to_file(g_c['cfg'])
-
-
-def cb_set_boat_gear_type():
-    a = None
-    while a not in ('0', '1'):
-        a = input('enter application gear type ->')
-    g_c['cfg']['behavior']['gear_type'] = a
-    cfg_save_to_file(g_c['cfg'])
-
-
+# contains errors in system check
 str_e = ''
 
 
@@ -216,7 +225,7 @@ def _run_check():
 
     def _e(s):
         global str_e
-        str_e += f'    - {s}\n'
+        str_e += f'     - {s}\n'
 
     def _check_fw_cell():
         c = "echo -ne 'AT+CVERSION\r' > /dev/ttyUSB2"
@@ -225,36 +234,41 @@ def _run_check():
         return sh(c) == 0
 
     def _check_aws_credentials():
-        f = g_c['cfg']['credentials']
+        f = g_cfg['credentials']
         for k, v in f.items():
             if not v:
                 _e(f'config.toml no credential {k}')
                 return 0
         return 1
 
+    # -----------------------------------------------------
     # issue: Raspberry Pi reference 2023-05-03
-    ok_issue = sh('cat /boot/issue.txt | grep 2023-05-03') == 0
     # arch: armv7l
-    ok_arch_armv7l = sh('arch | grep armv7l') == 0
-    # is_rpi3:  Model		: Raspberry Pi 3 Model B Plus Rev 1.3
-    is_rpi3 = sh("cat /proc/cpuinfo | grep 'aspberry Pi 3'") == 0
+    # is_rpi3: Raspberry Pi 3 Model B Plus Rev 1.3
     # hostname: raspberrypi
-    ok_hostname = sh('hostname | grep raspberrypi') == 0
     # hardware flags
+    # grep exact (-w) for 'active' detection
+    # dwservice
+    # -----------------------------------------------------
+    ok_issue = sh('cat /boot/issue.txt | grep 2023-05-03') == 0
+    ok_arch_armv7l = sh('arch | grep armv7l') == 0
+    is_rpi3 = sh("cat /proc/cpuinfo | grep 'aspberry Pi 3'") == 0
+    ok_hostname = sh('hostname | grep raspberrypi') == 0
     flag_gps_ext = sh(f'[ -f {LI_PATH_DDH_GPS_EXTERNAL} ]') == 0
     flag_vp_gps_puck1 = sh(f'lsusb | grep {VP_GPS_PUCK_1}') == 0
     flag_vp_gps_puck2 = sh(f'lsusb | grep {VP_GPS_PUCK_2}') == 0
+    flag_vp_quectel = sh(f'lsusb | grep {VP_QUECTEL}') == 0
     flag_mod_btuart = sh(f'md5sum /usr/bin/btuart | grep {MD5_MOD_BTUART}') == 0
-    flag_rbl_en = int(g_c['cfg']['flags']['rbl_en'])
+    flag_rbl_en = int(g_cfg['flags']['rbl_en'])
     ok_ble_v = sh('bluetoothctl -v | grep 5.66') == 0
-    # grep exact (-w)
     _c = 'systemctl is-active unit_switch_net.service | grep -w active'
     ok_service_cell_sw = sh(_c) == 0
     ok_fw_cell = _check_fw_cell()
     ok_internet_via_cell = sh('ping -I ppp0 www.google.com -c 1') == 0
-    # dwservice
     ok_dwservice = sh('ps -aux | grep dwagent') == 0
     ok_aws_cred = _check_aws_credentials()
+    ok_crontab_ddh = cb_get_crontab('ddh') == 1
+    ok_crontab_api = cb_get_crontab('api') == 1
 
     # -----------------
     # check conflicts
@@ -267,66 +281,71 @@ def _run_check():
         _e('no cell internet')
         rv += 1
     if not ok_dwservice:
-        _e(f'dws not running')
+        _e('dws not running')
         rv += 1
     if not ok_fw_cell:
-        _e(f'bad fw_cell')
+        _e('bad fw_cell')
         rv += 1
     if not ok_service_cell_sw:
-        _e(f'not running service_cell_sw')
+        _e('not running service_cell_sw')
     if not ok_ble_v != '5.66':
-        _e(f'bad bluez version')
+        _e('bad bluez version')
         rv += 1
     if not ok_issue:
-        _e(f'bad raspberryos file /boot/issue.txt')
+        _e('bad raspberryos file /boot/issue.txt')
         rv += 1
     if not ok_arch_armv7l:
-        _e(f'bad arch')
+        _e('bad arch')
         rv += 1
     if not ok_hostname:
-        _e(f'bad hostname')
+        _e('bad hostname')
         rv += 1
     if flag_gps_ext and not flag_vp_gps_puck1 and not flag_vp_gps_puck2:
-        _e(f'GPS external set but not detected')
+        _e('GPS external set but not detected')
         rv += 1
     if is_rpi3 and not flag_mod_btuart:
         _e(f'is_rpi3 {is_rpi3}, bad mod_uart')
         rv += 1
     if flag_rbl_en and not VP_RBL:
-        _e(f'rbl_en but not detected')
+        _e('rbl_en but not detected')
         rv += 1
+    if not ok_crontab_ddh:
+        _e('crontab DDH not set')
+    if not ok_crontab_api:
+        _e('crontab API not set')
+    if not (flag_vp_quectel or flag_vp_gps_puck1 or flag_vp_gps_puck2):
+        _e('no real GPS hardware present')
     return rv, str_e
 
 
 def main_ddc():
+
     while 1:
-        system('clear')
 
         # show summary
         rv, e = _run_check()
+        print('\nDDH system check:')
         if rv:
-            print(f'[ ER ] DDH is NOT ready, errors:')
+            _per(f'     [ ER ] DDH system NOT ready, see error list')
             print(str_e)
         else:
-            print(f'[ OK ] system check :)')
+            _pok(f'     [ OK ] DDH system ready')
 
         # obtain current flags
         menu_options = {
-            f"[ {g_c['fag']} ] toggle AWS s3 group": cb_toggle_aws_s3_group,
-            f"[ {g_c['fge']} ] toggle GPS external": cb_toggle_gps_external,
-            f"[ {g_c['fgd']} ] toggle GPS dummy": cb_toggle_gps_dummy,
-            f"[ {g_c['fgt']} ] toggle graph test mode": cb_toggle_graph_test_mode,
-            f"[ {g_c['fcd']} ] toggle crontab DDH": cb_toggle_crontab_ddh,
-            f"[ {g_c['fca']} ] toggle crontab API": cb_toggle_crontab_api,
-            f"| {g_c['bal']} | toggle flag balena": cb_toggle_flag_balena,
-            "DDH set boat info": cb_set_boat_name,
-            "DDH set boat gear": cb_set_boat_gear_type,
-            "DDH provision (caution)": cb_provision_ddh,
-            "DDH test GPS Quectel": cb_run_script_gps_test,
-            "DDH test buttons": cb_run_script_buttons_test,
-            "DDH kill application": cb_kill_ddh,
-            "DDH kill lxpanel": cb_kill_lxpanel,
-            "DDH message hello": cb_message_box,
+            f"[ {g_chk['fag']} ] is AWS s3 group": cb_toggle_aws_s3_group,
+            f"[ {g_chk['fge']} ] is GPS hardware puck": cb_toggle_gps_external,
+            f"[ {g_chk['fgd']} ] is GPS dummy": cb_toggle_gps_dummy,
+            f"[ {g_chk['agt']} ] is app gear trawling": cb_toggle_gear_type,
+            f"[ {g_chk['fgt']} ] is graph test mode": cb_toggle_graph_test_mode,
+            f"[ {g_chk['fcd']} ] is crontab DDH on": cb_toggle_crontab_ddh,
+            f"[ {g_chk['fca']} ] is crontab API on": cb_toggle_crontab_api,
+            f"| {g_chk['bal']} | is flag balena": cb_toggle_flag_balena,
+            "provision (caution)": cb_provision_ddh,
+            "test GPS Quectel": cb_run_script_gps_test,
+            "test box side buttons": cb_run_script_buttons_test,
+            "kill DDH application": cb_kill_ddh,
+            "say hi to desktop": cb_message_box,
             "quit": cb_quit,
         }
 
@@ -352,9 +371,16 @@ def main_ddc():
         if txt == 'quit':
             break
 
+        # some space to see answer
+        print('\n')
+
         p = multiprocessing.Process(target=chosen_cb)
         p.start()
         p.join()
+
+        # see results
+        os.system('clear')
+        # print('\n\n\n\n\n')
 
 
 if __name__ == '__main__':

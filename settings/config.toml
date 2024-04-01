@@ -8,34 +8,16 @@ cred_ddh_project_name = "kaz"
 cred_aws_custom_sqs_key_id = ""
 cred_aws_custom_sqs_access_key = ""
 
-
-
-# intended to be changed using DDH "edit tab"
 [behavior]
 ship_name = "nameofboat"
 forget_time = 36000
 gear_type = 0
-# range it considers a boat to be trawling
 moving_speed = [ 0.5, 7.0,]
-# works altogether w/ GPS_DUMMY_MODE_FILE
-# fake_gps_position = [ 11.0, -83.0,]
-
-fake_gps_position = [41.63, -70.91,]
-
-
-
+fake_gps_position = [ 41.63, -70.91,]
 
 [monitored_macs]
-# "mac" = "sn
-#"60:77:71:22:C8:49" = "do1_wo_rtc"
-# "D0:2E:AB:D9:E7:B3" = "2311735"
 "D0:2E:AB:D9:29:48" = "tdo_bread"
 
-
-
-
-
-# intended to be changed manually since are debug flags
 [flags]
 aws_en = 1
 sqs_en = 1
