@@ -67,6 +67,20 @@ def cb_get_crontab(s):
     return 1
 
 
+def cb_get_crontab_lxp():
+    s = f'crontab_lxp.sh'
+    # assume crontab off
+    cf = '/etc/crontab'
+    if sh(f'grep -q {s} {cf}'):
+        # line NOT even present
+        return 0
+    # line IS present, search for special character with 'F'
+    if sh(f"grep {s} {cf} | grep -F '#' > /dev/null") == 0:
+        return 0
+    # line IS present and uncommented
+    return 1
+
+
 def refresh_menu_options():
     return {
         # aws group
@@ -83,6 +97,8 @@ def refresh_menu_options():
         "fcd": 'yes' if cb_get_crontab('ddh') else 'not',
         # crontab api
         "fca": 'yes' if cb_get_crontab('api') else 'not',
+        # crontab lxp
+        "flx": 'yes' if cb_get_crontab('lxp') else 'not',
         # cloned with balena
         "bal": 'yes' if exists(FLAG_CLONED_BALENA) else 'not',
     }
@@ -194,6 +210,10 @@ def cb_toggle_crontab_api():
     return _cb_toggle_crontab('api')
 
 
+def cb_toggle_crontab_lxp():
+    return _cb_toggle_crontab('lxp')
+
+
 def cb_run_script_gps_test():
     try:
         from scripts.script_test_gps_quectel import main_test_gps_quectel
@@ -293,6 +313,7 @@ def _run_check():
     ok_aws_cred = _check_aws_credentials()
     ok_crontab_ddh = cb_get_crontab('ddh') == 1
     ok_crontab_api = cb_get_crontab('api') == 1
+    ok_crontab_lxp = cb_get_crontab_lxp() == 1
 
     # -----------------
     # check conflicts
@@ -365,6 +386,7 @@ def main_ddc():
             f"[ {g_chk['fgt']} ] is graph test mode": cb_toggle_graph_test_mode,
             f"[ {g_chk['fcd']} ] is crontab DDH on": cb_toggle_crontab_ddh,
             f"[ {g_chk['fca']} ] is crontab API on": cb_toggle_crontab_api,
+            f"[ {g_chk['flx']} ] is crontab LXP on": cb_toggle_crontab_lxp,
             f"| {g_chk['bal']} | is flag balena": cb_toggle_flag_balena,
             "provision (caution)": cb_provision_ddh,
             "test GPS Quectel": cb_run_script_gps_test,
