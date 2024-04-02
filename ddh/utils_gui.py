@@ -70,7 +70,7 @@ from utils.ddh_shared import (
     STATE_DDS_BLE_DOWNLOAD_ERROR_TP_SENSOR,
     ddh_get_db_history_file,
     STATE_DDS_BLE_NO_ASSIGNED_LOGGERS, get_ddh_commit,
-    get_ddh_rerun_flag_li, ddh_get_root_folder_path, STATE_DDS_BLE_CONNECTING,
+    get_ddh_rerun_flag_li, ddh_get_root_folder_path, STATE_DDS_BLE_CONNECTING, STATE_DDS_PRESSED_BUTTON_2,
 )
 from utils.logs import lg_gui as lg
 
@@ -509,6 +509,9 @@ def _gui_parse_udp(my_app, s, ip="127.0.0.1"):
         ct = "radio error"
         ci = "blue_err.png"
 
+    elif f == STATE_DDS_PRESSED_BUTTON_2:
+        a.keyPressEvent(ButtonPressEvent(Qt.Key_2))
+
     elif f == STATE_DDS_BLE_DISABLED:
         ct = "radio is disabled"
         ci = "blue_dis.png"
@@ -739,3 +742,12 @@ def gui_ddh_set_brightness(a):
     if nc == 1:
         nc = 0.5
     a.lbl_brightness_txt.setText(str(nc * 10) + "%")
+
+
+
+class ButtonPressEvent:
+    def __init__(self, code):
+        self.code = code
+
+    def key(self):
+        return self.code

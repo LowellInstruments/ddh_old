@@ -26,7 +26,7 @@ from utils.ddh_shared import (
     dds_get_ddh_got_an_update_flag_file,
     STATE_DDS_SOFTWARE_UPDATED,
     get_ddh_folder_path_macs_black, STATE_DDS_BLE_HARDWARE_ERROR, get_ddh_folder_path_tweak,
-    STATE_DDS_BLE_NO_ASSIGNED_LOGGERS,
+    STATE_DDS_BLE_NO_ASSIGNED_LOGGERS, STATE_DDS_PRESSED_BUTTON_2,
 )
 from utils.logs import lg_dds as lg
 import subprocess as sp
@@ -160,13 +160,13 @@ def _th_gpio_box_buttons():
         return
 
     def button1_pressed_cb():
-        print('b1')
+        pass
 
     def button2_pressed_cb():
-        print('b2')
+        _u(STATE_DDS_PRESSED_BUTTON_2)
 
     def button3_pressed_cb():
-        print('b3')
+        pass
 
     print('***************')
     b1 = Button(16, pull_up=True, bounce_time=0.1)

@@ -47,6 +47,9 @@ STATE_DDS_BLE_ERROR_RUN = "state_dds_ble_error_run"
 STATE_DDS_BLE_CONNECTING = 'state_dds_ble_connecting'
 
 
+STATE_DDS_PRESSED_BUTTON_2 = 'state_dds_pressed_button2'
+
+
 STATE_DDS_NOTIFY_NET_VIA = "net_via"
 STATE_DDS_NOTIFY_CLOUD_BUSY = "cloud_busy"
 STATE_DDS_NOTIFY_CLOUD_LOGIN = "cloud_login"
