@@ -217,6 +217,15 @@ async def ep_kill_ddh():
         # shorter name
         j = i.replace('main_', '')
         d[j] = s
+
+    # also kill any desktop terminal containing it
+    # pi 29327 ..... 0:00 x-terminal-emulator -e /home/pi/Desktop/DDH.sh"
+    rv = _sh(f'ps -aux | grep x-terminal-emulator | grep DDH')
+    if rv.returncode == 0:
+        s = rv.stdout.decode().split()
+        pid = s[1]
+        _sh(f'kill -9 {pid}')
+
     return d
 
 

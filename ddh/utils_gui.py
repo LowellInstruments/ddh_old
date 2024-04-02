@@ -744,7 +744,6 @@ def gui_ddh_set_brightness(a):
     a.lbl_brightness_txt.setText(str(nc * 10) + "%")
 
 
-
 class ButtonPressEvent:
     def __init__(self, code):
         self.code = code

@@ -168,7 +168,6 @@ def _th_gpio_box_buttons():
     def button3_pressed_cb():
         pass
 
-    print('***************')
     b1 = Button(16, pull_up=True, bounce_time=0.1)
     b2 = Button(20, pull_up=True, bounce_time=0.1)
     b3 = Button(21, pull_up=True, bounce_time=0.1)
