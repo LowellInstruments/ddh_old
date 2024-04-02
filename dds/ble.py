@@ -214,8 +214,6 @@ async def _ble_id_n_interact_logger(mac, info: str, h, g):
     except (Exception, ):
         # moana does not have this
         bat = 0
-    ln = LoggerNotification(mac, sn, info, bat)
-    _ble_analyze_logger_result(rv, g, ln, _crit_error)
 
     # -----------------------------------------------------------------
     # on OK and error, w/o this some external antennas don't scan again
@@ -230,12 +228,22 @@ async def _ble_id_n_interact_logger(mac, info: str, h, g):
     tz_utc = datetime.timezone.utc
     dt_local = dt.replace(tzinfo=tz_utc).astimezone(tz=tz_ddh)
 
+
+    # ------------------------------------------------
+    # ensure value for error_dl, not always populated
+    # ------------------------------------------------
+    if not _error_dl:
+        _error_dl = 'comm. error'
+    ln = LoggerNotification(mac, sn, info, bat)
+    _ble_analyze_logger_result(rv, g, ln, _crit_error)
+
     # ------------------------------------
     # so GUI can update its HISTORY tab
     # ------------------------------------
     ep_loc = int(dt_local.timestamp())
     ep_utc = int(dt.timestamp())
     e = 'ok' if not rv else _error_dl
+
     _u(f"{STATE_DDS_NOTIFY_HISTORY}/add&"
        f"{mac}&{e}&{lat}&{lon}&{ep_loc}&{ep_utc}")
 

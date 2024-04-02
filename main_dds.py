@@ -48,7 +48,7 @@ from mat.utils import linux_is_rpi
 from rpc.rpc_rx import th_srv_cmd
 from rpc.rpc_tx import th_cli_notify
 from utils.ddh_config import dds_check_cfg_has_box_info, \
-    dds_get_cfg_monitored_macs
+    dds_get_cfg_monitored_macs, dds_get_cfg_skip_in_port_en
 from utils.ddh_shared import (
     PID_FILE_DDS,
     dds_create_folder_dl_files,
@@ -173,7 +173,7 @@ def main_dds():
         det = ael.run_until_complete(ble_scan(*args))
 
         # download only in case "detected" is not empty
-        if dds_ask_in_port_to_ddn(g, dl=det):
+        if dds_get_cfg_skip_in_port_en() and dds_ask_in_port_to_ddn(g, dl=det):
             continue
 
         # BLE download stage

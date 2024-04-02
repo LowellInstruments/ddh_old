@@ -434,7 +434,7 @@ def _process_n_graph(a, r=''):
         tdo_graph_type = a.cb_g_switch_tp.currentText()
 
         # type of TDO plot 1/2: D (y1) & T (y2) vs time
-        if 'time' in tdo_graph_type:
+        if 'x-time' in tdo_graph_type:
             p1.setLabel("left", lbl1, **_sty(clr_1))
             p1.getAxis('right').setLabel(lbl2, **_sty(clr_2))
             # set any pressure value < 0 to 0
@@ -444,9 +444,13 @@ def _process_n_graph(a, r=''):
             p1.plot(x, y1, pen=pen1, hoverable=True)
             p2.addItem(pg.PlotCurveItem(x, y2, pen=pen2, hoverable=True))
 
-            # y-axis ranges, prevent negative depth values, bottom-axis label
-            p1.setYRange(0, max(y1) + _axis_room(y1), padding=0)
+            # left y inverted: 1st parameter y-up, 2nd y-low
+            # .1 prevents displaying negative pressure values
+            p1.setYRange(.1, max(y1), padding=0)
+            # right y not inverted: 1st parameter y-low, 2nd y-up
             p2.setYRange(min(y2), max(y2), padding=0)
+
+            # bottom-axis label
             p1.getAxis('bottom').setLabel(title, **_sty('black'))
 
             # ------------------------
@@ -499,7 +503,7 @@ def _process_n_graph(a, r=''):
                 p3.setYRange(0, max(y3), padding=0)
 
         # type of TDO plot 2/2: T vs D, draw lines
-        elif 'Temp' in tdo_graph_type:
+        elif 'x-Temp' in tdo_graph_type:
             p1.getAxis('left').setTextPen(clr_4)
             p1.setLabel("left", 'Depth (fathoms)' + ' ─', **_sty(clr_4))
 
@@ -507,15 +511,21 @@ def _process_n_graph(a, r=''):
             g.getPlotItem().hideAxis('right')
 
             # chop, this graph mess x-axis when outliers
-            ls_idx = _get_outliers_indexes(y2, 10, 90)
-            cy1 = [j for i, j in enumerate(y1) if i not in ls_idx]
-            cy2 = [j for i, j in enumerate(y2) if i not in ls_idx]
-            print(f'{len(cy1) / len(y1)}% of the points here')
+            # ls_idx = _get_outliers_indexes(y2, 10, 90)
+            # cy1 = [j for i, j in enumerate(y1) if i not in ls_idx]
+            # cy2 = [j for i, j in enumerate(y2) if i not in ls_idx]
+            # print(f'{len(cy1) / len(y1)}% of the points here')
             # in this case, x-ticks are T
-            p1.plot(x=cy2, y=cy1, pen=pen4, hoverable=True)
+            # p1.plot(x=cy2, y=cy1, pen=pen4, hoverable=True)
 
-            # y-axis range, prevent negative depth values, bottom axis label
-            p1.setYRange(0, max(y1) + _axis_room(y1), padding=0)
+            # don't modify
+            p1.plot(x=y2, y=y1, pen=pen4, hoverable=True)
+
+            # left y inverted: 1st parameter y-up, 2nd y-low
+            # .1 prevents displaying negative pressure values
+            p1.setYRange(.1, max(y1), padding=0)
+
+            # title and bottom axis
             title = f'Temperature (F) {title}'
             p1.getAxis('bottom').setLabel(title, **_sty('black'))
 

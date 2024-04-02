@@ -204,7 +204,7 @@ async def ble_scan(macs_mon, g, _h: int, _h_desc, t=6.0):
             # * 10 to be able to sleep 100 ms
             await asyncio.sleep(.1)
             if _g_ble_scan_early_leave:
-                lg.a(f"OK: fast scan for {_g_ble_scan_early_leave}")
+                # lg.a(f"OK: fast scan for {_g_ble_scan_early_leave}")
                 break
         await scanner.stop()
 

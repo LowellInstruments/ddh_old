@@ -125,11 +125,11 @@ def cb_kill_ddh():
     _p('sent kill signal to DDH software')
 
     # also kill any desktop terminal containing it
-    # pi 29327 ..... 0:00 x-terminal-emulator -e /home/pi/Desktop/DDH.sh"
+    # pi 29327 ..... 0:00 x-terminal-emulator -e /home/pi/Desktop/DDH.sh
     rv, s = sho(f'ps -aux | grep x-terminal-emulator | grep DDH')
     if rv == 0:
+        _p('sent kill signal to x-terminal containing DDH')
         s = s.decode().split()
-        print(s)
         pid = s[1]
         sh(f'kill -9 {pid}')
 

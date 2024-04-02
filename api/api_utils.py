@@ -19,11 +19,10 @@ def _sh(c):
         e = ''
         e += '----------------\n'
         e += f'{datetime.datetime.now()}\n'
-        e += f'api shell {CTT_API_ER} for command {c}\n'
-        e += '----------------\n'
-        e += f'    returncode {rv.returncode}\n'
+        e += f'command {c} returned {rv.returncode}\n'
         e += f'    stdout     {rv.stdout.decode()}\n'
         e += f'    stderr     {rv.stderr.decode()}\n'
+        e += '----------------\n'
         print(e)
         with open('/tmp/debug_api.txt', 'a') as f:
             f.write(e)

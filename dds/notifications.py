@@ -206,9 +206,7 @@ def notify_ddh_needs_sw_update(g):
 
 
 def notify_via_sms(s):
-    return _n(DDH_NOTIFICATION_SMS,
-              g='', mac='', v=2,
-              extra=s)
+    return _n(DDH_NOTIFICATION_SMS, g='', ln=None, v=2, extra=s)
 
 
 if __name__ == '__main__':

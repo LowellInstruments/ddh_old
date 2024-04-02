@@ -47,3 +47,4 @@ TMP_PATH_DDH_APP_OVERRIDE = "/tmp/ddh_app_override_file.flag"
 d = '/home/pi/li/' if _is_rpi() else '/tmp'
 LI_PATH_DDH_GPS_EXTERNAL = f'{d}/.ddt_gps_external.flag'
 LI_PATH_GROUPED_S3_FILE_FLAG = f'{d}/.ddt_this_box_has_grouped_s3_uplink.flag'
+LI_PATH_SKIP_IN_PORT_FILE_FLAG = f'{d}/.ddt_this_box_skips_download_when_in_port.flag'

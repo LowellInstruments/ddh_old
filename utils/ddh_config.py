@@ -1,7 +1,7 @@
 import toml
 import os
 
-from utils.tmp_paths import TMP_PATH_GRAPH_TEST_MODE_JSON, LI_PATH_DDH_GPS_EXTERNAL
+from utils.tmp_paths import TMP_PATH_GRAPH_TEST_MODE_JSON, LI_PATH_DDH_GPS_EXTERNAL, LI_PATH_SKIP_IN_PORT_FILE_FLAG
 
 
 def _get_relative_config_file_path():
@@ -56,6 +56,11 @@ def dds_get_cfg_vessel_name():
 
 def dds_get_cfg_aws_en():
     return cfg['flags']['aws_en']
+
+
+def dds_get_cfg_skip_in_port_en():
+    # todo ---> put this in EDIT tab
+    return cfg['flags']['skip_dl_in_port_en']
 
 
 def dds_get_cfg_flag_graph_test_mode():
