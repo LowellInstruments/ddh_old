@@ -21,7 +21,6 @@ from ddh.utils_gui import (
     gui_setup_view,
     gui_setup_buttons,
     gui_center_window,
-    gui_setup_buttons_rpi,
     gui_dict_from_list_view,
     gui_show_edit_tab,
     gui_json_get_forget_time_secs,
@@ -78,7 +77,6 @@ class DDH(QMainWindow, d_m.Ui_MainWindow):
         gui_setup_view(self)
         gui_setup_buttons(self)
         gui_center_window(self)
-        gui_setup_buttons_rpi(self)
 
         # ------------------------
         # you want GUI logs or not
@@ -487,15 +485,14 @@ class DDH(QMainWindow, d_m.Ui_MainWindow):
             lg.a("warning: unknown keypress {}".format(ev.key()))
             return
 
-        # -----------------------
-        # identify key pressed
-        # -----------------------
+        # ------------------------------
+        # identify keyboard key pressed
+        # ------------------------------
         if ev.key() == Qt.Key_1:
             lg.a("debug: main_gui detect pressed button 1")
 
         elif ev.key() == Qt.Key_2:
             lg.a("debug: main_gui detect pressed button 2")
-            # button to request deletion of all black macs
             gui_show_note_tab_delete_black_macs(self)
             return
 

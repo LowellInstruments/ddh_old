@@ -397,34 +397,6 @@ def gui_dict_from_list_view(l_v):
     return d
 
 
-def gui_setup_buttons_rpi(my_app):
-    """link raspberry buttons with callback functions"""
-
-    a = my_app
-    if not linux_is_rpi():
-        # no box buttons so bye
-        return
-
-    def button1_pressed_cb():
-        lg.a("debug: low-level utils_gui detect pressed button 1")
-        a.keyPressEvent(ButtonPressEvent(Qt.Key_1))
-
-    def button2_pressed_cb():
-        lg.a("debug: low-level utils_gui detect pressed button 2")
-        a.keyPressEvent(ButtonPressEvent(Qt.Key_2))
-
-    def button3_pressed_cb():
-        lg.a("debug: low-level utils_gui detect pressed button 3")
-        a.keyPressEvent(ButtonPressEvent(Qt.Key_3))
-
-    a.button1 = Button(16, pull_up=True, bounce_time=0.05)
-    a.button2 = Button(20, pull_up=True, bounce_time=0.05)
-    a.button3 = Button(21, pull_up=True, bounce_time=0.05)
-    a.button1.when_pressed = button1_pressed_cb
-    a.button2.when_pressed = button2_pressed_cb
-    a.button3.when_pressed = button3_pressed_cb
-
-
 def gui_add_to_history_database(mac, e, lat, lon, ep_loc, ep_utc):
     sn = dds_get_cfg_logger_sn_from_mac(mac)
     db = DBHis(ddh_get_db_history_file())
@@ -767,11 +739,3 @@ def gui_ddh_set_brightness(a):
     if nc == 1:
         nc = 0.5
     a.lbl_brightness_txt.setText(str(nc * 10) + "%")
-
-
-class ButtonPressEvent:
-    def __init__(self, code):
-        self.code = code
-
-    def key(self):
-        return self.code

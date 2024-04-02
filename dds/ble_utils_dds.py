@@ -3,6 +3,10 @@ import os
 import pathlib
 import shutil
 import time
+import threading
+from signal import pause
+
+from gpiozero import Button
 
 from dds.gps import gps_simulate_boat_speed
 from dds.macs import dds_create_folder_macs_color
@@ -149,6 +153,35 @@ def ble_check_antenna_up_n_running(g, h: int):
     if its_time_to(e, 600):
         lg.a(e.format(e))
         notify_ddh_error_hw_ble(g)
+
+
+def _th_gpio_box_buttons():
+    if not linux_is_rpi():
+        return
+
+    def button1_pressed_cb():
+        print('b1')
+
+    def button2_pressed_cb():
+        print('b2')
+
+    def button3_pressed_cb():
+        print('b3')
+
+    print('***************')
+    b1 = Button(16, pull_up=True, bounce_time=0.1)
+    b2 = Button(20, pull_up=True, bounce_time=0.1)
+    b3 = Button(21, pull_up=True, bounce_time=0.1)
+    b1.when_pressed = button1_pressed_cb
+    b2.when_pressed = button2_pressed_cb
+    b3.when_pressed = button3_pressed_cb
+
+    pause()
+
+
+def dds_create_buttons_thread():
+    bth = threading.Thread(target=_th_gpio_box_buttons)
+    bth.start()
 
 
 def dds_tell_software_update():

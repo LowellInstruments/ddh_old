@@ -36,7 +36,7 @@ from dds.ble_utils_dds import (
     ble_show_monitored_macs,
     ble_op_conditions_met,
     ble_tell_gui_antenna_type,
-    ble_check_antenna_up_n_running, dds_tell_software_update, dds_check_bluez_version,
+    ble_check_antenna_up_n_running, dds_tell_software_update, dds_check_bluez_version, dds_create_buttons_thread,
 )
 from dds.timecache import its_time_to
 from mat.linux import linux_app_write_pid_to_tmp, linux_is_process_running
@@ -68,6 +68,7 @@ import setproctitle
 
 def main_dds():
 
+    dds_create_buttons_thread()
     dds_tell_software_update()
     dds_check_cfg_has_box_info()
     dds_ensure_proper_working_folder()
