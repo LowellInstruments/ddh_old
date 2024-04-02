@@ -55,6 +55,11 @@ def sh(c):
     return rv.returncode
 
 
+def sho(c):
+    rv = sp.run(c, shell=True, stdout=sp.PIPE, stderr=sp.PIPE)
+    return rv.returncode, rv.stdout
+
+
 def is_rpi():
     return sh('cat /proc/cpuinfo | grep aspberry') == 0
 
@@ -121,10 +126,9 @@ def cb_kill_ddh():
 
     # also kill any desktop terminal containing it
     # pi 29327 ..... 0:00 x-terminal-emulator -e /home/pi/Desktop/DDH.sh"
-    rv = sh(f'ps -aux | grep x-terminal-emulator | grep DDH')
-    print('rv', rv)
-    if rv.returncode == 0:
-        s = rv.stdout.decode().split()
+    rv, s = sho(f'ps -aux | grep x-terminal-emulator | grep DDH')
+    if rv == 0:
+        s = s.decode().split()
         print(s)
         pid = s[1]
         sh(f'kill -9 {pid}')
