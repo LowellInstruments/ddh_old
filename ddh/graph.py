@@ -25,8 +25,11 @@ pg.setConfigOption('leftButtonPan', False)
 # plot objects
 p1 = None
 p2 = None
-p3 = None
 just_booted = True
+
+# this one is dynamic so it needs a backup
+p3 = None
+p3_bak = None
 
 
 class GraphException(Exception):
@@ -281,12 +284,21 @@ def _process_n_graph(a, r=''):
     # ---------
     # 3rd line
     # ---------
-    p3 = pg.ViewBox()
-    ax3 = pg.AxisItem('right')
-    p1.scene().addItem(p3)
-    ax3.linkToView(p3)
-    p3.setXLink(p1)
-    ax3.setZValue(-10000)
+    tdo_graph_type = a.cb_g_switch_tp.currentText()
+    print('************', tdo_graph_type)
+    if 'x-time' in tdo_graph_type:
+        p3 = pg.ViewBox()
+        ax3 = pg.AxisItem('right')
+        p1.scene().addItem(p3)
+        ax3.linkToView(p3)
+        p3.setXLink(p1)
+        ax3.setZValue(-10000)
+        # so we can remove it later
+        global p3_bak
+        p3_bak = ax3
+    else:
+        p3_bak.setStyle(showValues=False)
+        p1.scene().removeItem(p3_bak)
 
     # connect the thing when resizing
     _graph_update_views()
@@ -502,13 +514,18 @@ def _process_n_graph(a, r=''):
                 # range
                 p3.setYRange(0, max(y3), padding=0)
 
-        # type of TDO plot 2/2: T vs D, draw lines
+        # type of TDO plot 2/2: T (y2) / D (y1) vs time
         elif 'x-Temp' in tdo_graph_type:
             p1.getAxis('left').setTextPen(clr_4)
             p1.setLabel("left", 'Depth (fathoms)' + ' ─', **_sty(clr_4))
 
             # remove whole right axis
             g.getPlotItem().hideAxis('right')
+
+            # set any pressure value < 0 to 0
+            arr = np.array(y1)
+            arr[arr < 0] = 0
+            y1 = list(arr)
 
             # chop, this graph mess x-axis when outliers
             # ls_idx = _get_outliers_indexes(y2, 10, 90)
