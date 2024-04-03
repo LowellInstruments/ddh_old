@@ -15,7 +15,7 @@ from utils.ddh_config import cfg_load_from_file, cfg_save_to_file
 from utils.tmp_paths import (
     LI_PATH_GROUPED_S3_FILE_FLAG,
     LI_PATH_DDH_GPS_EXTERNAL,
-    TMP_PATH_GPS_DUMMY, TMP_PATH_GRAPH_TEST_MODE_JSON)
+    TMP_PATH_GPS_DUMMY, TMP_PATH_GRAPH_TEST_MODE_JSON, DDH_USES_SHIELD_JUICE4HALT, DDH_USES_SHIELD_SAILOR)
 
 
 VP_RBL = '0403:6001'
@@ -99,6 +99,10 @@ def refresh_menu_options():
         "flx": 'yes' if cb_get_crontab('lxp') else 'not',
         # cloned with balena
         "bal": 'yes' if exists(FLAG_CLONED_BALENA) else 'not',
+        # uses shield for power juice_4_halt
+        "j4h": 'yes' if exists(DDH_USES_SHIELD_JUICE4HALT) else 'not',
+        # uses shield for power sailor
+        "sai": 'yes' if exists(DDH_USES_SHIELD_SAILOR) else 'not',
     }
 
 
@@ -266,6 +270,15 @@ def cb_toggle_flag_balena():
     unlink(p) if exists(p) else pathlib.Path(p).touch()
 
 
+def cb_see_flag_j4h():
+    return sh(f'ls {DDH_USES_SHIELD_JUICE4HALT}') == 0
+
+
+def cb_see_flag_sailor():
+    # todo ---> soon
+    return 0
+
+
 # contains errors in system check
 str_e = ''
 str_w = ''
@@ -333,6 +346,8 @@ def _run_check():
     ok_crontab_ddh = cb_get_crontab('ddh') == 1
     ok_crontab_api = cb_get_crontab('api') == 1
     ok_crontab_lxp = cb_get_crontab('lxp') == 1
+    ok_shield_j4h = cb_see_flag_j4h() == 1
+    ok_shield_sailor = cb_see_flag_sailor() == 1
 
     # -----------------
     # check conflicts
@@ -341,6 +356,8 @@ def _run_check():
     if not ok_aws_cred:
         # error indicated inside other function
         rv += 1
+    if not ok_shield_j4h and not ok_shield_sailor:
+        _w('none of the 2 supported power shields detected')
     if not ok_internet_via_cell:
         _e('no cell internet')
         rv += 1
@@ -412,6 +429,8 @@ def main_ddc():
             f"[ {g_chk['fca']} ] is crontab API on": cb_toggle_crontab_api,
             f"[ {g_chk['flx']} ] is crontab LXP on": cb_toggle_crontab_lxp,
             f"| {g_chk['bal']} | is flag balena": cb_toggle_flag_balena,
+            f"| {g_chk['j4h']} | is j4h_shield": cb_see_flag_j4h,
+            f"| {g_chk['j4h']} | is j4h_shield": cb_see_flag_sailor,
             "provision (caution)": cb_provision_ddh,
             "test GPS Quectel": cb_run_script_gps_test,
             "test box side buttons": cb_run_script_buttons_test,
