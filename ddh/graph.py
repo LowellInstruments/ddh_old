@@ -334,8 +334,10 @@ def _process_n_graph(a, r=''):
     t1 = datetime.fromtimestamp(x[0]).strftime(fmt)
     t2 = datetime.fromtimestamp(x[-1]).strftime(fmt)
     title = '{} to {}'.format(t1, t2)
-    if data['pruned']:
-        title += ' (data trimmed)'
+
+    # removed on Apr 3 2024
+    # if data['pruned']:
+    #     title += ' (data trimmed)'
 
     # --------------
     # metric labels
