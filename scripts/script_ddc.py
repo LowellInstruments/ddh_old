@@ -337,7 +337,8 @@ def _run_check():
     # grep exact (-w) for 'active' detection
     # dwservice
     # -----------------------------------------------------
-    ok_issue = sh('cat /boot/issue.txt | grep 2023-05-03') == 0
+    ok_issue_20230503 = sh('cat /boot/issue.txt | grep 2023-05-03') == 0
+    ok_issue_20220922 = sh('cat /boot/issue.txt | grep 2022-09-22') == 0
     ok_arch_armv7l = sh('arch | grep armv7l') == 0
     is_rpi3 = sh("cat /proc/cpuinfo | grep 'aspberry Pi 3'") == 0
     ok_hostname = sh('hostname | grep raspberrypi') == 0
@@ -383,7 +384,7 @@ def _run_check():
     if not ok_ble_v != '5.66':
         _e('bad bluez version')
         rv += 1
-    if not ok_issue:
+    if not ok_issue_20230503 and not ok_issue_20220922:
         _e('bad raspberryos file /boot/issue.txt')
         rv += 1
     if not ok_arch_armv7l:
@@ -437,8 +438,8 @@ def main_ddc():
             f"[ {g_chk['agt']} ] is app gear trawling": cb_toggle_gear_type,
             f"[ {g_chk['fgt']} ] is graph test mode": cb_toggle_graph_test_mode,
             f"[ {g_chk['fcd']} ] is crontab DDH on": cb_toggle_crontab_ddh,
-            f"[ {g_chk['fca']} ] is crontab API on": cb_toggle_crontab_api,
-            f"[ {g_chk['flx']} ] is crontab LXP on": cb_toggle_crontab_lxp,
+            # f"[ {g_chk['fca']} ] is crontab API on": cb_toggle_crontab_api,
+            # f"[ {g_chk['flx']} ] is crontab LXP on": cb_toggle_crontab_lxp,
             f"| {g_chk['bal']} | is flag balena": cb_toggle_flag_balena,
             f"| {g_chk['j4h']} | is j4h_shield": cb_see_flag_j4h,
             f"| {g_chk['sai']} | is sailor_shield": cb_see_flag_sailor,
