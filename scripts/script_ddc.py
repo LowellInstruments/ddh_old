@@ -441,14 +441,14 @@ def main_ddc():
             f"[ {g_chk['flx']} ] is crontab LXP on": cb_toggle_crontab_lxp,
             f"| {g_chk['bal']} | is flag balena": cb_toggle_flag_balena,
             f"| {g_chk['j4h']} | is j4h_shield": cb_see_flag_j4h,
-            f"| {g_chk['j4h']} | is j4h_shield": cb_see_flag_sailor,
+            f"| {g_chk['sai']} | is sailor_shield": cb_see_flag_sailor,
             "provision (caution)": cb_provision_ddh,
             "test GPS Quectel": cb_run_script_gps_test,
             "test box side buttons": cb_run_script_buttons_test,
             "kill DDH application": cb_kill_ddh,
             "calibrate DDH display": cb_calibrate_display,
             "say hi to desktop": cb_message_box,
-            "run script logger oxygen deploy": cb_run_script_dox_test(),
+            "run script logger oxygen deploy": cb_run_script_dox_test,
             "quit": cb_quit,
         }
 
