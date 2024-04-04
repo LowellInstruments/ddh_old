@@ -11,12 +11,12 @@ from scripts.script_logger_do_deploy_utils import (
     set_script_cfg_file,
     deploy_logger,
     get_script_cfg_file,
-    ble_scan,
+    ble_scan, _r,
 )
 
 
 # don't move this from here
-FILE_ALL_MACS_TOML = '/home/pi/li/ddh/settings/all_macs.toml'
+FILE_ALL_MACS_TOML = f'{_r}/settings/all_macs.toml'
 
 
 # ---------------------------------
@@ -50,14 +50,6 @@ def _screen_separation():
 
 def _menu_get():
     return input("\t-> ")
-
-
-def _check_cwd():
-    _print_cwd()
-    if not os.getcwd().endswith("scripts"):
-        e = "--> current working directory must be folder containing this script"
-        print(e)
-        assert False
 
 
 def _list_all_macs_file_content():
@@ -107,7 +99,7 @@ def _menu_build(_sr: dict, n: int):
 def _menu_display(d: dict, cfg: dict):
     print("scan done!")
     print("\nchoose an option:")
-    print("\ts) scan for macs nearby")
+    print("\ts) scan for loggers nearby")
     print("\tl) list monitored macs in config.toml file")
     print("\tr) toggle RUN flag, current value is {}".format(g_flag_run))
     print("\ti) set DO interval, current value is {}".format(cfg["DRI"]))
@@ -218,7 +210,6 @@ def _menu_execute(_m, _c, cfg):
 
 def main_logger_do_deploy():
     _screen_clear()
-    _check_cwd()
 
     while True:
         cfg = get_script_cfg_file()

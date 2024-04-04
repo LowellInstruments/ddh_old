@@ -1,13 +1,27 @@
 import asyncio
 import json
+import pathlib
+from pathlib import Path
+
 from bleak import BleakScanner, BleakError
 from bleak.backends.device import BLEDevice
 from mat.ble.bleak.cc26x2r import BleCC26X2
-from mat.utils import PrintColors as PC
-
+from mat.utils import PrintColors as PC, linux_is_rpi
 
 lc = BleCC26X2("hci0", dbg_ans=True)
 
+
+# this works always: at ddh root level, or scripts directory level
+def ddh_get_root_folder_path() -> Path:
+    p = pathlib.Path.home()
+    if linux_is_rpi():
+        p = str(p) + '/li/ddh'
+    else:
+        p = str(p) + '/PycharmProjects/ddh'
+    return Path(p)
+
+
+_r = ddh_get_root_folder_path()
 
 def _e(_rv, s):
     if _rv:
@@ -17,12 +31,14 @@ def _e(_rv, s):
 
 def get_script_cfg_file():
     # here it is OK to crash to detect valid json files
-    with open("script_logger_do_deploy_cfg.json") as f:
+    p = f"{_r}/scripts/script_logger_do_deploy_cfg.json"
+    with open(p) as f:
         return json.load(f)
 
 
 def set_script_cfg_file(cfg_d: dict):
-    with open("script_logger_do_deploy_cfg.json", "w") as f:
+    p = f"{_r}/scripts/script_logger_do_deploy_cfg.json"
+    with open(p, "w") as f:
         return json.dump(cfg_d, f)
 
 
