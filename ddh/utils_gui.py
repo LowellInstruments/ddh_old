@@ -71,6 +71,7 @@ from utils.ddh_shared import (
     ddh_get_db_history_file,
     STATE_DDS_BLE_NO_ASSIGNED_LOGGERS, get_ddh_commit,
     get_ddh_rerun_flag_li, ddh_get_root_folder_path, STATE_DDS_BLE_CONNECTING, STATE_DDS_PRESSED_BUTTON_2,
+    get_ddh_sw_version,
 )
 from utils.logs import lg_gui as lg
 
@@ -127,8 +128,9 @@ def gui_setup_view(my_win):
     # load default values for edit tab
     a.btn_load_current.animateClick()
 
-    # load git commit display
-    dc = "version: {}".format(get_ddh_commit())
+    # load git commit display or version
+    # dc = "version: {}".format(get_ddh_commit())
+    dc = f"version: {get_ddh_sw_version()}"
     a.lbl_commit.setText(dc)
 
     # checkboxes rerun flag
