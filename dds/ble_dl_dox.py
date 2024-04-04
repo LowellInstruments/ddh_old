@@ -158,6 +158,7 @@ class BleCC26X2Download:
             dds_create_file_lef(g, name)
 
         # format file-system, o/w DO-1 loggers (NAND mem) get slower
+        await asyncio.sleep(.1)
         rv = await lc.cmd_frm()
         _rae(rv, "frm")
         lg.a("FRM | OK")

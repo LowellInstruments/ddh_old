@@ -160,6 +160,7 @@ class BleTDODownload:
             dds_create_file_lef(g, name)
 
         # format file-system
+        await asyncio.sleep(.1)
         rv = await lc.cmd_frm()
         _rae(rv, "frm")
         lg.a("FRM | OK")
