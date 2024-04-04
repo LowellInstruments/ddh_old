@@ -310,8 +310,6 @@ def gui_hide_edit_tab(ui):
 
 
 def gui_hide_map_tab(ui):
-    if ddh_get_cfg_maps_en():
-        return
     p = ui.tabs.findChild(QWidget, "tab_map")
     i = ui.tabs.indexOf(p)
     ui.tab_map_wgt_ref = ui.tabs.widget(i)
@@ -661,7 +659,8 @@ def gui_timer_fxn(my_app):
     a = my_app
 
     # update the maps tab, prevent freeze at boot
-    if _calc_app_uptime() > 10 and\
+    if ddh_get_cfg_maps_en() and\
+            _calc_app_uptime() > 10 and\
             its_time_to('update_maps_tab', 3600):
         gui_populate_maps_tab(a)
 

@@ -45,7 +45,7 @@ from rpc.rpc_rx import th_srv_notify
 from rpc.rpc_tx import th_cli_cmd
 from utils.ddh_config import (dds_get_cfg_vessel_name, dds_get_cfg_logger_mac_from_sn,
                               ddh_get_cfg_gear_type, cfg_load_from_file, dds_get_cfg_flag_ble_en,
-                              cfg_save_to_file, dds_get_cfg_monitored_pairs)
+                              cfg_save_to_file, dds_get_cfg_monitored_pairs, ddh_get_cfg_maps_en)
 from utils.ddh_shared import (
     get_ddh_folder_path_dl_files,
     ddh_get_gui_closed_flag_file,
@@ -104,7 +104,6 @@ class DDH(QMainWindow, d_m.Ui_MainWindow):
         self.lbl_net_pressed = 0
         self.gif_map = None
 
-        gui_hide_map_tab(self)
         gui_hide_edit_tab(self)
         gui_hide_advanced_tab(self)
         gui_hide_note_tab(self)
@@ -112,6 +111,10 @@ class DDH(QMainWindow, d_m.Ui_MainWindow):
         gui_ddh_set_brightness(self)
         gui_ddh_populate_note_tab_dropdown(self)
         gui_ddh_populate_graph_dropdown_sn(self)
+
+        # maps tab
+        if not ddh_get_cfg_maps_en():
+            gui_hide_map_tab(self)
 
         # s3 uplink type field
         if this_box_has_grouped_s3_uplink():
