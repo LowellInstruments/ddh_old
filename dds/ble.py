@@ -57,11 +57,10 @@ def _ble_tell_logger_seen(mac, _b, _o):
 def _ble_convert_lid(ls_lid):
     for f in ls_lid:
         # f: absolute file path ending in .lid
-        if id_lid_file_flavor(f) != LID_FILE_V2:
-            continue
-        lg.a(f"after download converting LID file v2 {f}")
+        n = id_lid_file_flavor(f)
+        lg.a(f"after download converting LID file v{n} {f}")
         convert_lix_file(f)
-        lg.a(f"OK: after download converted LID file v2 {f}")
+        lg.a(f"OK: after download converted LID file v{n} {f}")
 
 
 def _ble_analyze_logger_result(rv, g, ln: LoggerNotification, err_critical):
