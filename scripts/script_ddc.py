@@ -256,6 +256,16 @@ def cb_run_script_buttons_test():
         _tdr()
 
 
+def cb_run_script_dox_test():
+    try:
+        from scripts.script_logger_do_deploy import main_logger_do_deploy
+        main_logger_do_deploy()
+        _tdr()
+    except (Exception, ) as ex:
+        _per(f'exception cb_run_script_dox_test -> {ex}')
+        _tdr()
+
+
 def cb_provision_ddh():
     get_provision_ddh()
 
@@ -437,6 +447,7 @@ def main_ddc():
             "kill DDH application": cb_kill_ddh,
             "calibrate DDH display": cb_calibrate_display,
             "say hi to desktop": cb_message_box,
+            "run script logger oxygen deploy": cb_run_script_dox_test(),
             "quit": cb_quit,
         }
 
