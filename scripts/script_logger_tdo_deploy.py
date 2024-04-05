@@ -17,7 +17,7 @@ from script_logger_tdo_deploy_utils import (
 
 
 # don't move this from here
-FILE_ALL_MACS_TOML = f'all_macs.toml'
+FILE_ALL_MACS_TOML = f'../settings/all_macs.toml'
 
 
 # ---------------------------------
@@ -202,6 +202,7 @@ def main_logger_tdo_deploy():
         sr = ael.run_until_complete(ble_scan_for_tdo_loggers())
 
         print('hello')
+        time.sleep(3)
 
         m = _menu_build(sr, 10)
         print('a')
