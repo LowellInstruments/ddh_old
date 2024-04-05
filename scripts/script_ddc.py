@@ -443,7 +443,7 @@ def main_ddc():
         # show summary
         rv, e, w = _run_check()
         print(f'\n  DDH Time zone = {get_local_timezone()}')
-        print('  DDH automatic check:')
+        print('  DDH automatic check:\n')
         if rv:
             _per(f'  [ ER ] system NOT ready, see errors:')
             _per(str_e)
