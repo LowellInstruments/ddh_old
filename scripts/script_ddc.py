@@ -509,7 +509,9 @@ def main_ddc():
 
         # see results
         if is_rpi():
-            os.system('clear')
+            # os.system('clear')
+            print('\n\n\n\n\n')
+
         else:
             print('\n\n\n\n\n')
 
