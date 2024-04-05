@@ -10,12 +10,12 @@ import toml
 from mat.utils import PrintColors as PC
 from script_logger_tdo_deploy_utils import (
     deploy_logger_tdo,
-    _r, ble_scan_for_tdo_loggers,
+    ble_scan_for_tdo_loggers,
 )
 
 
 # don't move this from here
-FILE_ALL_MACS_TOML = f'{_r}/settings/all_macs.toml'
+FILE_ALL_MACS_TOML = f'settings/all_macs.toml'
 
 
 # ---------------------------------

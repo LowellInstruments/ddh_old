@@ -12,12 +12,12 @@ from script_logger_dox_deploy_utils import (
     set_script_cfg_file,
     deploy_logger_dox,
     get_script_cfg_file,
-    _r, ble_scan_for_dox_loggers,
+    ble_scan_for_dox_loggers,
 )
 
 
 # don't move this from here
-FILE_ALL_MACS_TOML = f'{_r}/settings/all_macs.toml'
+FILE_ALL_MACS_TOML = f'settings/all_macs.toml'
 
 
 # ---------------------------------
