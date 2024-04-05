@@ -27,6 +27,10 @@ FLAG_CLONED_BALENA = '/home/pi/.ddh_cloned_w_balena'
 MD5_MOD_BTUART = '95da1d6d0bea327aa5426b7f90303778'
 
 
+# cwd is ddh here
+path_script_do = 'scripts/run_script_logger_do_deploy.sh'
+
+
 def _p(s):
     print(s)
 
@@ -233,8 +237,7 @@ def cb_run_script_buttons_test():
 def cb_run_script_dox_test():
     try:
         # do this or this script's prompts fail
-        print(os.getcwd())
-        sp.run('./run_script_logger_do_deploy.sh')
+        sp.run(path_script_do)
         _tdr()
     except (Exception, ) as ex:
         _per(f'exception cb_run_script_dox_test -> {ex}')
