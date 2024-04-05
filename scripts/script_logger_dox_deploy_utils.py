@@ -4,12 +4,8 @@ from bleak import BleakScanner, BleakError
 from bleak.backends.device import BLEDevice
 from mat.ble.bleak.cc26x2r import BleCC26X2
 from mat.utils import PrintColors as PC
-from utils.ddh_shared import ddh_get_root_folder_path
 
 lc = BleCC26X2("hci0", dbg_ans=True)
-
-
-_r = ddh_get_root_folder_path()
 
 
 def _e(_rv, s):
@@ -19,14 +15,14 @@ def _e(_rv, s):
 
 
 def get_script_cfg_file():
-    # here it is OK to crash to detect valid json files
-    p = f"{_r}/scripts/script_logger_dox_deploy_cfg.json"
+    # here it is OK to crash to detect bad json files
+    p = f"scripts/script_logger_dox_deploy_cfg.json"
     with open(p) as f:
         return json.load(f)
 
 
 def set_script_cfg_file(cfg_d: dict):
-    p = f"{_r}/scripts/script_logger_dox_deploy_cfg.json"
+    p = f"scripts/script_logger_dox_deploy_cfg.json"
     with open(p, "w") as f:
         return json.dump(cfg_d, f)
 
