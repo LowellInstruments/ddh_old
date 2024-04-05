@@ -201,15 +201,8 @@ def main_logger_tdo_deploy():
         # --------------
         sr = ael.run_until_complete(ble_scan_for_tdo_loggers())
 
-        print('hello')
-        time.sleep(3)
-
         m = _menu_build(sr, 10)
-        print('a')
-        time.sleep(3)
         _menu_display(m)
-        print('b')
-        time.sleep(3)
         c = _menu_get()
         print('c')
         time.sleep(3)
