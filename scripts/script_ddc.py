@@ -234,7 +234,7 @@ def cb_run_script_buttons_test():
         _per(f'exception cb_run_script_buttons_test -> {ex}')
         _tdr()
     finally:
-        time.sleep(5)
+        time.sleep(1)
 
 
 def cb_run_script_deploy_dox():
@@ -245,7 +245,7 @@ def cb_run_script_deploy_dox():
         _per(f'exception cb_run_script_dox_test -> {ex}')
         _tdr()
     finally:
-        time.sleep(5)
+        time.sleep(1)
 
 
 def cb_run_script_deploy_tdo():
