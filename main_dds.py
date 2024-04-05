@@ -88,9 +88,6 @@ def main_dds():
     ble_mat_disconnect_all_devices_ll()
     ble_mat_bluetoothctl_power_cycle()
 
-    # detecting and selecting Bluetooth antenna
-    h, h_d = ble_mat_get_antenna_type_v2()
-
     # seems boot process is going well
     setproctitle.setproctitle(NAME_EXE_DDS)
     linux_app_write_pid_to_tmp(PID_FILE_DDS)
@@ -119,6 +116,10 @@ def main_dds():
             if gps_clock_sync_if_so(tg):
                 break
         time.sleep(1)
+
+    # detecting and selecting Bluetooth antenna
+    # leave this here so BLE has time to get up
+    h, h_d = ble_mat_get_antenna_type_v2()
 
     if notify_ddh_needs_sw_update(g):
         s = 'warning: this DDH needs an update'
