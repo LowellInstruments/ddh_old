@@ -15,7 +15,7 @@ from script_logger_tdo_deploy_utils import (
 
 
 # don't move this from here
-FILE_ALL_MACS_TOML = f'settings/all_macs.toml'
+FILE_ALL_MACS_TOML = f'all_macs.toml'
 
 
 # ---------------------------------
@@ -212,4 +212,5 @@ def main_logger_tdo_deploy():
 
 
 if __name__ == "__main__":
+    # Pycharm, be sure starting directory is 'ddh/scripts'
     main_logger_tdo_deploy()

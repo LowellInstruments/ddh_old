@@ -5,6 +5,7 @@
 source scripts/utils.sh
 
 
+# we change the directory here to 'scripts'
 echo '----------------------------------------------------------------------------------'
 echo 'DDH logger TDO deploy, script in progress'
 source "$FOL_VEN"/bin/activate && \
