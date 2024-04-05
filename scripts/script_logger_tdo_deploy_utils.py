@@ -4,13 +4,9 @@ from bleak import BleakScanner, BleakError
 from bleak.backends.device import BLEDevice
 from mat.ble.bleak.cc26x2r import BleCC26X2
 from mat.utils import PrintColors as PC
-from utils.ddh_shared import ddh_get_root_folder_path
 
 
 lc = BleCC26X2("hci0", dbg_ans=True)
-
-
-_r = ddh_get_root_folder_path()
 
 
 def _e(_rv, s):
