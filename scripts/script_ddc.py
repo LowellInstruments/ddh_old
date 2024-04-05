@@ -233,6 +233,7 @@ def cb_run_script_buttons_test():
 def cb_run_script_dox_test():
     try:
         # do this or this script's prompts fail
+        print(os.getcwd())
         sp.run('./run_script_logger_do_deploy.sh')
         _tdr()
     except (Exception, ) as ex:
