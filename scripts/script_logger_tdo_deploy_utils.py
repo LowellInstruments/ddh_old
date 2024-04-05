@@ -149,8 +149,6 @@ async def ble_scan_for_tdo_loggers(t=5.0):
         await scanner.stop()
         # _dl: [ (mac, rssi), (mac2, rssi), ...]
         _dl = [(k, v) for k, v in _dd.items()]
-        print('_dl', _dl)
-        await asyncio.sleep(3)
         return _dl
 
     except (asyncio.TimeoutError, BleakError, OSError) as ex:
