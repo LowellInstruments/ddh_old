@@ -204,8 +204,6 @@ def main_logger_tdo_deploy():
         m = _menu_build(sr, 10)
         _menu_display(m)
         c = _menu_get()
-        print('c')
-        time.sleep(3)
 
         # -----------------
         # BLE deployment
