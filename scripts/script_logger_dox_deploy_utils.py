@@ -16,13 +16,13 @@ def _e(_rv, s):
 
 def get_script_cfg_file():
     # here it is OK to crash to detect bad json files
-    p = f"scripts/script_logger_dox_deploy_cfg.json"
+    p = f"script_logger_dox_deploy_cfg.json"
     with open(p) as f:
         return json.load(f)
 
 
 def set_script_cfg_file(cfg_d: dict):
-    p = f"scripts/script_logger_dox_deploy_cfg.json"
+    p = f"script_logger_dox_deploy_cfg.json"
     with open(p, "w") as f:
         return json.dump(cfg_d, f)
 
