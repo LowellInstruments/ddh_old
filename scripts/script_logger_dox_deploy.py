@@ -17,7 +17,7 @@ from script_logger_dox_deploy_utils import (
 
 
 # don't move this from here
-FILE_ALL_MACS_TOML = f'all_macs.toml'
+FILE_ALL_MACS_TOML = f'../settings/all_macs.toml'
 
 
 # ---------------------------------
