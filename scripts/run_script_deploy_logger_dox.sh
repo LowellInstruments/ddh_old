@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 
 
-source ./utils.sh
+# consider we are inside 'ddh' being called from 'main_ddc'
+source scripts/utils.sh
 
 
 
