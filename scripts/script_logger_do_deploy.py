@@ -8,7 +8,7 @@ import os
 import toml
 
 from mat.utils import PrintColors as PC
-from scripts.script_logger_do_deploy_utils import (
+from script_logger_do_deploy_utils import (
     set_script_cfg_file,
     deploy_logger,
     get_script_cfg_file,
@@ -17,7 +17,6 @@ from scripts.script_logger_do_deploy_utils import (
 
 
 # don't move this from here
-_ra = f'{_r}/scripts'
 FILE_ALL_MACS_TOML = f'{_r}/settings/all_macs.toml'
 
 
@@ -208,9 +207,6 @@ def _menu_execute(_m, _c, cfg):
 
 def main_logger_do_deploy():
     _screen_clear()
-
-    # from now on, we are inside directory scripts
-    os.chdir(_ra)
 
     while True:
         cfg = get_script_cfg_file()
