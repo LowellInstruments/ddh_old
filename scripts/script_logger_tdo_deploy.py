@@ -8,11 +8,9 @@ import os
 import toml
 
 from mat.utils import PrintColors as PC
-from script_logger_do_deploy_utils import (
-    set_script_cfg_file,
-    deploy_logger,
-    get_script_cfg_file,
-    ble_scan, _r,
+from script_logger_tdo_deploy_utils import (
+    deploy_logger_tdo,
+    _r, ble_scan_for_tdo_loggers,
 )
 
 
@@ -23,8 +21,11 @@ FILE_ALL_MACS_TOML = f'{_r}/settings/all_macs.toml'
 # ---------------------------------
 # issues RUN command or not at end
 # ---------------------------------
-g_flag_run = False
-g_flag_sensor = True
+g_cfg = {
+    "RUN": False,
+    "DFN": 'lab',
+    "PRF": 'script_logger_tdo_deploy_cfg_slow.json',
+}
 
 
 def get_ddh_toml_all_macs_content():
@@ -93,15 +94,14 @@ def _menu_build(_sr: dict, n: int):
     return d
 
 
-def _menu_display(d: dict, cfg: dict):
+def _menu_display(d: dict):
     print("scan done!")
     print("\nchoose an option:")
     print("\ts) scan for loggers nearby")
     print("\tl) list monitored macs in config.toml file")
-    print("\tr) toggle RUN flag, current value is {}".format(g_flag_run))
-    print("\ti) set DO interval, current value is {}".format(cfg["DRI"]))
-    print("\td) set DEPLOYMENT, current value is {}".format(cfg["DFN"]))
-    print("\to) check oxygen sensor, current value is {}".format(g_flag_sensor))
+    print(f"\tr) toggle RUN flag, current value is {g_cfg['RUN']}")
+    print(f"\td) set DEPLOYMENT, current value is {g_cfg['DFN']}")
+    print(f"\tp) toggle PROFILING file, now is {g_cfg['PRF'].split('_cfg_')[1]}")
     print("\tq) quit")
     if not d:
         return
@@ -116,10 +116,7 @@ ael = asyncio.new_event_loop()
 asyncio.set_event_loop(ael)
 
 
-def _menu_execute(_m, _c, cfg):
-
-    global g_flag_run
-    global g_flag_sensor
+def _menu_execute(_m, _c):
 
     # _c: user choice
     if _c == "q":
@@ -135,13 +132,18 @@ def _menu_execute(_m, _c, cfg):
         return
 
     if _c == "r":
-        # toggle
-        g_flag_run = not g_flag_run
+        g_cfg['RUN'] = not g_cfg['RUN']
         return
 
-    if _c == "o":
-        # toggle
-        g_flag_sensor = not g_flag_sensor
+    if _c == "p":
+        _p = g_cfg["PRF"]
+        if 'slow' in _p:
+            _p = 'script_logger_tdo_deploy_cfg_mid.json'
+        elif 'mid' in _p:
+            _p = 'script_logger_tdo_deploy_cfg_fast.json'
+        elif 'fast' in _p:
+            _p = 'script_logger_tdo_deploy_cfg_slow.json'
+        g_cfg["PRF"] = _p
         return
 
     if _c == "d":
@@ -152,25 +154,7 @@ def _menu_execute(_m, _c, cfg):
         if len(i) != 3:
             print("invalid input: must be 3 letters long")
             return
-        cfg["DFN"] = i
-        set_script_cfg_file(cfg)
-        return
-
-    if _c == "i":
-        # --------------------
-        # set new DO interval
-        # --------------------
-        try:
-            i = int(input("\t\t enter new interval -> "))
-        except ValueError:
-            print("invalid input: must be number")
-            return
-        valid = (30, 60, 300, 600, 900, 3600, 7200)
-        if i not in valid:
-            print("invalid interval: must be {}".format(valid))
-            return
-        cfg["DRI"] = i
-        set_script_cfg_file(cfg)
+        g_cfg["DFN"] = i
         return
 
     # --------------------------------------------
@@ -195,7 +179,7 @@ def _menu_execute(_m, _c, cfg):
     # call main routine logger preparation
     # =====================================
     print(PC.OKBLUE + "\n\tdeploying logger {}...".format(mac) + PC.ENDC)
-    rv = ael.run_until_complete(deploy_logger(mac, sn, g_flag_run, g_flag_sensor))
+    rv = ael.run_until_complete(deploy_logger_tdo(mac, sn, g_cfg))
 
     # show green or red success
     _ = "\n\t========================"
@@ -205,28 +189,26 @@ def _menu_execute(_m, _c, cfg):
     print(s.format(mac))
 
 
-def main_logger_do_deploy():
+def main_logger_tdo_deploy():
     _screen_clear()
 
     while True:
-        cfg = get_script_cfg_file()
-
         # --------------
         # BLE scan
         # --------------
-        sr = ael.run_until_complete(ble_scan())
+        sr = ael.run_until_complete(ble_scan_for_tdo_loggers())
 
         m = _menu_build(sr, 10)
-        _menu_display(m, cfg)
+        _menu_display(m)
         c = _menu_get()
 
         # -----------------
         # BLE deployment
         # -----------------
 
-        _menu_execute(m, c, cfg)
+        _menu_execute(m, c)
         _screen_separation()
 
 
 if __name__ == "__main__":
-    main_logger_do_deploy()
+    main_logger_tdo_deploy()

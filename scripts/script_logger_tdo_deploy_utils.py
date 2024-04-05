@@ -1,24 +1,13 @@
 import asyncio
 import json
-import pathlib
-from pathlib import Path
-
 from bleak import BleakScanner, BleakError
 from bleak.backends.device import BLEDevice
 from mat.ble.bleak.cc26x2r import BleCC26X2
-from mat.utils import PrintColors as PC, linux_is_rpi
+from mat.utils import PrintColors as PC
+from utils.ddh_shared import ddh_get_root_folder_path
+
 
 lc = BleCC26X2("hci0", dbg_ans=True)
-
-
-# this works always: at ddh root level, or scripts directory level
-def ddh_get_root_folder_path() -> Path:
-    p = pathlib.Path.home()
-    if linux_is_rpi():
-        p = str(p) + '/li/ddh'
-    else:
-        p = str(p) + '/PycharmProjects/ddh'
-    return Path(p)
 
 
 _r = ddh_get_root_folder_path()
@@ -30,20 +19,7 @@ def _e(_rv, s):
         raise Exception(_.format(s, _rv))
 
 
-def get_script_cfg_file():
-    # here it is OK to crash to detect valid json files
-    p = f"{_r}/scripts/script_logger_do_deploy_cfg.json"
-    with open(p) as f:
-        return json.load(f)
-
-
-def set_script_cfg_file(cfg_d: dict):
-    p = f"{_r}/scripts/script_logger_do_deploy_cfg.json"
-    with open(p, "w") as f:
-        return json.dump(cfg_d, f)
-
-
-async def deploy_logger(mac, sn, flag_run, flag_sensor):
+async def deploy_logger_tdo(mac, sn, cfg):
 
     rv = 0
 
@@ -55,8 +31,9 @@ async def deploy_logger(mac, sn, flag_run, flag_sensor):
         rv, v = await lc.cmd_gfv()
         _e(rv, "gfv")
 
-        rv = await lc.cmd_stp()
-        _e(rv, "stp")
+        g = ("-3.333333", "-4.444444", None, None)
+        rv = await lc.cmd_sws(g)
+        _e(rv, "sws")
 
         rv = await lc.cmd_led()
         _e(rv, "led")
@@ -72,10 +49,6 @@ async def deploy_logger(mac, sn, flag_run, flag_sensor):
 
         rv = await lc.cmd_frm()
         _e(rv, "frm")
-
-        d = get_script_cfg_file()
-        rv = await lc.cmd_cfg(d)
-        _e(rv, "cfg")
 
         rv = await lc.cmd_wli("BA8007")
         _e(rv, "wli_ba")
@@ -97,40 +70,56 @@ async def deploy_logger(mac, sn, flag_run, flag_sensor):
         rv, info = await lc.cmd_rli()
         _e(len(info.keys()) != 4, "rli")
 
-        rv = await lc.cmd_wak("on")
-        if rv:
-            rv = await lc.cmd_wak("on")
-        _e(rv, "wak")
+        #rv = await lc.cmd_wak("on")
+        #if rv:
+        #    rv = await lc.cmd_wak("on")
+        #_e(rv, "wak")
 
         # these stand for First Deployment Get / Set on TDO loggers
-        # rv, v = await lc.cmd_fdg()
-        # _e(rv, 'fds')
-        # rv, v = await lc.cmd_fds()
-        # _e(rv, 'fds')
-        # rv, v = await lc.cmd_fdg()
-        # _e(rv, 'fdg')
-
-        rv = await lc.cmd_gdo()
-        print("\t\tGDO --> {}".format(rv))
-        bad_rv = not rv or (rv and rv[0] == "0000")
-        if flag_sensor:
-            _e(bad_rv, "gdo")
+        rv, v = await lc.cmd_fdg()
+        _e(rv, 'fdg')
+        rv = await lc.cmd_fds()
+        _e(rv, 'fds')
+        rv, v = await lc.cmd_fdg()
+        _e(rv, 'fdg')
 
         rv, b = await lc.cmd_bat()
         bad_rv = rv == 1
         _e(bad_rv, "bat")
         print("\t\tBAT | {} mV".format(b))
 
+        # -------------------------------------
+        # profiling mode set
+        # -------------------------------------
+        prf_json_file = cfg['PRF']
+        with open(prf_json_file) as f:
+            # file to dict
+            j_i = json.load(f)
+            print(f'SCF: loaded {prf_json_file}')
+
+            # flash SCF into logger
+            for tag, v in j_i.items():
+                if len(tag) != 3:
+                    print(f'error: bad SCF tag {tag}')
+                    break
+                if len(v) != 5:
+                    print(f'error: bad SCF value {v} for tag {tag}')
+                    break
+
+                # send the SCF command
+                rv = await lc.cmd_scf(tag, v)
+                bad_rv = rv == 1
+                _e(bad_rv, f"scf {tag}")
+
         # -------------------------------
         # RUNs logger, depending on flag
         # -------------------------------
-        if flag_run:
+        if cfg['RUN']:
             await asyncio.sleep(1)
             g = (1.111111, 2.222222, None, None)
             rv = await lc.cmd_rws(g)
             print("\t\tRWS --> {}".format(rv))
             _e(rv, "rws")
-
         else:
             print("\t\tRWS --> omitted: current flag value is False")
 
@@ -146,18 +135,18 @@ async def deploy_logger(mac, sn, flag_run, flag_sensor):
         return rv
 
 
-async def ble_scan(t=5.0):
+async def ble_scan_for_tdo_loggers(t=5.0):
 
     _dd = {}
     _dl = []
 
     def _scan_cb(d: BLEDevice, adv_data):
-        logger_types = ["DO-2", "DO-1", "TDO"]
+        logger_types = ["TDO", ]
         if d.name in logger_types:
             _dd[d.address.lower()] = adv_data.rssi
 
     try:
-        print("\nscanning for {} seconds ...".format(int(t)))
+        print(f"\nscanning for {int(t)} seconds for TDO loggers")
         scanner = BleakScanner(_scan_cb, None)
         await scanner.start()
         await asyncio.sleep(t)

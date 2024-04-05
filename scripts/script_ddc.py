@@ -28,7 +28,8 @@ MD5_MOD_BTUART = '95da1d6d0bea327aa5426b7f90303778'
 
 
 # cwd is ddh here
-path_script_do = 'scripts/run_script_logger_do_deploy.sh'
+path_script_deploy_dox = 'scripts/run_script_deploy_logger_dox.sh'
+path_script_deploy_tdo = 'scripts/run_script_deploy_logger_tdo.sh'
 
 
 def _p(s):
@@ -234,13 +235,21 @@ def cb_run_script_buttons_test():
         _tdr()
 
 
-def cb_run_script_dox_test():
+def cb_run_script_deploy_dox():
     try:
         # do this or this script's prompts fail
-        sp.run(path_script_do)
-        _tdr()
+        sp.run(path_script_deploy_dox)
     except (Exception, ) as ex:
         _per(f'exception cb_run_script_dox_test -> {ex}')
+        _tdr()
+
+
+def cb_run_script_deploy_tdo():
+    try:
+        # do this or this script's prompts fail
+        sp.run(path_script_deploy_tdo)
+    except (Exception, ) as ex:
+        _per(f'exception cb_run_script_tdo_test -> {ex}')
         _tdr()
 
 
@@ -460,7 +469,8 @@ def main_ddc():
             "kill DDH application": cb_kill_ddh,
             "calibrate DDH display": cb_calibrate_display,
             "say hi to desktop": cb_message_box,
-            "run script logger oxygen deploy": cb_run_script_dox_test,
+            "deploy logger DOX": cb_run_script_deploy_dox,
+            "deploy logger TDO": cb_run_script_deploy_tdo,
             "quit": cb_quit,
         }
 
