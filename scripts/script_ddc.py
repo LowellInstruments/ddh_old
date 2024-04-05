@@ -259,7 +259,7 @@ def cb_run_script_buttons_test():
 
 def cb_run_script_dox_test():
     try:
-        from scripts.script_logger_do_deploy import main_logger_do_deploy
+        # do this or this script's prompts fail
         main_logger_do_deploy()
         _tdr()
     except (Exception, ) as ex:

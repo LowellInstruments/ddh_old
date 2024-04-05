@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
+
+
 import asyncio
 import sys
 import subprocess as sp
 import os
-
 import toml
 
 from mat.utils import PrintColors as PC
@@ -16,6 +17,7 @@ from scripts.script_logger_do_deploy_utils import (
 
 
 # don't move this from here
+_ra = f'{_r}/scripts'
 FILE_ALL_MACS_TOML = f'{_r}/settings/all_macs.toml'
 
 
@@ -38,10 +40,6 @@ def get_ddh_toml_all_macs_content():
 
 def _screen_clear():
     sp.run("clear", shell=True)
-
-
-def _print_cwd():
-    print("\ncurrent working directory ->", os.getcwd())
 
 
 def _screen_separation():
@@ -210,6 +208,9 @@ def _menu_execute(_m, _c, cfg):
 
 def main_logger_do_deploy():
     _screen_clear()
+
+    # from now on, we are inside directory scripts
+    os.chdir(_ra)
 
     while True:
         cfg = get_script_cfg_file()

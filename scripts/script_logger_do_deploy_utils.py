@@ -23,6 +23,7 @@ def ddh_get_root_folder_path() -> Path:
 
 _r = ddh_get_root_folder_path()
 
+
 def _e(_rv, s):
     if _rv:
         _ = "[ BLE ] example exception {}, rv {}"
