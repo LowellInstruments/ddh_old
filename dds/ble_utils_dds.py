@@ -114,7 +114,7 @@ def ble_tell_gui_antenna_type(_h, desc):
 
 
 def ble_check_antenna_up_n_running(g, h: int):
-    cr = "hciconfig hci{} | grep 'UP RUNNING'".format(h)
+    cr = f"hciconfig hci{h} | grep 'UP RUNNING'"
     rv = sp.run(cr, shell=True, stdout=sp.PIPE, stderr=sp.PIPE)
     if rv.returncode == 0:
         return True
