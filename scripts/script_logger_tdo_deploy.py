@@ -5,6 +5,8 @@ import asyncio
 import sys
 import subprocess as sp
 import os
+import time
+
 import toml
 
 from mat.utils import PrintColors as PC
@@ -199,9 +201,17 @@ def main_logger_tdo_deploy():
         # --------------
         sr = ael.run_until_complete(ble_scan_for_tdo_loggers())
 
+        print('hello')
+
         m = _menu_build(sr, 10)
+        print('a')
+        time.sleep(3)
         _menu_display(m)
+        print('b')
+        time.sleep(3)
         c = _menu_get()
+        print('c')
+        time.sleep(3)
 
         # -----------------
         # BLE deployment
