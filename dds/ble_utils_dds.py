@@ -100,21 +100,21 @@ def ble_op_conditions_met(knots) -> bool:
 
 def ble_tell_gui_antenna_type(_h, desc):
     # from time to time
-    s = "using {} antenna, adapter {}"
+    _ad = f"hci{_h}"
+    s = f"using {desc} antenna, adapter {_ad}"
     if its_time_to(s, 60):
         _u(f"{STATE_DDS_BLE_ANTENNA}/BT_{desc}")
 
     # run this once
     if its_time_to('tell_gui_antenna_type', 3600):
-        _ad = "hci{}".format(_h)
         lg.a('\n')
         lg.a('-----------------------')
-        lg.a('using {} antenna'.format(desc, _ad))
+        lg.a(s)
         lg.a('-----------------------\n')
 
 
 def ble_check_antenna_up_n_running(g, h: int):
-    cr = "hciconfig hci{} | grep 'UP RUNNING'".format(h)
+    cr = f"hciconfig hci{h} | grep 'UP RUNNING'"
     rv = sp.run(cr, shell=True, stdout=sp.PIPE, stderr=sp.PIPE)
     if rv.returncode == 0:
         return True
