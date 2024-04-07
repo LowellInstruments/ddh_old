@@ -9,7 +9,7 @@ from api.api_utils import (
                            CTT_API_OK)
 import uvicorn
 
-from dds.gpq import GpqW, NGpqR, FMT_RECORD
+from dds.gpq import GpqW, FMT_RECORD, GpqR
 
 # instead, the DDN port is 9000
 DDH_PORT_API = 8000
@@ -25,7 +25,7 @@ FMT_API_GPQ = '%Y%m%d%H%M%S'
 
 # global vars
 g_w = GpqW()
-g_r = NGpqR()
+g_r = GpqR()
 
 
 @app.put('/gpq')
@@ -41,18 +41,17 @@ async def ep_gpq(dt_api, lat, lon):
 
 
 @app.get('/gpq')
-async def ep_gpq(dt_api, delta_mm):
+async def ep_gpq(dt_api, delta_secs):
     # delta_mm: max minutes of difference
-    # http://0.0.0.0:8000/gpq?dt_api=20240102030405&delta_mm=30
+    # http://0.0.0.0:8000/gpq?dt_api=20240102030405&delta_secs=20
     dn = datetime.strptime(dt_api, FMT_API_GPQ)
     dt_s = dn.strftime(FMT_RECORD)
-    rv = g_r.query(dt_s, delta_mm)
+    rv = g_r.query(dt_s, int(delta_secs))
     d = {
         "gpq_get": CTT_API_OK,
-        'rv': f'{rv[0], rv[1]}'
+        'rv': f'{rv[0], rv[1], rv[2]}'
     }
     return d
-
 
 
 def main_api():
