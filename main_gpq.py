@@ -90,14 +90,16 @@ def cli_gpq():
     u_put = (f'http://0.0.0.0:{DDH_PORT_GPQ}/gpq?'
              f'dt_api=20240102030405&'
              f'lat=lat1&lon=lon1')
+    print('<- CLI put')
     rsp_put = req_put(u_put)
-    print('CLI get rsp_get', rsp_put.content)
+    print('-> CLI rsp_put', rsp_put.content)
 
     # client get
     u_get = (f'http://0.0.0.0:{DDH_PORT_GPQ}/gpq?'
-             f'dt_api=20240102030405''')
+             f'dt_api=20240102030410''')
+    print('<- CLI get')
     rsp_get = req_get(u_get)
-    print('CLI get rsp_get', rsp_get.content)
+    print('-> CLI rsp_get', rsp_get.content)
 
 
 if __name__ == "__main__":
