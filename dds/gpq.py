@@ -58,26 +58,32 @@ class GpqR:
 
 
 class NGpqR:
-    def __init__(self, dt: datetime):
-        # now, pre, all
-        self.grn = GpqR(dt)
-        self.grp = GpqR(dt - timedelta(hours=1))
-        self.rrn = self.grn.get_all()
-        self.rrp = self.grp.get_all()
-        # build a big dict
-        self.rra = {}
-        self.rra.update(self.rrp)
-        self.rra.update(self.rrn)
+    def __init__(self):
+        self.db = DB(keys=['t', 'lat', 'lon'])
+        self.ls = []
+        self.all = {}
 
     def load(self, dt: datetime):
-        if dt.strftime(FMT_FILENAME) == self.grn.f:
+        f = dt.strftime(FMT_FILENAME)
+        p = f'{get_ddh_folder_path_gpq_files()}/{f}'
+        if not os.path.exists(p):
+            print(f'R error {p} file does not exist')
             return
-        print('NGpqR switching')
-        self.__init__(dt)
+        if f in self.ls:
+            print(f'R error {p} already loaded')
+            return
+        self.db.load(p)
+        _rr = self.db.get_all().values()
+        print(f'R loading {p}, {len(_rr)} rows')
+        d = {r['t']: (r['lat'], r['lon']) for r in _rr}
+        self.all.update(d)
+        self.ls.append(f)
 
     def query(self, s):
-        # _s: '2024/04/05 21:45:22'
-        t = list(self.rra.keys())
+        # s: '2024/04/05 21:45:22'
+        dt_s = datetime.strptime(s, FMT_RECORD)
+        self.load(dt_s)
+        t = list(self.all.keys())
         if not t:
             # our big dictionary has no values
             return 0, 0
@@ -97,6 +103,48 @@ class NGpqR:
         print('\ti', i)
         print('\tdiff ', _diff)
         return i, _diff
+
+
+# class NGpqR:
+#     def __init__(self, dt: datetime):
+#         # now, pre, all
+#         self.grn = GpqR(dt)
+#         self.grp = GpqR(dt - timedelta(hours=1))
+#         self.rrn = self.grn.get_all()
+#         self.rrp = self.grp.get_all()
+#         # build a big dict
+#         self.rra = {}
+#         self.rra.update(self.rrp)
+#         self.rra.update(self.rrn)
+#
+#     def load(self, dt: datetime):
+#         if dt.strftime(FMT_FILENAME) == self.grn.f:
+#             return
+#         print('NGpqR switching')
+#         self.__init__(dt)
+#
+#     def query(self, s):
+#         # _s: '2024/04/05 21:45:22'
+#         t = list(self.rra.keys())
+#         if not t:
+#             # our big dictionary has no values
+#             return 0, 0
+#         print(f'searching {s} in t0 {t[0]} t-1 {t[-1]} range')
+#         print(f't has {len(t)} rows')
+#         i = bisect.bisect_right(t, s)
+#         if i == 0:
+#             print(f'\tvalue {s} is too early')
+#             return 0, 0
+#         if i >= len(t):
+#             print(f'\tvalue {s} is later, but may still be OK')
+#         else:
+#             print(f'\tvalue {s} is in-range')
+#         now = datetime.strptime(s, FMT_RECORD)
+#         bef = datetime.strptime(t[i - 1], FMT_RECORD)
+#         _diff = (now - bef).total_seconds()
+#         print('\ti', i)
+#         print('\tdiff ', _diff)
+#         return i, _diff
 
 
 def main():

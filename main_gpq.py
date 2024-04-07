@@ -9,7 +9,7 @@ from api.api_utils import (
                            CTT_API_OK)
 import uvicorn
 
-from dds.gpq import GpqW
+from dds.gpq import GpqW, NGpqR, FMT_RECORD
 
 # instead, the DDN port is 9000
 DDH_PORT_API = 8000
@@ -25,12 +25,13 @@ FMT_API_GPQ = '%Y%m%d%H%M%S'
 
 # global vars
 g_w = GpqW()
+g_r = NGpqR()
 
 
 @app.put('/gpq')
-async def ep_gpq(dt_s, lat, lon):
-    # http://0.0.0.0:8000/gpq?dt_s=20240102030405&lat=lat1&lon=lon1
-    dn = datetime.strptime(dt_s, FMT_API_GPQ)
+async def ep_gpq(dt_api, lat, lon):
+    # http://0.0.0.0:8000/gpq?dt_api=20240102030405&lat=lat1&lon=lon1
+    dn = datetime.strptime(dt_api, FMT_API_GPQ)
     g_w.add(dn, lat, lon)
     d = {
         "gpq_put": CTT_API_OK,
@@ -40,10 +41,15 @@ async def ep_gpq(dt_s, lat, lon):
 
 
 @app.get('/gpq')
-async def ep_gpq(dt_s, lat, lon):
-    # http://0.0.0.0:8000/gpq?dt_s=1&lat=2&lon=3
+async def ep_gpq(dt_api):
+    # http://0.0.0.0:8000/gpq?dt_api=20240102030405&lat=lat1&lon=lon1
+    dn = datetime.strptime(dt_api, FMT_API_GPQ)
+    g_r.load(dn)
+    dt_s = dn.strftime(FMT_RECORD)
+    rv = g_r.query(dt_s)
     d = {
-        "gpq_get": CTT_API_OK
+        "gpq_get": CTT_API_OK,
+        'rv': f'{rv[0], rv[1]}'
     }
     return d
 
