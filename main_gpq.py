@@ -1,8 +1,13 @@
 #!/usr/bin/env python3
+import threading
+import time
 
+import requests
 import setproctitle
 from fastapi import FastAPI
 from datetime import datetime
+
+from requests import HTTPError
 
 from api.api_utils import (
                            linux_app_write_pid_to_tmp,
@@ -12,9 +17,9 @@ import uvicorn
 from dds.gpq import GpqW, FMT_RECORD, GpqR
 
 # instead, the DDN port is 9000
-DDH_PORT_API = 8000
-NAME_EXE_API = "main_api"
-PID_FILE_API = "/tmp/{}.pid".format(NAME_EXE_API)
+DDH_PORT_GPQ = 8001
+NAME_EXE_GPQ = "main_gpq"
+PID_FILE_GPQ = "/tmp/{}.pid".format(NAME_EXE_GPQ)
 
 
 app = FastAPI()
@@ -41,12 +46,12 @@ async def ep_gpq(dt_api, lat, lon):
 
 
 @app.get('/gpq')
-async def ep_gpq(dt_api, delta_secs):
+async def ep_gpq(dt_api):
     # delta_mm: max minutes of difference
-    # http://0.0.0.0:8000/gpq?dt_api=20240102030405&delta_secs=20
+    # http://0.0.0.0:8000/gpq?dt_api=20240102030405
     dn = datetime.strptime(dt_api, FMT_API_GPQ)
     dt_s = dn.strftime(FMT_RECORD)
-    rv = g_r.query(dt_s, int(delta_secs))
+    rv = g_r.query(dt_s)
     d = {
         "gpq_get": CTT_API_OK,
         'rv': f'{rv[0], rv[1], rv[2]}'
@@ -54,12 +59,48 @@ async def ep_gpq(dt_api, delta_secs):
     return d
 
 
-def main_api():
+def main_gpq():
     # docs at http://0.0.0.0/port/docs
-    setproctitle.setproctitle(NAME_EXE_API)
-    linux_app_write_pid_to_tmp(PID_FILE_API)
-    uvicorn.run(app, host="0.0.0.0", port=DDH_PORT_API)
+    setproctitle.setproctitle(NAME_EXE_GPQ)
+    linux_app_write_pid_to_tmp(PID_FILE_GPQ)
+    uvicorn.run(app, host="0.0.0.0", port=DDH_PORT_GPQ)
+
+
+def cli_gpq():
+    def req_get(u, time_out=1):
+        try:
+            _rsp = requests.get(u, timeout=time_out)
+            _rsp.raise_for_status()
+            return _rsp
+        except (HTTPError, Exception,) as ex:
+            print(f'req_get error -> {ex}')
+
+    def req_put(u, time_out=1):
+        try:
+            _rsp = requests.put(u, timeout=time_out)
+            _rsp.raise_for_status()
+            return _rsp
+        except (HTTPError, Exception,) as ex:
+            print(f'req_put error -> {ex}')
+
+    # wait api to boot
+    time.sleep(.5)
+
+    # client test
+    u_put = (f'http://0.0.0.0:{DDH_PORT_GPQ}/gpq?'
+             f'dt_api=20240102030405&'
+             f'lat=lat1&lon=lon1')
+    rsp_put = req_put(u_put)
+    print('CLI get rsp_get', rsp_put.content)
+
+    # client get
+    u_get = (f'http://0.0.0.0:{DDH_PORT_GPQ}/gpq?'
+             f'dt_api=20240102030405''')
+    rsp_get = req_get(u_get)
+    print('CLI get rsp_get', rsp_get.content)
 
 
 if __name__ == "__main__":
-    main_api()
+    th = threading.Thread(target=cli_gpq)
+    th.start()
+    main_gpq()

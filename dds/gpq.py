@@ -63,20 +63,20 @@ class GpqR:
         self.all.update(d)
         self.ls.append(f)
 
-    def query(self, s, delta_secs=20):
+    def query(self, s):
         # s: '2024/04/05 21:45:22'
         dt_s = datetime.strptime(s, FMT_RECORD)
         self._load(dt_s)
         t = list(self.all.keys())
         if not t:
             # our big dictionary has no values
-            return 0, 0
+            return -1, -1, None
         print(f'R query {s} within t0 {t[0]} t-1 {t[-1]} range')
         print(f'\tt has {len(t)} rows')
         i = bisect.bisect_right(t, s)
         if i == 0:
             print(f'\tvalue {s} is too early')
-            return 0, 0
+            return 0, -1, None
         if i >= len(t):
             print(f'\tvalue {s} is later, but may still be OK')
         else:
@@ -86,16 +86,12 @@ class GpqR:
         _diff = (now - bef).total_seconds()
         print('\ti', i)
         print('\tdiff ', _diff)
-        if _diff > delta_secs:
-            print('\tvalue is too old')
-            return 0, 0
-
         # get the closest candidate value
         c = list(self.all.items())[i - 1]
         return i, _diff, c
 
 
-def main():
+def main_gen_gpq():
     # ------------------------------------------------
     # W test: generate one file lat/lon every second
     # file name is today down to hour
@@ -131,4 +127,4 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    main_gen_gpq()
