@@ -172,21 +172,29 @@ class BleCC26X2Download:
             lg.a("CFG | OK")
 
         # see if the DO sensor works
-        rv = await lc.cmd_gdo()
-        bad_rv = not rv or (rv and rv[0] == "0000")
-        if bad_rv:
+        for i_do in range(3):
+            rv = await lc.cmd_gdo()
+            bad_rv = not rv or (rv and rv[0] == "0000")
+            if not bad_rv:
+                # good!
+                lg.a("GDO | {}".format(rv))
+                break
+            # GDO went south, check number of retries remaining
             lg.a(f"GDO | error {rv}")
-            _u(STATE_DDS_BLE_DOWNLOAD_ERROR_GDO)
-            _une(bad_rv, notes, "ox_sensor_error", ce=1)
-            if rv and rv[0] == "0000":
+            if i_do == 2:
+                # notify this
                 lat, lon, _, __ = g
                 ln = LoggerNotification(mac, sn, 'DOX', b)
                 notify_logger_error_sensor_oxygen(g, ln)
+                _une(bad_rv, notes, "ox_sensor_error", ce=1)
+                _rae(bad_rv, "gdo")
+            else:
+                _u(STATE_DDS_BLE_DOWNLOAD_ERROR_GDO)
+                _une(bad_rv, notes, "ox_sensor_error", ce=0)
             await asyncio.sleep(5)
-        _rae(bad_rv, "gdo")
-        lg.a("GDO | {}".format(rv))
 
         # see if this guy has GDX (better GDO) instruction
+        await asyncio.sleep(1)
         rv = await lc.cmd_gdx()
         lg.a("GDX | (beta) {}".format(rv))
 

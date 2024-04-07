@@ -15,7 +15,8 @@ from utils.ddh_config import cfg_load_from_file, cfg_save_to_file
 from utils.tmp_paths import (
     LI_PATH_GROUPED_S3_FILE_FLAG,
     LI_PATH_DDH_GPS_EXTERNAL,
-    TMP_PATH_GPS_DUMMY, TMP_PATH_GRAPH_TEST_MODE_JSON, DDH_USES_SHIELD_JUICE4HALT, DDH_USES_SHIELD_SAILOR)
+    TMP_PATH_GPS_DUMMY, TMP_PATH_GRAPH_TEST_MODE_JSON,
+    DDH_USES_SHIELD_JUICE4HALT, DDH_USES_SHIELD_SAILOR)
 
 
 VP_RBL = '0403:6001'
@@ -24,6 +25,11 @@ VP_GPS_PUCK_1 = '067B:2303'
 VP_GPS_PUCK_2 = '067B:23A3'
 FLAG_CLONED_BALENA = '/home/pi/.ddh_cloned_w_balena'
 MD5_MOD_BTUART = '95da1d6d0bea327aa5426b7f90303778'
+
+
+# cwd is ddh here
+path_script_deploy_dox = 'scripts/run_script_deploy_logger_dox.sh'
+path_script_deploy_tdo = 'scripts/run_script_deploy_logger_tdo.sh'
 
 
 def _p(s):
@@ -45,7 +51,7 @@ def _pok(s):
     print("{}{}{}".format('\033[92m', s, '\033[0m'))
 
 
-def _pwr(s):
+def _pwa(s):
     # yellow
     print("{}{}{}".format('\033[93m', s, '\033[0m'))
 
@@ -57,7 +63,7 @@ def sh(c):
 
 def sho(c):
     rv = sp.run(c, shell=True, stdout=sp.PIPE, stderr=sp.PIPE)
-    return rv.returncode, rv.stdout
+    return rv.returncode, rv.stdout.decode()
 
 
 def is_rpi():
@@ -77,33 +83,6 @@ def cb_get_crontab(s):
         return 0
     # line IS present and uncommented
     return 1
-
-
-def refresh_menu_options():
-    return {
-        # aws group
-        "fag": 'yes' if exists(LI_PATH_GROUPED_S3_FILE_FLAG) else 'not',
-        # gps external
-        "fge": 'yes' if exists(LI_PATH_DDH_GPS_EXTERNAL) else 'not',
-        # gps dummy
-        "fgd": 'yes' if exists(TMP_PATH_GPS_DUMMY) else 'not',
-        # application gear type
-        "agt": 'yes' if g_cfg['behavior']['gear_type'] else 'not',
-        # graph test
-        "fgt": 'yes' if exists(TMP_PATH_GRAPH_TEST_MODE_JSON) else 'not',
-        # crontab ddh
-        "fcd": 'yes' if cb_get_crontab('ddh') else 'not',
-        # crontab api
-        "fca": 'yes' if cb_get_crontab('api') else 'not',
-        # crontab lxp
-        "flx": 'yes' if cb_get_crontab('lxp') else 'not',
-        # cloned with balena
-        "bal": 'yes' if exists(FLAG_CLONED_BALENA) else 'not',
-        # uses shield for power juice_4_halt
-        "j4h": 'yes' if exists(DDH_USES_SHIELD_JUICE4HALT) else 'not',
-        # uses shield for power sailor
-        "sai": 'yes' if exists(DDH_USES_SHIELD_SAILOR) else 'not',
-    }
 
 
 # run check
@@ -133,7 +112,7 @@ def cb_kill_ddh():
     rv, s = sho(f'ps -aux | grep x-terminal-emulator | grep DDH')
     if rv == 0:
         _p('sent kill signal to x-terminal containing DDH')
-        s = s.decode().split()
+        s = s.split()
         pid = s[1]
         sh(f'kill -9 {pid}')
 
@@ -254,6 +233,28 @@ def cb_run_script_buttons_test():
     except (Exception, ) as ex:
         _per(f'exception cb_run_script_buttons_test -> {ex}')
         _tdr()
+    finally:
+        time.sleep(1)
+
+
+def cb_run_script_deploy_dox():
+    try:
+        # do this or this script's prompts fail
+        sp.run(path_script_deploy_dox)
+    except (Exception, ) as ex:
+        _per(f'exception cb_run_script_dox_test -> {ex}')
+        _tdr()
+    finally:
+        time.sleep(1)
+
+
+def cb_run_script_deploy_tdo():
+    try:
+        # do this or this script's prompts fail
+        sp.run(path_script_deploy_tdo)
+    except (Exception, ) as ex:
+        _per(f'exception cb_run_script_tdo_test -> {ex}')
+        _tdr()
 
 
 def cb_provision_ddh():
@@ -270,13 +271,20 @@ def cb_toggle_flag_balena():
     unlink(p) if exists(p) else pathlib.Path(p).touch()
 
 
-def cb_see_flag_j4h():
+def cb_get_flag_j4h():
     return sh(f'ls {DDH_USES_SHIELD_JUICE4HALT}') == 0
 
 
-def cb_see_flag_sailor():
+def cb_get_flag_sailor():
     # todo ---> soon
     return 0
+
+
+def get_local_timezone():
+    c = "timedatectl | grep 'Time zone'"
+    rv, s = sho(c)
+    # s: 'Time zone: America/New_York (EDT, -0400)'
+    return s.split('Time zone: ')[1].split(' (')[0]
 
 
 # contains errors in system check
@@ -326,7 +334,8 @@ def _run_check():
     # grep exact (-w) for 'active' detection
     # dwservice
     # -----------------------------------------------------
-    ok_issue = sh('cat /boot/issue.txt | grep 2023-05-03') == 0
+    ok_issue_20230503 = sh('cat /boot/issue.txt | grep 2023-05-03') == 0
+    ok_issue_20220922 = sh('cat /boot/issue.txt | grep 2022-09-22') == 0
     ok_arch_armv7l = sh('arch | grep armv7l') == 0
     is_rpi3 = sh("cat /proc/cpuinfo | grep 'aspberry Pi 3'") == 0
     ok_hostname = sh('hostname | grep raspberrypi') == 0
@@ -346,8 +355,8 @@ def _run_check():
     ok_crontab_ddh = cb_get_crontab('ddh') == 1
     ok_crontab_api = cb_get_crontab('api') == 1
     ok_crontab_lxp = cb_get_crontab('lxp') == 1
-    ok_shield_j4h = cb_see_flag_j4h() == 1
-    ok_shield_sailor = cb_see_flag_sailor() == 1
+    ok_shield_j4h = cb_get_flag_j4h() == 1
+    ok_shield_sailor = cb_get_flag_sailor() == 1
 
     # -----------------
     # check conflicts
@@ -357,7 +366,7 @@ def _run_check():
         # error indicated inside other function
         rv += 1
     if not ok_shield_j4h and not ok_shield_sailor:
-        _w('none of the 2 supported power shields detected')
+        _w('none of 2 supported power shields detected')
     if not ok_internet_via_cell:
         _e('no cell internet')
         rv += 1
@@ -365,15 +374,14 @@ def _run_check():
         _e('dws not running')
         rv += 1
     if not ok_fw_cell:
-        _e('bad fw_cell')
-        rv += 1
+        _w('bad fw_cell')
     if not ok_service_cell_sw:
         _e('not running service_cell_sw')
     if not ok_ble_v != '5.66':
         _e('bad bluez version')
         rv += 1
-    if not ok_issue:
-        _e('bad raspberryos file /boot/issue.txt')
+    if not ok_issue_20230503 and not ok_issue_20220922:
+        _e('bad raspberryOS file /boot/issue.txt')
         rv += 1
     if not ok_arch_armv7l:
         _e('bad arch')
@@ -401,21 +409,49 @@ def _run_check():
     return rv, str_e, str_w
 
 
+def refresh_menu_options():
+    return {
+        # aws group
+        "fag": 'yes' if exists(LI_PATH_GROUPED_S3_FILE_FLAG) else 'not',
+        # gps external
+        "fge": 'yes' if exists(LI_PATH_DDH_GPS_EXTERNAL) else 'not',
+        # gps dummy
+        "fgd": 'yes' if exists(TMP_PATH_GPS_DUMMY) else 'not',
+        # application gear type
+        "agt": 'yes' if g_cfg['behavior']['gear_type'] else 'not',
+        # graph test
+        "fgt": 'yes' if exists(TMP_PATH_GRAPH_TEST_MODE_JSON) else 'not',
+        # crontab ddh
+        "fcd": 'yes' if cb_get_crontab('ddh') else 'not',
+        # crontab api
+        "fca": 'yes' if cb_get_crontab('api') else 'not',
+        # crontab lxp
+        "flx": 'yes' if cb_get_crontab('lxp') else 'not',
+        # cloned with balena
+        "bal": 'yes' if exists(FLAG_CLONED_BALENA) else 'not',
+        # uses shield for power juice_4_halt
+        "j4h": 'yes' if exists(DDH_USES_SHIELD_JUICE4HALT) else 'not',
+        # uses shield for power sailor
+        "sai": 'yes' if exists(DDH_USES_SHIELD_SAILOR) else 'not',
+    }
+
+
 def main_ddc():
 
     while 1:
 
         # show summary
         rv, e, w = _run_check()
-        print('\n DDH automatic check:')
+        print(f'\n  DDH Time zone = {get_local_timezone()}')
+        print('  DDH automatic check:\n')
         if rv:
-            _per(f'     [ ER ] system NOT ready, see errors next')
-            print(str_e)
+            _per(f'  [ ER ] system NOT ready, see errors:')
+            _per(str_e)
         else:
-            _pok(f'     [ OK ] system ready')
+            _pok(f'  [ OK ] system ready')
         if w:
-            _pwr(f'     [ OK ] warning')
-            print(str_w)
+            _pwa(f'  [ WA ] some warning')
+            _pwa(str_w)
 
         # obtain current flags
         g_chk = refresh_menu_options()
@@ -426,17 +462,19 @@ def main_ddc():
             f"[ {g_chk['agt']} ] is app gear trawling": cb_toggle_gear_type,
             f"[ {g_chk['fgt']} ] is graph test mode": cb_toggle_graph_test_mode,
             f"[ {g_chk['fcd']} ] is crontab DDH on": cb_toggle_crontab_ddh,
-            f"[ {g_chk['fca']} ] is crontab API on": cb_toggle_crontab_api,
-            f"[ {g_chk['flx']} ] is crontab LXP on": cb_toggle_crontab_lxp,
+            # f"[ {g_chk['fca']} ] is crontab API on": cb_toggle_crontab_api,
+            # f"[ {g_chk['flx']} ] is crontab LXP on": cb_toggle_crontab_lxp,
             f"| {g_chk['bal']} | is flag balena": cb_toggle_flag_balena,
-            f"| {g_chk['j4h']} | is j4h_shield": cb_see_flag_j4h,
-            f"| {g_chk['j4h']} | is j4h_shield": cb_see_flag_sailor,
+            f"| {g_chk['j4h']} | is j4h_shield": cb_get_flag_j4h,
+            f"| {g_chk['sai']} | is sailor_shield": cb_get_flag_sailor,
             "provision (caution)": cb_provision_ddh,
             "test GPS Quectel": cb_run_script_gps_test,
             "test box side buttons": cb_run_script_buttons_test,
             "kill DDH application": cb_kill_ddh,
             "calibrate DDH display": cb_calibrate_display,
             "say hi to desktop": cb_message_box,
+            "deploy logger DOX": cb_run_script_deploy_dox,
+            "deploy logger TDO": cb_run_script_deploy_tdo,
             "quit": cb_quit,
         }
 
@@ -471,7 +509,9 @@ def main_ddc():
 
         # see results
         if is_rpi():
-            os.system('clear')
+            # os.system('clear')
+            print('\n\n\n\n\n')
+
         else:
             print('\n\n\n\n\n')
 

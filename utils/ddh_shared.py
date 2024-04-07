@@ -218,6 +218,11 @@ def get_ddh_folder_path_logs() -> Path:
     return Path(p) / "logs"
 
 
+def get_ddh_folder_gpq() -> Path:
+    p = str(ddh_get_root_folder_path())
+    return Path(f"{p}/gpq")
+
+
 def get_dds_folder_path_macs() -> Path:
     p = str(ddh_get_root_folder_path())
     return Path(f"{p}/dds/macs")

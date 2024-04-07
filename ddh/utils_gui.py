@@ -71,6 +71,7 @@ from utils.ddh_shared import (
     ddh_get_db_history_file,
     STATE_DDS_BLE_NO_ASSIGNED_LOGGERS, get_ddh_commit,
     get_ddh_rerun_flag_li, ddh_get_root_folder_path, STATE_DDS_BLE_CONNECTING, STATE_DDS_PRESSED_BUTTON_2,
+    get_ddh_sw_version,
 )
 from utils.logs import lg_gui as lg
 
@@ -127,8 +128,9 @@ def gui_setup_view(my_win):
     # load default values for edit tab
     a.btn_load_current.animateClick()
 
-    # load git commit display
-    dc = "version: {}".format(get_ddh_commit())
+    # load git commit display or version
+    # dc = "version: {}".format(get_ddh_commit())
+    dc = f"version: {get_ddh_sw_version()}"
     a.lbl_commit.setText(dc)
 
     # checkboxes rerun flag
@@ -310,8 +312,6 @@ def gui_hide_edit_tab(ui):
 
 
 def gui_hide_map_tab(ui):
-    if ddh_get_cfg_maps_en():
-        return
     p = ui.tabs.findChild(QWidget, "tab_map")
     i = ui.tabs.indexOf(p)
     ui.tab_map_wgt_ref = ui.tabs.widget(i)
@@ -661,7 +661,8 @@ def gui_timer_fxn(my_app):
     a = my_app
 
     # update the maps tab, prevent freeze at boot
-    if _calc_app_uptime() > 10 and\
+    if ddh_get_cfg_maps_en() and\
+            _calc_app_uptime() > 10 and\
             its_time_to('update_maps_tab', 3600):
         gui_populate_maps_tab(a)
 

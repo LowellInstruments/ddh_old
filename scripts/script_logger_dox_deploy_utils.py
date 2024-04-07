@@ -16,17 +16,19 @@ def _e(_rv, s):
 
 
 def get_script_cfg_file():
-    # here it is OK to crash to detect valid json files
-    with open("script_logger_do_deploy_cfg.json") as f:
+    # here it is OK to crash to detect bad json files
+    p = f"script_logger_dox_deploy_cfg.json"
+    with open(p) as f:
         return json.load(f)
 
 
 def set_script_cfg_file(cfg_d: dict):
-    with open("script_logger_do_deploy_cfg.json", "w") as f:
+    p = f"script_logger_dox_deploy_cfg.json"
+    with open(p, "w") as f:
         return json.dump(cfg_d, f)
 
 
-async def deploy_logger(mac, sn, flag_run, flag_sensor):
+async def deploy_logger_dox(mac, sn, flag_run, flag_sensor):
 
     rv = 0
 
@@ -129,18 +131,18 @@ async def deploy_logger(mac, sn, flag_run, flag_sensor):
         return rv
 
 
-async def ble_scan(t=5.0):
+async def ble_scan_for_dox_loggers(t=5.0):
 
     _dd = {}
     _dl = []
 
     def _scan_cb(d: BLEDevice, adv_data):
-        logger_types = ["DO-2", "DO-1", "TDO"]
+        logger_types = ["DO-2", "DO-1"]
         if d.name in logger_types:
             _dd[d.address.lower()] = adv_data.rssi
 
     try:
-        print("\nscanning for {} seconds ...".format(int(t)))
+        print(f"\nscanning for {int(t)} seconds for DOX loggers")
         scanner = BleakScanner(_scan_cb, None)
         await scanner.start()
         await asyncio.sleep(t)

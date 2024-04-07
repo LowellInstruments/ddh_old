@@ -22,7 +22,8 @@ from mat.ble.ble_mat_utils import (ble_mat_get_antenna_type,
 from dds.ble_dl_rn4020 import ble_interact_rn4020
 from dds.ble_dl_dox import ble_interact_do1_or_do2
 from dds.gps import gps_tell_position_logger
-from mat.lix import id_lid_file_flavor, LID_FILE_V2, convert_lix_file
+from mat.data_converter import default_parameters, DataConverter
+from mat.lix import id_lid_file_flavor, LID_FILE_V2, convert_lix_file, LID_FILE_V1
 from mat.utils import linux_is_rpi
 from utils.ddh_config import (dds_get_cfg_flag_purge_this_mac_dl_files_folder,
                               dds_get_cfg_logger_sn_from_mac)
@@ -57,11 +58,15 @@ def _ble_tell_logger_seen(mac, _b, _o):
 def _ble_convert_lid(ls_lid):
     for f in ls_lid:
         # f: absolute file path ending in .lid
-        if id_lid_file_flavor(f) != LID_FILE_V2:
-            continue
-        lg.a(f"after download converting LID file v2 {f}")
-        convert_lix_file(f)
-        lg.a(f"OK: after download converted LID file v2 {f}")
+        n = id_lid_file_flavor(f)
+        lg.a(f"after download converting LID file v{n} {f}")
+        if n == LID_FILE_V2:
+            convert_lix_file(f)
+        if n == LID_FILE_V1:
+            # do the old MAT library conversion
+            parameters = default_parameters()
+            DataConverter(f, parameters).convert()
+        lg.a(f"OK: after download converted LID file v{n} {f}")
 
 
 def _ble_analyze_logger_result(rv, g, ln: LoggerNotification, err_critical):
