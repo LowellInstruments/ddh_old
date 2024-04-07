@@ -4,6 +4,8 @@
 from multiprocessing import Process
 import threading
 import time
+
+from dds.gpq import dds_create_folder_gpq
 from dds.aws import aws_serve
 from dds.ble import ble_interact_all_loggers
 from dds.ble_scan import ble_scan
@@ -42,11 +44,8 @@ from dds.timecache import its_time_to
 from mat.linux import linux_app_write_pid_to_tmp, linux_is_process_running
 from mat.ble.ble_mat_utils import (
     ble_mat_get_antenna_type,
-    ble_mat_bluetoothctl_power_cycle, ble_mat_disconnect_all_devices_ll, ble_mat_systemctl_restart_bluetooth
+    ble_mat_bluetoothctl_power_cycle, ble_mat_disconnect_all_devices_ll
 )
-from mat.utils import linux_is_rpi
-from rpc.rpc_rx import th_srv_cmd
-from rpc.rpc_tx import th_cli_notify
 from utils.ddh_config import dds_check_cfg_has_box_info, \
     dds_get_cfg_monitored_macs, dds_get_cfg_skip_in_port_en
 from utils.ddh_shared import (
@@ -75,6 +74,7 @@ def main_dds():
     dds_create_folder_macs_color()
     dds_create_folder_sqs()
     dds_create_folder_lef()
+    dds_create_folder_gpq()
     dds_create_folder_dl_files()
     dds_create_folder_logs()
     dds_log_core_start_at_boot()

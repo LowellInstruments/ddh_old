@@ -24,6 +24,7 @@ ddh/gui/res/*_C.gif
 
 # just in case there are more dl_files here
 dds/dl_files/
+dds/gpq_files/
 dds/macs/black/
 dds/macs/orange/
 .ruff_cache/

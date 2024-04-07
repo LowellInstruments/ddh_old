@@ -205,6 +205,11 @@ def get_ddh_folder_path_dl_files() -> Path:
     return Path(f"{p}/dl_files")
 
 
+def get_ddh_folder_path_gpq_files() -> Path:
+    p = str(ddh_get_root_folder_path())
+    return Path(f"{p}/gpq_files")
+
+
 def get_ddh_folder_path_logs() -> Path:
     # solves testing folders being created inside 'dds'
     p = os.getcwd()

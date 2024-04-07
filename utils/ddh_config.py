@@ -33,7 +33,7 @@ def cfg_load_from_file():
             _check_cfg(c)
             return c
     except (Exception, ) as ex:
-        print('error: toml_cfg_read_file: ', ex)
+        print('error: cfg_load_from_file: ', ex)
         os._exit(1)
 
 
@@ -43,7 +43,7 @@ def cfg_save_to_file(c):
         with open(p, 'w') as f:
             toml.dump(c, f)
     except (Exception, ) as ex:
-        print('error: toml_cfg_read_file: ', ex)
+        print('error: cfg_save_to_file: ', ex)
         os._exit(1)
 
 

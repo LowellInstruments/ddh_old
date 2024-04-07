@@ -1,0 +1,60 @@
+#!/usr/bin/env python3
+
+import setproctitle
+from fastapi import FastAPI
+from datetime import datetime
+
+from api.api_utils import (
+                           linux_app_write_pid_to_tmp,
+                           CTT_API_OK)
+import uvicorn
+
+from dds.gpq import GpqW
+
+# instead, the DDN port is 9000
+DDH_PORT_API = 8000
+NAME_EXE_API = "main_api"
+PID_FILE_API = "/tmp/{}.pid".format(NAME_EXE_API)
+
+
+app = FastAPI()
+FMT_RECORD_GPQ_DB = '%Y/%m/%d %H:%M:%S'
+FMT_FILENAME = '%y%m%d%H.json'
+FMT_API_GPQ = '%Y%m%d%H%M%S'
+
+
+# global vars
+g_w = GpqW()
+
+
+@app.put('/gpq')
+async def ep_gpq(dt_s, lat, lon):
+    # http://0.0.0.0:8000/gpq?dt_s=20240102030405&lat=lat1&lon=lon1
+    dn = datetime.strptime(dt_s, FMT_API_GPQ)
+    g_w.add(dn, lat, lon)
+    d = {
+        "gpq_put": CTT_API_OK,
+        "dn": str(dn)
+    }
+    return d
+
+
+@app.get('/gpq')
+async def ep_gpq(dt_s, lat, lon):
+    # http://0.0.0.0:8000/gpq?dt_s=1&lat=2&lon=3
+    d = {
+        "gpq_get": CTT_API_OK
+    }
+    return d
+
+
+
+def main_api():
+    # docs at http://0.0.0.0/port/docs
+    setproctitle.setproctitle(NAME_EXE_API)
+    linux_app_write_pid_to_tmp(PID_FILE_API)
+    uvicorn.run(app, host="0.0.0.0", port=DDH_PORT_API)
+
+
+if __name__ == "__main__":
+    main_api()
