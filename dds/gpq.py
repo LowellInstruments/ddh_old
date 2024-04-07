@@ -63,7 +63,7 @@ class NGpqR:
         self.ls = []
         self.all = {}
 
-    def load(self, dt: datetime):
+    def _load(self, dt: datetime):
         f = dt.strftime(FMT_FILENAME)
         p = f'{get_ddh_folder_path_gpq_files()}/{f}'
         if not os.path.exists(p):
@@ -79,10 +79,10 @@ class NGpqR:
         self.all.update(d)
         self.ls.append(f)
 
-    def query(self, s):
+    def query(self, s, delta_mm):
         # s: '2024/04/05 21:45:22'
         dt_s = datetime.strptime(s, FMT_RECORD)
-        self.load(dt_s)
+        self._load(dt_s)
         t = list(self.all.keys())
         if not t:
             # our big dictionary has no values
@@ -100,6 +100,7 @@ class NGpqR:
         now = datetime.strptime(s, FMT_RECORD)
         bef = datetime.strptime(t[i - 1], FMT_RECORD)
         _diff = (now - bef).total_seconds()
+        # todo --> use delta_mm here
         print('\ti', i)
         print('\tdiff ', _diff)
         return i, _diff
@@ -171,7 +172,7 @@ def main():
     el = time.perf_counter()
     ngr = NGpqR(dn)
     # superfluous, just to test flexibility
-    ngr.load(dn + timedelta(days=1))
+    ngr._load(dn + timedelta(days=1))
     a_out_bef = (dn + timedelta(seconds=-500)).strftime(FMT_RECORD)
     a_in = (dn + timedelta(seconds=100)).strftime(FMT_RECORD)
     a_out_aft = (dn + timedelta(seconds=2000)).strftime(FMT_RECORD)

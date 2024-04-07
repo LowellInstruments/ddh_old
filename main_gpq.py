@@ -41,12 +41,12 @@ async def ep_gpq(dt_api, lat, lon):
 
 
 @app.get('/gpq')
-async def ep_gpq(dt_api):
-    # http://0.0.0.0:8000/gpq?dt_api=20240102030405&lat=lat1&lon=lon1
+async def ep_gpq(dt_api, delta_mm):
+    # delta_mm: max minutes of difference
+    # http://0.0.0.0:8000/gpq?dt_api=20240102030405&delta_mm=30
     dn = datetime.strptime(dt_api, FMT_API_GPQ)
-    g_r.load(dn)
     dt_s = dn.strftime(FMT_RECORD)
-    rv = g_r.query(dt_s)
+    rv = g_r.query(dt_s, delta_mm)
     d = {
         "gpq_get": CTT_API_OK,
         'rv': f'{rv[0], rv[1]}'
