@@ -231,6 +231,7 @@ async def ble_interact_tdo(mac, info, g, h):
         rv = await BleTDODownload.download_recipe(lc, mac, g, notes)
 
     except Exception as ex:
+        await lc.disconnect()
         lg.a("error dl_tdo_exception {}".format(ex))
         rv = 1
 

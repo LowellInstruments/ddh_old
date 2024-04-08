@@ -32,6 +32,7 @@ DDH_NOTIFICATION_ERROR_HW_LOGGER_RETRIES = 'too many bad download attempts on lo
 DDH_NOTIFICATION_ERROR_SW_AWS_S3 = 'too long since a good AWS sync'
 DDH_NOTIFICATION_ERROR_SW_CRASH = 'DDH just crashed, or at least restarted'
 DDH_NOTIFICATION_OK_LOGGER_DL = 'logger download OK'
+DDH_NOTIFICATION_OK_LOGGER_HYPOXIA = 'logger detected hypoxia'
 DDH_NOTIFICATION_SMS = 'DDH sent a SMS'
 
 
@@ -171,6 +172,10 @@ def notify_ddh_in_port(g):
 
 def notify_logger_download(g, ln):
     return _n(DDH_NOTIFICATION_OK_LOGGER_DL, g, ln)
+
+
+def notify_logger_dox_hypoxia(g, ln):
+    return _n(DDH_NOTIFICATION_OK_LOGGER_HYPOXIA, g, ln)
 
 
 def notify_logger_error_retries(g, ln):

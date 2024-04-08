@@ -1,3 +1,5 @@
+import json
+
 import numpy as np
 import time
 from datetime import datetime
@@ -7,6 +9,8 @@ from PyQt5.QtCore import QTime, QCoreApplication
 import pyqtgraph as pg
 from pyqtgraph.Qt import QtGui
 from pyqtgraph import LinearRegionItem
+
+from api.api_ddb import api_ddb_req
 from ddh.utils_graph import utils_graph_read_fol_req_file, \
     utils_graph_get_abs_fol_list, process_graph_csv_data, \
     utils_graph_does_exist_fol_req_file, \
@@ -187,6 +191,15 @@ def _graph_calc_hash_filenames(fol):
     _g_ff_do = sorted(glob("{}/{}".format(fol, "*_DissolvedOxygen.csv")))
     _g_ff_tdo = sorted(glob("{}/{}".format(fol, "*_TDO.csv")))
 
+    # in case of TDO, ask DDB API if we have to plot all this
+    rsp = api_ddb_req('gra')
+    _tdo_fast = json.loads(rsp.text)['ls'] if rsp else None
+    if _tdo_fast != _g_ff_tdo:
+        lg.a('warning: filtered some TDO files via fast mode')
+        for i in list(set(_g_ff_tdo).difference(set(_tdo_fast))):
+            lg.a(f'warning:    - {i}')
+    _g_ff_tdo = _tdo_fast
+
     # so we can use cache
     return '\n'.join(_g_ff_t) + '\n'.join(_g_ff_p) +\
         '\n'.join(_g_ff_do) + '\n'.join(_g_ff_tdo)
@@ -261,7 +274,9 @@ def _process_n_graph(a, r=''):
     global p1
     global p2
     global p3
+    global p3_bak
     if p1:
+        p1.scene().removeItem(p3_bak)
         p1.clear()
     if p2:
         p2.clear()
@@ -294,7 +309,6 @@ def _process_n_graph(a, r=''):
         p3.setXLink(p1)
         ax3.setZValue(-10000)
         # so we can remove it later
-        global p3_bak
         p3_bak = ax3
     else:
         p3_bak.setStyle(showValues=False)

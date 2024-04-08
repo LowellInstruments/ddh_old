@@ -12,6 +12,7 @@ export FOL_DDH=$FOL_LI/ddh
 export FOL_DDT=$FOL_LI/ddt
 export FOL_VEN=$FOL_LI/venv
 export FOL_VAN=$FOL_LI/venv_api
+export FOL_VBN=$FOL_LI/venv_ddb
 export FILE_GRAPH_TEST_MODE=/tmp/ddh_graph_test_mode.json
 export GPS_DUMMY_MODE_FILE=/tmp/gps_dummy_mode.json
 export GPS_EXTERNAL_FILE_FLAG=$FOL_LI/.ddt_gps_external.flag

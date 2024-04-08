@@ -238,6 +238,7 @@ async def ble_interact_do1_or_do2(mac, info, g, h):
         rv = await BleCC26X2Download.download_recipe(lc, mac, g, notes)
 
     except Exception as ex:
+        await lc.disconnect()
         lg.a(f"error dl_cc26x2r_exception {ex}")
         rv = 1
 
