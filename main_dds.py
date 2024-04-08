@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-
-
+import pathlib
 from multiprocessing import Process
 import threading
 import time
@@ -44,11 +43,12 @@ from dds.timecache import its_time_to
 from mat.linux import linux_app_write_pid_to_tmp, linux_is_process_running
 from mat.ble.ble_mat_utils import (
     ble_mat_get_antenna_type,
-    ble_mat_bluetoothctl_power_cycle, ble_mat_disconnect_all_devices_ll, ble_mat_systemctl_restart_bluetooth,
+    ble_mat_bluetoothctl_power_cycle, ble_mat_disconnect_all_devices_ll,
     ble_mat_get_antenna_type_v2
 )
+from mat.utils import linux_is_rpi
 from utils.ddh_config import dds_check_cfg_has_box_info, \
-    dds_get_cfg_monitored_macs, dds_get_cfg_skip_in_port_en
+    dds_get_cfg_monitored_macs,
 from utils.ddh_shared import (
     PID_FILE_DDS,
     dds_create_folder_dl_files,
@@ -56,7 +56,7 @@ from utils.ddh_shared import (
     dds_ensure_proper_working_folder,
     PID_FILE_DDS_CONTROLLER,
     NAME_EXE_DDS_CONTROLLER,
-    NAME_EXE_DDS, ael,
+    NAME_EXE_DDS, ael, dds_get_aws_has_something_to_do_via_gui_flag_file,
 )
 from utils.logs import (
     lg_dds as lg,
@@ -175,12 +175,21 @@ def main_dds():
         det = ael.run_until_complete(ble_scan(*args))
 
         # download only in case "detected" is not empty
-        if dds_get_cfg_skip_in_port_en() and dds_ask_in_port_to_ddn(g, dl=det):
+        if dds_ask_in_port_to_ddn(g, dl=det):
             continue
 
         # BLE download stage
         args = [det, m_j, g, h, h_d]
         rvi = ael.run_until_complete(ble_interact_all_loggers(*args))
+
+        # tell AWS has stuff to do
+        try:
+            if det and linux_is_rpi():
+                flag = dds_get_aws_has_something_to_do_via_gui_flag_file()
+                pathlib.Path(flag).touch()
+                lg.a("created AWS flag file after BLE interaction")
+        except (Exception,):
+            lg.a('error: creating AWS flag file')
 
         # recovery situations
         if rvi:

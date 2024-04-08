@@ -4,10 +4,15 @@ import requests
 
 from dds.notifications import notify_ddh_in_port
 from dds.timecache import its_time_to, check_if_its_time_to
+from utils.ddh_config import dds_get_cfg_skip_in_port_en
 from utils.logs import lg_gps as lg
 
 
 def dds_ask_in_port_to_ddn(g, dl=False):
+
+    if dds_get_cfg_skip_in_port_en() == 0:
+        # not in port when this feature not-enabled
+        return 0
 
     lat, lon, tg, speed = g
     s = 'tell_we_in_port'

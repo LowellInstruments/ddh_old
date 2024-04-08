@@ -659,11 +659,15 @@ class Ui_MainWindow(object):
         self.lay_g_h2_3 = QtWidgets.QHBoxLayout()
         self.lay_g_h2_3.setContentsMargins(-1, 3, -1, -1)
         self.lay_g_h2_3.setObjectName("lay_g_h2_3")
+        spacerItem33 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Minimum)
+        self.lay_g_h2_3.addItem(spacerItem33)
         self.lbl_map = QtWidgets.QLabel(self.tab_map)
         self.lbl_map.setText("")
         self.lbl_map.setScaledContents(True)
         self.lbl_map.setObjectName("lbl_map")
         self.lay_g_h2_3.addWidget(self.lbl_map)
+        spacerItem34 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Minimum)
+        self.lay_g_h2_3.addItem(spacerItem34)
         self.verticalLayout_4.addLayout(self.lay_g_h2_3)
         self.verticalLayout_4.setStretch(0, 10)
         self.tabs.addTab(self.tab_map, "")
@@ -671,7 +675,7 @@ class Ui_MainWindow(object):
         MainWindow.setCentralWidget(self.centralwidget)
 
         self.retranslateUi(MainWindow)
-        self.tabs.setCurrentIndex(3)
+        self.tabs.setCurrentIndex(6)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def retranslateUi(self, MainWindow):

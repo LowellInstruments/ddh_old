@@ -233,7 +233,6 @@ async def _ble_id_n_interact_logger(mac, info: str, h, g):
     tz_utc = datetime.timezone.utc
     dt_local = dt.replace(tzinfo=tz_utc).astimezone(tz=tz_ddh)
 
-
     # ------------------------------------------------
     # ensure value for error_dl, not always populated
     # ------------------------------------------------
@@ -251,16 +250,6 @@ async def _ble_id_n_interact_logger(mac, info: str, h, g):
 
     _u(f"{STATE_DDS_NOTIFY_HISTORY}/add&"
        f"{mac}&{e}&{lat}&{lon}&{ep_loc}&{ep_utc}")
-
-    # AWS flag only set on rpi, it is checked later after all loggers end
-    try:
-        if linux_is_rpi() and not rv:
-            flag = dds_get_aws_has_something_to_do_via_gui_flag_file()
-            pathlib.Path(flag).touch()
-            lg.a("created AWS flag file")
-    except (Exception, ):
-        lg.a('error: creating AWS flag file')
-    return rv
 
 
 async def ble_interact_all_loggers(macs_det, macs_mon, g, _h: int, _h_desc):

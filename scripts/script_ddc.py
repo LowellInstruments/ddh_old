@@ -276,7 +276,7 @@ def cb_get_flag_j4h():
 
 
 def cb_get_flag_sailor():
-    # todo ---> soon
+    # todo ---> soon get sailor hat
     return 0
 
 

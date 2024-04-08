@@ -23,6 +23,7 @@ aws_en = 1
 sqs_en = 1
 ble_en = 1
 rbl_en = 0
+gpq_en = 0
 maps_en = 0
 sms_en = 0
 skip_dl_in_port_en = 0
