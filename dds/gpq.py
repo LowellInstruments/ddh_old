@@ -21,11 +21,6 @@ FMT_RECORD = '%Y/%m/%d %H:%M:%S'
 # -----------------------------------------------
 
 
-def dds_create_folder_gpq():
-    r = get_ddh_folder_path_gpq_files()
-    os.makedirs(r, exist_ok=True)
-
-
 class GpqW:
     def __init__(self):
         self.db = DB(keys=['t', 'lat', 'lon'])

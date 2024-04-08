@@ -4,7 +4,6 @@ from multiprocessing import Process
 import threading
 import time
 
-from dds.gpq import dds_create_folder_gpq
 from dds.aws import aws_serve
 from dds.ble import ble_interact_all_loggers
 from dds.ble_scan import ble_scan
@@ -56,7 +55,7 @@ from utils.ddh_shared import (
     dds_ensure_proper_working_folder,
     PID_FILE_DDS_CONTROLLER,
     NAME_EXE_DDS_CONTROLLER,
-    NAME_EXE_DDS, ael, dds_get_aws_has_something_to_do_via_gui_flag_file,
+    NAME_EXE_DDS, ael, dds_get_aws_has_something_to_do_via_gui_flag_file, dds_create_folder_gpq,
 )
 from utils.logs import (
     lg_dds as lg,

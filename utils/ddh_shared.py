@@ -210,6 +210,11 @@ def get_ddh_folder_path_gpq_files() -> Path:
     return Path(f"{p}/gpq_files")
 
 
+def dds_create_folder_gpq():
+    r = get_ddh_folder_path_gpq_files()
+    os.makedirs(r, exist_ok=True)
+
+
 def get_ddh_folder_path_logs() -> Path:
     # solves testing folders being created inside 'dds'
     p = os.getcwd()
