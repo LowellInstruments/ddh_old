@@ -59,14 +59,14 @@ async def ep_gpq(dt_api):
     return d
 
 
-def main_gpq():
+def gpq_server():
     # docs at http://0.0.0.0/port/docs
     setproctitle.setproctitle(NAME_EXE_GPQ)
     linux_app_write_pid_to_tmp(PID_FILE_GPQ)
     uvicorn.run(app, host="0.0.0.0", port=DDH_PORT_GPQ)
 
 
-def cli_gpq():
+def gpq_client():
     def req_get(u, time_out=1):
         try:
             _rsp = requests.get(u, timeout=time_out)
@@ -103,6 +103,6 @@ def cli_gpq():
 
 
 if __name__ == "__main__":
-    th = threading.Thread(target=cli_gpq)
+    th = threading.Thread(target=gpq_client)
     th.start()
-    main_gpq()
+    gpq_server()
