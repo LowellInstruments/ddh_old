@@ -48,7 +48,7 @@ from mat.ble.ble_mat_utils import (
 )
 from mat.utils import linux_is_rpi
 from utils.ddh_config import dds_check_cfg_has_box_info, \
-    dds_get_cfg_monitored_macs,
+    dds_get_cfg_monitored_macs
 from utils.ddh_shared import (
     PID_FILE_DDS,
     dds_create_folder_dl_files,
