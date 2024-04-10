@@ -8,6 +8,7 @@ import tzlocal
 
 from dds.state import ddh_state
 from dds.timecache import its_time_to
+from mat.ble.ble_mat_utils import ble_mat_get_antenna_type_v2
 from utils.logs import lg_sqs as lg
 from utils.ddh_config import (dds_get_cfg_box_sn,
                               dds_get_cfg_box_project,
@@ -84,7 +85,7 @@ class _DDHNotification:
         self.ddh_sw_version = get_ddh_sw_version()
         self.ddh_gps_position = ''
         self.ddh_gps_speed = ''
-        self.ddh_ble_antenna = ddh_state.ble_antenna_s
+        _, self.ddh_ble_antenna = ble_mat_get_antenna_type_v2()
         if g:
             lat, lon, _, speed = g
             self.ddh_gps_position = '{:.4f}, {:.4f}'.format(float(lat), float(lon))
