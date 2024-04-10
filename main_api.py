@@ -94,6 +94,18 @@ async def api_upload_conf(file: UploadFile = File(...)):
     return {ep: CTT_API_OK}
 
 
+@app.get('/sim')
+async def api_get_iccid():
+    try:
+        with open('/tmp/qccid', 'r') as f:
+            s = f.readlines()[0]
+            s = s.replace('^M', '')
+            s = s.split('+QCCID: ')[1]
+    except (Exception, ) as ex:
+        s = str(ex)
+    return {ep: s}
+
+
 @app.get('/info')
 async def api_get_info():
     def _th(cb):
