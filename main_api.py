@@ -103,7 +103,7 @@ async def api_get_iccid():
             s = s.split('+QCCID: ')[1]
     except (Exception, ) as ex:
         s = str(ex)
-    return {ep: s}
+    return {'iccid': s}
 
 
 @app.get('/info')
