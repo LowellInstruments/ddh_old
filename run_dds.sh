@@ -5,6 +5,11 @@ source /home/pi/li/ddh/scripts/utils.sh
 echo
 
 
+_pb "[ RUN ] DDS | capturing SIM ID"
+echo -ne "AT+QCCID\r" > /dev/ttyUSB2 && \
+(cat -v < /dev/ttyUSB2 | grep QCCID) > /tmp/qccid
+
+
 # for crontab to detect already running
 check_already_running "main_dds_controller"
 
