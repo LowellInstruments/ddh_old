@@ -8,10 +8,6 @@ import subprocess as sp
 import sys
 import time
 
-import requests
-from requests import HTTPError
-
-from lis.ddh_api import PORT_DDH_API
 
 CTT_API_OK = 'ok'
 CTT_API_ER = 'error'
