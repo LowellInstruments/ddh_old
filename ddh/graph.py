@@ -1,9 +1,14 @@
 import json
+import multiprocessing
+import sys
+from multiprocessing import Process
 
 import numpy as np
 import time
 from datetime import datetime
 from glob import glob
+
+import setproctitle
 from PyQt5 import QtCore
 from PyQt5.QtCore import QTime, QCoreApplication
 import pyqtgraph as pg
@@ -12,7 +17,9 @@ from pyqtgraph import LinearRegionItem
 from ddh.utils_graph import utils_graph_read_fol_req_file, \
     utils_graph_get_abs_fol_list, process_graph_csv_data, \
     utils_graph_does_exist_fol_req_file, \
-    utils_graph_delete_fol_req_file, utils_graph_tdo_file_read_fast_mode
+    utils_graph_delete_fol_req_file, utils_graph_tdo_file_read_fast_mode, utils_graph_tdo_classify_files_fast_mode
+from dds.timecache import its_time_to
+from mat.linux import linux_is_process_running
 from mat.utils import linux_is_rpi
 from utils.ddh_config import dds_get_cfg_logger_mac_from_sn
 from utils.ddh_shared import get_dl_folder_path_from_mac, \
@@ -32,6 +39,33 @@ just_booted = True
 # this one is dynamic so it needs a backup
 p3 = None
 p3_bak = None
+
+
+def gfm_serve():
+    # ---------------------------------------
+    # GFM: graph fast mode
+    # only graphs files with fast mode data
+    # ---------------------------------------
+    _P_ = "dds_gfm"
+
+    def _gfm_serve():
+        setproctitle.setproctitle(_P_)
+        utils_graph_tdo_classify_files_fast_mode()
+        # instead of return prevents zombie processes
+        sys.exit(0)
+
+    # useful to remove past zombie processes
+    multiprocessing.active_children()
+    if linux_is_process_running(_P_):
+        lg.a(f"error: seems last {_P_} took a long time")
+    else:
+        s = f'launching {_P_}'
+        if its_time_to(s, 600):
+            lg.a('_' * len(s))
+            lg.a(s)
+            lg.a('_' * len(s))
+            p = Process(target=_gfm_serve)
+            p.start()
 
 
 class GraphException(Exception):

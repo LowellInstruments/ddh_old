@@ -83,6 +83,7 @@ lg_emo = DDSLogs("emo")
 lg_log = DDSLogs("log")
 lg_api = DDSLogs("api")
 lg_gra = DDSLogs("gra")
+lg_cst = DDSLogs("cst")
 
 
 # these NORMAL logs are local
