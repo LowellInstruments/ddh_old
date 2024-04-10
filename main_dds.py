@@ -47,7 +47,7 @@ from mat.ble.ble_mat_utils import (
 )
 from mat.utils import linux_is_rpi
 from utils.ddh_config import dds_check_cfg_has_box_info, \
-    dds_get_cfg_monitored_macs, dds_get_cfg_flag_rbl_en
+    dds_get_cfg_monitored_macs, dds_get_cfg_flag_rbl_en, dds_check_cfg_has_all_flags
 from utils.ddh_shared import (
     PID_FILE_DDS,
     dds_create_folder_dl_files,
@@ -69,6 +69,7 @@ def main_dds():
 
     dds_create_buttons_thread()
     dds_tell_software_update()
+    dds_check_cfg_has_all_flags()
     dds_check_cfg_has_box_info()
     dds_ensure_proper_working_folder()
     dds_create_folder_macs_color()

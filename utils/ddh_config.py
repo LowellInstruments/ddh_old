@@ -1,3 +1,6 @@
+import copy
+import sys
+
 import toml
 import os
 
@@ -12,7 +15,7 @@ def _get_relative_config_file_path():
     return '../settings/config.toml'
 
 
-def _check_cfg(c):
+def _check_monitored_macs_in_cfg_file(c):
     for k, v in c['monitored_macs'].items():
         if '-' in k:
             print('error: "-" symbol in monitored macs, use ":"')
@@ -30,7 +33,7 @@ def cfg_load_from_file():
         p = _get_relative_config_file_path()
         with open(p, 'r') as f:
             c = toml.load(f)
-            _check_cfg(c)
+            _check_monitored_macs_in_cfg_file(c)
             return c
     except (Exception, ) as ex:
         print('error: cfg_load_from_file: ', ex)
@@ -144,6 +147,38 @@ def dds_get_cfg_logger_mac_from_sn(sn):
 def ddh_get_cfg_gear_type():
     # 0 normal 1 trawling
     return cfg['behavior']['gear_type']
+
+
+def dds_check_cfg_has_all_flags():
+    b = copy.deepcopy(cfg)
+    try:
+        for i in [
+            'aws_en',
+            'sqs_en',
+            'ble_en',
+            'rbl_en',
+            'gpq_en',
+            'maps_en',
+            'sms_en',
+            'skip_dl_in_port_en',
+            'hook_gps_error_measurement_forced',
+            'hook_ble_purge_black_macs_on_boot',
+            'hook_ble_purge_this_mac_dl_files_folder'
+        ]:
+            del b['flags'][i]
+    except (Exception, ) as ex:
+        print(f'error dds_check_cfg_has_all_keys -> {ex}')
+        sys.exit(1)
+
+    if len(b['flags']):
+        print(f'error dds_check_cfg_has_all_keys -> unexpected keys remain')
+        print(b['flags'])
+        sys.exit(1)
+
+    # monitored macs checked in _check_monitored_macs_in_cfg_file()
+
+    assert type(b['behavior']['moving_speed']) is list
+    assert type(b['behavior']['fake_gps_position']) is list
 
 
 def dds_check_cfg_has_box_info():

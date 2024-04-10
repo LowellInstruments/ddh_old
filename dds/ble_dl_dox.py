@@ -196,7 +196,8 @@ class BleCC26X2Download:
         # see if this guy has GDX (better GDO) instruction
         await asyncio.sleep(1)
         rv = await lc.cmd_gdx()
-        lg.a("GDX | (beta) {}".format(rv))
+        lg.a(f"GDX | (beta) {rv}")
+        await asyncio.sleep(1)
 
         # wake mode
         w = "on" if rerun_flag else "off"
@@ -253,8 +254,8 @@ if __name__ == "__main__":
     # we currently in 'ddh/dds'
     ble_mat_disconnect_all_devices_ll()
     os.chdir('..')
-    _m = "11:22:33:44:55:66"
-    _i = "DO-1"
+    _m = "60:77:71:22:CA:6A"
+    _i = "DO-2"
     _g = ("+1.111111", "-2.222222", datetime.datetime.now(), 0)
     _h = "hci0"
     _args = [_m, _i, _g, _h]
