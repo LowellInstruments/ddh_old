@@ -194,7 +194,7 @@ async def _ble_id_n_interact_logger(mac, info: str, h, g):
     lg.a(f"processing sensor {sn} / mac {mac}")
 
     # bleak wants a string, not an integer
-    hs = "hci{}".format(h)
+    hs = f"hci{h}"
 
     # separate g
     lat, lon, dt, _ = g
@@ -222,7 +222,6 @@ async def _ble_id_n_interact_logger(mac, info: str, h, g):
         _crit_error = notes["crit_error"]
         _error_dl = notes["error"]
         _ble_convert_lid(notes)
-        #_ble_convert_cst(notes)
 
     elif _ble_logger_is_rn4020(mac, info):
         rv = await ble_interact_rn4020(mac, info, g, hs)
@@ -244,7 +243,6 @@ async def _ble_id_n_interact_logger(mac, info: str, h, g):
         _crit_error = notes["crit_error"]
         _error_dl = notes["error"]
         _ble_convert_lid(notes)
-        #_ble_convert_cst(notes)
 
     else:
         lg.a(f'error: this should not happen, info {info}')
@@ -288,6 +286,8 @@ async def _ble_id_n_interact_logger(mac, info: str, h, g):
 
     _u(f"{STATE_DDS_NOTIFY_HISTORY}/add&"
        f"{mac}&{e}&{lat}&{lon}&{ep_loc}&{ep_utc}")
+
+    return rv
 
 
 async def ble_interact_all_loggers(macs_det, macs_mon, g, _h: int, _h_desc):
