@@ -100,6 +100,7 @@ async def api_get_iccid():
         with open('/tmp/qccid', 'r') as f:
             s = f.readlines()[0]
             s = s.replace('^M', '')
+            s = s.replace('\n', '')
             s = s.split('+QCCID: ')[1]
     except (Exception, ) as ex:
         s = str(ex)
