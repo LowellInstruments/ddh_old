@@ -153,10 +153,9 @@ async def ble_scan(macs_mon, g, _h: int, _h_desc, t=6.0):
         _all[mac] = dt
         if not _ble_is_supported_logger(dt):
             return
-        # device is a supported type
-        _our[mac] = dt
         # allows scan to end faster
         if mac in macs_mon and mac not in macs_bad:
+            _our[mac] = dt
             global _g_ble_scan_early_leave
             _g_ble_scan_early_leave = mac
 
