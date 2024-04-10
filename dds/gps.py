@@ -4,6 +4,7 @@ import subprocess as sp
 import time
 import serial
 
+from dds.gpq import GpqW
 from dds.notifications import notify_ddh_error_hw_gps
 from dds.timecache import its_time_to
 from mat.gps import PORT_CTRL, PORT_DATA
@@ -14,7 +15,7 @@ from utils.tmp_paths import TMP_PATH_GPS_LAST_JSON, TMP_PATH_DDH_BOAT_SPEED_JSON
 from utils.ddh_config import (dds_get_cfg_vessel_name,
                               dds_get_cfg_flag_gps_external,
                               dds_get_cfg_flag_gps_error_forced,
-                              dds_get_cfg_fake_gps_position)
+                              dds_get_cfg_fake_gps_position, dds_get_cfg_gpq_en)
 from utils.ddh_shared import (
     send_ddh_udp_gui as _u,
     STATE_DDS_NOTIFY_GPS,
@@ -35,6 +36,7 @@ _g_ts_cached_gps_valid_for = 0
 _g_cached_gps = None
 _g_banner_cache_too_old = 0
 _g_ever_gps_clock_sync = False
+_g_gpw = GpqW()
 
 
 PERIOD_GPS_CACHE_VALID_SECS = 30
@@ -302,6 +304,10 @@ def gps_measure():
     try:
         g = _gps_measure()
         if g:
+            # add to GpqW
+            if dds_get_cfg_gpq_en():
+                lat, lon, tg, speed = g
+                _g_gpw.add(tg, lat, lon)
             return g
 
         # at this point, cache may be valid or just empty
@@ -380,8 +386,7 @@ def gps_tell_vessel_name():
 
 def gps_tell_position_logger(g):
     lat, lon, tg, speed = g
-    s = "logger process at {}, {}, speed {}"
-    lg.a(s.format(lat, lon, speed))
+    lg.a(f"logger process at {lat}, {lon}, speed {speed}")
 
 
 def gps_check_for_errors(g) -> int:
@@ -419,7 +424,7 @@ def gps_did_we_ever_clock_sync() -> bool:
     return _g_ever_gps_clock_sync
 
 
-def _gps_power_on_off_hat():
+def _gps_power_cycle():
     _u("{}".format(STATE_DDS_GPS_POWER_CYCLE))
     t = 75
     lg.a("=== warning: power-cycling hat, wait ~{} seconds ===".format(t))
@@ -474,7 +479,7 @@ def gps_power_cycle_if_so(forced=False):
             # be really sure hat is OK
             if not _gps_ll_check_hat_out_stream():
                 lg.a("error: power-cycle needed, no GPS OUT stream")
-                _gps_power_on_off_hat()
+                _gps_power_cycle()
 
         # output stream answers but not enabled, enable it
         elif b"\r\n+QGPS: 0\r\n\r\nOK\r\n" in ans:
@@ -490,7 +495,7 @@ def gps_power_cycle_if_so(forced=False):
         # output stream not even there, but at least port answers
         elif not ans:
             lg.a("warning: power-cycle needed, hat not answering")
-            _gps_power_on_off_hat()
+            _gps_power_cycle()
 
         else:
             lg.a("warning: power-cycle, this should never happen")
@@ -498,7 +503,7 @@ def gps_power_cycle_if_so(forced=False):
     except (Exception,) as ex:
         # port does not even answer at /dev/ttyUSBx
         lg.a("error: failed gps_power_cycle -> {}".format(ex))
-        _gps_power_on_off_hat()
+        _gps_power_cycle()
 
     finally:
         if sp:

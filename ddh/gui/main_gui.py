@@ -11,7 +11,7 @@ import sys
 from PyQt5.QtCore import QTimer, Qt, QCoreApplication
 from PyQt5.QtWidgets import QMainWindow
 import ddh.gui.designer_main as d_m
-from ddh.db.db_his import DBHis
+from ddh.db.db_his import DbHis
 from ddh.graph import process_n_graph
 from ddh.utils_gui import (
     gui_hide_edit_tab,
@@ -380,7 +380,7 @@ class DDH(QMainWindow, d_m.Ui_MainWindow):
 
         s = "sure to purge history?"
         if gui_confirm_by_user(s):
-            db = DBHis(ddh_get_db_history_file())
+            db = DbHis(ddh_get_db_history_file())
             db.delete_all()
         gui_populate_history_tab(self)
 

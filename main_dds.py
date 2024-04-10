@@ -39,9 +39,9 @@ from dds.ble_utils_dds import (
     ble_check_antenna_up_n_running, dds_tell_software_update, dds_check_bluez_version, dds_create_buttons_thread,
 )
 from dds.timecache import its_time_to
+from dds.ddb import ddb_serve
 from mat.linux import linux_app_write_pid_to_tmp, linux_is_process_running
 from mat.ble.ble_mat_utils import (
-    ble_mat_get_antenna_type,
     ble_mat_bluetoothctl_power_cycle, ble_mat_disconnect_all_devices_ll,
     ble_mat_get_antenna_type_v2
 )
@@ -143,6 +143,7 @@ def main_dds():
         gps_configure_shield()
 
         # other stages
+        ddb_serve()
         cnv_serve()
         aws_serve()
         sqs_serve()

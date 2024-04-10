@@ -9,12 +9,10 @@ from PyQt5.QtCore import QTime, QCoreApplication
 import pyqtgraph as pg
 from pyqtgraph.Qt import QtGui
 from pyqtgraph import LinearRegionItem
-
-from api.api_ddb import api_ddb_req
 from ddh.utils_graph import utils_graph_read_fol_req_file, \
     utils_graph_get_abs_fol_list, process_graph_csv_data, \
     utils_graph_does_exist_fol_req_file, \
-    utils_graph_delete_fol_req_file
+    utils_graph_delete_fol_req_file, utils_graph_tdo_file_read_fast_mode
 from mat.utils import linux_is_rpi
 from utils.ddh_config import dds_get_cfg_logger_mac_from_sn
 from utils.ddh_shared import get_dl_folder_path_from_mac, \
@@ -186,23 +184,21 @@ def _graph_busy_sign_hide(a):
 
 
 def _graph_calc_hash_filenames(fol):
-    _g_ff_t = sorted(glob("{}/{}".format(fol, "*_Temperature.csv")))
-    _g_ff_p = sorted(glob("{}/{}".format(fol, "*_Pressure.csv")))
-    _g_ff_do = sorted(glob("{}/{}".format(fol, "*_DissolvedOxygen.csv")))
-    _g_ff_tdo = sorted(glob("{}/{}".format(fol, "*_TDO.csv")))
+    t = sorted(glob("{}/{}".format(fol, "*_Temperature.csv")))
+    p = sorted(glob("{}/{}".format(fol, "*_Pressure.csv")))
+    dox = sorted(glob("{}/{}".format(fol, "*_DissolvedOxygen.csv")))
+    tdo = sorted(glob("{}/{}".format(fol, "*_TDO.csv")))
 
-    # in case of TDO, ask DDB API if we have to plot all this
-    rsp = api_ddb_req('gra')
-    _tdo_fast = json.loads(rsp.text)['ls'] if rsp else None
-    if _tdo_fast != _g_ff_tdo:
-        lg.a('warning: filtered some TDO files via fast mode')
-        for i in list(set(_g_ff_tdo).difference(set(_tdo_fast))):
+    # maybe we skip graphing some TDO files without fast mode
+    tdo_fast = [i for i in tdo if utils_graph_tdo_file_read_fast_mode(i)]
+    if tdo != tdo_fast:
+        lg.a('warning: dropping some TDO files because no fast mode')
+        for i in list(set(tdo).difference(set(tdo_fast))):
             lg.a(f'warning:    - {i}')
-    _g_ff_tdo = _tdo_fast
+    tdo = tdo_fast
 
     # so we can use cache
-    return '\n'.join(_g_ff_t) + '\n'.join(_g_ff_p) +\
-        '\n'.join(_g_ff_do) + '\n'.join(_g_ff_tdo)
+    return '\n'.join(t) + '\n'.join(p) + '\n'.join(dox) + '\n'.join(tdo)
 
 
 def _process_n_graph(a, r=''):
@@ -300,7 +296,6 @@ def _process_n_graph(a, r=''):
     # 3rd line
     # ---------
     tdo_graph_type = a.cb_g_switch_tp.currentText()
-    print('************', tdo_graph_type)
     if 'x-time' in tdo_graph_type:
         p3 = pg.ViewBox()
         ax3 = pg.AxisItem('right')

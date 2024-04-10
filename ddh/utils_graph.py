@@ -1,4 +1,5 @@
 import os
+import pathlib
 import time
 from functools import lru_cache
 from glob import glob
@@ -13,6 +14,58 @@ from utils.logs import lg_gra as lg
 from utils.tmp_paths import TMP_PATH_GRAPH_REQ_JSON
 
 CTT_ATM_PRESSURE_DBAR = 10.1325
+
+
+def _utils_graph_get_fast_mode_file_name(path):
+    bn = '._' + os.path.basename(path)[:-4] + '.hfm'
+    return f'{os.path.dirname(path)}/{bn}'
+
+
+def utils_graph_tdo_file_read_fast_mode(path):
+    # path is full path
+    path = str(path)
+    if not path.endswith('_TDO.csv'):
+        lg.a('error: can only check for fast mode on TDO CSV files')
+        return
+    return os.path.exists(_utils_graph_get_fast_mode_file_name(path))
+
+
+def _utils_graph_tdo_file_set_fast_mode(path):
+    path = str(path)
+    if not path.endswith('_TDO.csv'):
+        lg.a('error: can only set fast mode on TDO CSV files')
+        return
+    fmf = _utils_graph_get_fast_mode_file_name(path)
+    if os.path.exists(fmf):
+        return
+
+    # has fast mode, create metafile
+    has_fm = False
+    with open(path, 'r') as f:
+        ll = f.readlines()
+        if len(ll) < 3:
+            # let's keep short files
+            has_fm = True
+        else:
+            # ll[3]: 2024-04-04T13:55:51.000,10,20,28032,419,22.411,10.003,-8,235,21
+            # headers: ts,el_t,agg_t,raw T,raw P,T(C),P(dbar),Ax,Ay,Az
+            el_base = ll[3].split(',')[1]
+            for i in ll[3:]:
+                el_cur = i.split(',')[1]
+                if el_cur != el_base:
+                    has_fm = True
+                    lg.a(f'OK: set fast mode for TDO file {os.path.basename(path)}')
+                    break
+
+    if has_fm:
+        pathlib.Path(fmf).touch()
+
+
+def utils_graph_tdo_classify_files_fast_mode():
+    fol = get_ddh_folder_path_dl_files()
+    ls = glob(f'{fol}/**/*_TDO.csv', recursive=True)
+    for i in ls:
+        _utils_graph_tdo_file_set_fast_mode(i)
 
 
 def utils_graph_get_abs_fol_list() -> list:

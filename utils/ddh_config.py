@@ -58,7 +58,11 @@ def dds_get_cfg_aws_en():
     return cfg['flags']['aws_en']
 
 
-def dds_get_cfg_skip_in_port_en():
+def dds_get_cfg_gpq_en():
+    return cfg['flags']['gpq_en']
+
+
+def dds_get_cfg_skip_dl_in_port_en():
     # todo ---> put this in EDIT tab
     return cfg['flags']['skip_dl_in_port_en']
 

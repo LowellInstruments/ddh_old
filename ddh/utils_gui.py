@@ -14,7 +14,7 @@ from PyQt5.QtWidgets import (
     QHeaderView,
 )
 from gpiozero import Button
-from ddh.db.db_his import DBHis
+from ddh.db.db_his import DbHis
 from ddh.graph import process_n_graph
 from ddh.utils_dtm import gui_populate_maps_tab
 from ddh.utils_net import net_get_my_current_wlan_ssid
@@ -190,7 +190,7 @@ def gui_populate_history_tab(my_app):
 
     a = my_app
     a.tbl_his.clear()
-    db = DBHis(ddh_get_db_history_file())
+    db = DbHis(ddh_get_db_history_file())
     r = db.get_all(15)
 
     for i, h in enumerate(r):
@@ -199,7 +199,7 @@ def gui_populate_history_tab(my_app):
         try:
             lat = "{:+6.4f}".format(float(h["lat"]))
             lon = "{:+6.4f}".format(float(h["lon"]))
-            dt = datetime.datetime.fromtimestamp(int(h["sws_time"]))
+            dt = datetime.datetime.fromtimestamp(int(h["ep_loc"]))
             t = dt.strftime("%b %d %H:%M")
             s = "{} on {} at {}, {}".format(e, t, lat, lon)
 
@@ -207,8 +207,8 @@ def gui_populate_history_tab(my_app):
             a.tbl_his.setItem(i, 0, QTableWidgetItem(str(h["SN"])))
             a.tbl_his.setItem(i, 1, QTableWidgetItem(s))
 
-        except (Exception,):
-            lg.a("error: history frame {}".format(h))
+        except (Exception,) as ex:
+            lg.a(f"error: history frame {h} -> {ex}")
 
     # redistribute columns with
     h = a.tbl_his.horizontalHeader()
@@ -399,7 +399,7 @@ def gui_dict_from_list_view(l_v):
 
 def gui_add_to_history_database(mac, e, lat, lon, ep_loc, ep_utc):
     sn = dds_get_cfg_logger_sn_from_mac(mac)
-    db = DBHis(ddh_get_db_history_file())
+    db = DbHis(ddh_get_db_history_file())
     db.add(mac, sn, e, lat, lon, ep_loc, ep_utc)
 
 

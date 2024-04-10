@@ -35,7 +35,12 @@ _g_files_already_converted = []
 
 
 def _lid_v1_file_has_sensor_data_type(path, suffix):
-    _map = {"_DissolvedOxygen": "DOS", "_Temperature": "TMP", "_Pressure": "PRS"}
+    if suffix == '_TDO':
+        return
+    _map = {
+        "_DissolvedOxygen": "DOS",
+        "_Temperature": "TMP",
+        "_Pressure": "PRS"}
     header = load_data_file(path).header()
     return header.tag(_map[suffix])
 
@@ -48,8 +53,7 @@ def _cnv_lid_file_v1(path, suf):
 
     # check v1 file header to skip files w/o this sensor data / suffix
     if not _lid_v1_file_has_sensor_data_type(f, suf):
-        # s = 'debug: skip conversion, file {} has no {} data'
-        # lg.a(s.format(f, suf))
+        lg.a(f'debug: skip conversion, file {f} has no {suf} data')
         return
 
     # do the v1 conversion

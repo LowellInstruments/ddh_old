@@ -134,7 +134,6 @@ def _ble_convert_lid(d):
 
 
 def _ble_convert_cst(f_csv):
-    # todo: test what happen if DDB not running, timeout?
     port_ddb = 8001
     f_cst = f_csv.replace('.csv', '.cst')
     url = 'http://0.0.0.0:8001/ddb/gpq?dt_s='
@@ -299,7 +298,7 @@ async def _ble_id_n_interact_logger(mac, info: str, h, g):
         _crit_error = notes["crit_error"]
         _error_dl = notes["error"]
         _ble_convert_lid(notes)
-        _ble_convert_cst(notes)
+        #_ble_convert_cst(notes)
 
     elif _ble_logger_is_rn4020(mac, info):
         rv = await ble_interact_rn4020(mac, info, g, hs)
@@ -321,7 +320,7 @@ async def _ble_id_n_interact_logger(mac, info: str, h, g):
         _crit_error = notes["crit_error"]
         _error_dl = notes["error"]
         _ble_convert_lid(notes)
-        _ble_convert_cst(notes)
+        #_ble_convert_cst(notes)
 
     else:
         lg.a(f'error: this should not happen, info {info}')
