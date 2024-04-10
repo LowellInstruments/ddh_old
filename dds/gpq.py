@@ -89,7 +89,7 @@ class GpqR:
         return i, _diff, c
 
 
-def ddb_gen_gpq():
+def gpq_gen_test():
     # ------------------------------------------------
     # W test: generate one file lat/lon every second
     # file name is today down to hour
@@ -125,4 +125,4 @@ def ddb_gen_gpq():
 
 
 if __name__ == '__main__':
-    ddb_gen_gpq()
+    gpq_gen_test()
