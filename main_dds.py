@@ -47,7 +47,7 @@ from mat.ble.ble_mat_utils import (
 )
 from mat.utils import linux_is_rpi
 from utils.ddh_config import dds_check_cfg_has_box_info, \
-    dds_get_cfg_monitored_macs
+    dds_get_cfg_monitored_macs, dds_get_cfg_flag_rbl_en
 from utils.ddh_shared import (
     PID_FILE_DDS,
     dds_create_folder_dl_files,
@@ -127,8 +127,11 @@ def main_dds():
         lg.a('-' * len(s))
 
     # Rockblocks stuff is slow, launch its loop as a thread
-    th = threading.Thread(target=rbl_loop)
-    th.start()
+    if dds_get_cfg_flag_rbl_en():
+        th = threading.Thread(target=rbl_loop)
+        th.start()
+    else:
+        lg.a("warning: rbl_en disabled")
 
     # =============
     # main loop

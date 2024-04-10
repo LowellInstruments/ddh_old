@@ -336,10 +336,6 @@ def rbl_serve():
 
 
 def rbl_loop():
-    if not dds_get_cfg_flag_rbl_en():
-        lg.a("warning: rbl_en disabled")
-        return
-
     while 1:
         rbl_serve()
         time.sleep(600)
