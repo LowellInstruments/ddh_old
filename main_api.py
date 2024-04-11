@@ -61,9 +61,8 @@ async def ep_history():
     p = 'ddh/db/db_his.json'
     db = DbHis(p)
     r = db.get_all(15)
-    print(r)
     try:
-        return {"history": CTT_API_OK, "entries": r}
+        return {"history": CTT_API_OK, "entries": r.keys()}
     except (Exception, ):
         return {"history": CTT_API_ER, "entries": {}}
 
