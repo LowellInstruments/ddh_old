@@ -9,6 +9,7 @@ import setproctitle
 from dds.gpq import GpqR
 from dds.timecache import its_time_to
 from mat.linux import linux_is_process_running
+from utils.ddh_config import ddh_get_cfg_gear_type
 from utils.ddh_shared import get_ddh_folder_path_dl_files
 from utils.logs import lg_cst as lg
 
@@ -42,7 +43,6 @@ def _create_cst_files():
     for i_lid in ls_lid:
         f_csv = i_lid.replace('.lid', '.csv')
         f_cst = f_csv.replace('.csv', '.cst')
-        f_gps = i_lid.replace('.lid', '.gps')
         if not os.path.exists(f_csv):
             # not our job as CST
             continue
@@ -56,22 +56,25 @@ def _create_cst_files():
         ft = open(f_cst, 'w')
         ft.write('lat,lon,' + ll_fv[0])
 
-        # profiling mode
-        if is_a_tdo_file(i_lid) and tdo_file_has_pfm_1(i_lid):
-            for i, s in enumerate(ll_fv[1:]):
-                row = ll_fv[i]
-                index, diff, t_lat_lon = _cst_get_lat_lon_from_dt_s(row)
-                if index > 0:
-                    t, latlon = t_lat_lon
-                    lat, lon = latlon
-                    ft.write(f'{lat},{lon},' + s)
-                else:
-                    ft.write(f',,' + s)
         # rest, DOX, TDO static, etc, use GPS file
-        else:
-            lat, lon = 'read_gps_file()SWS_RWSf_gps'
-            for s in ll_fv[1:]:
-                ft.write(f'{lat},{lon},' + s)
+        # if ddh_get_cfg_gear_type() == 0:
+        #     # todo ---> search for file gps fixed_
+        #     lat, lon = 'read_gps_file_fixed'
+        #     for s in ll_fv[1:]:
+        #         ft.write(f'{lat},{lon},' + s)
+        #
+        # # profiling mode
+        # else:
+        #     for i, s in enumerate(ll_fv[1:]):
+        #         row = ll_fv[i]
+        #         index, diff, t_lat_lon = _cst_get_lat_lon_from_dt_s(row)
+        #         if index > 0:
+        #             t, latlon = t_lat_lon
+        #             lat, lon = latlon
+        #             ft.write(f'{lat},{lon},' + s)
+        #         else:
+        #             ft.write(f',,' + s)
+        #
 
         # close CST file
         ft.close()

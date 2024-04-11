@@ -1,6 +1,8 @@
 import asyncio
 import datetime
 import os
+
+from dds.gpq import dds_create_file_fixed_gpq
 from dds.lef import dds_create_file_lef
 from dds.notifications import notify_logger_error_sensor_oxygen, notify_logger_error_low_battery, LoggerNotification
 from mat.ble.ble_mat_utils import (
@@ -156,6 +158,7 @@ class BleCC26X2Download:
             # create LEF file with download info
             lg.a("creating file LEF for {}".format(name))
             dds_create_file_lef(g, name)
+            dds_create_file_fixed_gpq(g, name)
 
         # format file-system, o/w DO-1 loggers (NAND mem) get slower
         await asyncio.sleep(.1)

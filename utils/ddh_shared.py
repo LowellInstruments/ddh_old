@@ -207,7 +207,7 @@ def get_ddh_folder_path_dl_files() -> Path:
 
 def get_ddh_folder_path_gpq_files() -> Path:
     p = str(ddh_get_root_folder_path())
-    return Path(f"{p}/gpq_files")
+    return Path(f"{p}/gpq")
 
 
 def dds_create_folder_gpq():

@@ -1,5 +1,6 @@
 import bisect
 import glob
+import json
 import os
 import time
 from datetime import datetime, timedelta
@@ -126,3 +127,21 @@ def gpq_gen_test():
 
 if __name__ == '__main__':
     gpq_gen_test()
+
+
+def dds_create_file_fixed_gpq(g, filename):
+    if not filename.endswith('.lid'):
+        return
+
+    lat, lon, tg, speed = g
+    d = {
+        "dl_lat": lat,
+        "dl_lon": lon,
+        "dl_utc_tg": str(tg),
+        "dl_filename": filename
+    }
+    fol = str(get_ddh_folder_path_gpq_files())
+    path = f"{fol}/fixed_{filename[:-4]}.json"
+    with open(path, "w") as fl:
+        # from dict to file
+        json.dump(d, fl)

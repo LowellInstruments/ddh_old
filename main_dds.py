@@ -9,6 +9,7 @@ from dds.aws import aws_serve
 from dds.ble import ble_interact_all_loggers
 from dds.ble_scan import ble_scan
 from dds.cnv import cnv_serve
+from dds.cst import cst_serve
 from dds.gps import (
     gps_boot_wait_first,
     gps_measure,
@@ -147,6 +148,7 @@ def main_dds():
         gps_configure_shield()
 
         # other stages
+        cst_serve()
         gfm_serve()
         cnv_serve()
         aws_serve()
