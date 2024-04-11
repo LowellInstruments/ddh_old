@@ -62,7 +62,7 @@ async def ep_history():
     db = DbHis(p)
     r = db.get_all(15)
     try:
-        return {"history": CTT_API_OK, "entries": r.keys()}
+        return {"history": CTT_API_OK, "entries": r()}
     except (Exception, ):
         return {"history": CTT_API_ER, "entries": {}}
 
