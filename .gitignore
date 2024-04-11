@@ -1,6 +1,6 @@
 dl_files/*
 logs/*
-gpq/*
+gpq/*.json
 .idea/
 
 

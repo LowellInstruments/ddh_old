@@ -1,0 +1,3 @@
+this GPQ folder contains 2 types of files:
+    - date.json: for mobile hauls, allows to reconstruct GPS path of trawl in CST file
+    - fixed_filename.json: for fixed hauls, contains same location to use for whole CST file
