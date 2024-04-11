@@ -17,6 +17,7 @@ from api.api_utils import (get_git_commit_mat_local,
                            get_uptime, get_crontab_api, api_read_aws_sqs_ts,
                            get_utc_epoch, get_timezone, CTT_API_OK,
                            CTT_API_ER, get_uptime_secs)
+from ddh.db.db_his import DbHis
 from utils.ddh_config import dds_get_cfg_vessel_name, dds_get_cfg_box_sn, dds_get_cfg_box_project
 import uvicorn
 from fastapi import FastAPI, UploadFile, File
@@ -25,6 +26,7 @@ from fastapi.responses import FileResponse
 import concurrent.futures
 import subprocess as sp
 
+from utils.ddh_shared import ddh_get_db_history_file
 
 # instead, the DDN port is 9000
 DDH_PORT_API = 8000
@@ -58,9 +60,11 @@ async def ep_ping():
 async def ep_history():
     # p: path relative to this current file
     p = 'ddh/db/db_his.json'
+    db = DbHis(ddh_get_db_history_file())
+    r = db.get_all()
     try:
         with open(p, 'r') as f:
-            return {"history": CTT_API_OK, "entries": json.load(f)}
+            return {"history": CTT_API_OK, "entries": r}
     except (Exception, ):
         return {"history": CTT_API_ER, "entries": {}}
 
