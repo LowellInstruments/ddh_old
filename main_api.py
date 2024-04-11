@@ -26,7 +26,6 @@ from fastapi.responses import FileResponse
 import concurrent.futures
 import subprocess as sp
 
-from utils.ddh_shared import ddh_get_db_history_file
 
 # instead, the DDN port is 9000
 DDH_PORT_API = 8000
@@ -60,7 +59,7 @@ async def ep_ping():
 async def ep_history():
     # p: path relative to this current file
     p = 'ddh/db/db_his.json'
-    db = DbHis(ddh_get_db_history_file())
+    db = DbHis(p)
     r = db.get_all()
     try:
         with open(p, 'r') as f:
