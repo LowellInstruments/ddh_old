@@ -207,7 +207,7 @@ def get_ddh_folder_path_dl_files() -> Path:
 
 def get_ddh_folder_path_gpq_files() -> Path:
     p = str(ddh_get_root_folder_path())
-    return Path(f"{p}/gpq")
+    return Path(f"{p}/dds/gpq")
 
 
 def dds_create_folder_gpq():
@@ -221,11 +221,6 @@ def get_ddh_folder_path_logs() -> Path:
     if p.endswith("/dds"):
         p = p.replace("/dds", "/..")
     return Path(p) / "logs"
-
-
-def get_ddh_folder_gpq() -> Path:
-    p = str(ddh_get_root_folder_path())
-    return Path(f"{p}/gpq")
 
 
 def get_dds_folder_path_macs() -> Path:
