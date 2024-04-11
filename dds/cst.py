@@ -1,3 +1,4 @@
+import json
 import multiprocessing
 import os
 import sys
@@ -10,7 +11,7 @@ from dds.gpq import GpqR
 from dds.timecache import its_time_to
 from mat.linux import linux_is_process_running
 from utils.ddh_config import ddh_get_cfg_gear_type
-from utils.ddh_shared import get_ddh_folder_path_dl_files
+from utils.ddh_shared import get_ddh_folder_path_dl_files, get_ddh_folder_path_gpq_files
 from utils.logs import lg_cst as lg
 
 
@@ -40,8 +41,12 @@ def _cst_get_lat_lon_from_dt_s(dt_s):
 def _create_cst_files():
     fol = get_ddh_folder_path_dl_files()
     ls_lid = glob(f'{fol}/**/*.lid', recursive=True)
+
+    # ---------------
+    # main CST loop
+    # ---------------
     for i_lid in ls_lid:
-        f_csv = i_lid.replace('.lid', '.csv')
+        f_csv = glob(f'{i_lid[:-4]}*.csv')[0]
         f_cst = f_csv.replace('.csv', '.cst')
         if not os.path.exists(f_csv):
             # not our job as CST
@@ -52,29 +57,32 @@ def _create_cst_files():
             ll_fv = fv.readlines()
             print(f'debug: file {f_csv} has {len(ll_fv)} lines')
 
-        # open and headers
-        ft = open(f_cst, 'w')
-        ft.write('lat,lon,' + ll_fv[0])
+        # CST files generated different depending on gear type
+        if ddh_get_cfg_gear_type() == 0:
+            # fixed mode: use ONE location in fixed_filename.json GPQ file
+            f_gpq = f'{get_ddh_folder_path_gpq_files()}/'\
+                    f'fixed_{os.path.basename(i_lid[:-4])}.json'
+            # use the info in JSON file to create CST file
+            if os.path.exists(f_gpq):
+                with open(f_gpq, 'r') as f:
+                    d = json.load(f)
+                ft = open(f_cst, 'w')
+                ft.write('lat,lon,' + ll_fv[0])
+                for s in ll_fv[1:]:
+                    ft.write(f'{d["dl_lat"]},{d["dl_lon"]},' + s)
 
-        # rest, DOX, TDO static, etc, use GPS file
-        # if ddh_get_cfg_gear_type() == 0:
-        #     # todo ---> search for file gps fixed_
-        #     lat, lon = 'read_gps_file_fixed'
-        #     for s in ll_fv[1:]:
-        #         ft.write(f'{lat},{lon},' + s)
-        #
-        # # profiling mode
-        # else:
-        #     for i, s in enumerate(ll_fv[1:]):
-        #         row = ll_fv[i]
-        #         index, diff, t_lat_lon = _cst_get_lat_lon_from_dt_s(row)
-        #         if index > 0:
-        #             t, latlon = t_lat_lon
-        #             lat, lon = latlon
-        #             ft.write(f'{lat},{lon},' + s)
-        #         else:
-        #             ft.write(f',,' + s)
-        #
+        else:
+            # trawling mode: use N locations in dynamic database json GPQ files
+            # todo ---> test this
+            for i, s in enumerate(ll_fv[1:]):
+                row = ll_fv[i]
+                index, diff, t_lat_lon = _cst_get_lat_lon_from_dt_s(row)
+                if index > 0:
+                    t, latlon = t_lat_lon
+                    lat, lon = latlon
+                    ft.write(f'{lat},{lon},' + s)
+                else:
+                    ft.write(f',,' + s)
 
         # close CST file
         ft.close()
@@ -104,3 +112,7 @@ def cst_serve():
             lg.a('_' * len(s))
             p = Process(target=_cst_serve)
             p.start()
+
+
+if __name__ == '__main__':
+    cst_serve()

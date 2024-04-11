@@ -130,6 +130,9 @@ if __name__ == '__main__':
 
 
 def dds_create_file_fixed_gpq(g, filename):
+    """
+    ble --> fixed_filename.gpq --> cst_serve
+    """
     if not filename.endswith('.lid'):
         return
 
