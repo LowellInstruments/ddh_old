@@ -1,14 +1,11 @@
 #!/usr/bin/env python3
 
 import datetime
-import json
 import shutil
 import setproctitle
-from api.api_utils import (get_git_commit_mat_local,
-                           get_ip_vpn, get_ip_wlan, get_ip_cell,
+from api.api_utils import (get_ip_vpn, get_ip_wlan, get_ip_cell,
                            get_running, get_crontab_ddh, _sh,
                            set_crontab,
-                           get_git_commit_ddh_local,
                            get_ble_state, get_gps, get_logger_mac_reset_files,
                            get_versions,
                            api_get_full_ddh_config_file_path,
@@ -60,9 +57,9 @@ async def ep_history():
     # p: path relative to this current file
     p = 'ddh/db/db_his.json'
     db = DbHis(p)
-    r = db.get_all(15)
+    r = db.get_all()
     try:
-        return {"history": CTT_API_OK, "entries": r()}
+        return {"history": CTT_API_OK, "entries": r}
     except (Exception, ):
         return {"history": CTT_API_ER, "entries": {}}
 
@@ -279,7 +276,7 @@ async def ep_rpi_temperature():
 
 
 def main_api():
-    # docs at http://0.0.0.0/port/docs
+    # docs at http://0.0.0.0:port/docs
     setproctitle.setproctitle(NAME_EXE_API)
     linux_app_write_pid_to_tmp(PID_FILE_API)
     uvicorn.run(app, host="0.0.0.0", port=DDH_PORT_API)

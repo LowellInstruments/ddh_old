@@ -203,8 +203,10 @@ class BleTDODownload:
                 await asyncio.sleep(5)
             _rae(rv, "rws")
             lg.a("RWS | OK")
+            notes['rerun'] = True
         else:
             # GUI telling this
+            notes['rerun'] = False
             lg.a("warning: telling this logger is not set for auto-re-run")
             _u(f"{STATE_DDS_BLE_RUN_STATUS}/off")
             # give time to GUI to display

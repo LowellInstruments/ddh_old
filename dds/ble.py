@@ -210,6 +210,10 @@ async def _ble_id_n_interact_logger(mac, info: str, h, g):
     _crit_error = False
     _error_dl = ""
 
+    # initialize download status
+    bat = 0
+    rerun = True
+
     # some GUI update
     _u(f"{STATE_DDS_BLE_CONNECTING}/{sn}")
 
@@ -221,6 +225,7 @@ async def _ble_id_n_interact_logger(mac, info: str, h, g):
         notes['gps'] = g
         _crit_error = notes["crit_error"]
         _error_dl = notes["error"]
+        rerun = notes['rerun']
         _ble_convert_lid(notes)
 
     elif _ble_logger_is_rn4020(mac, info):
@@ -243,18 +248,12 @@ async def _ble_id_n_interact_logger(mac, info: str, h, g):
         _crit_error = notes["crit_error"]
         _error_dl = notes["error"]
         _ble_convert_lid(notes)
+        rerun = notes['rerun']
 
     else:
         lg.a(f'error: this should not happen, info {info}')
         # 0 because this is not a BLE interaction error
         return 0
-
-    # tell GUI how it went, also do MAC colors stuff
-    try:
-        bat = notes["battery_level"]
-    except (Exception, ):
-        # moana does not have this
-        bat = 0
 
     # -----------------------------------------------------------------
     # on OK and error, w/o this some external antennas don't scan again
@@ -285,7 +284,7 @@ async def _ble_id_n_interact_logger(mac, info: str, h, g):
     e = 'ok' if not rv else _error_dl
 
     _u(f"{STATE_DDS_NOTIFY_HISTORY}/add&"
-       f"{mac}&{e}&{lat}&{lon}&{ep_loc}&{ep_utc}")
+       f"{mac}&{e}&{lat}&{lon}&{ep_loc}&{ep_utc}&{rerun}")
 
     return rv
 

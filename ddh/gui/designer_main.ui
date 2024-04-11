@@ -41,7 +41,7 @@
        </font>
       </property>
       <property name="currentIndex">
-       <number>6</number>
+       <number>3</number>
       </property>
       <widget class="QWidget" name="tab">
        <property name="sizePolicy">
@@ -1260,7 +1260,7 @@ font: 19pt &quot;DejaVu Sans&quot;;</string>
              <number>25</number>
             </property>
             <property name="columnCount">
-             <number>2</number>
+             <number>3</number>
             </property>
             <attribute name="horizontalHeaderHighlightSections">
              <bool>true</bool>
@@ -1293,6 +1293,7 @@ font: 19pt &quot;DejaVu Sans&quot;;</string>
             <row/>
             <row/>
             <row/>
+            <column/>
             <column/>
             <column/>
            </widget>

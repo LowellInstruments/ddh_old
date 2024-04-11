@@ -191,7 +191,8 @@ def gui_populate_history_tab(my_app):
     a = my_app
     a.tbl_his.clear()
     db = DbHis(ddh_get_db_history_file())
-    r = db.get_all(15)
+    r = db.get_all().values()
+    r = sorted(r, key=lambda x: x["ep_loc"], reverse=True)
 
     for i, h in enumerate(r):
         e = h["e"]
@@ -206,6 +207,7 @@ def gui_populate_history_tab(my_app):
             # set values to cells
             a.tbl_his.setItem(i, 0, QTableWidgetItem(str(h["SN"])))
             a.tbl_his.setItem(i, 1, QTableWidgetItem(s))
+            a.tbl_his.setItem(i, 2, QTableWidgetItem(str(h['rerun'])))
 
         except (Exception,) as ex:
             lg.a(f"error: history frame {h} -> {ex}")
@@ -216,7 +218,7 @@ def gui_populate_history_tab(my_app):
     h.setSectionResizeMode(1, QHeaderView.Stretch)
 
     # column labels
-    labels = ["logger", "result"]
+    labels = ["logger", "result", "rerun"]
     a.tbl_his.setHorizontalHeaderLabels(labels)
 
 
@@ -397,10 +399,10 @@ def gui_dict_from_list_view(l_v):
     return d
 
 
-def gui_add_to_history_database(mac, e, lat, lon, ep_loc, ep_utc):
+def gui_add_to_history_database(mac, e, lat, lon, ep_loc, ep_utc, rerun):
     sn = dds_get_cfg_logger_sn_from_mac(mac)
     db = DbHis(ddh_get_db_history_file())
-    db.add(mac, sn, e, lat, lon, ep_loc, ep_utc)
+    db.add(mac, sn, e, lat, lon, ep_loc, ep_utc, rerun)
 
 
 def gui_confirm_by_user(s):
@@ -619,9 +621,9 @@ def _gui_parse_udp(my_app, s, ip="127.0.0.1"):
 
     elif f == STATE_DDS_NOTIFY_HISTORY:
         if v.startswith("add"):
-            # history/add&{mac}&{ok|error}&{lat}&{lon}&{ep_loc}&{ep_utc}
+            # history/add&{mac}&{ok|error}&{lat}&{lon}&{ep_loc}&{ep_utc}&{rerun}
             v = v.split("&")
-            gui_add_to_history_database(v[1], v[2], v[3], v[4], v[5], v[6])
+            gui_add_to_history_database(v[1], v[2], v[3], v[4], v[5], v[6], v[7])
         gui_populate_history_tab(a)
 
     elif f == STATE_DDS_BLE_LOW_BATTERY:

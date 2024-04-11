@@ -216,3 +216,4 @@ def dds_ble_init_rv_notes(d: dict):
     d["error"] = ""
     d["crit_error"] = 0
     d["dl_files"] = []
+    d["rerun"] = False

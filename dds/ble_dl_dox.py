@@ -215,9 +215,11 @@ class BleCC26X2Download:
                 await asyncio.sleep(5)
             _rae(rv, "rws")
             lg.a("RWS | OK")
+            notes['rerun'] = True
         else:
             # GUI telling this
             _u(f"{STATE_DDS_BLE_RUN_STATUS}/off")
+            notes['rerun'] = False
             # give time to GUI to display
             await asyncio.sleep(5)
 

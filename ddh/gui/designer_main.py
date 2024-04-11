@@ -540,7 +540,7 @@ class Ui_MainWindow(object):
         self.tbl_his.setSelectionBehavior(QtWidgets.QAbstractItemView.SelectRows)
         self.tbl_his.setWordWrap(False)
         self.tbl_his.setRowCount(25)
-        self.tbl_his.setColumnCount(2)
+        self.tbl_his.setColumnCount(3)
         self.tbl_his.setObjectName("tbl_his")
         self.tbl_his.horizontalHeader().setHighlightSections(True)
         self.tbl_his.verticalHeader().setVisible(False)
@@ -675,7 +675,7 @@ class Ui_MainWindow(object):
         MainWindow.setCentralWidget(self.centralwidget)
 
         self.retranslateUi(MainWindow)
-        self.tabs.setCurrentIndex(6)
+        self.tabs.setCurrentIndex(3)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def retranslateUi(self, MainWindow):
