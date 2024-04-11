@@ -15,7 +15,8 @@ from api.api_utils import (get_ip_vpn, get_ip_wlan, get_ip_cell,
                            get_utc_epoch, get_timezone, CTT_API_OK,
                            CTT_API_ER, get_uptime_secs)
 from ddh.db.db_his import DbHis
-from utils.ddh_config import dds_get_cfg_vessel_name, dds_get_cfg_box_sn, dds_get_cfg_box_project
+from utils.ddh_config import dds_get_cfg_vessel_name, dds_get_cfg_box_sn, dds_get_cfg_box_project, \
+    dds_get_cfg_monitored_macs, dds_get_cfg_monitored_pairs
 import uvicorn
 from fastapi import FastAPI, UploadFile, File
 import os
@@ -48,6 +49,14 @@ async def ep_ping():
         "last_gps": get_gps(),
         "is_rpi": linux_is_rpi(),
         "uptime": get_uptime()
+    }
+    return d
+
+
+@app.get('/monitored_macs')
+async def ep_monitored_macs():
+    d = {
+        "monitored_macs": dds_get_cfg_monitored_pairs(),
     }
     return d
 
