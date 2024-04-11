@@ -60,10 +60,10 @@ async def ep_history():
     # p: path relative to this current file
     p = 'ddh/db/db_his.json'
     db = DbHis(p)
-    r = db.get_all()
+    r = db.get_all(15)
+    print(r)
     try:
-        with open(p, 'r') as f:
-            return {"history": CTT_API_OK, "entries": r}
+        return {"history": CTT_API_OK, "entries": r}
     except (Exception, ):
         return {"history": CTT_API_ER, "entries": {}}
 
