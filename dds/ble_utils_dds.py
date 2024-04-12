@@ -80,7 +80,7 @@ def ble_op_conditions_met(knots) -> bool:
     l_h = ddh_get_cfg_gear_type()
     speed_range = dds_get_cfg_moving_speed()
     if not l_h:
-        # CASE: normal
+        # fixed gear case
         return True
 
     # CASE: trawling, we know for sure l_h is set here
@@ -95,7 +95,7 @@ def ble_op_conditions_met(knots) -> bool:
     # check we are on valid moving range
     if s_lo <= knots <= s_hi:
         return True
-    _u("{}/{}".format(STATE_DDS_BLE_APP_GPS_ERROR_SPEED, knots))
+    _u(f"{STATE_DDS_BLE_APP_GPS_ERROR_SPEED}/{knots}")
 
 
 def ble_tell_gui_antenna_type(_h, desc):

@@ -533,7 +533,7 @@ def _process_n_graph(a, r=''):
                 if n > 0:
                     yn = [i for i in range(0, len(y5), n)]
                     li += yn
-                    print('yn', yn)
+                    # print('yn', yn)
 
                     # add arrows
                     for i in li:

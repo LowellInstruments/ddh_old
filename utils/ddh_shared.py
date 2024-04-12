@@ -331,9 +331,7 @@ def get_number_of_hauls(path):
         # NOT MOANA*.csv but Lowell generated files
         mask = f'{path}/*_Pressure.csv'
 
-    print('-------------')
-    print(f"debug: mask used for get_number_of_hauls = {mask}")
-    print('-------------')
+    print(f"debug: mask from get_number_of_hauls = {os.path.basename(mask)}")
     n = len(glob.glob(mask))
     return n
 

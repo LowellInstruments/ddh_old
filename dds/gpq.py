@@ -28,7 +28,7 @@ class GpqW:
         self.db = DB(keys=['t', 'lat', 'lon'])
 
     def add(self, dt: datetime, lat, lon):
-        f = dt.strftime(FMT_GPQ_TS_FILENAME)
+        f = 'mobile_' + dt.strftime(FMT_GPQ_TS_FILENAME)
         p = f'{get_ddh_folder_path_gpq_files()}/{f}'
         os.makedirs(os.path.dirname(p), exist_ok=True)
         dt_s = dt.strftime(FMT_GPQ_TS_RECORD_DB)
@@ -45,7 +45,7 @@ class GpqR:
         self.all = {}
 
     def _load(self, dt: datetime):
-        f = dt.strftime(FMT_GPQ_TS_FILENAME)
+        f = 'mobile_' + dt.strftime(FMT_GPQ_TS_FILENAME)
         p = f'{get_ddh_folder_path_gpq_files()}/{f}'
         if not os.path.exists(p):
             print(f'R error {basename(p)} file does not exist')
@@ -60,11 +60,11 @@ class GpqR:
         self.all.update(d)
         self.ls.append(f)
 
-    def query(self, s):
+    def query(self, s: str):
         # s: '2024/04/05 21:45:22'
-        dt_s = datetime.strptime(s, FMT_GPQ_TS_RECORD_DB)
-        self._load(dt_s)
-        dt_bef = (s - timedelta(hours=1))
+        dt = datetime.strptime(s, FMT_GPQ_TS_RECORD_DB)
+        self._load(dt)
+        dt_bef = dt - timedelta(hours=1)
         self._load(dt_bef)
         t = list(self.all.keys())
         if not t:

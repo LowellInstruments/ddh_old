@@ -2,12 +2,13 @@ import json
 import multiprocessing
 import os
 import sys
+from datetime import datetime
 from glob import glob
 from multiprocessing import Process
 
 import setproctitle
 
-from dds.gpq import GpqR
+from dds.gpq import GpqR, FMT_GPQ_TS_RECORD_DB
 from dds.timecache import its_time_to
 from mat.linux import linux_is_process_running
 from utils.ddh_config import ddh_get_cfg_gear_type
@@ -29,13 +30,12 @@ def tdo_file_has_pfm_1(p):
 _gr = GpqR()
 
 
-def _cst_get_lat_lon_from_dt_s(dt_s):
-    # dt_s: 2024-04-04T13:45:31.000
-    # dt_s=20240102030405&'
-    dt_s = dt_s.split(',')[0].replace('.000', '')
-    dt_s = ''.join(c for c in dt_s if c.isdigit())
-    # ctx: (1, 8073686.0, ('2024/01/02 03:04:05', ('lat1', 'lon1')))
-    return _gr.query(dt_s)
+def _cst_get_lat_lon_from_dt_s(dt_s_iso: str):
+    # dt_s_iso: '2024-04-04T13:45:31.000'
+    dt_s = dt_s_iso.replace('-', '/')
+    # dt_s: '%Y/%m/%d %H:%M:%S'
+    dt_s = dt_s.replace('T', ' ')
+    return _gr.query(dt_s[:-4])
 
 
 def _create_cst_files():
@@ -51,6 +51,11 @@ def _create_cst_files():
         if not os.path.exists(f_csv):
             # not our job as CST
             continue
+        if os.path.exists(f_cst):
+            os.unlink(f_cst)
+            # already done, bye
+            # todo ---> reenable this
+            # continue
 
         # read lines of CSV file
         with open(f_csv, 'r') as fv:
@@ -70,22 +75,25 @@ def _create_cst_files():
                 ft.write('lat,lon,' + ll_fv[0])
                 for s in ll_fv[1:]:
                     ft.write(f'{d["dl_lat"]},{d["dl_lon"]},' + s)
+                ft.close()
 
         else:
             # trawling mode: use N locations in dynamic database json GPQ files
             # todo ---> test this
-            for i, s in enumerate(ll_fv[1:]):
-                row = ll_fv[i]
-                index, diff, t_lat_lon = _cst_get_lat_lon_from_dt_s(row)
+            ft = open(f_cst, 'w')
+            ft.write('lat,lon,' + ll_fv[0])
+            for row in ll_fv[1:]:
+                dt_s = row.split(',')[0]
+                index, diff, t_lat_lon = _cst_get_lat_lon_from_dt_s(dt_s)
+                print(index, diff, t_lat_lon)
                 if index > 0:
+                    # 0 means too early
                     t, latlon = t_lat_lon
                     lat, lon = latlon
-                    ft.write(f'{lat},{lon},' + s)
+                    ft.write(f'{lat},{lon},' + row)
                 else:
-                    ft.write(f',,' + s)
-
-        # close CST file
-        ft.close()
+                    ft.write(f',,' + row)
+            ft.close()
 
 
 def cst_serve():

@@ -472,7 +472,6 @@ def _gui_parse_udp(my_app, s, ip="127.0.0.1"):
     elif f == STATE_DDS_BLE_CONNECTING:
         ct = f'{_x(STR_CONNECTING_LOGGER)} {v}'
         ci = f'ble_connecting.png'
-        print(i)
 
     elif f == STATE_DDS_BLE_DOWNLOAD:
         ct = "downloading {}".format(v)
