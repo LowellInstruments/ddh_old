@@ -100,7 +100,7 @@ def file_moana_raw_csv_to_emolt_zt_csv(path, lat, lon):
                 if float(_dbar) < 0:
                     continue
                 # line_out: DATA,2023-03-10 11:11:23,lat,lon,5.2,1.4
-                lo = "{},{} {},{},{},{:.1f},{:.1f}\n"
+                lo = "{},{} {},{},{},{:.3f},{:.1f}\n"
                 lo = lo.format(
                     "DATA", line_date, line_time, lat, lon, float(_temp), float(_dbar)
                 )
