@@ -24,6 +24,7 @@ from fastapi.responses import FileResponse
 import concurrent.futures
 import subprocess as sp
 
+from utils.tmp_paths import LI_FILE_ICCID
 
 # instead, the DDN port is 9000
 DDH_PORT_API = 8000
@@ -105,7 +106,7 @@ async def api_upload_conf(file: UploadFile = File(...)):
 @app.get('/sim')
 async def api_get_iccid():
     try:
-        with open('/tmp/qccid', 'r') as f:
+        with open(LI_FILE_ICCID, 'r') as f:
             s = f.readlines()[0]
             s = s.replace('^M', '')
             s = s.replace('\n', '')

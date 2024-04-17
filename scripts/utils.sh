@@ -16,6 +16,7 @@ export FILE_GRAPH_TEST_MODE=/tmp/ddh_graph_test_mode.json
 export GPS_DUMMY_MODE_FILE=/tmp/gps_dummy_mode.json
 export GPS_EXTERNAL_FILE_FLAG=$FOL_LI/.ddt_gps_external.flag
 export GROUPED_S3_FILE_FLAG=$FOL_LI/.ddt_this_box_has_grouped_s3_uplink.flag
+export LI_FILE_ICCID=$FOL_LI/.iccid
 
 
 
