@@ -245,16 +245,16 @@ def get_ble_state():
     rv_0 = _sh('{} -a | grep hci0'.format(h))
     rv_1 = _sh('{} -a | grep hci1'.format(h))
     d = dict()
-    d['hci0_present'] = 'no'
-    d['hci1_present'] = 'no'
-    d['hci0_running'] = 'no'
-    d['hci1_running'] = 'no'
+    d['hci0_present'] = False
+    d['hci1_present'] = False
+    d['hci0_running'] = False
+    d['hci1_running'] = False
     if rv_0.returncode == 0:
-        d['hci0_present'] = 'yes'
+        d['hci0_present'] = True
         rv = _sh('{} hci0'.format(h))
         d['hci0_running'] = 'UP RUNNING' in rv.stdout.decode()
     if rv_1.returncode == 0:
-        d['hci1_present'] = 'yes'
+        d['hci1_present'] = True
         rv = _sh('{} hci1'.format(h))
         d['hci1_running'] = 'UP RUNNING' in rv.stdout.decode()
     return d

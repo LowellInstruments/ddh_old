@@ -3,19 +3,20 @@
 
 import os
 import pathlib
+import re
 import shutil
 import subprocess as sp
 import time
 
+import requests
 import toml
 
 
-DDN_API_PORT = 9000
-DDN_ADDR = 'ddn.lowellinstruments.com'
+DDN_PRV_PORT = 9001
+DDN_ADDR = '0.0.0.0'
+# DDN_ADDR = 'ddn.lowellinstruments.com'
 HOME = str(pathlib.Path.home())
-FOL_VPN = f'{HOME}/.ddh_vpn'
 PBF = f'{HOME}/.ddh_prov_req.toml'
-FOL_ANSWER = '/tmp/.ddh_prov_ans'
 
 
 def _p(s):
@@ -31,79 +32,36 @@ def _is_rpi():
     return _sh('cat /proc/cpuinfo | grep aspberry') == 0
 
 
-def _create_vpn_keys():
-    os.makedirs(FOL_VPN, exist_ok=True)
-    kip = f'{FOL_VPN}/.key_pri'
-    kup = f'{FOL_VPN}/.key_pub'
-    rvi = _sh(f'wg genkey > {kip}')
-    rvu = _sh(f'wg pubkey < {kip} > {kup}')
-    if rvi or rvu:
-        print('error: _create_vpn_keys')
-        return
-    _sh(f'chmod 600 {kip}')
-    rv = sp.run(f'cat {kip}', shell=True, stdout=sp.PIPE)
-    ki = rv.stdout.replace(b'\n', b'').decode()
-    rv = sp.run(f'cat {kup}', shell=True, stdout=sp.PIPE)
-    ku = rv.stdout.replace(b'\n', b'').decode()
-    return ki, ku
+def extract_filename_from_content_disposition_header(cd):
+    # src: codementor, downloading-files-from-urls-in-python-77q3bs0un
+    if not cd:
+        return None
+    s = re.findall('filename=(.+)', cd)
+    if len(s) == 0:
+        return None
+    return s[0].replace('"', '')
 
 
-def curl_get_files_from_server(pr, sn, ip, addr='0.0.0.0', port=DDN_API_PORT):
+def req(url):
+    try:
+        rsp = requests.get(url, timeout=5)
+        rsp.raise_for_status()
+    except (Exception, ):
+        pass
+    else:
+        return rsp
 
-    # ensuring the results will be new
-    d = FOL_ANSWER
-    if os.path.exists(d):
-        shutil.rmtree(d)
-    os.makedirs(d)
 
-    # ------------------------------
-    # file 1 of 3: obtain VPN info
-    # ------------------------------
-    kk = _create_vpn_keys()
-    if not kk:
-        return 1
-    ki, ku = kk
-    _p(f'generated private key {ki}')
-    _p(f'generated public key {ku}')
-    dst = f'{d}/wg0.conf'
-    if os.path.exists(dst):
-        os.unlink(dst)
-    rvv = _sh("curl -X 'GET' "
-              f"'http://{addr}:{port}/vpn/v1?prj={pr}&sn={sn}&ip={ip}&ku={ku}' "
-              f"-H 'accept: application/json' -o {dst}")
-    if rvv:
-        raise Exception(f"error curl VPN, prj {pr} sn {sn} ip {ip}")
-    rv = sp.run(f'cat {dst}', shell=True, stdout=sp.PIPE)
-    wg = rv.stdout.decode()
-    with open(dst, 'w') as f:
-        f.write(wg.format(ki))
-    _p(f'OK: got file {dst}')
-
-    # -------------------------------------------------
-    # file 2 of 3: obtain DDH settings file config.toml
-    # -------------------------------------------------
-    dst = f'{d}/config.toml'
-    if os.path.exists(dst):
-        os.unlink(dst)
-    rvc = _sh("curl -f -X 'GET' "
-              f"'http://{addr}:{port}/ddh_config/v1?prj={pr}&sn={sn}' "
-              f"-H 'accept: application/json' -o {dst}")
-    if rvc:
-        raise Exception(f"error curl config.toml, prj {pr} sn {sn} ip {ip}")
-    _p(f'OK: got file {dst}')
-
-    # ----------------------------------------------------
-    # file 3 of 3: obtain DDH settings file all_macs.toml
-    # ----------------------------------------------------
-    dst = f'{d}/all_macs.toml'
-    if os.path.exists(dst):
-        os.unlink(dst)
-    rvm = _sh("curl -f -X 'GET' "
-              f"'http://{addr}:{port}/all_macs/v1?prj={pr}' "
-              f"-H 'accept: application/json' -o {dst}")
-    if rvm:
-        raise Exception(f"error curl all_macs, prj {pr} sn {sn} ip {ip}")
-    _p(f'OK: got file {dst}')
+def get_files_from_server(pr, sn, ip, addr=DDN_ADDR, port=DDN_PRV_PORT):
+    url = f'http://{addr}:{port}/ddh_provision/v1?prj={pr}&sn={sn}&ip={ip}'
+    rsp = req(url)
+    if rsp and rsp.status_code == 200:
+        h = rsp.headers.get('content-disposition')
+        fn = extract_filename_from_content_disposition_header(h)
+        dst = f'/tmp/{fn}'
+        with open(dst, 'wb') as f:
+            f.write(rsp.content)
+        return dst
 
 
 def _read_provision_bootstrap_file():
@@ -116,48 +74,43 @@ def _read_provision_bootstrap_file():
     return pr, sn, ip
 
 
-def _provision_ddh(a=DDN_ADDR):
-    pr, sn, ip = _read_provision_bootstrap_file()
-    curl_get_files_from_server(pr, sn, ip, a)
-    if _is_rpi():
-        # we have VPN keys in FOL_VPN
-        # we have the obtained files in FOL_RESULT
-        d = '/home/pi/li/ddh/settings'
-        p = f'{FOL_ANSWER}/config.toml'
-        _p(f'moving {p} to DDH settings folder')
-        _sh(f'mv {p} {d}')
-        p = f'{FOL_ANSWER}/all_macs.toml'
-        _p(f'moving {p} to DDH settings folder')
-        _sh(f'mv {p} {d}')
-        p = f'{FOL_ANSWER}/wg0.conf'
-        _p(f'moving {p} to wireguard settings folder')
-        d = '/etc/wireguard'
-        _sh(f"sudo mv {p} {d}")
-        _p('restarting DDH wireguard service')
-        _sh("sudo systemctl restart wg-quick@wg0.service")
-        _p('enabling DDH wireguard service')
-        _sh("sudo systemctl enable wg-quick@wg0.service")
-
-        # get rid of the file so only executes once
-        os.unlink(PBF)
-
-
 def get_provision_ddh(a=DDN_ADDR):
     """
-
     # example bootstrap provision file /home/pi/.ddh_prov_req.toml'
     [provision]
     vpn_ip="1.2.3.4"
     boat_sn="1234567"
     boat_prj="kaz"
-
-    # ----------------------------------
-    # todo --> how do we call this automatically
-    # ----------------------------------
-
     """
+
     try:
-        _provision_ddh(a)
+        # pr, sn, ip = _read_provision_bootstrap_file()
+        pr, sn, ip = 'kaz', '7777777', '1.2.3.4'
+        dst = get_files_from_server(pr, sn, ip, a)
+        if not dst:
+            print('error get_files_from_server')
+            return
+        if not _is_rpi():
+            return
+        _sh(f'unzip -o {dst}')
+        #     d = '/home/pi/li/ddh/settings'
+        #     p = f'{FOL_ANSWER}/config.toml'
+        #     _p(f'moving {p} to DDH settings folder')
+        #     _sh(f'mv {p} {d}')
+        #     p = f'{FOL_ANSWER}/all_macs.toml'
+        #     _p(f'moving {p} to DDH settings folder')
+        #     _sh(f'mv {p} {d}')
+        #     p = f'{FOL_ANSWER}/wg0.conf'
+        #     _p(f'moving {p} to wireguard settings folder')
+        #     d = '/etc/wireguard'
+        #     _sh(f"sudo mv {p} {d}")
+        #     _p('restarting DDH wireguard service')
+        #     _sh("sudo systemctl restart wg-quick@wg0.service")
+        #     _p('enabling DDH wireguard service')
+        #     _sh("sudo systemctl enable wg-quick@wg0.service")
+        #
+        #     # get rid of the file so only executes once
+        #     # os.unlink(PBF)
     except (Exception, ) as ex:
         # such as "no bootstrap provision file"
         _p(f'\nexception provision_ddh -> {str(ex)}')
