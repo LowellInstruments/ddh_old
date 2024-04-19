@@ -111,8 +111,8 @@ def get_provision_ddh():
         _sh("sudo systemctl enable wg-quick@wg0.service")
         _p(f'moving {fs} to /home/pi/.ssh')
         _sh(f'mkdir /home/pi/.ssh')
-        _sh(f'mv {fs} /home/pi/.ssh/')
-        _sh('chmod 700 /home/pi/.ssh/authorized_keys')
+        _sh(f'sudo mv {fs} /home/pi/.ssh/')
+        _sh('sudo chmod 600 /home/pi/.ssh/authorized_keys')
 
         # get rid of the file so only executes once
         # os.unlink(PBF)
