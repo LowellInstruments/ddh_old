@@ -11,6 +11,7 @@ import time
 import requests
 import toml
 
+from utils.ddh_shared import get_ddh_folder_path_settings
 
 DDN_PRV_PORT = 9001
 DDN_ADDR = '0.0.0.0'
@@ -85,32 +86,33 @@ def get_provision_ddh(a=DDN_ADDR):
 
     try:
         # pr, sn, ip = _read_provision_bootstrap_file()
-        pr, sn, ip = 'kaz', '7777777', '1.2.3.4'
-        dst = get_files_from_server(pr, sn, ip, a)
-        if not dst:
+        pr, sn, ip = 'kaz', '7777777', ''
+        pr = pr or input('enter DDH project -> ')
+        sn = sn or input('enter box serial number -> ')
+        ip = ip or input('enter VPN IP -> ')
+        dl_zip_file = get_files_from_server(pr, sn, ip, a)
+        if not dl_zip_file:
             print('error get_files_from_server')
             return
+        _sh(f'unzip -o {dl_zip_file} -d /tmp')
         if not _is_rpi():
             return
-        _sh(f'unzip -o {dst}')
-        #     d = '/home/pi/li/ddh/settings'
-        #     p = f'{FOL_ANSWER}/config.toml'
-        #     _p(f'moving {p} to DDH settings folder')
-        #     _sh(f'mv {p} {d}')
-        #     p = f'{FOL_ANSWER}/all_macs.toml'
-        #     _p(f'moving {p} to DDH settings folder')
-        #     _sh(f'mv {p} {d}')
-        #     p = f'{FOL_ANSWER}/wg0.conf'
-        #     _p(f'moving {p} to wireguard settings folder')
-        #     d = '/etc/wireguard'
-        #     _sh(f"sudo mv {p} {d}")
-        #     _p('restarting DDH wireguard service')
-        #     _sh("sudo systemctl restart wg-quick@wg0.service")
-        #     _p('enabling DDH wireguard service')
-        #     _sh("sudo systemctl enable wg-quick@wg0.service")
-        #
-        #     # get rid of the file so only executes once
-        #     # os.unlink(PBF)
+        fc = f'/tmp/config.toml'
+        fa = f'/tmp/all_macs.toml'
+        fw = f'/tmp/wg0.conf'
+        _p(f'moving {fc} to DDH settings folder')
+        _sh(f'mv {fc} {get_ddh_folder_path_settings()}')
+        _p(f'moving {fa} to DDH settings folder')
+        _sh(f'mv {fa} {get_ddh_folder_path_settings()}')
+        _p(f'moving {fw} to wireguard settings folder')
+        _sh(f"sudo mv {fw} /etc/wireguard/")
+        _p('restarting DDH wireguard service')
+        _sh("sudo systemctl restart wg-quick@wg0.service")
+        _p('enabling DDH wireguard service')
+        _sh("sudo systemctl enable wg-quick@wg0.service")
+
+        # get rid of the file so only executes once
+        # os.unlink(PBF)
     except (Exception, ) as ex:
         # such as "no bootstrap provision file"
         _p(f'\nexception provision_ddh -> {str(ex)}')

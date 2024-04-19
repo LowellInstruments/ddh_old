@@ -467,7 +467,7 @@ def main_ddc():
             f"| {g_chk['bal']} | is flag balena": cb_toggle_flag_balena,
             f"| {g_chk['j4h']} | is j4h_shield": cb_get_flag_j4h,
             f"| {g_chk['sai']} | is sailor_shield": cb_get_flag_sailor,
-            "provision (caution)": cb_provision_ddh,
+            "get configuration": cb_provision_ddh,
             "test GPS Quectel": cb_run_script_gps_test,
             "test box side buttons": cb_run_script_buttons_test,
             "kill DDH application": cb_kill_ddh,
