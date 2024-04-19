@@ -1,17 +1,14 @@
 #!/usr/bin/env python3
 
 
-import os
 import pathlib
 import re
-import shutil
 import subprocess as sp
 import time
-
 import requests
 import toml
-
 from utils.ddh_shared import get_ddh_folder_path_settings
+
 
 DDN_PRV_PORT = 9001
 DDN_ADDR = '0.0.0.0'
@@ -21,7 +18,7 @@ PBF = f'{HOME}/.ddh_prov_req.toml'
 
 
 def _p(s):
-    print(f'[ PRV ] {s}')
+    print(f'[ DDC ] {s}')
 
 
 def _sh(c):
@@ -75,7 +72,7 @@ def _read_provision_bootstrap_file():
     return pr, sn, ip
 
 
-def get_provision_ddh(a=DDN_ADDR):
+def get_provision_ddh():
     """
     # example bootstrap provision file /home/pi/.ddh_prov_req.toml'
     [provision]
@@ -85,14 +82,15 @@ def get_provision_ddh(a=DDN_ADDR):
     """
 
     try:
-        # pr, sn, ip = _read_provision_bootstrap_file()
+        pr, sn, ip = _read_provision_bootstrap_file()
+        # debug
         pr, sn, ip = 'kaz', '7777777', ''
         pr = pr or input('enter DDH project -> ')
         sn = sn or input('enter box serial number -> ')
         ip = ip or input('enter VPN IP -> ')
-        dl_zip_file = get_files_from_server(pr, sn, ip, a)
+        dl_zip_file = get_files_from_server(pr, sn, ip, DDN_ADDR)
         if not dl_zip_file:
-            print('error get_files_from_server')
+            _p('error: script_provision_get')
             return
         _sh(f'unzip -o {dl_zip_file} -d /tmp')
         if not _is_rpi():
@@ -100,6 +98,7 @@ def get_provision_ddh(a=DDN_ADDR):
         fc = f'/tmp/config.toml'
         fa = f'/tmp/all_macs.toml'
         fw = f'/tmp/wg0.conf'
+        fs = f'/tmp/authorized_keys'
         _p(f'moving {fc} to DDH settings folder')
         _sh(f'mv {fc} {get_ddh_folder_path_settings()}')
         _p(f'moving {fa} to DDH settings folder')
@@ -110,6 +109,10 @@ def get_provision_ddh(a=DDN_ADDR):
         _sh("sudo systemctl restart wg-quick@wg0.service")
         _p('enabling DDH wireguard service')
         _sh("sudo systemctl enable wg-quick@wg0.service")
+        _p(f'moving {fs} to /home/pi/.ssh')
+        _sh(f'mkdir /home/pi/.ssh')
+        _sh(f'mv {fs} /home/pi/.ssh/')
+        _sh('chmod 700 /home/pi/.ssh/authorized_keys')
 
         # get rid of the file so only executes once
         # os.unlink(PBF)
@@ -123,4 +126,3 @@ def get_provision_ddh(a=DDN_ADDR):
 
 if __name__ == '__main__':
     get_provision_ddh()
-    # provision('0.0.0.0')
