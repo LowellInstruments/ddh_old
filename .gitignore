@@ -20,7 +20,8 @@ _macs_to_sn.*
 # just in case there are more dl_files here
 dds/dl_files/
 dds/gpq/
-bleak_moana.py
+# because closed source
+dds/ble_dl_moana.py
 dds/macs/black/
 dds/macs/orange/
 .ruff_cache/
