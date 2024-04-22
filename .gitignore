@@ -19,6 +19,7 @@ _macs_to_sn.*
 *.rbl
 # just in case there are more dl_files here
 dds/dl_files/
+dds/gpq/
 bleak_moana.py
 dds/macs/black/
 dds/macs/orange/
