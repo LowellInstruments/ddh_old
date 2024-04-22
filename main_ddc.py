@@ -1,11 +1,12 @@
+import os
+
 import py_cui
 from scripts.script_ddc import DDC
 
 
-root = py_cui.PyCUI(5, 2)
-root.set_title('DDH Configuration')
-_ = DDC(root)
-
-
 if __name__ == "__main__":
-    root.start()
+    while 1:
+        root = py_cui.PyCUI(7, 2)
+        root.set_title('DDC')
+        _ = DDC(root)
+        root.start()

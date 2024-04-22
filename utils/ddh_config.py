@@ -1,18 +1,27 @@
 import copy
 import sys
-
+import pathlib
 import toml
 import os
+import subprocess as sp
+from utils.tmp_paths import (TMP_PATH_GRAPH_TEST_MODE_JSON,
+                             LI_PATH_DDH_GPS_EXTERNAL, LI_PATH_SKIP_IN_PORT_FILE_FLAG)
 
-from utils.tmp_paths import TMP_PATH_GRAPH_TEST_MODE_JSON, LI_PATH_DDH_GPS_EXTERNAL, LI_PATH_SKIP_IN_PORT_FILE_FLAG
+
+def sh(c):
+    rv = sp.run(c, shell=True, stdout=sp.PIPE, stderr=sp.PIPE)
+    return rv.returncode
 
 
-def _get_relative_config_file_path():
-    # when DDH
-    if os.getcwd().endswith('ddh'):
-        return 'settings/config.toml'
-    # when developing / testing / running this file's main()
-    return '../settings/config.toml'
+def is_rpi():
+    return sh('cat /proc/cpuinfo | grep aspberry') == 0
+
+
+def _get_config_file_path():
+    p = pathlib.Path.home()
+    if is_rpi():
+        return str(p) + '/li/ddh/settings/config.toml'
+    return str(p) + '/PycharmProjects/ddh/settings/config.toml'
 
 
 def _check_monitored_macs_in_cfg_file(c):
@@ -30,7 +39,7 @@ def _check_monitored_macs_in_cfg_file(c):
 
 def cfg_load_from_file():
     try:
-        p = _get_relative_config_file_path()
+        p = _get_config_file_path()
         with open(p, 'r') as f:
             c = toml.load(f)
             _check_monitored_macs_in_cfg_file(c)
@@ -42,7 +51,7 @@ def cfg_load_from_file():
 
 def cfg_save_to_file(c):
     try:
-        p = _get_relative_config_file_path()
+        p = _get_config_file_path()
         with open(p, 'w') as f:
             toml.dump(c, f)
     except (Exception, ) as ex:
