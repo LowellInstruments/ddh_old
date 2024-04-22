@@ -13,6 +13,7 @@ from dds.macs import (
     is_mac_in_orange,
     add_mac_orange,
 )
+from dds.timecache import its_time_to
 from mat.ble.ble_mat_utils import ble_mat_bluetoothctl_power_cycle, ble_mat_disconnect_all_devices_ll, \
     ble_mat_get_antenna_type
 from mat.ble.bleak.cc26x2r_sim import ble_logger_is_cc26x2r_simulated
@@ -35,7 +36,7 @@ from utils.ddh_shared import (
     get_dl_folder_path_from_mac,
     dds_get_json_mac_dns,
     STATE_DDS_BLE_DOWNLOAD, dds_get_aws_has_something_to_do_via_gui_flag_file,
-    STATE_DDS_NOTIFY_HISTORY,
+    STATE_DDS_NOTIFY_HISTORY, STATE_DDS_BLE_ERROR_MOANA_PLUGIN,
 )
 from settings.ctx import hook_ble_purge_this_mac_dl_files_folder
 from utils.logs import lg_dds as lg
@@ -164,6 +165,13 @@ async def _ble_id_n_interact_logger(mac, info: str, h, g):
     elif _ble_logger_is_moana(info):
         fol = get_dl_folder_path_from_mac(mac)
         rv = await ble_interact_moana(fol, mac, hs, g)
+        if rv == 2:
+            _u(STATE_DDS_BLE_ERROR_MOANA_PLUGIN)
+            if its_time_to(f'tell_error_moana_plugin', 900):
+                lg.a('error: no Moana plugin installed')
+            time.sleep(5)
+            # 0 because this is not a BLE interaction error
+            return 0
 
     # tell GUI how it went, also do MAC colors stuff
     _ble_analyze_logger_result(rv, mac, lat, lon, sn, err_sensor_oxygen)
