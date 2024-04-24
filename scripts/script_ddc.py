@@ -204,7 +204,7 @@ def cb_calibrate_display():
     # todo ---> do this
 
 
-def cb_crontab(s):
+def _cb_crontab(s):
     cf = '/etc/crontab'
     cf_run = f'/home/pi/li/ddt/_dt_files/crontab_{s}.sh'
     if sh(f'grep -q crontab_{s}.sh {cf}') == 1:
@@ -225,6 +225,12 @@ def cb_crontab(s):
 
     # restart the cron service
     sh("sudo systemctl restart cron.service")
+
+
+# needed because we cannot call with parameters from menu
+def cb_crontab_ddh(): return _cb_crontab('ddh')
+def cb_crontab_api(): return _cb_crontab('api')
+def cb_crontab_lxp(): return _cb_crontab('lxp')
 
 
 # contains errors in system check
@@ -364,9 +370,9 @@ class DDC:
             'set skip_dl_in_port': (cb_skip_dl_in_port, 1 if exists(LI_PATH_SKIP_IN_PORT_FILE_FLAG) else 0),
             # 'is shield juice4halt': (cb_do_nothing, 1 if exists(DDH_USES_SHIELD_JUICE4HALT) else 0),
             # 'is shield sailor_hat': (cb_do_nothing, 1 if exists(DDH_USES_SHIELD_SAILOR) else 0),
-            'set crontab DDH': (cb_crontab('ddh'), get_crontab('ddh')),
-            #'set crontab API': (cb_crontab('api'), get_crontab('api')),
-            #'set crontab LXP': (cb_crontab('lxp'), get_crontab('lxp')),
+            'set crontab DDH': (cb_crontab_ddh, get_crontab('ddh')),
+            #'set crontab API': (cb_crontab_api, get_crontab('api')),
+            #'set crontab LXP': (ccb_crontab_lxp, get_crontab('lxp')),
             'provision keys': (cb_provision_ddh, ''),
             'kill DDH application': (cb_kill_ddh, 0),
             'calibrate DDH display': (cb_calibrate_display, 0),
