@@ -330,8 +330,9 @@ def _run_check():
     if not ok_ble_v != '5.66':
         _e('bad bluez version')
         rv += 1
-    if not (ok_arch_armv7l and ok_issue_20230503 and ok_issue_20220922) and \
-            not (ok_arch_aarch64 and ok_issue_20240315):
+    if not ((ok_arch_armv7l and ok_issue_20230503) or
+            (ok_arch_armv7l and ok_issue_20220922) or
+            (ok_arch_aarch64 and ok_issue_20240315)):
         _e('bad arch / file /boot/issue.txt combination')
         rv += 1
     if not ok_hostname:
