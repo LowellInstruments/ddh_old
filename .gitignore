@@ -20,7 +20,7 @@ db_status.json*
 ddh/gui/res/*_F.gif
 ddh/gui/res/*_C.gif
 .ts_aws.txt
-
+dds/ble_dl_moana.py
 
 
 # just in case there are more dl_files here

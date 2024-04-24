@@ -9,6 +9,7 @@ from signal import pause
 from gpiozero import Button
 
 from dds.gps import gps_simulate_boat_speed
+from dds.in_ports_geo import dds_ask_in_port_to_ddn
 from dds.macs import dds_create_folder_macs_color
 from dds.notifications import notify_ddh_error_hw_ble
 from dds.timecache import its_time_to
@@ -55,7 +56,9 @@ def ble_logger_ccx26x2r_needs_a_reset(mac):
     return rv
 
 
-def ble_op_conditions_met(knots) -> bool:
+def ble_op_conditions_met(g) -> bool:
+
+    lat, lon, tg, knots = g
 
     # when Bluetooth is disabled
     flag = ddh_get_disabled_ble_flag_file()
@@ -63,8 +66,15 @@ def ble_op_conditions_met(knots) -> bool:
         _u(STATE_DDS_BLE_DISABLED)
         return False
 
-    # when it is forced to work, ex: button 2 is pressed
+    # are we forced to work
     flag = ddh_get_app_override_flag_file()
+
+    # are we in port
+    if dds_ask_in_port_to_ddn(g) and not flag:
+        # todo ---> test this
+        return False
+
+    # when it is forced to work, ex: button 2 is pressed
     if os.path.isfile(flag):
         lg.a("debug: application override set")
         os.unlink(flag)

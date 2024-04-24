@@ -8,7 +8,7 @@ from utils.ddh_config import dds_get_cfg_skip_dl_in_port_en
 from utils.logs import lg_gps as lg
 
 
-def dds_ask_in_port_to_ddn(g, dl=False):
+def dds_ask_in_port_to_ddn(g):
 
     if dds_get_cfg_skip_dl_in_port_en() == 0:
         # not in port when this feature not-enabled
@@ -17,7 +17,7 @@ def dds_ask_in_port_to_ddn(g, dl=False):
     lat, lon, tg, speed = g
     s = 'tell_we_in_port'
     if check_if_its_time_to(s):
-        # True, prevent asking again to API
+        # True, we STILL in port, prevent asking again to API
         return 1
 
     addr_ddn_api = 'ddn.lowellinstruments.com'
@@ -32,9 +32,8 @@ def dds_ask_in_port_to_ddn(g, dl=False):
         j = json.loads(rsp.content.decode())
         # j: {'in_port': True}
         in_port = int(j['in_port'])
-        if dl and in_port and its_time_to('tell_no_dl_bc_in_port', 600):
-            lg.a(f'warning: not downloading because we in port')
         if in_port and its_time_to(s, 600):
+            lg.a(f'warning: we are in port')
             notify_ddh_in_port(g)
         return in_port
     except (Exception,) as err:
