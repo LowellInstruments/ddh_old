@@ -209,8 +209,7 @@ def set_crontab(on_flag):
     print('s {} on_flag {}'.format(s, on_flag))
     if s == -1 and on_flag:
         # crontab empty, create it
-        # todo: test this crontab line generation from scratch
-        c = 'echo "* * * * * pi /home/pi/li/ddt/_dt_files/crontab_ddh.sh" > /etc/crontab'
+        c = 'echo "* * * * * pi /home/pi/li/ddt/_dt_files/crontab_ddh.sh" | sudo tee -a /etc/crontab'
     if s == 0 and on_flag:
         # is disabled, uncomment it
         print('uncommenting')
