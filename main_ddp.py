@@ -29,8 +29,8 @@ h = str(pathlib.Path.home())
 p = 'li/ddh' if is_rpi() else 'PycharmProjects/ddh'
 path_script_deploy_dox = f'{h}/{p}/scripts/run_script_deploy_logger_dox.sh'
 path_script_deploy_tdo = f'{h}/{p}/scripts/run_script_deploy_logger_tdo.sh'
-path_script_brt = f'{h}/{p}/scripts/main_brt.pyc'
-path_script_nadv = f'{h}/{p}/scripts/main_nadv.pyc'
+path_script_brt_armv7l = f'{h}/{p}/scripts/main_brt_armv7l.pyc'
+path_script_nadv_armv7l = f'{h}/{p}/scripts/main_nadv_armv7l.pyc'
 
 
 def cb_test_gps_quectel():
@@ -59,12 +59,12 @@ def cb_test_buttons():
 
 
 def cb_run_brt():
-    c = f'/usr/bin/env python {path_script_brt}'
+    c = f'/usr/bin/env python {path_script_brt_armv7l}'
     sh(c)
 
 
 def cb_run_nadv():
-    c = f'/usr/bin/env python {path_script_nadv}'
+    c = f'/usr/bin/env python {path_script_nadv_armv7l}'
     sh(c)
 
 
