@@ -201,7 +201,7 @@ def cb_calibrate_display():
     sh(c)
     # file has to be copied to
     # /etc/X11/xorg.conf.d/99-calibration.conf
-    # todo ---> do this
+    # todo ---> do this moving of xorg file
 
 
 def _cb_crontab(s):

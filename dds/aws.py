@@ -234,7 +234,7 @@ def aws_serve():
     # ---------------------------------------------------
     # nothing to AWS sync, number of files did not change
     # ---------------------------------------------------
-    # todo ---> test this
+    # todo ---> test pre and post comparison of number AWS files
     mon_ls = []
     for i in ('lid', 'lix', 'csv', 'cst', 'gps', 'bin'):
         mon_ls += glob.glob(f'{get_ddh_folder_path_dl_files()}/**/*.{i}')

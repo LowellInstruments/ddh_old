@@ -148,7 +148,7 @@ def main_dds():
         gps_configure_shield()
 
         # other stages
-        # todo ---> reenable this
+        # todo ---> reenable this cst_serve()
         # cst_serve()
         gfm_serve()
         cnv_serve()
@@ -200,7 +200,7 @@ def main_dds():
 
         # recovery situations
         if rvi:
-            # todo ---> test this does not happen when all OK
+            # todo ---> test this BLE reset does not happen when all OK
             lg.a("warning: resetting Bluetooth interface due to error")
             ble_mat_disconnect_all_devices_ll()
             ble_mat_bluetoothctl_power_cycle()

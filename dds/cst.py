@@ -54,7 +54,7 @@ def _create_cst_files():
         if os.path.exists(f_cst):
             os.unlink(f_cst)
             # already done, bye
-            # todo ---> reenable this
+            # todo ---> reenable this skip when CST file exists
             # continue
 
         # read lines of CSV file
@@ -79,7 +79,7 @@ def _create_cst_files():
 
         else:
             # trawling mode: use N locations in dynamic database json GPQ files
-            # todo ---> test this
+            # todo ---> test this CST file generation on trawling mode
             ft = open(f_cst, 'w')
             ft.write('lat,lon,' + ll_fv[0])
             for row in ll_fv[1:]:
