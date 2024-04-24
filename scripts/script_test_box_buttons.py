@@ -63,6 +63,8 @@ button_c.when_released = button_c_released_cb
 
 
 def main_test_box_buttons():
+    print('\ntesting DDH box side buttons')
+    print('----------------------------')
     print(f'bounce times A {0} B {btb} C {btc}')
     print(f'pullup confs A {pua} B {pub} C {puc}')
     pause()

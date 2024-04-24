@@ -193,7 +193,7 @@ def _menu_execute(_m, _c):
 
 def main_logger_tdo_deploy():
     _screen_clear()
-    print('cwd', os.getcwd())
+    # print('cwd', os.getcwd())
 
     while True:
         # --------------

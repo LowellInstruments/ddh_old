@@ -6,9 +6,10 @@ source scripts/utils.sh
 
 
 # we change the directory here to 'scripts'
-echo '----------------------------------------------------------------------------------'
-echo 'DDH logger DOX deploy, script in progress'
+echo
+echo '-------------------------------------------'
+echo 'logger DOX deploy'
 source "$FOL_VEN"/bin/activate && \
 cd "$FOL_DDH"/scripts && \
 "$FOL_VEN"/bin/python "$FOL_DDH"/scripts/script_logger_dox_deploy.py
-echo '----------------------------------------------------------------------------------'
+echo '-------------------------------------------'
