@@ -39,6 +39,11 @@ apps/__pycache__/
 *$py.class
 
 
+# so we can git upload some compiled binaries
+!ddh/scripts/main_brt.cpython-39.pyc 
+!ddh/scripts/main_nadv.cpython-39.pyc 
+
+
 # Distribution / packaging
 .Python
 build/
