@@ -8,6 +8,7 @@ import py_cui
 from py_cui.keys import *
 from os.path import exists
 
+from scripts.script_provision_get import get_provision_ddh, ping_provision_server
 # from scripts.script_provision_get import get_provision_ddh
 from utils.ddh_config import cfg_load_from_file, cfg_save_to_file
 from utils.tmp_paths import (
@@ -86,7 +87,8 @@ def cb_get_flag_sailor():
 
 
 def cb_provision_ddh():
-    pass
+    if not ping_provision_server():
+        return
     # get_provision_ddh()
 
 
@@ -200,15 +202,6 @@ def cb_calibrate_display():
     # file has to be copied to
     # /etc/X11/xorg.conf.d/99-calibration.conf
     # todo ---> do this
-
-
-def cb_message_box():
-    # src: ostechnix zenity-create-gui-dialog-boxes-in-bash-scripts/
-    c = "export XAUTHORITY=/home/pi/.Xauthority; "\
-        "export DISPLAY=:0; "\
-        "zenity --info --title \"DDC test\" --text \"DDH says hi\" "\
-        "--timeout 3"
-    sh(c)
 
 
 def _cb_crontab(s):
@@ -384,18 +377,11 @@ class DDC:
             # 'is shield juice4halt': (cb_do_nothing, 1 if exists(DDH_USES_SHIELD_JUICE4HALT) else 0),
             # 'is shield sailor_hat': (cb_do_nothing, 1 if exists(DDH_USES_SHIELD_SAILOR) else 0),
             'set crontab DDH': (cb_crontab_ddh, get_crontab('ddh')),
-            'set crontab API': (cb_crontab_api, get_crontab('api')),
-            'set crontab LXP': (cb_crontab_lxp, get_crontab('lxp')),
-            'say hi to desktop': (cb_message_box, 0),
-
-            # todo: to DDI
-            'calibrate DDH display': (cb_calibrate_display, 0),
-
-            # todo: to DDU
+            #'set crontab API': (cb_crontab_api, get_crontab('api')),
+            #'set crontab LXP': (cb_crontab_lxp, get_crontab('lxp')),
             'provision keys': (cb_provision_ddh, ''),
             'kill DDH application': (cb_kill_ddh, 0),
-
-            # todo: to DDP
+            'calibrate DDH display': (cb_calibrate_display, 0),
             'test GPS Quectel': (cb_test_gps_quectel, 0),
             'test box side buttons': (cb_test_buttons, 0),
             'deploy logger DOX': (cb_run_deploy_dox, 0),

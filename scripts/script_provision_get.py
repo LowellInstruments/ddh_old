@@ -62,6 +62,13 @@ def get_files_from_server(pr, sn, ip, addr=DDN_ADDR, port=DDN_PRV_PORT):
         return dst
 
 
+def ping_provision_server(addr=DDN_ADDR, port=DDN_PRV_PORT):
+    url = f'http://{addr}:{port}/ping'
+    rsp = req(url)
+    if rsp:
+        return 'pong' in rsp.text
+
+
 def _read_provision_bootstrap_file():
     with open(PBF, 'r') as f:
         c = toml.load(f)
