@@ -30,11 +30,6 @@ MD5_MOD_BTUART = '95da1d6d0bea327aa5426b7f90303778'
 TMP_DDC_ERR = '/tmp/ddc_err'
 
 
-# cwd is ddh here
-path_script_deploy_dox = 'scripts/run_script_deploy_logger_dox.sh'
-path_script_deploy_tdo = 'scripts/run_script_deploy_logger_tdo.sh'
-
-
 def sh(c):
     rv = sp.run(c, shell=True, stdout=sp.PIPE, stderr=sp.PIPE)
     return rv.returncode
@@ -146,47 +141,6 @@ def _es(e):
         return
     with open(TMP_DDC_ERR, 'a') as f:
         f.write(f'error: {e}\n')
-
-
-def cb_test_gps_quectel():
-    try:
-        from scripts.script_test_gps_quectel import main_test_gps_quectel
-        if is_rpi():
-            if sh(f'lsusb | grep {VP_QUECTEL}') == 0:
-                main_test_gps_quectel()
-            else:
-                _es('no puck')
-        else:
-            _es('no Rpi for GPS quectel test')
-    except (Exception, ) as ex:
-        _es(str(ex))
-
-
-def cb_test_buttons():
-    try:
-        from scripts.script_test_box_buttons import main_test_box_buttons
-        if is_rpi():
-            main_test_box_buttons()
-        else:
-            _es('no Rpi for buttons test')
-    except (Exception, ) as ex:
-        _es(str(ex))
-
-
-def cb_run_deploy_dox():
-    try:
-        # do this or this script's prompts fail
-        sp.run(path_script_deploy_dox)
-    except (Exception, ) as ex:
-        _es(f'{ex} running deploy_dox')
-
-
-def cb_run_deploy_tdo():
-    try:
-        # do this or this script's prompts fail
-        sp.run(path_script_deploy_tdo)
-    except (Exception, ) as ex:
-        _es(f'{ex} running deploy_tdo')
 
 
 def cb_calibrate_display():
@@ -333,13 +287,13 @@ def _run_check():
     if not ((ok_arch_armv7l and ok_issue_20230503) or
             (ok_arch_armv7l and ok_issue_20220922) or
             (ok_arch_aarch64 and ok_issue_20240315)):
-        _e('bad arch / file /boot/issue.txt combination')
+        _e('bad arch  /boot/issue.txt combo')
         rv += 1
     if not ok_hostname:
         _e('bad hostname')
         rv += 1
     if flag_gps_ext and not flag_vp_gps_puck1 and not flag_vp_gps_puck2:
-        _e('GPS external puck: set but not detected')
+        _e('GPS puck: set but not detected')
         rv += 1
     if is_rpi3 and not flag_mod_btuart:
         _e(f'is_rpi3 {is_rpi3}, bad mod_uart')
@@ -379,10 +333,6 @@ class DDC:
             'provision keys': (cb_provision_ddh, ''),
             'kill DDH application': (cb_kill_ddh, 0),
             'calibrate DDH display': (cb_calibrate_display, 0),
-            'test GPS Quectel': (cb_test_gps_quectel, 0),
-            'test box side buttons': (cb_test_buttons, 0),
-            'deploy logger DOX': (cb_run_deploy_dox, 0),
-            'deploy logger TDO': (cb_run_deploy_tdo, 0),
             'quit': (cb_quit, 0)
         }
 
