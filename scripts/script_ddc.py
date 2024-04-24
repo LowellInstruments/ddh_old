@@ -209,7 +209,9 @@ def _cb_crontab(s):
     cf_run = f'/home/pi/li/ddt/_dt_files/crontab_{s}.sh'
     if sh(f'grep -q crontab_{s}.sh {cf}') == 1:
         # string NOT FOUND in file /etc/crontab, add it
-        sh(f'echo -e "* * * * * pi {cf_run}\n" | sudo tee -a {cf}')
+        sh(f'echo "* * * * * pi {cf_run}" | sudo tee -a {cf}')
+        # new line because -e sucks
+        sh(f'echo "" | sudo tee -a {cf}')
         return
 
     # string is there, detect a "commented" symbol
