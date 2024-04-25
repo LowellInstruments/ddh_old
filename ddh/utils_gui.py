@@ -192,9 +192,17 @@ def gui_populate_history_tab(my_app):
     a.tbl_his.clear()
     db = DbHis(ddh_get_db_history_file())
     r = db.get_all().values()
+    # r: has the more recent ones first
     r = sorted(r, key=lambda x: x["ep_loc"], reverse=True)
 
+    # just show one per mac in the table
+    already = []
+
     for i, h in enumerate(r):
+        if h['mac'] in already:
+            continue
+        already.append(h['mac'])
+
         e = h["e"]
         e = "success" if e == "ok" else e
         try:
