@@ -283,6 +283,9 @@ async def _ble_id_n_interact_logger(mac, info: str, h, g):
     ep_utc = int(dt.timestamp())
     e = 'ok' if not rv else _error_dl
 
+    print('ep_loc', ep_loc)
+    print('ep_utc', ep_utc)
+
     _u(f"{STATE_DDS_NOTIFY_HISTORY}/add&"
        f"{mac}&{e}&{lat}&{lon}&{ep_loc}&{ep_utc}&{rerun}")
 

@@ -61,13 +61,14 @@ def cb_test_buttons():
 
 
 def cb_run_brt():
-    c = f'/usr/bin/env python {path_script_brt}'
+    c = f'/usr/bin/env python3 {path_script_brt}'
     sh(c)
 
 
 def cb_run_nadv():
-    c = f'/usr/bin/env python {path_script_nadv}'
-    sh(c)
+    # call it like this or we don't see output
+    sp.call(['python3', path_script_nadv],
+            stdin=sys.stdin, stdout=sys.stdout)
 
 
 def cb_run_deploy_dox():
@@ -92,7 +93,7 @@ def cb_quit():
 
 if __name__ == "__main__":
     while 1:
-        os.system('clear')
+        # os.system('clear')
         print('\nDDP\n---')
         d = {
             "0) test GPS shield": (0, cb_test_gps_quectel),

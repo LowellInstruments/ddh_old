@@ -65,11 +65,8 @@ class DbHis:
             "ep_utc": ep_utc,
             "rerun": str(rerun)
         }
-        q = {"SN": sn}
         try:
-            _ids = self._db.update_by_query(q, a)
-            if not _ids:
-                self._db.add(a)
+            self._db.add(a)
         except (IndexError, KeyError) as ex:
             print(f"error: db_his -=> {ex}")
         self._db.commit(self.f)
