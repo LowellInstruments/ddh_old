@@ -190,6 +190,10 @@ def gui_populate_history_tab(my_app):
 
     a = my_app
     a.tbl_his.clear()
+
+    # this prevents problem with white rows due to sortnig
+    a.tbl_his.sortingEnabled = False
+
     db = DbHis(ddh_get_db_history_file())
     r = db.get_all().values()
     # r: has the more recent ones first
@@ -210,7 +214,7 @@ def gui_populate_history_tab(my_app):
             lon = "{:+6.4f}".format(float(h["lon"]))
             dt = datetime.datetime.fromtimestamp(int(h["ep_loc"]))
             t = dt.strftime("%b %d %H:%M")
-            s = "{} on {} at {}, {}".format(e, t, lat, lon)
+            s = "{} {} at {}, {}".format(e, t, lat, lon)
 
             # set values to cells
             a.tbl_his.setItem(i, 0, QTableWidgetItem(str(h["SN"])))
@@ -222,7 +226,7 @@ def gui_populate_history_tab(my_app):
 
     # redistribute columns with
     h = a.tbl_his.horizontalHeader()
-    h.resizeSection(0, 150)
+    h.resizeSection(0, 120)
     h.setSectionResizeMode(1, QHeaderView.Stretch)
 
     # column labels
