@@ -249,6 +249,14 @@ async def ep_kill_api():
     return {'kill_api': CTT_API_OK}
 
 
+@app.get('/force_reboot')
+async def ep_force_reboot():
+    _sh('reboot')
+    # does not matter, won't answer
+    return {'reboot': CTT_API_OK}
+
+
+
 @app.get("/cron_ena")
 async def ep_crontab_enable():
     if not linux_is_rpi():
