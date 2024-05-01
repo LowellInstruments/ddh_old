@@ -15,7 +15,7 @@ from api.api_utils import (get_ip_vpn, get_ip_wlan, get_ip_cell,
                            api_get_folder_path_root, ddt_get_folder_path_root,
                            get_uptime, get_crontab_api, api_read_aws_sqs_ts,
                            get_utc_epoch, get_timezone, CTT_API_OK,
-                           CTT_API_ER, get_uptime_secs, ddh_get_folder_dl_files)
+                           CTT_API_ER, get_uptime_secs, ddh_get_folder_dl_files, api_get_ddh_folder_path_macs_black)
 from ddh.db.db_his import DbHis
 from utils.ddh_config import dds_get_cfg_vessel_name, dds_get_cfg_box_sn, dds_get_cfg_box_project, \
     dds_get_cfg_monitored_macs, dds_get_cfg_monitored_pairs
@@ -250,14 +250,14 @@ async def ep_force_reboot():
     if linux_is_rpi():
         _sh('sudo reboot')
         # does not matter, won't answer
-        return {'reboot': CTT_API_OK}
-    return {'reboot': 'not a raspberry'}
+        return {'force_reboot': CTT_API_OK}
+    return {'force_reboot': 'not a raspberry'}
 
 
 @app.get('/ddh_clear_lock_out_time')
 async def ep_clear_lock_out_time():
     try:
-        p = get_ddh_folder_path_macs_black()
+        p = api_get_ddh_folder_path_macs_black()
         for f in glob.glob(f"{p}/*"):
             os.unlink(f)
             print(f'removing black mac {f}')
@@ -266,6 +266,7 @@ async def ep_clear_lock_out_time():
 
     pathlib.Path(TMP_PATH_DDH_APP_OVERRIDE).touch()
     print("API: BLE op conditions override set as 1")
+    return {'ddh_clear_lock_out_time': CTT_API_OK}
 
 
 @app.get("/cron_ena")
