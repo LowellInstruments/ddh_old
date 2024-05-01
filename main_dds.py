@@ -174,6 +174,8 @@ def main_dds():
         if not ble_check_antenna_up_n_running(g, h):
             # note: ensure 'hciconfig' command is installed
             continue
+
+        # check operation conditions are met
         if not ble_op_conditions_met(g):
             continue
 

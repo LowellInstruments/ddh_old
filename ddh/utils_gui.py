@@ -71,7 +71,7 @@ from utils.ddh_shared import (
     ddh_get_db_history_file,
     STATE_DDS_BLE_NO_ASSIGNED_LOGGERS, get_ddh_commit,
     get_ddh_rerun_flag_li, ddh_get_root_folder_path, STATE_DDS_BLE_CONNECTING, STATE_DDS_PRESSED_BUTTON_2,
-    get_ddh_sw_version,
+    get_ddh_sw_version, STATE_DDS_GPS_IN_PORT,
 )
 from utils.logs import lg_gui as lg
 
@@ -612,6 +612,10 @@ def _gui_parse_udp(my_app, s, ip="127.0.0.1"):
     # ----------------------------------
     elif f == STATE_DDS_NOTIFY_BOAT_NAME:
         a.lbl_boat_txt.setText(v)
+
+    elif f == STATE_DDS_GPS_IN_PORT:
+        ct = "we are in port"
+        ci = "gps_in_port.png"
 
     elif f == STATE_DDS_NOTIFY_GPS:
         a.lbl_gps.setText(v)

@@ -76,7 +76,8 @@ def dds_get_cfg_gpq_en():
 
 def dds_get_cfg_skip_dl_in_port_en():
     # todo ---> put this dds_get_cfg_skip_dl_in_port_en in EDIT tab
-    return cfg['flags']['skip_dl_in_port_en']
+    rv = cfg['flags']['skip_dl_in_port_en']
+    return rv
 
 
 def dds_get_cfg_flag_graph_test_mode():

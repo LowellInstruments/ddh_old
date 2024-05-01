@@ -35,7 +35,8 @@ past_n_files = 0
 
 
 def _get_aws_bin_path():
-    # requires $ sudo pip install awscli
+    # apt install awscli
+    # 2024 is 1.22.34
     return "aws"
 
 

@@ -27,7 +27,7 @@ from utils.ddh_shared import (
     dds_get_ddh_got_an_update_flag_file,
     STATE_DDS_SOFTWARE_UPDATED,
     get_ddh_folder_path_macs_black, STATE_DDS_BLE_HARDWARE_ERROR, get_ddh_folder_path_tweak,
-    STATE_DDS_BLE_NO_ASSIGNED_LOGGERS, STATE_DDS_PRESSED_BUTTON_2,
+    STATE_DDS_BLE_NO_ASSIGNED_LOGGERS, STATE_DDS_PRESSED_BUTTON_2, STATE_DDS_BLE_SCAN, STATE_DDS_GPS_IN_PORT,
 )
 from utils.logs import lg_dds as lg
 import subprocess as sp
@@ -70,9 +70,13 @@ def ble_op_conditions_met(g) -> bool:
     flag = ddh_get_app_override_flag_file()
 
     # are we in port
-    if dds_ask_in_port_to_ddn(g) and not flag:
-        # todo ---> test this
+    are_we_in_port = dds_ask_in_port_to_ddn(g)
+    if are_we_in_port and not os.path.isfile(flag):
+        _u(STATE_DDS_GPS_IN_PORT)
         return False
+
+    # seems we are going to work
+    _u(STATE_DDS_BLE_SCAN)
 
     # when it is forced to work, ex: button 2 is pressed
     if os.path.isfile(flag):

@@ -10,6 +10,8 @@ from utils.logs import lg_gps as lg
 
 def dds_ask_in_port_to_ddn(g):
 
+    # ex: new bedford port: 41.63, -70.91
+
     if dds_get_cfg_skip_dl_in_port_en() == 0:
         # not in port when this feature not-enabled
         return 0
@@ -33,12 +35,15 @@ def dds_ask_in_port_to_ddn(g):
         # j: {'in_port': True}
         in_port = int(j['in_port'])
         if in_port and its_time_to(s, 600):
-            lg.a(f'warning: we are in port')
+            lg.a('---------------------------------')
+            lg.a(f'in_port() -> DDN API says yes')
+            lg.a('---------------------------------')
             notify_ddh_in_port(g)
         return in_port
     except (Exception,) as err:
         lg.a(f'error: dds_ask_in_port_to_ddn request -> {err}')
         # returns FALSE in case no API, so maybe too far away
+        lg.a('warning: no in_port API response, consider = False')
 
 
 if __name__ == '__main__':

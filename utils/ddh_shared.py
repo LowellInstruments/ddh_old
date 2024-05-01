@@ -22,6 +22,7 @@ STATE_DDS_NOTIFY_GPS_CLOCK = "gps_clock_time_sync"
 STATE_DDS_NOTIFY_GPS_NUM_SAT = "gps_num_sat"
 STATE_DDS_NOTIFY_GPS_BOOT = "gps_boot"
 STATE_DDS_NOTIFY_HISTORY = "history"
+STATE_DDS_GPS_IN_PORT = 'gps_in_port'
 
 
 STATE_DDS_BLE_SCAN = "state_dds_ble_scan"
