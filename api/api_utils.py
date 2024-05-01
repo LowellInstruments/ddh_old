@@ -55,6 +55,14 @@ def ddt_get_folder_path_root():
     return _r + '/ddt'
 
 
+def ddh_get_folder_dl_files():
+    return _r + '/ddh/dl_files'
+
+
+def api_get_ddh_folder_path_macs_black():
+    return _r + '/ddh/dds/macs/black'
+
+
 def _get_remote_commit(s):
     assert s in ('mat', 'ddh', 'ddt', 'liu')
     url = f'https://github.com/lowellinstruments/{s}.git'

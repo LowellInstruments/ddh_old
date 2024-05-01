@@ -15,7 +15,7 @@ from api.api_utils import (get_ip_vpn, get_ip_wlan, get_ip_cell,
                            api_get_folder_path_root, ddt_get_folder_path_root,
                            get_uptime, get_crontab_api, api_read_aws_sqs_ts,
                            get_utc_epoch, get_timezone, CTT_API_OK,
-                           CTT_API_ER, get_uptime_secs)
+                           CTT_API_ER, get_uptime_secs, ddh_get_folder_dl_files)
 from ddh.db.db_his import DbHis
 from utils.ddh_config import dds_get_cfg_vessel_name, dds_get_cfg_box_sn, dds_get_cfg_box_project, \
     dds_get_cfg_monitored_macs, dds_get_cfg_monitored_pairs
@@ -25,9 +25,7 @@ import os
 from fastapi.responses import FileResponse
 import concurrent.futures
 import subprocess as sp
-
-from utils.ddh_shared import get_ddh_folder_path_macs_black, ddh_get_app_override_flag_file
-from utils.tmp_paths import LI_FILE_ICCID
+from utils.tmp_paths import LI_FILE_ICCID, TMP_PATH_DDH_APP_OVERRIDE
 
 # instead, the DDN port is 9000
 DDH_PORT_API = 8000
@@ -36,11 +34,6 @@ PID_FILE_API = "/tmp/{}.pid".format(NAME_EXE_API)
 
 
 app = FastAPI()
-
-
-def _get_ddh_folder_path_dl_files():
-    d = api_get_folder_path_root()
-    return f'{d}/dl_files'
 
 
 @app.get('/ping')
@@ -173,7 +166,7 @@ async def ep_dl_files_get():
     f = f'/tmp/dl_files_{vn}.zip'
 
     # zip it, -o flag overwrites if already exists
-    s = _get_ddh_folder_path_dl_files()
+    s = ddh_get_folder_dl_files()
     c = f'rm {f}; cd {s} && zip -r {f} *'
     rv = _sh(c)
 
@@ -271,8 +264,7 @@ async def ep_clear_lock_out_time():
     except (OSError, Exception) as ex:
         print(f'error ep_clear_lock_out_time -> {ex}')
 
-    flag = ddh_get_app_override_flag_file()
-    pathlib.Path(flag).touch()
+    pathlib.Path(TMP_PATH_DDH_APP_OVERRIDE).touch()
     print("API: BLE op conditions override set as 1")
 
 
