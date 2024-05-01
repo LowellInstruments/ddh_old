@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 
 import datetime
+import glob
+import pathlib
 import shutil
 import setproctitle
 from api.api_utils import (get_ip_vpn, get_ip_wlan, get_ip_cell,
@@ -24,6 +26,7 @@ from fastapi.responses import FileResponse
 import concurrent.futures
 import subprocess as sp
 
+from utils.ddh_shared import get_ddh_folder_path_macs_black, ddh_get_app_override_flag_file
 from utils.tmp_paths import LI_FILE_ICCID
 
 # instead, the DDN port is 9000
@@ -251,10 +254,26 @@ async def ep_kill_api():
 
 @app.get('/force_reboot')
 async def ep_force_reboot():
-    _sh('reboot')
-    # does not matter, won't answer
-    return {'reboot': CTT_API_OK}
+    if linux_is_rpi():
+        _sh('sudo reboot')
+        # does not matter, won't answer
+        return {'reboot': CTT_API_OK}
+    return {'reboot': 'not a raspberry'}
 
+
+@app.get('/ddh_clear_lock_out_time')
+async def ep_clear_lock_out_time():
+    try:
+        p = get_ddh_folder_path_macs_black()
+        for f in glob.glob(f"{p}/*"):
+            os.unlink(f)
+            print(f'removing black mac {f}')
+    except (OSError, Exception) as ex:
+        print(f'error ep_clear_lock_out_time -> {ex}')
+
+    flag = ddh_get_app_override_flag_file()
+    pathlib.Path(flag).touch()
+    print("API: BLE op conditions override set as 1")
 
 
 @app.get("/cron_ena")
