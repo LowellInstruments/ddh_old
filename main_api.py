@@ -31,6 +31,7 @@ from utils.tmp_paths import LI_FILE_ICCID, TMP_PATH_DDH_APP_OVERRIDE
 DDH_PORT_API = 8000
 NAME_EXE_API = "main_api"
 PID_FILE_API = "/tmp/{}.pid".format(NAME_EXE_API)
+DDH_API_VERSION = "0.8.00"
 
 
 app = FastAPI()
@@ -283,6 +284,11 @@ async def ep_crontab_disable():
         return {'cron_dis': 'not RPi, not disabling crontab'}
     set_crontab(0)
     return {'cron_dis': get_crontab_ddh()}
+
+
+@app.get("/api_version")
+async def ep_api_version():
+    return {'api_version': DDH_API_VERSION}
 
 
 @app.get("/rpi_temperature")
