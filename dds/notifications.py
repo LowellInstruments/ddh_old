@@ -70,6 +70,9 @@ class _DDHNotification:
         now_utc = datetime.utcnow()
         rv = sp.run("uptime -p", shell=True, stdout=sp.PIPE)
         up = rv.stdout.decode()
+        
+        rv = sp.run("awk '{print $1}' /proc/uptime", shell=True, stdout=sp.PIPE)
+        up_int = rv.stdout.decode()
 
         self.msg_ver = ver
         self.reason = s
@@ -81,6 +84,7 @@ class _DDHNotification:
         _o = datetime.now(pytz.timezone(self.time_zone_ddh)).strftime('%z')
         self.time_zone_offset = _o
         self.time_uptime_str = up.replace('\n', '')
+        self.time_uptime_int_str = up_int.replace('\n', '')
         self.ddh_sw_commit = get_ddh_commit()
         self.ddh_sw_version = get_ddh_sw_version()
         self.ddh_gps_position = ''
