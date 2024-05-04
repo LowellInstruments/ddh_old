@@ -86,6 +86,13 @@ def cb_run_deploy_tdo():
         _e(f'{ex} running deploy_tdo')
 
 
+def cb_edit_brt_cfg_file():
+    h = pathlib.Path.home()
+    p = f'{h}/Downloads/cfg_brt_nadv.toml'
+    sp.call(['nano', p],
+            stdin=sys.stdin, stdout=sys.stdout)
+
+
 def cb_quit():
     sys.exit(0)
 
@@ -101,8 +108,9 @@ if __name__ == "__main__":
             0: ("0) test GPS shield", cb_test_gps_quectel),
             1: ("1) test side buttons", cb_test_buttons),
             2: ("2) run BLE range tool", cb_run_brt),
-            3: ("3) deploy logger DOX", cb_run_deploy_dox),
-            # 4: ("4) deploy logger TDO", cb_run_deploy_tdo),
+            3: ("3) edit BLE range tool mac", cb_edit_brt_cfg_file),
+            4: ("4) deploy logger DOX", cb_run_deploy_dox),
+            # 5: ("5) deploy logger TDO", cb_run_deploy_tdo),
             9: ("9) quit", cb_quit)
         }
 

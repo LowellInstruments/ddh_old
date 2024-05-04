@@ -1,4 +1,5 @@
 import os
+import sys
 from os.path import exists
 from scripts.script_ddc import (
     cb_gps_dummy, cb_quit, cb_gps_external, cb_crontab_ddh,
@@ -6,11 +7,13 @@ from scripts.script_ddc import (
     cb_graph_test_mode, cb_provision_ddh,
     cb_kill_ddh, ddh_run_check, cb_calibrate_display, sh
 )
+from utils.ddh_config import _get_config_file_path
 from utils.tmp_paths import (
     TMP_PATH_GPS_DUMMY,
     LI_PATH_DDH_GPS_EXTERNAL,
     TMP_PATH_GRAPH_TEST_MODE_JSON
 )
+import subprocess as sp
 
 
 g_e = None
@@ -33,6 +36,12 @@ def _ddh_show_issues_warning():
 def cb_ddh_show_issues():
     _ddh_show_issues_error()
     _ddh_show_issues_warning()
+    input()
+
+
+def cb_edit_ddh_config_file():
+    sp.call(['nano', _get_config_file_path()],
+            stdin=sys.stdin, stdout=sys.stdout)
 
 
 if __name__ == "__main__":
@@ -77,14 +86,17 @@ if __name__ == "__main__":
 
         # show menu
         for k, v in d.items():
+            # todo ---> print red the issues entry
             print(f'\t{v[0]}')
 
         # get user input
         try:
             c = int(input('\nenter your choice > '))
-            # secret option for provisioning
+            # secret options
             if c == 'p':
                 cb_provision_ddh()
+            elif c == 'e':
+                cb_edit_ddh_config_file()
             else:
                 _, cb = d[c]
                 cb()
