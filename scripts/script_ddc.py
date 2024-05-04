@@ -4,8 +4,6 @@
 import sys
 import time
 from os import unlink
-import py_cui
-from py_cui.keys import *
 from os.path import exists
 
 from scripts.script_provision_get import get_provision_ddh, ping_provision_server
@@ -194,7 +192,7 @@ str_e = ''
 str_w = ''
 
 
-def _run_check():
+def ddh_run_check():
 
     global str_e
     str_e = ''
@@ -312,81 +310,3 @@ def _run_check():
     if not ok_shield_sailor and not ok_shield_j4h:
         _e('no hardware power shield present')
     return rv, str_e, str_w
-
-
-class DDC:
-
-    def refresh(self):
-        # data
-        self.d = {
-            # 'set AWS S3 group': (cb_aws_s3_group, 1 if exists(LI_PATH_GROUPED_S3_FILE_FLAG) else 0),
-            'set GPS external puck': (cb_gps_external, 1 if exists(LI_PATH_DDH_GPS_EXTERNAL) else 0),
-            # 'set gear type': (cb_gear_type, get_gear_type()),
-            'set GPS dummy': (cb_gps_dummy, 1 if exists(TMP_PATH_GPS_DUMMY) else 0),
-            'set graph test mode': (cb_graph_test_mode, 1 if exists(TMP_PATH_GRAPH_TEST_MODE_JSON) else 0),
-            'set skip_dl_in_port': (cb_skip_dl_in_port, 1 if exists(LI_PATH_SKIP_IN_PORT_FILE_FLAG) else 0),
-            # 'is shield juice4halt': (cb_do_nothing, 1 if exists(DDH_USES_SHIELD_JUICE4HALT) else 0),
-            # 'is shield sailor_hat': (cb_do_nothing, 1 if exists(DDH_USES_SHIELD_SAILOR) else 0),
-            'set crontab DDH': (cb_crontab_ddh, get_crontab('ddh')),
-            #'set crontab API': (cb_crontab_api, get_crontab('api')),
-            #'set crontab LXP': (ccb_crontab_lxp, get_crontab('lxp')),
-            'provision keys': (cb_provision_ddh, ''),
-            'kill DDH application': (cb_kill_ddh, 0),
-            #'calibrate DDH display': (cb_calibrate_display, 0),
-            'quit': (cb_quit, 0)
-        }
-
-        # column 1, menu of commands
-        self.m = self.r.add_scroll_menu(
-            title='Choose command',
-            row=1, column=0, row_span=5, padx=5
-        )
-
-        # column 2, results and error
-        self.s = self.r.add_block_label(
-            title='Summary',
-            row=1, column=1, row_span=5, center=False, padx=5
-        )
-
-        # fill menu of commands
-        for k, v in self.d.items():
-            if 'set' in k:
-                self.m.add_item(f'{v[1]} / {k}')
-            else:
-                self.m.add_item(f'{k}')
-
-        self.m.add_key_command(KEY_ENTER, command=self.menu_key_enter_cb)
-
-        # fill output label
-        rv, e, w = _run_check()
-        if rv:
-            self.s.set_color(py_cui.RED_ON_BLACK)
-            self.s.set_title('DDH config errors found:\n' + e)
-        else:
-            if w:
-                self.s.set_title(w)
-            else:
-                self.s.set_title('OK')
-
-        # focus
-        self.r.move_focus(self.m)
-
-    def __init__(self, root_window: py_cui.PyCUI):
-        self.r = root_window
-        self.d = None
-        self.m = None
-        self.s = None
-        self.refresh()
-
-    def menu_key_enter_cb(self):
-        ch = self.m.get()
-        # c: 1 / fag
-        if '/' in ch:
-            ch = ch.split(' / ')[1]
-        for i, k in enumerate(self.d.keys()):
-            if ch in k:
-                # call the callback
-                cb, v = self.d[k]
-                cb()
-                # go back to main loop
-                self.r.stop()

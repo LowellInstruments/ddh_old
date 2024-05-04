@@ -103,13 +103,16 @@ if __name__ == "__main__":
             # "4) deploy logger TDO": (5, cb_run_deploy_tdo),
             "9) quit": (9, cb_quit)
         }
+
+        # show the menu
         for i in d.keys():
             print(f'\t{i}')
         ls_idx = [i[0] for i in d.values()]
 
-        # add secret one
+        # add secret one, without being printed
         ls_idx[8] = cb_run_nadv
 
+        # get user input
         try:
             c = int(input('\nenter your choice > '))
         except (Exception, ):
