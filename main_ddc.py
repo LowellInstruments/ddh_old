@@ -80,7 +80,7 @@ if __name__ == "__main__":
             if c == 'p':
                 cb_provision_ddh()
             else:
-                _, cb = d[i]
+                _, cb = d[c]
                 cb()
         except (Exception,):
             continue

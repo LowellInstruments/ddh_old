@@ -96,31 +96,27 @@ if __name__ == "__main__":
         # os.system('clear')
         print('\nDDP\n---')
         d = {
-            "0) test GPS shield": (0, cb_test_gps_quectel),
-            "1) test side buttons": (1, cb_test_buttons),
-            "2) run BLE range tool": (2, cb_run_brt),
-            "3) deploy logger DOX": (4, cb_run_deploy_dox),
-            # "4) deploy logger TDO": (5, cb_run_deploy_tdo),
-            "9) quit": (9, cb_quit)
+            0: ("0) test GPS shield", cb_test_gps_quectel),
+            1: ("1) test side buttons", cb_test_buttons),
+            2: ("2) run BLE range tool", cb_run_brt),
+            3: ("3) deploy logger DOX", cb_run_deploy_dox),
+            4: ("4) deploy logger TDO", cb_run_deploy_tdo),
+            9: ("9) quit", cb_quit)
         }
 
         # show the menu
-        for i in d.keys():
-            print(f'\t{i}')
-        ls_idx = [i[0] for i in d.values()]
-
-        # add secret one, without being printed
-        ls_idx[8] = cb_run_nadv
+        for i in d.values():
+            print(f'\t{i[0]}')
 
         # get user input
         try:
             c = int(input('\nenter your choice > '))
+            # secret one
+            if c == 'n':
+                cb_run_nadv()
+            else:
+                _, cb = d[c]
+                cb()
         except (Exception, ):
             continue
-        if c not in ls_idx:
-            continue
-        cb = list(d.values())[c]
-
-        # cb: (3, cb_run_deploy_tdo)
-        cb[1]()
 
