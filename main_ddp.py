@@ -99,14 +99,17 @@ if __name__ == "__main__":
             "0) test GPS shield": (0, cb_test_gps_quectel),
             "1) test side buttons": (1, cb_test_buttons),
             "2) run BLE range tool": (2, cb_run_brt),
-            "3) run BLE n_adv tool": (3, cb_run_nadv),
-            "4) deploy logger DOX": (4, cb_run_deploy_dox),
-            "5) deploy logger TDO": (5, cb_run_deploy_tdo),
-            "6) quit": (6, cb_quit)
+            "3) deploy logger DOX": (4, cb_run_deploy_dox),
+            # "4) deploy logger TDO": (5, cb_run_deploy_tdo),
+            "9) quit": (9, cb_quit)
         }
         for i in d.keys():
             print(f'\t{i}')
         ls_idx = [i[0] for i in d.values()]
+
+        # add secret one
+        ls_idx[8] = cb_run_nadv
+
         try:
             c = int(input('\nenter your choice > '))
         except (Exception, ):
@@ -114,7 +117,7 @@ if __name__ == "__main__":
         if c not in ls_idx:
             continue
         cb = list(d.values())[c]
-        # (3, cb_run_deploy_tdo)
+
+        # cb: (3, cb_run_deploy_tdo)
         cb[1]()
-    print(d.keys())
 

@@ -319,9 +319,9 @@ class DDC:
     def refresh(self):
         # data
         self.d = {
-            'set AWS S3 group': (cb_aws_s3_group, 1 if exists(LI_PATH_GROUPED_S3_FILE_FLAG) else 0),
+            # 'set AWS S3 group': (cb_aws_s3_group, 1 if exists(LI_PATH_GROUPED_S3_FILE_FLAG) else 0),
             'set GPS external puck': (cb_gps_external, 1 if exists(LI_PATH_DDH_GPS_EXTERNAL) else 0),
-            'set gear type': (cb_gear_type, get_gear_type()),
+            # 'set gear type': (cb_gear_type, get_gear_type()),
             'set GPS dummy': (cb_gps_dummy, 1 if exists(TMP_PATH_GPS_DUMMY) else 0),
             'set graph test mode': (cb_graph_test_mode, 1 if exists(TMP_PATH_GRAPH_TEST_MODE_JSON) else 0),
             'set skip_dl_in_port': (cb_skip_dl_in_port, 1 if exists(LI_PATH_SKIP_IN_PORT_FILE_FLAG) else 0),
@@ -332,7 +332,7 @@ class DDC:
             #'set crontab LXP': (ccb_crontab_lxp, get_crontab('lxp')),
             'provision keys': (cb_provision_ddh, ''),
             'kill DDH application': (cb_kill_ddh, 0),
-            'calibrate DDH display': (cb_calibrate_display, 0),
+            #'calibrate DDH display': (cb_calibrate_display, 0),
             'quit': (cb_quit, 0)
         }
 
