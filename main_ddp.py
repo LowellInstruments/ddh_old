@@ -100,7 +100,7 @@ if __name__ == "__main__":
             1: ("1) test side buttons", cb_test_buttons),
             2: ("2) run BLE range tool", cb_run_brt),
             3: ("3) deploy logger DOX", cb_run_deploy_dox),
-            4: ("4) deploy logger TDO", cb_run_deploy_tdo),
+            # 4: ("4) deploy logger TDO", cb_run_deploy_tdo),
             9: ("9) quit", cb_quit)
         }
 
