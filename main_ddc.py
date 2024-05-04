@@ -49,18 +49,17 @@ if __name__ == "__main__":
             f"1) set GPS dummy  [{fgd}]": (1, cb_gps_dummy),
             f"2) set GPS puck   [{fge}]": (2, cb_gps_external),
             f"3) set crontab    [{fcd}]": (3, cb_crontab_ddh),
-            f"4) provision keys [{fdk}]": (4, cb_provision_ddh),
-            f"5) kill DDH app   [{fdr}]": (5, cb_kill_ddh),
+            f"4) kill DDH app   [{fdr}]": (4, cb_kill_ddh),
         }
 
         # add extra one being displayed
         if sh('arch | grep aarch64') == 0:
-            d["7) calibrate DDH display"] = (7, cb_calibrate_display)
+            d["5) calibrate DDH display"] = (5, cb_calibrate_display)
 
         # add extra one being displayed
         rv, e, w = ddh_run_check()
         if rv:
-            d["8) === see DDH issues ==="] = (8, cb_ddh_show_issues(e, w))
+            d["6) === see DDH issues ==="] = (6, cb_ddh_show_issues(e, w))
 
         # keep order
         d["9) quit"] = (9, cb_quit)
@@ -69,6 +68,9 @@ if __name__ == "__main__":
         for i in d.keys():
             print(f'\t{i}')
         ls_idx = [i[0] for i in d.values()]
+
+        # add secret one, without being printed
+        ls_idx[7] = cb_provision_ddh
 
         # get user input
         try:
@@ -79,6 +81,6 @@ if __name__ == "__main__":
             continue
         cb = list(d.values())[c]
 
-        # cb: (3, cb_see_ddh_issues)
+        # cb: (3, cb_whatever)
         cb[1]()
 
