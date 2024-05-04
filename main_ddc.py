@@ -45,42 +45,42 @@ if __name__ == "__main__":
         fdr = False  # todo ---> now if DDH is running
 
         d = {
-            f"0) set test mode  [{ftm}]": (0, cb_graph_test_mode),
-            f"1) set GPS dummy  [{fgd}]": (1, cb_gps_dummy),
-            f"2) set GPS puck   [{fge}]": (2, cb_gps_external),
-            f"3) set crontab    [{fcd}]": (3, cb_crontab_ddh),
-            f"4) kill DDH app   [{fdr}]": (4, cb_kill_ddh),
+            0: (f"0) set test mode  [{ftm}]", cb_graph_test_mode),
+            1: (f"1) set GPS dummy  [{fgd}]", cb_gps_dummy),
+            2: (f"2) set GPS puck   [{fge}]", cb_gps_external),
+            3: (f"3) set crontab    [{fcd}]", cb_crontab_ddh),
+            4: (f"4) kill DDH app   [{fdr}]", cb_kill_ddh),
         }
+
+        # keep index of new stuff to add
+        i = 5
 
         # add extra one being displayed
         if sh('arch | grep aarch64') == 0:
-            d["5) calibrate DDH display"] = (5, cb_calibrate_display)
+            d[i] = (f"{i}) calibrate DDH display", cb_calibrate_display)
+            i += 1
 
         # add extra one being displayed
         rv, e, w = ddh_run_check()
         if rv:
-            d["6) === see DDH issues ==="] = (6, cb_ddh_show_issues(e, w))
+            d[i] = (f"{i}) === DDH issues ===", cb_ddh_show_issues(e, w))
+            i += 1
 
         # keep order
-        d["9) quit"] = (9, cb_quit)
+        d[9] = (f"9) quit", cb_quit)
 
         # show menu
-        for i in d.keys():
-            print(f'\t{i}')
-        ls_idx = [i[0] for i in d.values()]
-
-        # add secret one, without being printed
-        ls_idx[7] = cb_provision_ddh
+        for k, v in d.keys():
+            print(f'\t{v[0]}')
 
         # get user input
         try:
             c = int(input('\nenter your choice > '))
+            # secret option for provisioning
+            if c == 'p':
+                cb_provision_ddh()
+            else:
+                _, cb = d[i]
+                cb()
         except (Exception,):
             continue
-        if c not in ls_idx:
-            continue
-        cb = list(d.values())[c]
-
-        # cb: (3, cb_whatever)
-        cb[1]()
-
