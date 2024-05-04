@@ -32,6 +32,7 @@ def cb_ddh_show_issues(e, w):
 
 
 if __name__ == "__main__":
+
     while 1:
         os.system('clear')
         print('\nDDC\n---')
@@ -44,6 +45,7 @@ if __name__ == "__main__":
         fdk = False  # todo--> check if we have all keys
         fdr = False  # todo ---> now if DDH is running
 
+        # create options
         d = {
             0: (f"0) set test mode  [{ftm}]", cb_graph_test_mode),
             1: (f"1) set GPS dummy  [{fgd}]", cb_gps_dummy),
@@ -53,7 +55,7 @@ if __name__ == "__main__":
         }
 
         # keep index of new stuff to add
-        i = 5
+        i = len(d)
 
         # add extra one being displayed
         if sh('arch | grep aarch64') == 0:

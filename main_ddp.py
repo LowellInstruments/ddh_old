@@ -92,9 +92,12 @@ def cb_quit():
 
 
 if __name__ == "__main__":
+
     while 1:
-        # os.system('clear')
+        os.system('clear')
         print('\nDDP\n---')
+
+        # create options
         d = {
             0: ("0) test GPS shield", cb_test_gps_quectel),
             1: ("1) test side buttons", cb_test_buttons),
