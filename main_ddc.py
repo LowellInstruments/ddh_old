@@ -13,22 +13,26 @@ from utils.tmp_paths import (
 )
 
 
-def _ddh_show_issues_error(e):
-    if e:
+g_e = None
+g_w = None
+
+
+def _ddh_show_issues_error():
+    if g_e:
         # todo ---> print red
-        print('errors preventing DDH from start')
-        print(e)
+        print('\nThere are errors preventing DDH from start')
+        print(g_e)
 
 
-def _ddh_show_issues_warning(w):
-    if w:
-        print('DDH not so serious errors')
-        print(w)
+def _ddh_show_issues_warning():
+    if g_w:
+        print('\nPlease consider:')
+        print(g_w)
 
 
-def cb_ddh_show_issues(e, w):
-    _ddh_show_issues_error(e)
-    _ddh_show_issues_warning(w)
+def cb_ddh_show_issues():
+    _ddh_show_issues_error()
+    _ddh_show_issues_warning()
 
 
 if __name__ == "__main__":
@@ -36,6 +40,9 @@ if __name__ == "__main__":
     while 1:
         os.system('clear')
         print('\nDDC\n---')
+
+        # add extra one being displayed
+        _, g_e, g_w = ddh_run_check()
 
         # get flags
         fgd = 1 if exists(TMP_PATH_GPS_DUMMY) else 0
@@ -63,10 +70,7 @@ if __name__ == "__main__":
             i += 1
 
         # add extra one being displayed
-        rv, e, w = ddh_run_check()
-        if rv:
-            d[i] = (f"{i}) === DDH issues ===", cb_ddh_show_issues(e, w))
-            i += 1
+        d[i] = (f"{i}) === DDH issues ===", cb_ddh_show_issues)
 
         # keep order
         d[9] = (f"9) quit", cb_quit)

@@ -8,13 +8,8 @@ import time
 VP_QUECTEL = '2c7c:0125'
 
 
-def _e(e):
-    print(f'DDP error: {e}')
-    time.sleep(3)
-
-
-def sh(c):
-    rv = sp.run(c, shell=True, stdout=sp.PIPE, stderr=sp.PIPE)
+def sh(cmd):
+    rv = sp.run(cmd, shell=True, stdout=sp.PIPE, stderr=sp.PIPE)
     if rv.returncode:
         print(rv.stderr)
     return rv.returncode
@@ -24,15 +19,20 @@ def is_rpi():
     return sh('cat /proc/cpuinfo | grep aspberry') == 0
 
 
-# cwd is ddh here
+# cwd() is ddh folder here
 h = str(pathlib.Path.home())
 p = 'li/ddh' if is_rpi() else 'PycharmProjects/ddh'
 path_script_deploy_dox = f'{h}/{p}/scripts/run_script_deploy_logger_dox.sh'
 path_script_deploy_tdo = f'{h}/{p}/scripts/run_script_deploy_logger_tdo.sh'
 
-# this is managed by pop_ddh.sh
+# these pyc files are managed by pop_ddh.sh
 path_script_brt = f'{h}/{p}/scripts/main_brt.pyc'
 path_script_nadv = f'{h}/{p}/scripts/main_nadv.pyc'
+
+
+def _e(e):
+    print(f'DDP error: {e}')
+    time.sleep(3)
 
 
 def cb_test_gps_quectel():
@@ -61,8 +61,7 @@ def cb_test_buttons():
 
 
 def cb_run_brt():
-    c = f'/usr/bin/env python3 {path_script_brt}'
-    sh(c)
+    sh(f'/usr/bin/env python3 {path_script_brt}')
 
 
 def cb_run_nadv():
@@ -122,4 +121,3 @@ if __name__ == "__main__":
                 cb()
         except (Exception, ):
             continue
-
