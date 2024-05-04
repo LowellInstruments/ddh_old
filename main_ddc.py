@@ -70,7 +70,7 @@ if __name__ == "__main__":
         d[9] = (f"9) quit", cb_quit)
 
         # show menu
-        for k, v in d.keys():
+        for k, v in d.items():
             print(f'\t{v[0]}')
 
         # get user input
