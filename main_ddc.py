@@ -14,6 +14,7 @@ from utils.tmp_paths import (
     TMP_PATH_GRAPH_TEST_MODE_JSON
 )
 import subprocess as sp
+from mat.utils import PrintColors as PC
 
 
 g_e = None
@@ -22,9 +23,8 @@ g_w = None
 
 def _ddh_show_issues_error():
     if g_e:
-        # todo ---> print red
-        print('\nThere are errors preventing DDH from start')
-        print(g_e)
+        PC.R('\nThere are errors preventing DDH from start')
+        print(PC.R(g_e))
 
 
 def _ddh_show_issues_warning():
@@ -86,8 +86,10 @@ if __name__ == "__main__":
 
         # show menu
         for k, v in d.items():
-            # todo ---> print red the issues entry
-            print(f'\t{v[0]}')
+            if 'issues' in v[0]:
+                PC.R(f'\t{v[0]}')
+            else:
+                print(f'\t{v[0]}')
 
         # get user input
         try:
