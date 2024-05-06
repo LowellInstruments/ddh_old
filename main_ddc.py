@@ -6,15 +6,15 @@ from os.path import exists
 from scripts.script_ddc import (
     cb_gps_dummy, cb_quit, cb_gps_external, cb_crontab_ddh,
     get_crontab,
-    cb_graph_test_mode, cb_provision_ddh,
-    cb_kill_ddh, ddh_run_check, cb_calibrate_display, sh
+    cb_graph_demo, cb_provision_ddh,
+    cb_kill_ddh, ddh_run_check, cb_calibrate_display, sh, cb_test_mode
 )
 from utils.ddh_config import _get_config_file_path, cfg_load_from_file
 from utils.ddh_shared import get_ddh_folder_path_settings
 from utils.tmp_paths import (
     TMP_PATH_GPS_DUMMY,
     LI_PATH_DDH_GPS_EXTERNAL,
-    TMP_PATH_GRAPH_TEST_MODE_JSON
+    TMP_PATH_GRAPH_TEST_MODE_JSON, LI_PATH_TEST_MODE
 )
 import subprocess as sp
 from mat.utils import PrintColors as PC
@@ -94,18 +94,20 @@ if __name__ == "__main__":
         fgd = 1 if exists(TMP_PATH_GPS_DUMMY) else 0
         fge = 1 if exists(LI_PATH_DDH_GPS_EXTERNAL) else 0
         fcd = get_crontab('ddh')
-        ftm = 1 if exists(TMP_PATH_GRAPH_TEST_MODE_JSON) else 0
+        fgd = 1 if exists(TMP_PATH_GRAPH_TEST_MODE_JSON) else 0
         fdk = cb_we_have_all_keys()
         fdr = cb_is_ddh_running()
+        ftm = 1 if exists(LI_PATH_TEST_MODE) else 0
 
         # create options
         d = {
-            0: (f"0) set test mode  [{ftm}]", cb_graph_test_mode),
+            0: (f"0) set test mode  [{ftm}]", cb_test_mode),
             1: (f"1) set GPS dummy  [{fgd}]", cb_gps_dummy),
             2: (f"2) set GPS puck   [{fge}]", cb_gps_external),
             3: (f"3) set crontab    [{fcd}]", cb_crontab_ddh),
             4: (f"4) kill DDH app   [{fdr}]", cb_kill_ddh),
-            5: (f"5) know all keys  [{fdk}]", cb_we_have_all_keys)
+            5: (f"5) set graph demo [{fgd}]", cb_graph_demo),
+            6: (f"6) know all keys  [{fdk}]", cb_we_have_all_keys)
         }
 
         # keep index of new stuff to add

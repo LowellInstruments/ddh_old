@@ -103,8 +103,6 @@ if __name__ == "__main__":
         os.system('clear')
         print('\nDDP\n---\n')
 
-        # todo ---> distinguis DDH upload test mode from graph test mode
-
         # create options
         d = {
             0: ("0) test GPS shield", cb_test_gps_quectel),
