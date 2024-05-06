@@ -13,7 +13,8 @@ from mat.ble.bleak.cc26x2r import BleCC26X2
 from dds.ble_utils_dds import ble_logger_ccx26x2r_needs_a_reset, dds_ble_init_rv_notes
 from mat.lix import convert_lix_file
 from mat.utils import linux_is_rpi
-from utils.ddh_config import ddh_get_cfg_gear_type, dds_get_cfg_logger_sn_from_mac
+from utils.ddh_config import (ddh_get_cfg_gear_type, dds_get_cfg_logger_sn_from_mac,
+                              dds_get_cfg_flag_download_test_mode)
 from utils.ddh_shared import (
     send_ddh_udp_gui as _u,
     STATE_DDS_BLE_RUN_STATUS, STATE_DDS_BLE_ERROR_RUN,
@@ -142,6 +143,8 @@ class BleTDODownload:
                 os.unlink(path)
 
             # save file in our local disk
+            if dds_get_cfg_flag_download_test_mode():
+                name = 'testmode_' + name
             path = str(get_dl_folder_path_from_mac(mac) / name)
             with open(path, "wb") as f:
                 f.write(file_data)

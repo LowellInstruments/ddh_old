@@ -5,7 +5,7 @@ import toml
 import os
 import subprocess as sp
 from utils.tmp_paths import (TMP_PATH_GRAPH_TEST_MODE_JSON,
-                             LI_PATH_DDH_GPS_EXTERNAL, LI_PATH_SKIP_IN_PORT_FILE_FLAG)
+                             LI_PATH_DDH_GPS_EXTERNAL, LI_PATH_SKIP_IN_PORT_FILE_FLAG, LI_PATH_TEST_MODE)
 
 
 def sh(c):
@@ -82,6 +82,10 @@ def dds_get_cfg_skip_dl_in_port_en():
 
 def dds_get_cfg_flag_graph_test_mode():
     return os.path.exists(TMP_PATH_GRAPH_TEST_MODE_JSON)
+
+
+def dds_get_cfg_flag_download_test_mode():
+    return os.path.exists(LI_PATH_TEST_MODE)
 
 
 def dds_get_cfg_flag_gps_external():
