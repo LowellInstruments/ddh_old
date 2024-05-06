@@ -17,8 +17,10 @@ FMT_GPQ_TS_FILENAME = '%y%m%d%H.json'
 # -----------------------------------------------
 # Global Position query W/R class
 # you can ask it where the local ship was
-# on a certain time; it returns the closest
-# time and its associated position and diff
+# on a certain time; it returns:
+#     - the closest time
+#     - associated position
+#     - time diff
 # between both time values
 # -----------------------------------------------
 
@@ -61,23 +63,30 @@ class GpqR:
         self.ls.append(f)
 
     def query(self, s: str):
+
         # s: '2024/04/05 21:45:22'
         dt = datetime.strptime(s, FMT_GPQ_TS_RECORD_DB)
         self._load(dt)
         dt_bef = dt - timedelta(hours=1)
         self._load(dt_bef)
         t = list(self.all.keys())
+
+        # our built big dictionary does not even have values
         if not t:
-            # our big dictionary has no values
             return -1, -1, None
-        print(f'R query {s} within t0 {t[0]} t-1 {t[-1]} range')
-        print(f'\tt has {len(t)} rows')
+        print(f'R query {s} -> range t0 {t[0]} t-1 {t[-1]}')
+        print(f'\tdictionary has {len(t)} rows')
         i = bisect.bisect_right(t, s)
+
+        # value is too early for our big dictionary
         if i == 0:
             print(f'\tvalue {s} is too early')
             return 0, -1, None
+
+        # value might be useful for calling functions,
+        # such as CST, depending on diff
         if i >= len(t):
-            print(f'\tvalue {s} is later, but may still be OK')
+            print(f'\tvalue {s} is after last dictionary value')
         else:
             print(f'\tvalue {s} is in-range')
         now = datetime.strptime(s, FMT_GPQ_TS_RECORD_DB)
@@ -85,6 +94,7 @@ class GpqR:
         _diff = (now - bef).total_seconds()
         print('\ti', i)
         print('\tdiff ', _diff)
+
         # get the closest candidate value
         c = list(self.all.items())[i - 1]
         return i, _diff, c

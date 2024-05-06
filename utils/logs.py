@@ -3,7 +3,7 @@ import glob
 import os
 from pathlib import Path
 from dds.timecache import its_time_to
-from utils.ddh_config import dds_get_cfg_vessel_name
+from utils.ddh_config import dds_get_cfg_vessel_name, dds_get_cfg_flag_download_test_mode
 from utils.ddh_shared import (
     get_ddh_folder_path_logs,
     get_ddh_folder_path_dl_files, get_ddh_folder_path_lef,
@@ -27,15 +27,14 @@ class DDSLogs:
         d = str(get_ddh_folder_path_logs())
         Path(d).mkdir(parents=True, exist_ok=True)
         now = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
-        return "{}/{}_{}.log".format(d, entity, now)
+        return f"{d}/{entity}_{now}.log"
 
     def _retrieve_log_file_name(self):
         return self.f_name
 
     def are_enabled(self, b):
         self.enabled = b
-        s = "{}_logs enabled = {}"
-        self.a(s.format(self.label.upper(), self.enabled))
+        self.a(f"{self.label.upper()}_logs enabled = {self.enabled}")
 
     # stands for 'print format'
     def _pf(self, s):
@@ -43,7 +42,7 @@ class DDSLogs:
             s = s.decode()
         now = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         utcnow = datetime.datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
-        s = "{} / {} | [ {} ] {}".format(now, utcnow, self.label.upper(), s)
+        s = f"{now} / {utcnow} | [ {self.label.upper()} ] {s}"
 
         # color stuff, print() is called inside
         if "error" in s:
@@ -126,7 +125,7 @@ def dds_log_tracking_add(lat, lon, tg):
     # create TRACKING log folder if it does not exist
     v = dds_get_cfg_vessel_name().replace(" ", "_")
     d = str(get_ddh_folder_path_dl_files())
-    d = "{}/ddh#{}/".format(d, v)
+    d = f"{d}/ddh#{v}/"
     Path(d).mkdir(parents=True, exist_ok=True)
 
     # get the filename, either new or re-use previous one
@@ -135,8 +134,10 @@ def dds_log_tracking_add(lat, lon, tg):
     if flag_new_file:
         if g_last_file_out:
             lg_dds.a("closing current tracking file due to rotation")
-        file_out = '{}{}#{}_track.txt'.format(d, str_iso_tg_tz_utc, v)
-        lg_dds.a("started new tracking file {}".format(file_out))
+        file_out = f'{d}{str_iso_tg_tz_utc}#{v}_track.txt'
+        if dds_get_cfg_flag_download_test_mode():
+            file_out = 'testmode_' + file_out
+        lg_dds.a(f"started new tracking file {file_out}")
         g_last_file_out = file_out
 
     # -----------------------------
@@ -145,17 +146,19 @@ def dds_log_tracking_add(lat, lon, tg):
     lat = '{:.6f}'.format(float(lat))
     lon = '{:.6f}'.format(float(lon))
     with open(file_out, 'a') as f:
-        f.write("{},{},{}\n".format(str_iso_tg_tz_utc, lat, lon))
+        f.write(f"{str_iso_tg_tz_utc},{lat},{lon}\n")
 
-    # add lines with LEF info, if so
-    fol_lef = get_ddh_folder_path_lef()
-    ff_lef = glob.glob("{}/*.lef".format(fol_lef))
+    # ------------------------------
+    # add info from LEF files, if so
+    # ------------------------------
+
+    ff_lef = glob.glob(f"{get_ddh_folder_path_lef()}/*.lef")
     for f_lef in ff_lef:
         with open(f_lef, 'r') as fl:
-            # fl content is JSON, no need for json.loads() here
             j = fl.read()
             with open(file_out, 'a') as fo:
-                fo.write("{},{},{}***{}\n".format(str_iso_tg_tz_utc, lat, lon, j))
+                fo.write(f"{str_iso_tg_tz_utc},{lat},{lon}***{j}\n")
+
         # delete the LEF file
         lg_log.a("deleting LEF file {}".format(f_lef))
         os.unlink(f_lef)
