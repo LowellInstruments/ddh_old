@@ -101,7 +101,9 @@ if __name__ == "__main__":
 
     while 1:
         os.system('clear')
-        print('\nDDP\n---')
+        print('\nDDP\n---\n')
+
+        # todo ---> distinguis DDH upload test mode from graph test mode
 
         # create options
         d = {
@@ -120,12 +122,14 @@ if __name__ == "__main__":
 
         # get user input
         try:
-            c = int(input('\nenter your choice > '))
+            c = input('\nenter your choice > ')
+            time.sleep(.5)
+
             # secret one
             if c == 'n':
                 cb_run_nadv()
             else:
-                _, cb = d[c]
+                _, cb = d[int(c)]
                 cb()
         except (Exception, ):
             continue
