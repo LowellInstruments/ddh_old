@@ -8,6 +8,7 @@ import subprocess as sp
 import sys
 import time
 
+from utils.ddh_shared import ddh_get_root_folder_path
 
 CTT_API_OK = 'ok'
 CTT_API_ER = 'error'
@@ -276,7 +277,7 @@ def get_gps():
         return {}
 
 
-def get_versions():
+def get_commits():
     v_mat_l = get_git_commit_mat_local()
     v_mat_r = get_git_commit_mat_remote()
     v_ddh_l = get_git_commit_ddh_local()

@@ -5,19 +5,16 @@ import subprocess as sp
 import time
 import pytz
 import tzlocal
-
-from dds.state import ddh_state
 from dds.timecache import its_time_to
 from mat.ble.ble_mat_utils import ble_mat_get_antenna_type_v2
 from utils.logs import lg_sqs as lg
 from utils.ddh_config import (dds_get_cfg_box_sn,
                               dds_get_cfg_box_project,
-                              dds_get_cfg_logger_sn_from_mac,
                               dds_get_cfg_vessel_name)
 from utils.ddh_shared import (get_ddh_commit,
                               get_ddh_sw_version,
                               get_ddh_platform,
-                              get_ddh_folder_path_sqs, ddh_get_root_folder_path)
+                              get_ddh_folder_path_sqs)
 
 
 # these MUST match the ones in DDN file "sqs/notifications_v2.py"
@@ -195,13 +192,10 @@ def notify_logger_error_sensor_oxygen(g, ln):
 
 def notify_ddh_needs_sw_update(g):
     try:
-        s = '.ddh_version'
-        p = str(ddh_get_root_folder_path()) + '/' + s
-        # get local version
-        with open(p, 'r') as f:
-            vl = f.readline().replace('\n', '')
+        vl = get_ddh_sw_version()
 
         # get github version
+        s = '.ddh_version'
         c = f'wget https://raw.githubusercontent.com/LowellInstruments/ddh/master/{s}'
         c += f' -O /tmp/{s}'
         rv = sp.run(c, shell=True, stdout=sp.PIPE, stderr=sp.PIPE)

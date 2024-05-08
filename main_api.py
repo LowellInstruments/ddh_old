@@ -9,22 +9,27 @@ from api.api_utils import (get_ip_vpn, get_ip_wlan, get_ip_cell,
                            get_running, get_crontab_ddh, _sh,
                            set_crontab,
                            get_ble_state, get_gps, get_logger_mac_reset_files,
-                           get_versions,
+                           get_commits,
                            api_get_full_ddh_config_file_path,
                            linux_app_write_pid_to_tmp, linux_is_rpi,
                            api_get_folder_path_root, ddt_get_folder_path_root,
                            get_uptime, get_crontab_api, api_read_aws_sqs_ts,
                            get_utc_epoch, get_timezone, CTT_API_OK,
-                           CTT_API_ER, get_uptime_secs, ddh_get_folder_dl_files, api_get_ddh_folder_path_macs_black)
+                           CTT_API_ER, get_uptime_secs, ddh_get_folder_dl_files,
+                           api_get_ddh_folder_path_macs_black,
+                           )
 from ddh.db.db_his import DbHis
-from utils.ddh_config import dds_get_cfg_vessel_name, dds_get_cfg_box_sn, dds_get_cfg_box_project, \
-    dds_get_cfg_monitored_macs, dds_get_cfg_monitored_pairs
+from utils.ddh_config import (dds_get_cfg_vessel_name,
+                              dds_get_cfg_box_sn, dds_get_cfg_box_project, \
+    dds_get_cfg_monitored_macs, dds_get_cfg_monitored_pairs)
 import uvicorn
 from fastapi import FastAPI, UploadFile, File
 import os
 from fastapi.responses import FileResponse
 import concurrent.futures
 import subprocess as sp
+
+from utils.ddh_shared import get_ddh_sw_version
 from utils.tmp_paths import LI_FILE_ICCID, TMP_PATH_DDH_APP_OVERRIDE
 
 # instead, the DDN port is 9000
@@ -138,9 +143,10 @@ async def api_get_info():
         "crontab_ddh": _th(get_crontab_ddh),
         "crontab_api": _th(get_crontab_api),
         "mac_reset_files": _th(get_logger_mac_reset_files),
-        "versions": _th(get_versions),
+        "versions": _th(get_commits),
         "utc_time": _th(get_utc_epoch),
-        "time_zone": _th(get_timezone)
+        "time_zone": _th(get_timezone),
+        "ddh_version": _th(get_ddh_sw_version)
         # "commit_mat": _th(get_git_commit_mat_local),
         # "commit_ddh": _th(get_git_commit_ddh_local),
     }
