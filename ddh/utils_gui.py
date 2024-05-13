@@ -31,7 +31,7 @@ from utils.ddh_config import (
     dds_get_cfg_flag_graph_test_mode,
     dds_get_cfg_logger_sn_from_mac,
     dds_get_cfg_forget_time_secs,
-    ddh_get_cfg_maps_en)
+    ddh_get_cfg_maps_en, dds_get_cfg_flag_download_test_mode)
 
 from utils.ddh_shared import (
     STATE_DDS_BLE_SCAN,
@@ -136,6 +136,11 @@ def gui_setup_view(my_win):
     # checkboxes rerun flag
     rerun_flag = get_ddh_rerun_flag_li()
     a.chk_rerun.setChecked(rerun_flag)
+
+    # test mode
+    a.lbl_testmode.setVisible(False)
+    if dds_get_cfg_flag_download_test_mode():
+        a.lbl_testmode.setVisible(True)
 
     return a
 
