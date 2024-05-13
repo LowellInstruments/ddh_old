@@ -8,6 +8,7 @@ import subprocess as sp
 import sys
 import time
 
+from utils.tmp_paths import LI_PATH_DDH_VERSION
 
 CTT_API_OK = 'ok'
 CTT_API_ER = 'error'
@@ -32,7 +33,7 @@ def _sh(c):
     return rv
 
 
-def linux_is_rpi():
+def api_linux_is_rpi():
     if platform.system() == 'Windows':
         return False
     # better than checking architecture
@@ -40,7 +41,7 @@ def linux_is_rpi():
 
 
 _r = str(pathlib.Path.home())
-_r += '/li' if linux_is_rpi() else '/PycharmProjects'
+_r += '/li' if api_linux_is_rpi() else '/PycharmProjects'
 
 
 def api_get_full_ddh_config_file_path():
@@ -51,11 +52,11 @@ def api_get_folder_path_root():
     return _r + '/ddh'
 
 
-def ddt_get_folder_path_root():
+def api_ddt_get_folder_path_root():
     return _r + '/ddt'
 
 
-def ddh_get_folder_dl_files():
+def api_ddh_get_folder_dl_files():
     return _r + '/ddh/dl_files'
 
 
@@ -83,15 +84,15 @@ def _get_local_commit(s):
     return s
 
 
-def get_git_commit_ddh_remote():
+def api_get_git_commit_ddh_remote():
     return _get_remote_commit('ddh')
 
 
-def get_git_commit_ddh_local():
+def api_get_git_commit_ddh_local():
     return _get_local_commit('ddh')
 
 
-def get_git_commit_mat_remote():
+def api_get_git_commit_mat_remote():
     return _get_remote_commit('mat')
 
 
@@ -105,23 +106,23 @@ def _get_git_commit_mat_local_from_file(s):
     return commit_id
 
 
-def get_git_commit_mat_local():
+def api_get_git_commit_mat_local():
     return _get_git_commit_mat_local_from_file('mat')
 
 
-def get_git_commit_liu_local():
+def api_get_git_commit_liu_local():
     return _get_git_commit_mat_local_from_file('liu')
 
 
-def get_git_commit_ddt_local():
+def api_get_git_commit_ddt_local():
     return _get_local_commit('ddt')
 
 
-def get_git_commit_ddt_remote():
+def api_get_git_commit_ddt_remote():
     return _get_remote_commit('ddt')
 
 
-def get_git_commit_liu_remote():
+def api_get_git_commit_liu_remote():
     return _get_remote_commit('liu')
 
 
@@ -138,11 +139,11 @@ def _get_iface_ip(iface):
     return ip
 
 
-def get_ip_vpn():
+def api_get_ip_vpn():
     return _get_iface_ip('wg0')
 
 
-def get_timezone():
+def api_get_timezone():
     # dirty but works
     c = 'timedatectl | grep "Time zone"'
     rv = _sh(c)
@@ -152,19 +153,27 @@ def get_timezone():
     return f'{CTT_API_ER}: get_local_timezone()'
 
 
-def get_utc_epoch():
+def api_get_utc_epoch():
     return int(time.time())
 
 
-def get_ip_wlan():
+def api_get_ddh_sw_version():
+    try:
+        with open(LI_PATH_DDH_VERSION, 'r') as f:
+            return f.readline().replace('\n', '')
+    except (Exception, ) as ex:
+        return 'error_get_version'
+
+
+def api_get_ip_wlan():
     return _get_iface_ip('wlan0')
 
 
-def get_ip_cell():
+def api_get_ip_cell():
     return _get_iface_ip('ppp0')
 
 
-def get_uptime():
+def api_get_uptime():
     c = 'uptime -p'
     rv = _sh(c)
     s = rv.stdout.decode()
@@ -179,7 +188,7 @@ def get_uptime():
     return s
 
 
-def get_uptime_secs():
+def api_get_uptime_secs():
     c = "awk '{print $1}' /proc/uptime"
     rv = _sh(c)
     s = rv.stdout.decode().replace('\n', '')
@@ -201,18 +210,18 @@ def _get_crontab(s):
     return 1
 
 
-def get_crontab_ddh():
+def api_get_crontab_ddh():
     return _get_crontab('ddh')
 
 
-def get_crontab_api():
+def api_get_crontab_api():
     return _get_crontab('api')
 
 
-def set_crontab(on_flag):
+def api_set_crontab(on_flag):
     # only for DDH, never for API
     assert on_flag in (0, 1)
-    s = get_crontab_ddh()
+    s = api_get_crontab_ddh()
     c = ''
     print('s {} on_flag {}'.format(s, on_flag))
     if s == -1 and on_flag:
@@ -234,7 +243,7 @@ def set_crontab(on_flag):
         return rv.returncode == 0
 
 
-def get_running():
+def api_get_running_ddh_dds():
     rv_h = _sh('ps -aux | grep "main_ddh" | grep -v grep')
     rv_s = _sh('ps -aux | grep "main_dds" | grep -v grep')
     rv_hc = _sh('ps -aux | grep "main_ddh_controller" | grep -v grep')
@@ -247,7 +256,7 @@ def get_running():
     }
 
 
-def get_ble_state():
+def api_get_ble_state():
     h = '/usr/bin/hciconfig'
     rv_0 = _sh('{} -a | grep hci0'.format(h))
     rv_1 = _sh('{} -a | grep hci1'.format(h))
@@ -267,7 +276,7 @@ def get_ble_state():
     return d
 
 
-def get_gps():
+def api_get_gps():
     try:
         with open('/tmp/gps_last.json', 'r') as f:
             return json.load(f)
@@ -276,13 +285,13 @@ def get_gps():
         return {}
 
 
-def get_commits():
-    v_mat_l = get_git_commit_mat_local()
-    v_mat_r = get_git_commit_mat_remote()
-    v_ddh_l = get_git_commit_ddh_local()
-    v_ddh_r = get_git_commit_ddh_remote()
-    v_ddt_l = get_git_commit_ddt_local()
-    v_ddt_r = get_git_commit_ddt_remote()
+def api_get_commits():
+    v_mat_l = api_get_git_commit_mat_local()
+    v_mat_r = api_get_git_commit_mat_remote()
+    v_ddh_l = api_get_git_commit_ddh_local()
+    v_ddh_r = api_get_git_commit_ddh_remote()
+    v_ddt_l = api_get_git_commit_ddt_local()
+    v_ddt_r = api_get_git_commit_ddt_remote()
     return {
         'need_mat_update': 'yes' if v_mat_l != v_mat_r else 'no',
         'need_ddh_update': 'yes' if v_ddh_l != v_ddh_r else 'no',
@@ -290,23 +299,10 @@ def get_commits():
     }
 
 
-def get_logger_mac_reset_files():
+def api_get_logger_mac_reset_files():
     p = api_get_folder_path_root()
     ff = glob.glob(f'{p}/dds/tweak/*.rst')
     return ff
-
-
-# let's repeat 2 functions here so API does not require MAT
-def linux_app_write_pid_to_tmp(name):
-    if not name.endswith('.pid'):
-        name += '.pid'
-    if not name.startswith('/tmp/'):
-        name = '/tmp/' + name
-    path = name
-    pid = str(os.getpid())
-    f = open(path, 'w')
-    f.write(pid)
-    f.close()
 
 
 def api_read_aws_sqs_ts():
@@ -326,4 +322,4 @@ def api_read_aws_sqs_ts():
 
 if __name__ == '__main__':
     # print(get_timezone())
-    print(get_uptime_secs())
+    print(api_get_uptime_secs())

@@ -15,7 +15,7 @@ from utils.ddh_shared import (get_ddh_commit,
                               get_ddh_sw_version,
                               get_ddh_platform,
                               get_ddh_folder_path_sqs)
-
+from utils.tmp_paths import LI_PATH_DDH_VERSION
 
 # these MUST match the ones in DDN file "sqs/notifications_v2.py"
 DDH_NOTIFICATION_STATUS_BOOT = 'DDH just booted'

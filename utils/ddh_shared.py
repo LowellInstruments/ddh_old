@@ -14,7 +14,7 @@ import toml
 
 from utils.tmp_paths import TMP_PATH_GUI_CLOSED_FLAG, TMP_PATH_DISABLE_BLE, TMP_PATH_AWS_HAS_WORK_VIA_GUI, \
     TMP_PATH_DDH_GOT_UPDATE, TMP_PATH_DDH_APP_OVERRIDE, TMP_PATH_GPS_DUMMY, \
-    TMP_PATH_CNV_REQUESTED_VIA_GUI
+    TMP_PATH_CNV_REQUESTED_VIA_GUI, LI_PATH_DDH_VERSION
 
 TESTMODE_FILENAMEPREFIX = 'testfile_'
 
@@ -195,9 +195,8 @@ def get_ddh_commit():
 
 
 def get_ddh_sw_version():
-    path = str(ddh_get_root_folder_path()) + '/.ddh_version'
     try:
-        with open(path, 'r') as f:
+        with open(LI_PATH_DDH_VERSION, 'r') as f:
             return f.readline().replace('\n', '')
     except (Exception, ) as ex:
         return 'error_get_version'
