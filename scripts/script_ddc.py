@@ -20,7 +20,6 @@ import pathlib
 import subprocess as sp
 
 
-VP_RBL = '0403:6001'
 VP_QUECTEL = '2c7c:0125'
 VP_GPS_PUCK_1 = '067B:2303'
 VP_GPS_PUCK_2 = '067B:23A3'
@@ -253,7 +252,6 @@ def ddh_run_check():
     flag_vp_quectel = sh(f'lsusb | grep {VP_QUECTEL}') == 0
     flag_mod_btuart = sh(f'md5sum /usr/bin/btuart | grep {MD5_MOD_BTUART}') == 0
     cfg = cfg_load_from_file()
-    flag_rbl_en = int(cfg['flags']['rbl_en'])
     ok_ble_v = sh('bluetoothctl -v | grep 5.66') == 0
     _c = 'systemctl is-active unit_switch_net.service | grep -w active'
     ok_service_cell_sw = sh(_c) == 0
@@ -300,9 +298,6 @@ def ddh_run_check():
         rv += 1
     if is_rpi3 and not flag_mod_btuart:
         _e(f'is_rpi3 {is_rpi3}, bad mod_uart')
-        rv += 1
-    if flag_rbl_en and not VP_RBL:
-        _e('rbl_en but not detected')
         rv += 1
     if not ok_crontab_ddh:
         _e('crontab DDH not set')

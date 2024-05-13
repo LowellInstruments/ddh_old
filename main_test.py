@@ -25,13 +25,6 @@ def main_test_aws():
     print(len(ls))
 
 
-def main_test_rbl():
-    # _rbl_send(b'\x11\x22', fmt='bin')
-    sn = dds_get_cfg_box_sn() or "123456f"
-    m_lg_sn = "{:08x}".format(int(sn, 16))
-    print(m_lg_sn)
-
-
 # test
 if __name__ == '__main__':
     main_test_aws()

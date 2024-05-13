@@ -75,7 +75,6 @@ def dds_get_cfg_gpq_en():
 
 
 def dds_get_cfg_skip_dl_in_port_en():
-    # todo ---> put this dds_get_cfg_skip_dl_in_port_en in EDIT tab
     rv = cfg['flags']['skip_dl_in_port_en']
     return rv
 
@@ -170,7 +169,6 @@ def dds_check_cfg_has_all_flags():
             'aws_en',
             'sqs_en',
             'ble_en',
-            'rbl_en',
             'gpq_en',
             'maps_en',
             'sms_en',
@@ -227,10 +225,6 @@ def dds_get_cfg_flag_ble_en():
     return cfg['flags']['ble_en']
 
 
-def dds_get_cfg_flag_rbl_en():
-    return cfg['flags']['rbl_en']
-
-
 def dds_get_cfg_flag_sqs_en():
     return cfg['flags']['sqs_en']
 
@@ -272,6 +266,5 @@ if __name__ == '__main__':
     print('purge_black_macs_on_boot', dds_get_cfg_flag_purge_black_macs_on_boot())
     print('purge_mac_dl_files_folder', dds_get_cfg_flag_purge_this_mac_dl_files_folder())
     print('get_moving_speed', dds_get_cfg_moving_speed())
-    print('dds_get_flag_rbl_en', dds_get_cfg_flag_rbl_en())
     print('dds_get_flag_sqs_en', dds_get_cfg_flag_sqs_en())
     print('ddh_flag_maps_en', ddh_get_cfg_maps_en())

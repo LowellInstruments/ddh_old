@@ -19,7 +19,7 @@ from utils.ddh_shared import (
     send_ddh_udp_gui as _u,
     STATE_DDS_BLE_RUN_STATUS, STATE_DDS_BLE_ERROR_RUN,
     STATE_DDS_BLE_DOWNLOAD_ERROR_TP_SENSOR,
-    BLEAppException, ael, get_ddh_rerun_flag_li
+    BLEAppException, ael, get_ddh_rerun_flag_li, TESTMODE_FILENAMEPREFIX
 )
 from utils.logs import lg_dds as lg
 from utils.ddh_shared import (
@@ -144,7 +144,7 @@ class BleTDODownload:
 
             # save file in our local disk
             if dds_get_cfg_flag_download_test_mode():
-                name = 'testmode_' + name
+                name = TESTMODE_FILENAMEPREFIX + name
             path = str(get_dl_folder_path_from_mac(mac) / name)
             with open(path, "wb") as f:
                 f.write(file_data)

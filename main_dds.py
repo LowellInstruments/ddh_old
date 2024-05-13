@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
+
 import pathlib
 from multiprocessing import Process
-import threading
 import time
 
 from ddh.graph import gfm_serve
@@ -27,7 +27,6 @@ from dds.macs import dds_create_folder_macs_color, dds_macs_color_show_at_boot
 from dds.net import net_serve
 from dds.notifications import notify_boot, notify_error_sw_crash, notify_ddh_needs_sw_update, \
     notify_ddh_alive
-from dds.rbl import rbl_loop
 from dds.sqs import (
     dds_create_folder_sqs,
     sqs_serve,
@@ -48,7 +47,7 @@ from mat.ble.ble_mat_utils import (
 )
 from mat.utils import linux_is_rpi
 from utils.ddh_config import dds_check_cfg_has_box_info, \
-    dds_get_cfg_monitored_macs, dds_get_cfg_flag_rbl_en, dds_check_cfg_has_all_flags
+    dds_get_cfg_monitored_macs, dds_check_cfg_has_all_flags
 from utils.ddh_shared import (
     PID_FILE_DDS,
     dds_create_folder_dl_files,
@@ -127,13 +126,6 @@ def main_dds():
         lg.a('-' * len(s))
         lg.a(s)
         lg.a('-' * len(s))
-
-    # Rockblocks stuff is slow, launch its loop as a thread
-    if dds_get_cfg_flag_rbl_en():
-        th = threading.Thread(target=rbl_loop)
-        th.start()
-    else:
-        lg.a("warning: rbl_en disabled")
 
     # =============
     # main loop

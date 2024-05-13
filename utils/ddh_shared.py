@@ -16,6 +16,8 @@ from utils.tmp_paths import TMP_PATH_GUI_CLOSED_FLAG, TMP_PATH_DISABLE_BLE, TMP_
     TMP_PATH_DDH_GOT_UPDATE, TMP_PATH_DDH_APP_OVERRIDE, TMP_PATH_GPS_DUMMY, \
     TMP_PATH_CNV_REQUESTED_VIA_GUI
 
+TESTMODE_FILENAMEPREFIX = 'testfile_'
+
 STATE_DDS_NOTIFY_BOAT_NAME = "boat_name"
 STATE_DDS_NOTIFY_GPS = "gps"
 STATE_DDS_NOTIFY_GPS_CLOCK = "gps_clock_time_sync"
@@ -245,11 +247,6 @@ def get_ddh_folder_path_sqs() -> Path:
 def get_ddh_folder_path_lef() -> Path:
     p = str(ddh_get_root_folder_path())
     return Path(f"{p}/dds/lef")
-
-
-def get_ddh_folder_path_rbl() -> Path:
-    p = str(ddh_get_root_folder_path())
-    return Path(f"{p}/dds/rbl")
 
 
 def get_ddh_folder_path_settings() -> Path:

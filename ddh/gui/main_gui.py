@@ -45,7 +45,8 @@ from rpc.rpc_rx import th_srv_notify
 from rpc.rpc_tx import th_cli_cmd
 from utils.ddh_config import (dds_get_cfg_vessel_name, dds_get_cfg_logger_mac_from_sn,
                               ddh_get_cfg_gear_type, cfg_load_from_file, dds_get_cfg_flag_ble_en,
-                              cfg_save_to_file, dds_get_cfg_monitored_pairs, ddh_get_cfg_maps_en)
+                              cfg_save_to_file, dds_get_cfg_monitored_pairs, ddh_get_cfg_maps_en,
+                              dds_get_cfg_skip_dl_in_port_en)
 from utils.ddh_shared import (
     get_ddh_folder_path_dl_files,
     ddh_get_gui_closed_flag_file,
@@ -86,6 +87,7 @@ class DDH(QMainWindow, d_m.Ui_MainWindow):
         # gui: appearance
         self.cbox_gear_type.addItems(["fixed", "mobile"])
         self.cb_s3_uplink_type.addItems(["raw", "group"])
+        self.cb_skip_in_port.addItems(["False", "True"])
         self.bright_idx = 2
         self.tab_edit_hide = True
         self.tab_advanced_hide = True
@@ -119,6 +121,10 @@ class DDH(QMainWindow, d_m.Ui_MainWindow):
         # s3 uplink type field
         if this_box_has_grouped_s3_uplink():
             self.cb_s3_uplink_type.setCurrentIndex(1)
+
+        # config: check skip_in_port
+        if dds_get_cfg_skip_dl_in_port_en():
+            self.cb_skip_in_port.setCurrentIndex(1)
 
         # -----------
         # graph tab
@@ -268,6 +274,9 @@ class DDH(QMainWindow, d_m.Ui_MainWindow):
         # last haul graph type
         lhf = self.cbox_gear_type.currentIndex()
 
+        # skip in port
+        sk = self.cb_skip_in_port.currentIndex()
+
         if t < 600:
             self.lbl_setup_result.setText("bad forget_time")
             return
@@ -280,6 +289,7 @@ class DDH(QMainWindow, d_m.Ui_MainWindow):
         save_cfg['behavior']['ship_name'] = ves
         save_cfg['behavior']['gear_type'] = lhf
         save_cfg['monitored_macs'] = pairs
+        save_cfg['flags']['skip_dl_in_port_en'] = sk
         cfg_save_to_file(save_cfg)
 
         # we seem good to go

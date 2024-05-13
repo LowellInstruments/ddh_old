@@ -6,7 +6,7 @@ from dds.timecache import its_time_to
 from utils.ddh_config import dds_get_cfg_vessel_name, dds_get_cfg_flag_download_test_mode
 from utils.ddh_shared import (
     get_ddh_folder_path_logs,
-    get_ddh_folder_path_dl_files, get_ddh_folder_path_lef,
+    get_ddh_folder_path_dl_files, get_ddh_folder_path_lef, TESTMODE_FILENAMEPREFIX,
 )
 from mat.utils import PrintColors as PC
 
@@ -77,7 +77,6 @@ lg_sqs = DDSLogs("sqs")
 lg_gps = DDSLogs("gps")
 lg_gui = DDSLogs("gui", entity="gui")
 lg_net = DDSLogs("net")
-lg_rbl = DDSLogs("rbl")
 lg_emo = DDSLogs("emo")
 lg_log = DDSLogs("log")
 lg_api = DDSLogs("api")
@@ -135,10 +134,10 @@ def dds_log_tracking_add(lat, lon, tg):
         if g_last_file_out:
             lg_dds.a("closing current tracking file due to rotation")
         file_out = f'{d}{str_iso_tg_tz_utc}#{v}_track.txt'
-        if dds_get_cfg_flag_download_test_mode():
-            file_out = 'testmode_' + file_out
         lg_dds.a(f"started new tracking file {file_out}")
         g_last_file_out = file_out
+    if dds_get_cfg_flag_download_test_mode():
+        file_out = TESTMODE_FILENAMEPREFIX + file_out
 
     # -----------------------------
     # write the tracking line alone

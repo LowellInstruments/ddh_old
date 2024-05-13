@@ -41,7 +41,7 @@
        </font>
       </property>
       <property name="currentIndex">
-       <number>3</number>
+       <number>0</number>
       </property>
       <widget class="QWidget" name="tab">
        <property name="sizePolicy">
@@ -73,7 +73,39 @@
            </spacer>
           </item>
           <item row="3" column="1">
-           <layout class="QHBoxLayout" name="horizontalLayout_11" stretch="1">
+           <layout class="QHBoxLayout" name="horizontalLayout_11" stretch="1,4">
+            <item>
+             <widget class="QLabel" name="lbl_testmode">
+              <property name="maximumSize">
+               <size>
+                <width>100</width>
+                <height>16777215</height>
+               </size>
+              </property>
+              <property name="font">
+               <font>
+                <pointsize>18</pointsize>
+                <weight>75</weight>
+                <bold>true</bold>
+               </font>
+              </property>
+              <property name="autoFillBackground">
+               <bool>false</bool>
+              </property>
+              <property name="styleSheet">
+               <string notr="true">background-color: pink</string>
+              </property>
+              <property name="text">
+               <string>TEST</string>
+              </property>
+              <property name="textFormat">
+               <enum>Qt::PlainText</enum>
+              </property>
+              <property name="alignment">
+               <set>Qt::AlignCenter</set>
+              </property>
+             </widget>
+            </item>
             <item>
              <widget class="QLabel" name="lbl_ble_img">
               <property name="sizePolicy">
@@ -748,10 +780,20 @@
             </property>
             <item>
              <layout class="QGridLayout" name="gridLayout_4" columnstretch="1,0">
-              <item row="0" column="1">
-               <widget class="QPushButton" name="btn_load_current">
+              <item row="3" column="0">
+               <widget class="QLabel" name="label_2">
                 <property name="text">
-                 <string>load</string>
+                 <string>gear type</string>
+                </property>
+               </widget>
+              </item>
+              <item row="2" column="1">
+               <widget class="QLineEdit" name="lne_forget"/>
+              </item>
+              <item row="0" column="0">
+               <widget class="QLabel" name="label_5">
+                <property name="text">
+                 <string>load values</string>
                 </property>
                </widget>
               </item>
@@ -765,34 +807,10 @@
               <item row="3" column="1">
                <widget class="QComboBox" name="cbox_gear_type"/>
               </item>
-              <item row="0" column="0">
-               <widget class="QLabel" name="label_5">
+              <item row="0" column="1">
+               <widget class="QPushButton" name="btn_load_current">
                 <property name="text">
-                 <string>load values</string>
-                </property>
-               </widget>
-              </item>
-              <item row="5" column="0">
-               <widget class="QLabel" name="label_4">
-                <property name="text">
-                 <string>save values</string>
-                </property>
-               </widget>
-              </item>
-              <item row="2" column="1">
-               <widget class="QLineEdit" name="lne_forget"/>
-              </item>
-              <item row="3" column="0">
-               <widget class="QLabel" name="label_2">
-                <property name="text">
-                 <string>gear type</string>
-                </property>
-               </widget>
-              </item>
-              <item row="5" column="1">
-               <widget class="QPushButton" name="btn_setup_apply">
-                <property name="text">
-                 <string>save</string>
+                 <string>load</string>
                 </property>
                </widget>
               </item>
@@ -803,8 +821,22 @@
                 </property>
                </widget>
               </item>
-              <item row="1" column="1">
-               <widget class="QLineEdit" name="lne_vessel"/>
+              <item row="6" column="0">
+               <widget class="QLabel" name="label_4">
+                <property name="text">
+                 <string>save values</string>
+                </property>
+               </widget>
+              </item>
+              <item row="4" column="1">
+               <widget class="QComboBox" name="cb_s3_uplink_type"/>
+              </item>
+              <item row="6" column="1">
+               <widget class="QPushButton" name="btn_setup_apply">
+                <property name="text">
+                 <string>save</string>
+                </property>
+               </widget>
               </item>
               <item row="4" column="0">
                <widget class="QLabel" name="label_8">
@@ -813,8 +845,18 @@
                 </property>
                </widget>
               </item>
-              <item row="4" column="1">
-               <widget class="QComboBox" name="cb_s3_uplink_type"/>
+              <item row="1" column="1">
+               <widget class="QLineEdit" name="lne_vessel"/>
+              </item>
+              <item row="5" column="0">
+               <widget class="QLabel" name="label_11">
+                <property name="text">
+                 <string>skip in port</string>
+                </property>
+               </widget>
+              </item>
+              <item row="5" column="1">
+               <widget class="QComboBox" name="cb_skip_in_port"/>
               </item>
              </layout>
             </item>
