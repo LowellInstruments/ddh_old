@@ -8,15 +8,16 @@ import setproctitle
 from api.api_utils import (api_get_ip_vpn, api_get_ip_wlan, api_get_ip_cell,
                            api_get_running_ddh_dds, api_get_crontab_ddh, _sh,
                            api_set_crontab,
-                           api_get_ble_state, api_get_gps, get_logger_mac_reset_files,
+                           api_get_ble_state, api_get_gps, api_get_logger_mac_reset_files,
                            api_get_commits,
                            api_get_full_ddh_config_file_path,
-                           linux_app_write_pid_to_tmp, api_linux_is_rpi,
+                           api_linux_is_rpi,
                            api_get_folder_path_root, api_ddt_get_folder_path_root,
                            api_get_uptime, api_get_crontab_api, api_read_aws_sqs_ts,
                            api_get_timezone, CTT_API_OK,
-                           CTT_API_ER, get_uptime_secs, api_ddh_get_folder_dl_files,
+                           CTT_API_ER, api_get_uptime_secs, api_ddh_get_folder_dl_files,
                            api_get_ddh_folder_path_macs_black, api_get_ddh_sw_version,
+                           api_get_utc_epoch,
                            )
 from ddh.db.db_his import DbHis
 from utils.ddh_config import (dds_get_cfg_vessel_name,
@@ -132,7 +133,7 @@ async def api_get_info():
         "ip_cell": _th(api_get_ip_cell),
         "last_gps": _th(api_get_gps),
         "uptime": _th(api_get_uptime),
-        "uptime_secs": _th(get_uptime_secs),
+        "uptime_secs": _th(api_get_uptime_secs),
         "ble_state": _th(api_get_ble_state),
         "aws_sqs_state": _th(api_read_aws_sqs_ts),
         "boat_prj": _th(dds_get_cfg_box_project),
@@ -141,9 +142,9 @@ async def api_get_info():
         "running": _th(api_get_running_ddh_dds),
         "crontab_ddh": _th(api_get_crontab_ddh),
         "crontab_api": _th(api_get_crontab_api),
-        "mac_reset_files": _th(get_logger_mac_reset_files),
+        "mac_reset_files": _th(api_get_logger_mac_reset_files),
         "versions": _th(api_get_commits),
-        "utc_time": _th(get_utc_epoch),
+        "utc_time": _th(api_get_utc_epoch),
         "time_zone": _th(api_get_timezone),
         "ddh_version": _th(api_get_ddh_sw_version)
         # "commit_mat": _th(get_git_commit_mat_local),
@@ -319,7 +320,6 @@ async def ep_rpi_temperature():
 def main_api():
     # docs at http://0.0.0.0:port/docs
     setproctitle.setproctitle(NAME_EXE_API)
-    linux_app_write_pid_to_tmp(PID_FILE_API)
     uvicorn.run(app, host="0.0.0.0", port=DDH_PORT_API)
 
 
