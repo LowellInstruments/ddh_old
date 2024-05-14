@@ -47,6 +47,8 @@ class GpqR:
         self.all = {}
 
     def _load(self, dt: datetime):
+
+        # infer the database filename
         f = 'mobile_' + dt.strftime(FMT_GPQ_TS_FILENAME)
         p = f'{get_ddh_folder_path_gpq_files()}/{f}'
         if not os.path.exists(p):
@@ -55,6 +57,8 @@ class GpqR:
         if f in self.ls:
             print(f'R warning {basename(p)} already loaded')
             return
+
+        # load the database filename
         self.db.load(p)
         _rr = self.db.get_all().values()
         print(f'R loading {basename(p)}, {len(_rr)} rows')
@@ -66,6 +70,8 @@ class GpqR:
 
         # s: '2024/04/05 21:45:22'
         dt = datetime.strptime(s, FMT_GPQ_TS_RECORD_DB)
+
+        # build dictionary w/ current database and immediately previous one
         self._load(dt)
         dt_bef = dt - timedelta(hours=1)
         self._load(dt_bef)
@@ -97,6 +103,11 @@ class GpqR:
 
         # get the closest candidate value
         c = list(self.all.items())[i - 1]
+
+        # the calling function decides if _diff is ok or too much
+        # i: index in array
+        # _diff: seconds current time vs. closest one in array
+        # c: ('2024/05/14 09:45:39', ('lat990', 'lon990'))
         return i, _diff, c
 
 
@@ -132,6 +143,7 @@ def gpq_gen_test():
     i, diff, c = ngr.query(a_out_bef)
     i, diff, c = ngr.query(a_in)
     i, diff, c = ngr.query(a_out_aft)
+    print(c)
     print('time elapsed NGpqR', time.perf_counter() - el)
 
 
@@ -142,6 +154,7 @@ if __name__ == '__main__':
 def dds_create_file_fixed_gpq(g, filename):
     """
     ble --> fixed_filename.gpq --> cst_serve
+    called when downloading loggers attached to FIXED gear
     """
     if not filename.endswith('.lid'):
         return
@@ -157,4 +170,5 @@ def dds_create_file_fixed_gpq(g, filename):
     path = f"{fol}/fixed_{filename[:-4]}.json"
     with open(path, "w") as fl:
         # from dict to file
+        # it has only one entry
         json.dump(d, fl)

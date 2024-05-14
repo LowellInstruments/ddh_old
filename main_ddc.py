@@ -127,7 +127,10 @@ if __name__ == "__main__":
         # show menu
         for k, v in d.items():
             if 'issues' in v[0]:
-                PC.R(f'\t{v[0]}')
+                if g_e:
+                    PC.R(f'\t{v[0]}')
+                elif g_w:
+                    PC.Y(f'\t{v[0]}')
             else:
                 print(f'\t{v[0]}')
 
