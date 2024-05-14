@@ -4,6 +4,7 @@ import subprocess as sp
 import sys
 import time
 
+from scripts.script_nadv import main_nadv
 
 VP_QUECTEL = '2c7c:0125'
 
@@ -27,7 +28,6 @@ path_script_deploy_tdo = f'{h}/{p}/scripts/run_script_deploy_logger_tdo.sh'
 
 # these pyc files are managed by pop_ddh.sh
 path_script_brt = f'{h}/{p}/scripts/main_brt.pyc'
-path_script_nadv = f'{h}/{p}/scripts/main_nadv.pyc'
 
 
 def _e(e):
@@ -65,9 +65,7 @@ def cb_run_brt():
 
 
 def cb_run_nadv():
-    # call it like this or we don't see output
-    sp.call(['python3', path_script_nadv],
-            stdin=sys.stdin, stdout=sys.stdout)
+    main_nadv()
 
 
 def cb_run_deploy_dox():

@@ -94,7 +94,7 @@ if __name__ == "__main__":
         fgd = 1 if exists(TMP_PATH_GPS_DUMMY) else 0
         fge = 1 if exists(LI_PATH_DDH_GPS_EXTERNAL) else 0
         fcd = get_crontab('ddh')
-        fgd = 1 if exists(TMP_PATH_GRAPH_TEST_MODE_JSON) else 0
+        fgt = 1 if exists(TMP_PATH_GRAPH_TEST_MODE_JSON) else 0
         fdk = cb_we_have_all_keys()
         fdr = cb_is_ddh_running()
         ftm = 1 if exists(LI_PATH_TEST_MODE) else 0
@@ -106,7 +106,7 @@ if __name__ == "__main__":
             2: (f"2) set GPS puck   [{fge}]", cb_gps_external),
             3: (f"3) set crontab    [{fcd}]", cb_crontab_ddh),
             4: (f"4) kill DDH app   [{fdr}]", cb_kill_ddh),
-            5: (f"5) set graph demo [{fgd}]", cb_graph_demo),
+            5: (f"5) set graph demo [{fgt}]", cb_graph_demo),
             6: (f"6) know all keys  [{fdk}]", cb_we_have_all_keys)
         }
 
