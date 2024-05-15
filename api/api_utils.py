@@ -12,6 +12,11 @@ from utils.tmp_paths import LI_PATH_DDH_VERSION
 
 CTT_API_OK = 'ok'
 CTT_API_ER = 'error'
+DDH_API_VERSION = "0.8.00"
+
+
+def api_get_api_version():
+    return DDH_API_VERSION
 
 
 def _sh(c):

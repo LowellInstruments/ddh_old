@@ -143,8 +143,7 @@ def main_dds():
         gps_configure_shield()
 
         # other stages
-        # todo ---> reenable this cst_serve()
-        # cst_serve()
+        cst_serve()
         gfm_serve()
         cnv_serve()
         aws_serve()

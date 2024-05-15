@@ -34,13 +34,21 @@ class GpqW:
         p = f'{get_ddh_folder_path_gpq_files()}/{f}'
         os.makedirs(os.path.dirname(p), exist_ok=True)
         dt_s = dt.strftime(FMT_GPQ_TS_RECORD_DB)
-        print(f'W using {f}, add {dt_s}')
-        self.db.load(f)
+        if os.path.exists(p):
+            print(f'GPQ_W: already exists {f}')
+        self.db.load(p)
         self.db.add({'t': dt_s, 'lat': lat, 'lon': lon})
         self.db.commit(p)
+        print(f'GPQ_W: {dt_s} -> {f}')
 
 
 class GpqR:
+
+    # -------------------------------------
+    # this is used to get gps positions
+    # for MOBILE mode, not fixed
+    # --------------------------------------
+
     def __init__(self):
         self.db = DB(keys=['t', 'lat', 'lon'])
         self.ls = []
@@ -52,16 +60,16 @@ class GpqR:
         f = 'mobile_' + dt.strftime(FMT_GPQ_TS_FILENAME)
         p = f'{get_ddh_folder_path_gpq_files()}/{f}'
         if not os.path.exists(p):
-            print(f'R error {basename(p)} file does not exist')
+            print(f'GPQ_R: error load -> {basename(p)} file does not exist')
             return
         if f in self.ls:
-            print(f'R warning {basename(p)} already loaded')
+            print(f'GPQ_R: already loaded -> {basename(p)}')
             return
 
         # load the database filename
         self.db.load(p)
         _rr = self.db.get_all().values()
-        print(f'R loading {basename(p)}, {len(_rr)} rows')
+        print(f'GPQ_R: load {len(_rr)} rows from {basename(p)}')
         d = {r['t']: (r['lat'], r['lon']) for r in _rr}
         self.all.update(d)
         self.ls.append(f)
@@ -80,7 +88,7 @@ class GpqR:
         # our built big dictionary does not even have values
         if not t:
             return -1, -1, None
-        print(f'R query {s} -> range t0 {t[0]} t-1 {t[-1]}')
+        print(f'GPQ_R: query {s} -> range DB is t0 {t[0]} t-1 {t[-1]}')
         print(f'\tdictionary has {len(t)} rows')
         i = bisect.bisect_right(t, s)
 

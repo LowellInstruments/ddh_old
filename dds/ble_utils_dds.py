@@ -103,7 +103,7 @@ def ble_op_conditions_met(g) -> bool:
     knots = float(knots)
     s_hi = float(s_hi)
 
-    # simulation of boat speed, check if enabled
+    # simulation of boat speed
     s_lo, knots, s_hi = gps_simulate_boat_speed(s_lo, knots, s_hi)
 
     # check we are on valid moving range
