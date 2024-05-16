@@ -6,6 +6,7 @@ import os
 import subprocess as sp
 from utils.tmp_paths import (TMP_PATH_GRAPH_TEST_MODE_JSON,
                              LI_PATH_DDH_GPS_EXTERNAL, LI_PATH_SKIP_IN_PORT_FILE_FLAG, LI_PATH_TEST_MODE)
+from utils.ddh_shared import send_ddh_udp_gui as _u, STATE_DDS_BAD_CONF
 
 
 def sh(c):
@@ -164,6 +165,7 @@ def ddh_get_cfg_gear_type():
 
 def dds_check_cfg_has_all_flags():
     b = copy.deepcopy(cfg)
+    aux = None
     try:
         for i in [
             'aws_en',
@@ -177,14 +179,18 @@ def dds_check_cfg_has_all_flags():
             'hook_ble_purge_black_macs_on_boot',
             'hook_ble_purge_this_mac_dl_files_folder'
         ]:
+            aux = i
             del b['flags'][i]
     except (Exception, ) as ex:
-        print(f'error dds_check_cfg_has_all_keys -> {ex}')
+        print(f'error: dds_check_cfg_has_all_flags -> {ex}')
+        print(f'error: missing flag {aux}')
+        _u(f"{STATE_DDS_BAD_CONF}/{aux}")
         sys.exit(1)
 
     if len(b['flags']):
-        print(f'error dds_check_cfg_has_all_keys -> unexpected keys remain')
-        print(b['flags'])
+        print(f'error: dds_check_cfg_has_all_flags')
+        print(f'error: unexpected flags {b["flags"]}')
+        _u(f"{STATE_DDS_BAD_CONF}/{b['flags']}")
         sys.exit(1)
 
     # monitored macs checked in _check_monitored_macs_in_cfg_file()

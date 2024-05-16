@@ -142,6 +142,7 @@ def _data_build_dict_intervals(df, di) -> dict:
         print('discarding')
         return di
     a = df.at[0, 'ISO 8601 Time']
+    # dp: package dateutil_parser
     ta = dp.parse('{}Z'.format(a)).timestamp()
     b = df.at[1, 'ISO 8601 Time']
     tb = dp.parse('{}Z'.format(b)).timestamp()

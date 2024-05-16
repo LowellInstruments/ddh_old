@@ -210,7 +210,7 @@ def controller_main_dds():
     p = PID_FILE_DDS_CONTROLLER
     setproctitle.setproctitle(s)
     linux_app_write_pid_to_tmp(p)
-    lg.a("=== {} started ===".format(s))
+    lg.a(f"=== {s} started ===")
 
     while 1:
         # GUI KILLs this process when desired
@@ -232,5 +232,4 @@ if __name__ == "__main__":
     if not linux_is_process_running(NAME_EXE_DDS_CONTROLLER):
         controller_main_dds()
     else:
-        e = "not launching {}, already running at python level"
-        print(e.format(NAME_EXE_DDS_CONTROLLER))
+        print(f"not launching {NAME_EXE_DDS_CONTROLLER}, already running at python level")
