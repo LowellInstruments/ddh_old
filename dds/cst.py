@@ -43,6 +43,11 @@ def _cst_get_mobile_lat_lon_from_dt_s(dt_s_iso: str):
 
 
 def _create_cst_files():
+
+    if not dds_get_cfg_gpq_en():
+        # instead of return prevents zombie processes
+        sys.exit(0)
+
     fol = get_ddh_folder_path_dl_files()
     ls_lid = glob(f'{fol}/**/*.lid', recursive=True)
 
@@ -107,10 +112,6 @@ def _create_cst_files():
 
 def cst_serve():
 
-    if not dds_get_cfg_gpq_en():
-        # instead of return prevents zombie processes
-        sys.exit(0)
-
     _P_ = "dds_cst"
 
     def _cst_serve():
@@ -128,8 +129,7 @@ def cst_serve():
         lg.a(f"error: seems last {_P_} took a long time")
     else:
         s = f'launching {_P_}'
-        # todo: change this CST serve to 600
-        if its_time_to(s, 10):
+        if its_time_to(s, 600):
             lg.a('_' * len(s))
             lg.a(s)
             lg.a('_' * len(s))

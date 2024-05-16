@@ -117,7 +117,7 @@ def ble_tell_gui_antenna_type(_h, desc):
     _ad = f"hci{_h}"
     s = f"using {desc} antenna, adapter {_ad}"
     if its_time_to(s, 60):
-        _u(f"{STATE_DDS_BLE_ANTENNA}/BT_{desc}")
+        _u(f"{STATE_DDS_BLE_ANTENNA}/{desc} radio")
 
     # run this once
     if its_time_to('tell_gui_antenna_type', 3600):
