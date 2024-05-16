@@ -108,6 +108,7 @@ def _create_cst_files():
 def cst_serve():
 
     if not dds_get_cfg_gpq_en():
+        # instead of return prevents zombie processes
         sys.exit(0)
 
     _P_ = "dds_cst"
