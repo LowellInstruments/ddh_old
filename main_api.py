@@ -146,7 +146,7 @@ async def api_get_info():
         "utc_time": _th(api_get_utc_epoch),
         "time_zone": _th(api_get_timezone),
         "ddh_version": _th(api_get_ddh_sw_version),
-        "api_version": _th(ep_api_version)
+        "api_version": _th(api_get_api_version)
         # "commit_mat": _th(get_git_commit_mat_local),
         # "commit_ddh": _th(get_git_commit_ddh_local),
     }
