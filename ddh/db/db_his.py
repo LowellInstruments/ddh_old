@@ -48,11 +48,12 @@ class DbHis:
             "lon",
             "ep_loc",
             "ep_utc",
-            "rerun"
+            "rerun",
+            "uuid_interaction"
         ])
         self._db.load(self.f)
 
-    def add(self, mac, sn, e, lat, lon, ep_loc, ep_utc, rerun):
+    def add(self, mac, sn, e, lat, lon, ep_loc, ep_utc, rerun, u):
         a = {
             # all of these are strings
             "mac": mac,
@@ -63,7 +64,8 @@ class DbHis:
             "lon": lon,
             "ep_loc": ep_loc,
             "ep_utc": ep_utc,
-            "rerun": str(rerun)
+            "rerun": str(rerun),
+            "uuid_interaction": str(u)
         }
         try:
             self._db.add(a)

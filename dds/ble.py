@@ -4,6 +4,7 @@ import os
 import pathlib
 import shutil
 import time
+import uuid
 
 import requests
 from tzlocal import get_localzone
@@ -103,7 +104,11 @@ def _ble_convert_lid(d):
         lg.a(f"OK: after download converted LID file v{n} {f}")
 
 
-def _ble_analyze_logger_result(rv, g, ln: LoggerNotification, err_critical):
+def _ble_analyze_logger_result(rv,
+                               g,
+                               ln: LoggerNotification,
+                               err_critical,
+                               u):
 
     # grab variables
     mac = ln.mac
@@ -114,7 +119,7 @@ def _ble_analyze_logger_result(rv, g, ln: LoggerNotification, err_critical):
         rm_mac_black(mac)
         rm_mac_orange(mac)
         add_mac_black(mac)
-        notify_logger_download(g, ln)
+        notify_logger_download(g, ln, u)
         if mac in _g_logger_errors.keys():
             del _g_logger_errors[mac]
         lg.a(f"OK! logger {mac}/{sn}")
@@ -182,6 +187,9 @@ async def _ble_id_n_interact_logger(mac, info: str, h, g):
     # mac = '60:77:71:22:c8:6f'
     # info = 'DO-2'
 
+    # useful for dashboards and databases
+    uuid_interaction = str(uuid.uuid4())
+
     # debug: delete THIS logger's existing files
     if dds_get_cfg_flag_purge_this_mac_dl_files_folder():
         lg.a("debug: HOOK_PURGE_THIS_MAC_DL_FILES_FOLDER {}".format(mac))
@@ -201,8 +209,8 @@ async def _ble_id_n_interact_logger(mac, info: str, h, g):
 
     # in case 'g' is NOT-WHOLE here
     if lat == "":
-        lg.a("error: lat is empty for logger {}".format(sn))
-        _u("history/add&{}&error&{}&{}&{}".format(mac, lat, lon, dt))
+        lg.a(f"error: lat is empty for logger {sn}")
+        _u(f"history/add&{mac}&error&{lat}&{lon}&{dt}")
         # 0 because this is not a BLE interaction error
         return 0
 
@@ -274,7 +282,7 @@ async def _ble_id_n_interact_logger(mac, info: str, h, g):
     if not _error_dl:
         _error_dl = 'comm. error'
     ln = LoggerNotification(mac, sn, info, bat)
-    _ble_analyze_logger_result(rv, g, ln, _crit_error)
+    _ble_analyze_logger_result(rv, g, ln, _crit_error, uuid_interaction)
 
     # ------------------------------------
     # so GUI can update its HISTORY tab
@@ -287,7 +295,7 @@ async def _ble_id_n_interact_logger(mac, info: str, h, g):
     print('ep_utc', ep_utc)
 
     _u(f"{STATE_DDS_NOTIFY_HISTORY}/add&"
-       f"{mac}&{e}&{lat}&{lon}&{ep_loc}&{ep_utc}&{rerun}")
+       f"{mac}&{e}&{lat}&{lon}&{ep_loc}&{ep_utc}&{rerun}&{uuid_interaction}")
 
     return rv
 

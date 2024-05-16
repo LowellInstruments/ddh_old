@@ -63,7 +63,7 @@ class LoggerNotification:
 
 
 class _DDHNotification:
-    def __init__(self, s, g, ln: LoggerNotification, ver, extra):
+    def __init__(self, s, g, ln: LoggerNotification, ver, extra, uuid_interaction):
         now = datetime.now()
         now_utc = datetime.utcnow()
         rv = sp.run("uptime -p", shell=True, stdout=sp.PIPE)
@@ -106,7 +106,7 @@ class _DDHNotification:
             self.logger_type = ln.kind
             self.logger_bat = ln.bat
         self.extra = str(extra)
-        self.uuid = str(uuid.uuid4())
+        self.uuid_interaction = uuid_interaction
 
     def display_details(self):
         if self.logger_mac:
@@ -131,12 +131,16 @@ class _DDHNotification:
         self.display_details()
 
 
-def _n(s, g='', ln=None, v=2, extra=''):
+def _n(s, g='', ln=None, v=2, extra='', u=''):
     if s not in DDH_ALL_NOTIFICATIONS:
         print(f'ddh_notification unknown opcode {s}')
         return
-    n = _DDHNotification(s, g, ln, v, extra)
+    n = _DDHNotification(s, g, ln, v, extra, u)
     n.to_file()
+
+
+def notify_logger_download(g, ln, u):
+    return _n(DDH_NOTIFICATION_OK_LOGGER_DL, g, ln, u=u)
 
 
 def notify_boot(g):
@@ -174,10 +178,6 @@ def notify_ddh_error_hw_gps():
 
 def notify_ddh_in_port(g):
     return _n(DDH_NOTIFICATION_STATUS_IN_PORT, g)
-
-
-def notify_logger_download(g, ln):
-    return _n(DDH_NOTIFICATION_OK_LOGGER_DL, g, ln)
 
 
 def notify_logger_dox_hypoxia(g, ln):
