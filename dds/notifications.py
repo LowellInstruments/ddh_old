@@ -1,3 +1,4 @@
+import uuid
 from datetime import datetime
 import json
 import os
@@ -105,6 +106,7 @@ class _DDHNotification:
             self.logger_type = ln.kind
             self.logger_bat = ln.bat
         self.extra = str(extra)
+        self.uuid = str(uuid.uuid4())
 
     def display_details(self):
         if self.logger_mac:
