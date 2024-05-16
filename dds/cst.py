@@ -12,8 +12,12 @@ from dds.gpq import GpqR, FMT_GPQ_TS_RECORD_DB
 from dds.timecache import its_time_to
 from mat.linux import linux_is_process_running
 from utils.ddh_config import ddh_get_cfg_gear_type, dds_get_cfg_gpq_en
-from utils.ddh_shared import get_ddh_folder_path_dl_files, get_ddh_folder_path_gpq_files
+from utils.ddh_shared import (get_ddh_folder_path_dl_files,
+                              get_ddh_folder_path_gpq_files)
 from utils.logs import lg_cst as lg
+
+
+MAX_TIME_DIFF_GPS_TRACK_VS_LOGGER_SAMPLE = 30
 
 
 def is_a_tdo_file(p):
@@ -34,6 +38,7 @@ def _cst_get_mobile_lat_lon_from_dt_s(dt_s_iso: str):
     dt_s = dt_s_iso.replace('-', '/')
     # dt_s: '%Y/%m/%d %H:%M:%S.000Z'
     dt_s = dt_s.replace('T', ' ')
+    print('\n')
     return _gr.query(dt_s[:-5])
 
 
@@ -79,17 +84,24 @@ def _create_cst_files():
         # mobile mode: CST file uses N locations from mobile_*.json GPQ files
         ft = open(f_cst, 'w')
         ft.write('lat,lon,' + ll_fv[0])
+        ok_i = 0
         for row in ll_fv[1:]:
             dt_s = row.split(',')[0]
             index, diff, t_lat_lon = _cst_get_mobile_lat_lon_from_dt_s(dt_s)
-            print(index, diff, t_lat_lon)
             if index > 0:
-                # 0 means too early
+                # -1, means none, 0 means too early
                 t, latlon = t_lat_lon
                 lat, lon = latlon
-                ft.write(f'{lat},{lon},' + row)
+                if diff <= MAX_TIME_DIFF_GPS_TRACK_VS_LOGGER_SAMPLE:
+                    ft.write(f'{lat},{lon},' + row)
+                    ok_i += 1
+                else:
+                    ft.write(f',,' + row)
+                    print(f'CST: discarding {dt_s}')
+                    print(f'\tdiff {diff} > {MAX_TIME_DIFF_GPS_TRACK_VS_LOGGER_SAMPLE}')
             else:
                 ft.write(f',,' + row)
+        print(f'CST: output file has {ok_i} OK complete records')
         ft.close()
 
 

@@ -39,7 +39,7 @@ class GpqW:
         self.db.load(p)
         self.db.add({'t': dt_s, 'lat': lat, 'lon': lon})
         self.db.commit(p)
-        print(f'GPQ_W: {dt_s} -> {f}')
+        print(f'GPQ_W: add {dt_s} -> {f}')
 
 
 class GpqR:
@@ -59,17 +59,18 @@ class GpqR:
         # infer the database filename
         f = 'mobile_' + dt.strftime(FMT_GPQ_TS_FILENAME)
         p = f'{get_ddh_folder_path_gpq_files()}/{f}'
+        print(f'GPQ_R: value {dt} -> load ask for file {f}')
         if not os.path.exists(p):
-            print(f'GPQ_R: error load -> {basename(p)} file does not exist')
+            print(f'GPQ_R: load error -> {basename(p)} file does not exist')
             return
         if f in self.ls:
-            print(f'GPQ_R: already loaded -> {basename(p)}')
+            print(f'GPQ_R: load already -> {basename(p)}')
             return
 
         # load the database filename
         self.db.load(p)
         _rr = self.db.get_all().values()
-        print(f'GPQ_R: load {len(_rr)} rows from {basename(p)}')
+        print(f'GPQ_R: load OK -> {len(_rr)} rows from {basename(p)}')
         d = {r['t']: (r['lat'], r['lon']) for r in _rr}
         self.all.update(d)
         self.ls.append(f)
@@ -88,29 +89,31 @@ class GpqR:
         # our built big dictionary does not even have values
         if not t:
             return -1, -1, None
-        print(f'GPQ_R: query {s} -> range DB is t0 {t[0]} t-1 {t[-1]}')
-        print(f'\tdictionary has {len(t)} rows')
+        print(f'GPQ_R: value query {s}')
+        print(f'GPQ_R: range GPQ DB [ {t[0]} - {t[-1]} ] = {len(t)} rows')
         i = bisect.bisect_right(t, s)
 
         # value is too early for our big dictionary
         if i == 0:
-            print(f'\tvalue {s} is too early')
+            print(f'\tvalue {s} -> pre-range')
             return 0, -1, None
 
         # value might be useful for calling functions,
         # such as CST, depending on diff
         if i >= len(t):
-            print(f'\tvalue {s} is after last dictionary value')
+            print(f'\tvalue {s} -> post-range')
         else:
-            print(f'\tvalue {s} is in-range')
+            print(f'\tvalue {s} -> in-range')
         now = datetime.strptime(s, FMT_GPQ_TS_RECORD_DB)
         bef = datetime.strptime(t[i - 1], FMT_GPQ_TS_RECORD_DB)
         _diff = (now - bef).total_seconds()
         print('\ti', i)
-        print('\tdiff ', _diff)
+        print('\tdiff', _diff)
 
         # get the closest candidate value
         c = list(self.all.items())[i - 1]
+        if i != -1:
+            print('\tcandidate', c)
 
         # the calling function decides if _diff is ok or too much
         # i: index in array
