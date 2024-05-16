@@ -185,13 +185,13 @@ def dds_check_cfg_has_all_flags():
         print(f'error: dds_check_cfg_has_all_flags -> {ex}')
         print(f'error: missing flag {aux}')
         _u(f"{STATE_DDS_BAD_CONF}/{aux}")
-        sys.exit(1)
+        os._exit(1)
 
     if len(b['flags']):
         print(f'error: dds_check_cfg_has_all_flags')
         print(f'error: unexpected flags {b["flags"]}')
         _u(f"{STATE_DDS_BAD_CONF}/{b['flags']}")
-        sys.exit(1)
+        os._exit(1)
 
     # monitored macs checked in _check_monitored_macs_in_cfg_file()
 
