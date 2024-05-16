@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-
+import os
 import pathlib
 from multiprocessing import Process
 import time
@@ -47,7 +47,7 @@ from mat.ble.ble_mat_utils import (
 )
 from mat.utils import linux_is_rpi
 from utils.ddh_config import dds_check_cfg_has_box_info, \
-    dds_get_cfg_monitored_macs, dds_check_cfg_has_all_flags, dds_get_cfg_flag_download_test_mode
+    dds_get_cfg_monitored_macs, dds_check_config_file, dds_get_cfg_flag_download_test_mode
 from utils.ddh_shared import (
     PID_FILE_DDS,
     dds_create_folder_dl_files,
@@ -63,13 +63,18 @@ from utils.logs import (
     dds_log_core_start_at_boot
 )
 import setproctitle
+from utils.ddh_shared import send_ddh_udp_gui as _u
 
 
 def main_dds():
 
+    rv = dds_check_config_file()
+    if rv:
+        _u(f"bad_conf/{rv}")
+        os._exit(1)
+
     dds_create_buttons_thread()
     dds_tell_software_update()
-    dds_check_cfg_has_all_flags()
     dds_check_cfg_has_box_info()
     dds_ensure_proper_working_folder()
     dds_create_folder_macs_color()

@@ -1,12 +1,10 @@
 import copy
-import sys
 import pathlib
 import toml
 import os
 import subprocess as sp
 from utils.tmp_paths import (TMP_PATH_GRAPH_TEST_MODE_JSON,
-                             LI_PATH_DDH_GPS_EXTERNAL, LI_PATH_SKIP_IN_PORT_FILE_FLAG, LI_PATH_TEST_MODE)
-from utils.ddh_shared import send_ddh_udp_gui as _u, STATE_DDS_BAD_CONF
+                             LI_PATH_DDH_GPS_EXTERNAL, LI_PATH_TEST_MODE)
 
 
 def sh(c):
@@ -163,7 +161,7 @@ def ddh_get_cfg_gear_type():
     return cfg['behavior']['gear_type']
 
 
-def dds_check_cfg_has_all_flags():
+def dds_check_config_file():
     b = copy.deepcopy(cfg)
     aux = None
     try:
@@ -184,14 +182,13 @@ def dds_check_cfg_has_all_flags():
     except (Exception, ) as ex:
         print(f'error: dds_check_cfg_has_all_flags -> {ex}')
         print(f'error: missing flag {aux}')
-        _u(f"{STATE_DDS_BAD_CONF}/{aux}")
-        os._exit(1)
+        return aux
 
-    if len(b['flags']):
+    aux = b['flags']
+    if len(aux):
         print(f'error: dds_check_cfg_has_all_flags')
-        print(f'error: unexpected flags {b["flags"]}')
-        _u(f"{STATE_DDS_BAD_CONF}/{b['flags']}")
-        os._exit(1)
+        print(f'error: unexpected flags {aux}')
+        return aux
 
     # monitored macs checked in _check_monitored_macs_in_cfg_file()
 
