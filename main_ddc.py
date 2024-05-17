@@ -26,6 +26,7 @@ h = str(pathlib.Path.home())
 p = 'li/ddh' if is_rpi() else 'PycharmProjects/ddh'
 path_script_deploy_dox = f'{h}/{p}/scripts/run_script_deploy_logger_dox.sh'
 path_script_deploy_tdo = f'{h}/{p}/scripts/run_script_deploy_logger_tdo.sh'
+path_brt = f'{h}/main_brt.py'
 
 
 # variables for errors and warnings
@@ -77,11 +78,11 @@ def cb_test_buttons():
 
 
 def cb_run_brt():
-    # pyc files are managed by "pop_ddh" script
-    path_script_brt = f'{h}/{p}/scripts/main_brt_armv7l.pyc'
-    if sh('arch | grep aarch64') == 0:
-        path_script_brt = f'{h}/{p}/scripts/main_brt_aarch64.pyc'
-    sh(f'/usr/bin/env python3 {path_script_brt}')
+    if not os.path.exists(path_brt):
+        p_e('BRT not found, LI will install it for you')
+    else:
+        print('BRT, Joaquim do this')
+    # sh(f'/usr/bin/env python3 {path_script_brt}')
     input()
 
 
@@ -106,7 +107,10 @@ def cb_run_deploy_tdo():
 
 
 def cb_edit_brt_cfg_file():
-    sp.call(['nano', f'{h}/Downloads/cfg_brt_nadv.toml'],
+    p_cfg = f'{h}/Downloads/cfg_brt_nadv.toml'
+    if not os.path.exists(p_cfg):
+        sp.run(f'cp scripts/cfg_brt_nadv_template.toml {p_cfg}')
+    sp.call(['nano', p_cfg],
             stdin=sys.stdin, stdout=sys.stdout)
 
 
