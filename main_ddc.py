@@ -79,6 +79,8 @@ def cb_test_buttons():
 def cb_run_brt():
     # pyc files are managed by "pop_ddh" script
     path_script_brt = f'{h}/{p}/scripts/main_brt_armv7l.pyc'
+    if sh('arch | grep aarch64') == 0:
+        path_script_brt = f'{h}/{p}/scripts/main_brt_aarch64.pyc'
     sh(f'/usr/bin/env python3 {path_script_brt}')
     input()
 
@@ -152,9 +154,11 @@ def cb_is_ddh_running():
 def main_ddc():
     while 1:
         os.system('clear')
-        print('\nDDC\n---\n')
+        print('\nDDC\n---')
 
         # add extra one being displayed
+        global g_e
+        global g_w
         _, g_e, g_w = ddh_run_check()
 
         # get flags
