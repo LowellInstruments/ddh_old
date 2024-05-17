@@ -5,7 +5,6 @@ import sys
 import time
 from os import unlink
 from os.path import exists
-
 from scripts.script_provision_get import get_provision_ddh, ping_provision_server
 # from scripts.script_provision_get import get_provision_ddh
 from utils.ddh_config import cfg_load_from_file, cfg_save_to_file
@@ -18,6 +17,8 @@ from utils.tmp_paths import (
 )
 import pathlib
 import subprocess as sp
+from mat.utils import PrintColors as PC
+
 
 
 VP_QUECTEL = '2c7c:0125'
@@ -143,6 +144,14 @@ def _es(e):
         return
     with open(TMP_DDC_ERR, 'a') as f:
         f.write(f'error: {e}\n')
+
+
+def p_e(s):
+    PC.R('DDC error: ' + s)
+
+
+def p_w(s):
+    PC.Y('DDC warning: ' + s)
 
 
 def cb_calibrate_display():
