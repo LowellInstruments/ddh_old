@@ -39,7 +39,6 @@ def _utils_graph_tdo_file_set_fast_mode(path):
     if os.path.exists(fmf):
         return
 
-    # has fast mode, create metafile
     has_fm = False
     with open(path, 'r') as f:
         ll = f.readlines()
@@ -47,6 +46,8 @@ def _utils_graph_tdo_file_set_fast_mode(path):
             # let's keep short files
             has_fm = True
         else:
+            lg.a(f'processing file {path} for graph fast mode')
+            lg.a(f'{ll[3]}')
             # ll[3]: 2024-04-04T13:55:51.000,10,20,28032,419,22.411,10.003,-8,235,21
             # headers: ts,el_t,agg_t,raw T,raw P,T(C),P(dbar),Ax,Ay,Az
             el_base = ll[3].split(',')[1]
