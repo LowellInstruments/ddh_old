@@ -42,7 +42,7 @@ def _utils_graph_tdo_file_set_fast_mode(path):
     has_fm = False
     with open(path, 'r') as f:
         ll = f.readlines()
-        if len(ll) < 3:
+        if len(ll) <= 3:
             # let's keep short files
             has_fm = True
         else:

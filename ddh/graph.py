@@ -50,7 +50,10 @@ def gfm_serve():
 
     def _gfm_serve():
         setproctitle.setproctitle(_P_)
-        utils_graph_tdo_classify_files_fast_mode()
+        try:
+            utils_graph_tdo_classify_files_fast_mode()
+        except (Exception, ) as ex:
+            lg.a(f'error: gfm_serve -> ex {ex}')
         # instead of return prevents zombie processes
         sys.exit(0)
 
