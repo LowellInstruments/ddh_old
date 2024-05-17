@@ -26,7 +26,6 @@ h = str(pathlib.Path.home())
 p = 'li/ddh' if is_rpi() else 'PycharmProjects/ddh'
 path_script_deploy_dox = f'{h}/{p}/scripts/run_script_deploy_logger_dox.sh'
 path_script_deploy_tdo = f'{h}/{p}/scripts/run_script_deploy_logger_tdo.sh'
-path_brt = f'{h}/main_brt.py'
 
 
 # variables for errors and warnings
@@ -78,12 +77,8 @@ def cb_test_buttons():
 
 
 def cb_run_brt():
-    if not os.path.exists(path_brt):
-        p_e('BRT not found, LI will install it for you')
-    else:
-        print('BRT, Joaquim do this')
-    # sh(f'/usr/bin/env python3 {path_script_brt}')
-    input()
+    path_brt = f'{h}/main_brt.py'
+    sh(f'/usr/bin/env python3 {path_brt}')
 
 
 def cb_run_nadv():
@@ -208,7 +203,9 @@ def main_ddc():
         # get user input
         try:
             c = input('\nenter your choice > ')
-            time.sleep(.5)
+            os.system('clear')
+            print(f'you selected {c} -> {d[c][0]}')
+            time.sleep(1)
 
             # secret options
             if c == 'p':
@@ -219,6 +216,9 @@ def main_ddc():
                 _, cb = d[c]
                 cb()
         except (Exception,):
+
+            p_e(f'invalid menu option {c}')
+            time.sleep(1)
             continue
 
 
