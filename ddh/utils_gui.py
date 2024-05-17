@@ -246,6 +246,7 @@ def gui_populate_history_tab(my_app):
             rows_to_remove.append(i)
     for i in rows_to_remove:
         print('removing row', i)
+        a.tbl_his.removeRow(i)
 
     # this prevents problem with white rows due to sorting
     a.tbl_his.sortingEnabled = True
