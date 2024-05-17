@@ -80,6 +80,7 @@ def cb_test_buttons():
 
 def cb_run_brt():
     main_brt()
+    input()
 
 
 def cb_run_nadv():
@@ -205,7 +206,7 @@ def main_ddc():
         try:
             c = input('\nenter your choice > ')
             os.system('clear')
-            print(f'you selected {c} -> {d[c][0]}')
+            print(f'you selected:\n\t{d[c][0]}')
             time.sleep(1)
 
             # secret options
@@ -216,8 +217,8 @@ def main_ddc():
             else:
                 _, cb = d[c]
                 cb()
-        except (Exception,):
 
+        except (Exception,):
             p_e(f'invalid menu option {c}')
             time.sleep(1)
             continue
