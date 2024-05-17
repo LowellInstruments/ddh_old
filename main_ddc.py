@@ -3,6 +3,8 @@ import pathlib
 import sys
 import time
 from os.path import exists
+
+from main_brt import main_brt
 from scripts.script_ddc import (
     cb_gps_dummy, cb_quit, cb_gps_external, cb_crontab_ddh,
     get_crontab,
@@ -77,9 +79,7 @@ def cb_test_buttons():
 
 
 def cb_run_brt():
-    path_brt = f'{h}/{p}/main_brt.py'
-    sh(f'/usr/bin/env python3 {path_brt}')
-    input()
+    main_brt()
 
 
 def cb_run_nadv():
