@@ -77,7 +77,7 @@ def cb_test_buttons():
 
 
 def cb_run_brt():
-    path_brt = f'{h}/main_brt.py'
+    path_brt = f'{h}/{p}/main_brt.py'
     sh(f'/usr/bin/env python3 {path_brt}')
     input()
 
