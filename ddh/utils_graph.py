@@ -141,11 +141,22 @@ def _data_build_dict_intervals(df, di) -> dict:
     if n < 2:
         print('discarding')
         return di
-    a = df.at[0, 'ISO 8601 Time']
+
     # dp: package dateutil_parser
-    ta = dp.parse('{}Z'.format(a)).timestamp()
+    a = df.at[0, 'ISO 8601 Time']
+    try:
+        ta = dp.parse('{}Z'.format(a)).timestamp()
+    except (Exception, ):
+        # old time format, no z
+        ta = dp.parse('{}'.format(a)).timestamp()
+
     b = df.at[1, 'ISO 8601 Time']
-    tb = dp.parse('{}Z'.format(b)).timestamp()
+    try:
+        tb = dp.parse('{}Z'.format(b)).timestamp()
+    except (Exception, ):
+        # old time format, no z
+        tb = dp.parse('{}'.format(b)).timestamp()
+
     delta = tb - ta
     v = n
     if delta in di.keys():
@@ -310,7 +321,10 @@ def process_graph_csv_data(fol, _, h, hi) -> dict:
     pf = pf if not is_moana else mpf
 
     # convert 2018-11-11T13:00:00.000 --> seconds
-    x = [dp.parse('{}Z'.format(i)).timestamp() for i in x]
+    try:
+        x = [dp.parse('{}Z'.format(i)).timestamp() for i in x]
+    except (Exception, ):
+        x = [dp.parse('{}'.format(i)).timestamp() for i in x]
 
     # display time performance of data-grabbing procedure
     end_ts = time.perf_counter()

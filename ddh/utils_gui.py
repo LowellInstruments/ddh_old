@@ -196,7 +196,7 @@ def gui_populate_history_tab(my_app):
     a = my_app
     a.tbl_his.clear()
 
-    # this prevents problem with white rows due to sortnig
+    # this prevents problem with white rows due to sorting
     a.tbl_his.sortingEnabled = False
 
     db = DbHis(ddh_get_db_history_file())
@@ -237,6 +237,18 @@ def gui_populate_history_tab(my_app):
     # column labels
     labels = ["logger", "result", "rerun"]
     a.tbl_his.setHorizontalHeaderLabels(labels)
+
+    # remove blank rows
+    rows_to_remove = []
+    for i, r in enumerate(range(a.tbl_his.rowCount())):
+        _item = a.tbl_his.item(r, 0)
+        if not _item:
+            rows_to_remove.append(i)
+    for i in rows_to_remove:
+        print('removing row', i)
+
+    # this prevents problem with white rows due to sorting
+    a.tbl_his.sortingEnabled = True
 
 
 def gui_ddh_populate_note_tab_dropdown(my_app):
