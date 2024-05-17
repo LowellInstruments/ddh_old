@@ -27,8 +27,6 @@ p = 'li/ddh' if is_rpi() else 'PycharmProjects/ddh'
 path_script_deploy_dox = f'{h}/{p}/scripts/run_script_deploy_logger_dox.sh'
 path_script_deploy_tdo = f'{h}/{p}/scripts/run_script_deploy_logger_tdo.sh'
 
-# these pyc files are managed by pop_ddh.sh
-path_script_brt = f'{h}/{p}/scripts/main_brt.pyc'
 
 # variables for errors and warnings
 g_e = None
@@ -79,6 +77,8 @@ def cb_test_buttons():
 
 
 def cb_run_brt():
+    # pyc files are managed by "pop_ddh" script
+    path_script_brt = f'{h}/{p}/scripts/main_brt_armv7l.pyc'
     sh(f'/usr/bin/env python3 {path_script_brt}')
     input()
 
