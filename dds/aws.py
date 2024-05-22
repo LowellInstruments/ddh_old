@@ -121,15 +121,33 @@ def _aws_s3_sync_process():
     _bin = _get_aws_bin_path()
     dr = "--dryrun" if dev else ""
 
+    # todo ---> remove this
+    dr = ""
+
     # get list of macs within dl_files folder
     ms = [d for d in glob.glob(str(fol_dl_files) + '/*') if os.path.isdir(d)]
     all_rv = 0
     for m in ms:
-        # um: dl_files/ddh#red_feet, we need to lose 'dl_files'
-        um = m.replace('dl_files/', '')
+        # _n: bkt-kaz
+        # um: '/home/kaz/PycharmProjects/ddh/ddh#joaquim_boat or <mac>'
+        um = m.split('/')[-1]
+        if this_box_has_grouped_s3_uplink():
+            lg.a('debug: AWS upload as grouped mode')
+            v = dds_get_cfg_vessel_name()
+            # v: "bailey's" --> BAYLEYS
+            v = v.replace("'", "")
+            v = v.replace(" ", "_")
+            v = v.upper()
+            # um: we prepend group
+            y = datetime.datetime.utcnow().year
+            um = f"{str(y)}/{v}/{um}"
+        else:
+            lg.a('debug: AWS upload as non-grouped mode')
+
+        # build the AWS command
         c = (
-            "AWS_ACCESS_KEY_ID={} AWS_SECRET_ACCESS_KEY={} "
-            "{} s3 sync {} s3://{}/{} "
+            f"AWS_ACCESS_KEY_ID={_k} AWS_SECRET_ACCESS_KEY={_s} "
+            f"{_bin} s3 sync {m} s3://{_n}/{um} "
             '--exclude "*" '
             '--include "*.csv" '
             '--include "*.gps" '
@@ -138,31 +156,8 @@ def _aws_s3_sync_process():
             '--include "*.cst" '
             '--exclude "test_*.csv" '
             '--exclude "test_*.lid" '
-            '--include "*.txt" {}'
-        ).format(_k, _s, _bin, m, _n, um, dr)
-
-        if this_box_has_grouped_s3_uplink():
-            v = dds_get_cfg_vessel_name()
-            # v: "bailey's" --> BAYLEYS
-            v = v.replace("'", "")
-            v = v.replace(" ", "_")
-            v = v.upper()
-            # um: dl_files/ddh#red_feet, we lose dl_files and group
-            y = datetime.datetime.utcnow().year
-            um = m.replace('dl_files', "{}/{}".format(str(y), v))
-            c = (
-                "AWS_ACCESS_KEY_ID={} AWS_SECRET_ACCESS_KEY={} "
-                "{} s3 sync {} s3://{}/{} "
-                '--exclude "*" '
-                '--include "*.csv" '
-                '--include "*.gps" '
-                '--include "*.lid" '
-                '--include "*.bin" '
-                '--include "*.cst" '
-                '--exclude "test_*.csv" '
-                '--exclude "test_*.lid" '
-                '--include "*.txt" {}'
-            ).format(_k, _s, _bin, m, _n, um, dr)
+            f'--include "*.txt" {dr}'
+        )
 
         # ---------------------------------------------------
         # once formatted the proper AWS sync command, run it

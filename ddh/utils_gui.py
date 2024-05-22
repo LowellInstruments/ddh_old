@@ -4,7 +4,7 @@ import shlex
 import socket
 import time
 import shutil
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt, QCoreApplication
 from PyQt5.QtGui import QPixmap, QIcon
 from PyQt5.QtWidgets import (
     QDesktopWidget,
@@ -188,16 +188,30 @@ def gui_manage_graph_test_files():
         lg.a('copied logger graph test folders')
 
 
+def _gui_remove_blank_rows_history_tab(my_app):
+    a = my_app
+    rows_to_remove = []
+    for i, r in enumerate(range(a.tbl_his.rowCount())):
+        _item = a.tbl_his.item(r, 0)
+        if not _item:
+            rows_to_remove.append(i)
+
+    # don't do it in the same previous loop
+    for i in rows_to_remove:
+        a.tbl_his.removeRow(i)
+    QCoreApplication.processEvents()
+
+
 def gui_populate_history_tab(my_app):
     """
     fills history table on history tab
     """
 
     a = my_app
-    a.tbl_his.clear()
 
-    # this prevents problem with white rows due to sorting
-    a.tbl_his.sortingEnabled = False
+    # let's wait until the table is clear
+    a.tbl_his.clear()
+    QCoreApplication.processEvents()
 
     db = DbHis(ddh_get_db_history_file())
     r = db.get_all().values()
@@ -219,11 +233,10 @@ def gui_populate_history_tab(my_app):
             lon = "{:+6.4f}".format(float(h["lon"]))
             dt = datetime.datetime.fromtimestamp(int(h["ep_loc"]))
             t = dt.strftime("%b %d %H:%M")
-            s = "{} {} at {}, {}".format(e, t, lat, lon)
 
             # set values to cells
             a.tbl_his.setItem(i, 0, QTableWidgetItem(str(h["SN"])))
-            a.tbl_his.setItem(i, 1, QTableWidgetItem(s))
+            a.tbl_his.setItem(i, 1, QTableWidgetItem(f"{e} {t} at {lat}, {lon}"))
             a.tbl_his.setItem(i, 2, QTableWidgetItem(str(h['rerun'])))
 
         except (Exception,) as ex:
@@ -238,18 +251,7 @@ def gui_populate_history_tab(my_app):
     labels = ["logger", "result", "rerun"]
     a.tbl_his.setHorizontalHeaderLabels(labels)
 
-    # remove blank rows
-    rows_to_remove = []
-    for i, r in enumerate(range(a.tbl_his.rowCount())):
-        _item = a.tbl_his.item(r, 0)
-        if not _item:
-            rows_to_remove.append(i)
-    for i in rows_to_remove:
-        print('removing row', i)
-        a.tbl_his.removeRow(i)
-
-    # this prevents problem with white rows due to sorting
-    a.tbl_his.sortingEnabled = True
+    _gui_remove_blank_rows_history_tab(a)
 
 
 def gui_ddh_populate_note_tab_dropdown(my_app):
