@@ -17,15 +17,20 @@ CTT_ATM_PRESSURE_DBAR = 10.1325
 
 
 def _utils_graph_get_fast_mode_file_name(path):
-    bn = '._' + os.path.basename(path)[:-4] + '.hfm'
+    bn = '._' + os.path.basename(path)[:-4] + '.fmg'
     return f'{os.path.dirname(path)}/{bn}'
 
 
-def utils_graph_tdo_file_read_fast_mode(path):
+def _utils_graph_get_slow_mode_file_name(path):
+    bn = '._' + os.path.basename(path)[:-4] + '.smg'
+    return f'{os.path.dirname(path)}/{bn}'
+
+
+def utils_graph_detect_this_file_has_fast_mode(path):
     # path is full path
     path = str(path)
     if not path.endswith('_TDO.csv'):
-        lg.a('error: can only check for fast mode on TDO CSV files')
+        # only TDO CSV files can have fast mode
         return
     return os.path.exists(_utils_graph_get_fast_mode_file_name(path))
 
@@ -37,6 +42,11 @@ def _utils_graph_tdo_file_set_fast_mode(path):
         return
     fmf = _utils_graph_get_fast_mode_file_name(path)
     if os.path.exists(fmf):
+        return
+
+    # slow mode file: to not process non-fmf files over and over
+    smf = _utils_graph_get_slow_mode_file_name(path)
+    if os.path.exists(smf):
         return
 
     has_fm = False
@@ -55,11 +65,15 @@ def _utils_graph_tdo_file_set_fast_mode(path):
                 el_cur = i.split(',')[1]
                 if el_cur != el_base:
                     has_fm = True
-                    lg.a(f'OK: set fast mode for TDO file {os.path.basename(path)}')
+                    lg.a(f'OK: set graph fast mode for TDO file {os.path.basename(path)}')
                     break
 
     if has_fm:
         pathlib.Path(fmf).touch()
+        return
+
+    # mark this file for the future as slow
+    pathlib.Path(smf).touch()
 
 
 def utils_graph_tdo_classify_files_fast_mode():

@@ -17,7 +17,7 @@ from pyqtgraph import LinearRegionItem
 from ddh.utils_graph import utils_graph_read_fol_req_file, \
     utils_graph_get_abs_fol_list, process_graph_csv_data, \
     utils_graph_does_exist_fol_req_file, \
-    utils_graph_delete_fol_req_file, utils_graph_tdo_file_read_fast_mode, utils_graph_tdo_classify_files_fast_mode
+    utils_graph_delete_fol_req_file, utils_graph_detect_this_file_has_fast_mode, utils_graph_tdo_classify_files_fast_mode
 from dds.timecache import its_time_to
 from mat.linux import linux_is_process_running
 from mat.utils import linux_is_rpi
@@ -220,14 +220,14 @@ def _graph_busy_sign_hide(a):
     a.lbl_graph_busy.setVisible(False)
 
 
-def _graph_calc_hash_filenames(fol):
+def _graph_collect_filenames_to_plot(fol):
     t = sorted(glob("{}/{}".format(fol, "*_Temperature.csv")))
     p = sorted(glob("{}/{}".format(fol, "*_Pressure.csv")))
     dox = sorted(glob("{}/{}".format(fol, "*_DissolvedOxygen.csv")))
     tdo = sorted(glob("{}/{}".format(fol, "*_TDO.csv")))
 
     # maybe we skip graphing some TDO files without fast mode
-    tdo_fast = [i for i in tdo if utils_graph_tdo_file_read_fast_mode(i)]
+    tdo_fast = [i for i in tdo if utils_graph_detect_this_file_has_fast_mode(i)]
     if tdo != tdo_fast:
         lg.a('warning: dropping some TDO files because no fast mode')
         for i in list(set(tdo).difference(set(tdo_fast))):
@@ -361,7 +361,7 @@ def _process_n_graph(a, r=''):
     # --------------------------
     # PROCESS folder's CSV data
     # --------------------------
-    filenames_hash = _graph_calc_hash_filenames(fol)
+    filenames_hash = _graph_collect_filenames_to_plot(fol)
     data = process_graph_csv_data(fol, filenames_hash, _ht, a.g_haul_idx)
     if not data:
         raise GraphException(f'error: no data in folder {fol}')

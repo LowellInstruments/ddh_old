@@ -40,9 +40,9 @@ _g_gpw = GpqW()
 
 
 PERIOD_GPS_CACHE_VALID_SECS = 30
-PERIOD_GPS_TELL_NUM_SATS_SECS = 300
+PERIOD_GPS_TELL_NUM_SATS_SECS = 100
 PERIOD_GPS_TELL_VESSEL_SECS = 30
-PERIOD_GPS_AT_BOOT_SECS = 300
+PERIOD_GPS_AT_BOOT_SECS = 600
 PERIOD_GPS_TELL_GPS_HW_ERROR_SECS = 3600 * 3
 PERIOD_GPS_TELL_PUCK_NO_PC = 3600 * 6
 PERIOD_GPS_POWER_CYCLE = 300
@@ -479,7 +479,7 @@ def gps_power_cycle_if_so(forced=False):
 
         # output stream seems OK
         if b"\r\n+QGPS: 1\r\n\r\nOK\r\n" in ans:
-            # be really sure hat is OK
+            # be really sure
             if not _gps_ll_check_hat_out_stream():
                 lg.a("error: power-cycle needed, no GPS OUT stream")
                 _gps_power_cycle()
