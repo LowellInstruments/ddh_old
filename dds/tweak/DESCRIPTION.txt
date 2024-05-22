@@ -1,4 +1,5 @@
 this tweak folder contains logger mac address 'rst' files
-such as 11-22-33-44-55-66.rst
-The next time the DDS finds a logger with this mac, if this
+such as tweak/11-22-33-44-55-66.rst
+
+Next time this DDH finds a logger with this mac, if such
 file exists, the DDH will send the RST command to make the logger reboot

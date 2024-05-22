@@ -87,8 +87,10 @@ def file_moana_raw_csv_to_emolt_zt_csv(path, lat, lon):
                 "HEADING,datet(GMT),lat,lon,{},{}\n".format(COL_NAME_T, COL_NAME_D)
             )
 
-            # lose the Moana RAW file header
-            ll = fr.readlines()[10:]
+            # detect and lose the Moana RAW file header
+            data_hd = "Date,Time,Depth Decibar,Temperature C\n"
+            ll = ll[ll.index(data_hd) + 1:]
+
             for i in ll:
                 # i: '27/03/2023,15:47:06,4.4,22.516
                 (
@@ -174,9 +176,9 @@ def file_emolt_hl_csv_to_dict_xc85(path) -> EmoltMsgShortHaul:
 
 
 if __name__ == "__main__":
-    MOANA_RAW_FILENAME = "{}/MOANA_0190_29.csv".format("/tmp")
+    c = "/tmp/XXXXX.csv"
     emolt_csv_file = file_moana_raw_csv_to_emolt_zt_csv(
-        MOANA_RAW_FILENAME, lat="4.444444", lon="5.555555"
+        c, lat="4.444444", lon="5.555555"
     )
     hl_csv_file = file_emolt_zt_csv_to_emolt_hl(emolt_csv_file, logger_type="moana")
     file_emolt_hl_csv_to_dict_xc85(hl_csv_file)

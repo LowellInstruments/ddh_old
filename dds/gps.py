@@ -307,9 +307,6 @@ def gps_measure():
             # add to GpqW
             if dds_get_cfg_gpq_en():
                 lat, lon, tg, speed = g
-                # todo: remove this after testing CST files generation with GPS info
-                lat = str(int(time.time()) % 10) * 5
-                lon = str(int(time.time() + 1) % 10) * 5
                 _g_gpw.add(tg, lat, lon)
             return g
 

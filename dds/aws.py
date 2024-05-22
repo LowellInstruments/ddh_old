@@ -121,9 +121,6 @@ def _aws_s3_sync_process():
     _bin = _get_aws_bin_path()
     dr = "--dryrun" if dev else ""
 
-    # todo ---> remove this
-    dr = ""
-
     # get list of macs within dl_files folder
     ms = [d for d in glob.glob(str(fol_dl_files) + '/*') if os.path.isdir(d)]
     all_rv = 0
