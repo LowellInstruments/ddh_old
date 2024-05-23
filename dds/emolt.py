@@ -92,8 +92,10 @@ def file_moana_raw_csv_to_emolt_zt_csv(path, lat, lon):
                 "HEADING,datet(GMT),lat,lon,{},{}\n".format(COL_NAME_T, COL_NAME_D)
             )
 
-            # lose the Moana RAW file header
-            ll = fr.readlines()[10:]
+            # detect and lose the Moana RAW file header
+            data_hd = "Date,Time,Depth Decibar,Temperature C\n"
+            ll = ll[ll.index(data_hd) + 1:]
+
             for i in ll:
                 # i: '27/03/2023,15:47:06,4.4,22.516
                 (
