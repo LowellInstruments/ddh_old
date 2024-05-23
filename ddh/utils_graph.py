@@ -207,6 +207,19 @@ def process_graph_csv_data(fol, _, h, hi) -> dict:
     _g_ff_dot = sorted(glob(f"{fol}/*_DissolvedOxygen.csv"))
     _g_ff_tdo = sorted(glob(f"{fol}/*_TDO.csv"))
 
+    # error moana
+    # MOANA_0744_99_240221160010_Temperature.csv
+    # MOANA_0744_100_240221170632_Temperature.csv
+    # MOANA_0744_101_240221181608_Temperature.csv
+    # gives order 100, 101, 99 instead of 99, 100, 101
+    is_moana = False
+    for i in _g_ff_t:
+        if 'moana' in os.path.basename(i).lower():
+            is_moana = True
+    if is_moana:
+        _g_ff_t = sorted(_g_ff_t, key = lambda x: os.path.basename(x).split('_')[3])
+        _g_ff_p = sorted(_g_ff_p, key = lambda x: os.path.basename(x).split('_')[3])
+
     # type of haul to graph
     met = ''
     if _g_ff_t:
@@ -312,6 +325,7 @@ def process_graph_csv_data(fol, _, h, hi) -> dict:
     # prune data or not
     # ----------------------
     n = _data_get_prune_period(x, met)
+
     x = x[::n]
     t = t[::n]
     p = p[::n]
@@ -340,6 +354,8 @@ def process_graph_csv_data(fol, _, h, hi) -> dict:
         x = [dp.parse('{}Z'.format(i)).timestamp() for i in x]
     except (Exception, ):
         x = [dp.parse('{}'.format(i)).timestamp() for i in x]
+
+    print(x)
 
     # display time performance of data-grabbing procedure
     end_ts = time.perf_counter()
