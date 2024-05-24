@@ -11,7 +11,7 @@ from PyQt5.QtWidgets import (
     QWidget,
     QMessageBox,
     QTableWidgetItem,
-    QHeaderView,
+    QHeaderView, QTableWidget,
 )
 from gpiozero import Button
 from ddh.db.db_his import DbHis
@@ -210,8 +210,10 @@ def gui_populate_history_tab(my_app):
     a = my_app
 
     # let's wait until the table is clear
-    a.tbl_his.clear()
-    QCoreApplication.processEvents()
+    a.tbl_his.tableWidget = None
+    a.tbl_his.tableWidget = QTableWidget()
+    a.tbl_his.tableWidget.setRowCount(20)
+    a.tbl_his.tableWidget.setColumnCount(3)
 
     db = DbHis(ddh_get_db_history_file())
     r = db.get_all().values()
@@ -243,9 +245,8 @@ def gui_populate_history_tab(my_app):
             lg.a(f"error: history frame {h} -> {ex}")
 
     # redistribute columns with
-    h = a.tbl_his.horizontalHeader()
-    h.resizeSection(0, 120)
-    h.setSectionResizeMode(1, QHeaderView.Stretch)
+    a.tbl_his.horizontalHeader().resizeSection(0, 120)
+    a.tbl_his.horizontalHeader().setSectionResizeMode(1, QHeaderView.Stretch)
 
     # column labels
     labels = ["logger", "result", "rerun"]

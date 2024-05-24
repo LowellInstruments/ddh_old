@@ -10,7 +10,7 @@ cred_aws_custom_sqs_access_key = ""
 
 [behavior]
 ship_name = "nameofboat"
-forget_time = 36000
+forget_time = 86400
 gear_type = 0
 moving_speed = [ 0.5, 7.0,]
 fake_gps_position = [ 41.63, -70.91,]

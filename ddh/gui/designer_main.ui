@@ -1296,7 +1296,7 @@ font: 19pt &quot;DejaVu Sans&quot;;</string>
              <enum>QAbstractItemView::SelectRows</enum>
             </property>
             <property name="sortingEnabled">
-             <bool>false</bool>
+             <bool>true</bool>
             </property>
             <property name="wordWrap">
              <bool>false</bool>
