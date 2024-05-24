@@ -188,56 +188,43 @@ def gui_manage_graph_test_files():
         lg.a('copied logger graph test folders')
 
 
-def _gui_remove_blank_rows_history_tab(my_app):
-    a = my_app
-    rows_to_remove = []
-    for i, r in enumerate(range(a.tbl_his.rowCount())):
-        _item = a.tbl_his.item(r, 0)
-        if not _item:
-            rows_to_remove.append(i)
-
-    # don't do it in the same previous loop
-    for i in rows_to_remove:
-        a.tbl_his.removeRow(i)
-    QCoreApplication.processEvents()
-
-
 def gui_populate_history_tab(my_app):
     """
     fills history table on history tab
     """
 
+    # clear the table
     a = my_app
-
-    # let's wait until the table is clear
     a.tbl_his.tableWidget = None
     a.tbl_his.tableWidget = QTableWidget()
     a.tbl_his.tableWidget.setRowCount(20)
     a.tbl_his.tableWidget.setColumnCount(3)
+    a.tbl_his.tableWidget.setSortingEnabled(0)
 
+    # get the history database and order by most recent first
     db = DbHis(ddh_get_db_history_file())
     r = db.get_all().values()
-    # r: has the more recent ones first
     r = sorted(r, key=lambda x: x["ep_loc"], reverse=True)
 
-    # just show one per mac in the table
+    # we will show just one entry per mac
+    fil_r = []
     already = []
-
     for i, h in enumerate(r):
-        if h['mac'] in already:
-            continue
-        already.append(h['mac'])
+        if h['mac'] not in already:
+            already.append(h['mac'])
+            fil_r.append(h)
 
+    # we only have one, the newest, history entry per mac
+    r = fil_r
+    for i, h in enumerate(r):
         e = h["e"]
         e = "success" if e == "ok" else e
         try:
+            a.tbl_his.setItem(i, 0, QTableWidgetItem(str(h["SN"])))
             lat = "{:+6.4f}".format(float(h["lat"]))
             lon = "{:+6.4f}".format(float(h["lon"]))
             dt = datetime.datetime.fromtimestamp(int(h["ep_loc"]))
             t = dt.strftime("%b %d %H:%M")
-
-            # set values to cells
-            a.tbl_his.setItem(i, 0, QTableWidgetItem(str(h["SN"])))
             a.tbl_his.setItem(i, 1, QTableWidgetItem(f"{e} {t} at {lat}, {lon}"))
             a.tbl_his.setItem(i, 2, QTableWidgetItem(str(h['rerun'])))
 
@@ -248,11 +235,9 @@ def gui_populate_history_tab(my_app):
     a.tbl_his.horizontalHeader().resizeSection(0, 120)
     a.tbl_his.horizontalHeader().setSectionResizeMode(1, QHeaderView.Stretch)
 
-    # column labels
+    # columns' title labels
     labels = ["logger", "result", "rerun"]
     a.tbl_his.setHorizontalHeaderLabels(labels)
-
-    _gui_remove_blank_rows_history_tab(a)
 
 
 def gui_ddh_populate_note_tab_dropdown(my_app):
