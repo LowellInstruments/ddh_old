@@ -9,7 +9,7 @@ from scripts.script_ddc import (
     cb_gps_dummy, cb_quit, cb_gps_external, cb_crontab_ddh,
     get_crontab,
     cb_graph_demo, cb_provision_ddh,
-    cb_kill_ddh, ddh_run_check, cb_calibrate_display, sh, cb_test_mode, is_rpi, VP_QUECTEL, p_w, p_e
+    cb_kill_ddh, ddh_run_check, cb_calibrate_display, sh, cb_test_mode, is_rpi, VP_QUECTEL, p_w, p_e, c_e
 )
 from scripts.script_nadv import main_nadv
 from utils.ddh_config import _get_config_file_path, cfg_load_from_file
@@ -38,13 +38,13 @@ g_w = None
 def _ddh_show_issues_error():
     if g_e:
         p_e('\nErrors preventing DDH from starting:')
-        p_e(g_e)
+        PC.R(g_e)
 
 
 def _ddh_show_issues_warning():
     if g_w:
         p_w('\nPlease notice:')
-        p_w(g_w)
+        PC.Y(g_w)
 
 
 def cb_ddh_show_issues():
@@ -129,14 +129,26 @@ def _check_aws_credentials():
 
 
 def cb_we_have_all_keys():
-    have_file_wg = os.path.exists('/etc/wireguard/wg0.conf')
-    have_file_au = os.path.exists(f'{h}/.ssh/authorized_keys')
-    have_file_co = _check_aws_credentials()
-    have_file_am = os.path.exists(f'{get_ddh_folder_path_settings()}/all_macs.toml')
+    w = os.path.exists('/etc/wireguard/wg0.conf')
+    a = os.path.exists(f'{h}/.ssh/authorized_keys')
+    c = _check_aws_credentials()
+    m = os.path.exists(f'{get_ddh_folder_path_settings()}/all_macs.toml')
 
-    if have_file_wg and have_file_au and have_file_co and have_file_am:
-        return 1
+    rv = w and a and c and m
 
+    if rv:
+        return rv
+
+    if not w:
+        p_e('missing wireguard conf file')
+    if not a:
+        p_e('missing SSH authorized keys file')
+    if not c:
+        p_e('missing ddh/settings/config.toml credentials section')
+    if not m:
+        p_e('missing ddh/settings/all_macs.toml file')
+
+    input()
     return 0
 
 
@@ -153,6 +165,10 @@ def cb_is_ddh_running():
 # --------------
 
 def main_ddc():
+
+    # clearing error log file
+    c_e()
+
     while 1:
         os.system('clear')
         print('\nDDC\n---')
@@ -185,7 +201,7 @@ def main_ddc():
             'r': (f"r) run BLE range tool", cb_run_brt),
             'e': (f"e) edit BLE range tool", cb_edit_brt_cfg_file),
             'o': (f"o) deploy logger DOX", cb_run_deploy_dox),
-            't': (f"t) deploy logger TDO", cb_run_deploy_tdo),
+            # 't': (f"t) deploy logger TDO", cb_run_deploy_tdo),
             # 'c': (f"c) calibrate DDH display", cb_calibrate_display),
             'i': (f"i) ~ see issues ~", cb_ddh_show_issues),
             'q': (f"q) quit", cb_quit)
@@ -194,6 +210,7 @@ def main_ddc():
         # show menu
         for k, v in d.items():
             if 'issues' in v[0]:
+                # color of the 'see issues' entry
                 if g_e:
                     PC.R(f'\t{v[0]}')
                 elif g_w:
@@ -221,7 +238,6 @@ def main_ddc():
         except (Exception,):
             p_e(f'invalid menu option {c}')
             time.sleep(1)
-            continue
 
 
 if __name__ == "__main__":

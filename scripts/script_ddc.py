@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-
-
+import os
 import sys
 import time
 from os import unlink
@@ -138,16 +137,15 @@ def cb_kill_ddh():
         sh(f'kill -9 {pid}')
 
 
-def _es(e):
-    # error set
-    if not e:
-        return
-    with open(TMP_DDC_ERR, 'a') as f:
-        f.write(f'error: {e}\n')
-
-
 def p_e(s):
     PC.R('DDC error: ' + s)
+    with open(TMP_DDC_ERR, 'a') as f:
+        f.write(f'error: {s}\n')
+
+
+def c_e():
+    if os.path.exists(TMP_DDC_ERR):
+        os.unlink(TMP_DDC_ERR)
 
 
 def p_w(s):
@@ -157,7 +155,8 @@ def p_w(s):
 def cb_calibrate_display():
     ok_arch_aarch64 = sh('arch | grep aarch64') == 0
     if not ok_arch_aarch64:
-        _es('only calibrate on aarch64')
+        p_e('only calibrate on aarch64')
+        input()
         return
 
     c = "export XAUTHORITY=/home/pi/.Xauthority; " \
