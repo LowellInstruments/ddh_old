@@ -154,7 +154,8 @@ def cb_we_have_all_keys(verbose=True):
     if verbose and not m:
         p_e('missing ddh/settings/all_macs.toml file')
 
-    input()
+    if verbose:
+        input()
     return 0
 
 
