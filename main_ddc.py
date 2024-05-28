@@ -128,7 +128,7 @@ def _check_aws_credentials():
     return 1
 
 
-def cb_we_have_all_keys():
+def cb_we_have_all_keys(verbose=True):
     path_w = '/etc/wireguard/wg0.conf'
     if is_rpi():
         c = f'sudo ls {path_w}'
@@ -145,13 +145,13 @@ def cb_we_have_all_keys():
     if rv:
         return rv
 
-    if not w:
+    if verbose and not w:
         p_e('missing wireguard conf file')
-    if not a:
+    if verbose and not a:
         p_w('missing SSH authorized keys file')
-    if not c:
+    if verbose and not c:
         p_e('missing ddh/settings/config.toml credentials section')
-    if not m:
+    if verbose and not m:
         p_e('missing ddh/settings/all_macs.toml file')
 
     input()
@@ -189,7 +189,7 @@ def main_ddc():
         fge = 1 if exists(LI_PATH_DDH_GPS_EXTERNAL) else 0
         fcd = get_crontab('ddh')
         fgt = 1 if exists(TMP_PATH_GRAPH_TEST_MODE_JSON) else 0
-        fdk = cb_we_have_all_keys()
+        fdk = cb_we_have_all_keys(verbose=False)
         fdr = cb_is_ddh_running()
         ftm = 1 if exists(LI_PATH_TEST_MODE) else 0
 
