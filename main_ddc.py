@@ -133,7 +133,7 @@ def cb_we_have_all_keys():
     if is_rpi():
         c = f'sudo ls {path_w}'
         rv = sp.run(c, shell=True, stdout=sp.PIPE, stderr=sp.PIPE)
-        w = rv.returncode == 1
+        w = rv.returncode == 0
     else:
         w = os.path.exists(path_w)
     a = os.path.exists(f'{h}/.ssh/authorized_keys')
