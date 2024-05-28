@@ -129,7 +129,13 @@ def _check_aws_credentials():
 
 
 def cb_we_have_all_keys():
-    w = os.path.exists('/etc/wireguard/wg0.conf')
+    path_w = '/etc/wireguard/wg0.conf'
+    if is_rpi():
+        c = f'sudo ls {path_w}'
+        rv = sp.run(c, shell=True, stdout=sp.PIPE, stderr=sp.PIPE)
+        w = rv.returncode == 1
+    else:
+        w = os.path.exists(path_w)
     a = os.path.exists(f'{h}/.ssh/authorized_keys')
     c = _check_aws_credentials()
     m = os.path.exists(f'{get_ddh_folder_path_settings()}/all_macs.toml')
@@ -142,7 +148,7 @@ def cb_we_have_all_keys():
     if not w:
         p_e('missing wireguard conf file')
     if not a:
-        p_e('missing SSH authorized keys file')
+        p_w('missing SSH authorized keys file')
     if not c:
         p_e('missing ddh/settings/config.toml credentials section')
     if not m:
