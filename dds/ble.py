@@ -61,7 +61,7 @@ def _ble_tell_logger_seen(mac, _b, _o):
             lg.a(f"warning: logger is under short forget time")
 
 
-def _ble_detect_hypoxia(f_lid, bat, g):
+def _ble_detect_hypoxia(f_lid, bat, g, u):
     # todo ---> test this hypoxia detection and notification
     try:
         if not f_lid.endswith('.lid') or not is_a_do2_file(f_lid):
@@ -73,6 +73,8 @@ def _ble_detect_hypoxia(f_lid, bat, g):
         sn = os.path.basename(f_csv).split('_')[0]
         mac = dds_get_cfg_logger_mac_from_sn()
         ln = LoggerNotification(mac, sn, 'DOX', bat)
+        # todo ---> will do in the future
+        ln.uuid_interaction = ''
         with open(f_csv, 'r') as f:
             ll = f.readlines()
             # headers: 'ISO 8601 Time,elapsed time (s),agg. time(s),Dissolved Oxygen (mg/l)...
@@ -107,8 +109,7 @@ def _ble_convert_lid(d):
 def _ble_analyze_logger_result(rv,
                                g,
                                ln: LoggerNotification,
-                               err_critical,
-                               u):
+                               err_critical):
 
     # grab variables
     mac = ln.mac
@@ -119,7 +120,7 @@ def _ble_analyze_logger_result(rv,
         rm_mac_black(mac)
         rm_mac_orange(mac)
         add_mac_black(mac)
-        notify_logger_download(g, ln, u)
+        notify_logger_download(g, ln)
         if mac in _g_logger_errors.keys():
             del _g_logger_errors[mac]
         lg.a(f"OK! logger {mac}/{sn}")
@@ -229,7 +230,11 @@ async def _ble_id_n_interact_logger(mac, info: str, h, g):
     # logger interaction
     # --------------------
     if _ble_logger_is_do1_or_do2(info):
-        rv, notes = await ble_interact_do1_or_do2(mac, info, g, hs)
+        rv, notes = await ble_interact_do1_or_do2(mac,
+                                                  info,
+                                                  g,
+                                                  hs,
+                                                  uuid_interaction)
         notes['gps'] = g
         _crit_error = notes["crit_error"]
         _error_dl = notes["error"]
@@ -251,7 +256,11 @@ async def _ble_id_n_interact_logger(mac, info: str, h, g):
             return 0
 
     elif _ble_logger_is_tdo(info):
-        rv, notes = await ble_interact_tdo(mac, info, g, hs)
+        rv, notes = await ble_interact_tdo(mac,
+                                           info,
+                                           g,
+                                           hs,
+                                           uuid_interaction)
         notes['gps'] = g
         _crit_error = notes["crit_error"]
         _error_dl = notes["error"]
@@ -276,19 +285,21 @@ async def _ble_id_n_interact_logger(mac, info: str, h, g):
     tz_utc = datetime.timezone.utc
     dt_local = dt.replace(tzinfo=tz_utc).astimezone(tz=tz_ddh)
 
-    # ------------------------------------------------
-    # ensure value for error_dl, not always populated
-    # ------------------------------------------------
-    if not _error_dl:
-        _error_dl = 'comm. error'
+    # ----------------------------------------------------
+    # complete logger notification with interaction UUID
+    # ----------------------------------------------------
     ln = LoggerNotification(mac, sn, info, bat)
-    _ble_analyze_logger_result(rv, g, ln, _crit_error, uuid_interaction)
+    ln.uuid_interaction = uuid_interaction
+    _ble_analyze_logger_result(rv, g, ln, _crit_error)
 
     # ------------------------------------
     # so GUI can update its HISTORY tab
     # ------------------------------------
     ep_loc = int(dt_local.timestamp())
     ep_utc = int(dt.timestamp())
+    # ensure value for error_dl is populated
+    if not _error_dl:
+        _error_dl = 'comm. error'
     e = 'ok' if not rv else _error_dl
 
     print('ep_loc', ep_loc)

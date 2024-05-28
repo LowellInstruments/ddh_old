@@ -1,4 +1,3 @@
-import uuid
 from datetime import datetime
 import json
 import os
@@ -16,7 +15,6 @@ from utils.ddh_shared import (get_ddh_commit,
                               get_ddh_sw_version,
                               get_ddh_platform,
                               get_ddh_folder_path_sqs)
-from utils.tmp_paths import LI_PATH_DDH_VERSION
 
 # these MUST match the ones in DDN file "sqs/notifications_v2.py"
 DDH_NOTIFICATION_STATUS_BOOT = 'DDH just booted'
@@ -60,10 +58,12 @@ class LoggerNotification:
         self.sn = str(sn)
         self.kind = str(kind)
         self.bat = str(bat)
+        # this is filled externally
+        self.uuid_interaction = ''
 
 
 class _DDHNotification:
-    def __init__(self, s, g, ln: LoggerNotification, ver, extra, uuid_interaction):
+    def __init__(self, s, g, ln: LoggerNotification, ver, extra):
         now = datetime.now()
         now_utc = datetime.utcnow()
         rv = sp.run("uptime -p", shell=True, stdout=sp.PIPE)
@@ -105,8 +105,8 @@ class _DDHNotification:
             self.logger_sn = ln.sn
             self.logger_type = ln.kind
             self.logger_bat = ln.bat
+            self.uuid_interaction = ln.uuid_interaction
         self.extra = str(extra)
-        self.uuid_interaction = uuid_interaction
 
     def display_details(self):
         if self.logger_mac:
@@ -131,16 +131,16 @@ class _DDHNotification:
         self.display_details()
 
 
-def _n(s, g='', ln=None, v=2, extra='', u=''):
+def _n(s, g='', ln=None, v=2, extra=''):
     if s not in DDH_ALL_NOTIFICATIONS:
         print(f'ddh_notification unknown opcode {s}')
         return
-    n = _DDHNotification(s, g, ln, v, extra, u)
+    n = _DDHNotification(s, g, ln, v, extra)
     n.to_file()
 
 
-def notify_logger_download(g, ln, u):
-    return _n(DDH_NOTIFICATION_OK_LOGGER_DL, g, ln, u=u)
+def notify_logger_download(g, ln):
+    return _n(DDH_NOTIFICATION_OK_LOGGER_DL, g, ln)
 
 
 def notify_boot(g):

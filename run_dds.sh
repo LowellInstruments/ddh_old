@@ -5,6 +5,13 @@ source /home/pi/li/ddh/scripts/utils.sh
 echo
 
 
+# check we need a reboot
+if [ -f "$LI_DDH_NEEDS_REBOOT_POST_INSTALL" ]; then
+    _pr "[ RUN ] DDS | you just installed, please reboot"
+    exit 0
+fi
+
+
 _pb "[ RUN ] DDS | capturing SIM ID"
 echo -ne "AT+QCCID\r" > /dev/ttyUSB2 && \
 (cat -v < /dev/ttyUSB2 | grep QCCID) > "$LI_FILE_ICCID"

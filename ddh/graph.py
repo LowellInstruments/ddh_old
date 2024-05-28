@@ -1,6 +1,7 @@
 import json
 import multiprocessing
 import sys
+from math import ceil
 from multiprocessing import Process
 
 import numpy as np
@@ -364,7 +365,8 @@ def _process_n_graph(a, r=''):
     filenames_hash = _graph_collect_filenames_to_plot(fol)
     data = process_graph_csv_data(fol, filenames_hash, _ht, a.g_haul_idx)
     if not data:
-        raise GraphException(f'error: no data in folder {fol}')
+        lg.a(f'warning: no data to plot in folder {fol}')
+        raise GraphException(f'no data to plot')
     if 'ISO 8601 Time' not in data.keys():
         raise GraphException(f'error: no time data for {fol}')
 
@@ -435,14 +437,20 @@ def _process_n_graph(a, r=''):
     # graph DO loggers
     # -----------------
     if met == 'DO':
-        # draw DO and T lines
+        # draw DO (y1) and T (y2) lines
         p1.setLabel("left", lbl1, **_sty(clr_1))
         p1.getAxis('right').setLabel(lbl2, **_sty(clr_2))
         p1.plot(x, y1, pen=pen1, hoverable=True)
         p2.addItem(pg.PlotCurveItem(x, y2, pen=pen2, hoverable=True))
 
+        # dynamic upper top of DO
+        upper_top_do = 10
+        if max(y1) > upper_top_do:
+            upper_top_do = max(y1) + 1
+        upper_top_do = int(ceil(upper_top_do))
+
         # y-axis ranges, bottom-axis label
-        p1.setYRange(0, 10, padding=0)
+        p1.setYRange(0, upper_top_do, padding=0)
         p2.setYRange(min(y2), max(y2), padding=0)
         p1.getAxis('bottom').setLabel(title, **_sty('black'))
 
@@ -465,7 +473,7 @@ def _process_n_graph(a, r=''):
                                          orientation="horizontal",
                                          brush=(255, 255, 66, alpha),
                                          movable=False))
-        g.addItem(FiniteLinearRegionItem(values=(6, 10),
+        g.addItem(FiniteLinearRegionItem(values=(6, upper_top_do),
                                          limits=4,
                                          orientation="horizontal",
                                          brush=(176, 255, 66, alpha),

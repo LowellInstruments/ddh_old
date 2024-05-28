@@ -5,6 +5,13 @@ source /home/pi/li/ddh/scripts/utils.sh
 echo
 
 
+# check we need a reboot
+if [ -f "$LI_DDH_NEEDS_REBOOT_POST_INSTALL" ]; then
+    _pr "[ RUN ] DDH | you just installed, please reboot"
+    exit 0
+fi
+
+
 
 # for crontab to detect already running
 check_already_running "main_ddh_controller"

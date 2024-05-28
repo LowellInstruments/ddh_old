@@ -43,7 +43,7 @@ def _rae(rv, s):
 
 class BleTDODownload:
     @staticmethod
-    async def download_recipe(lc, mac, g, notes: dict):
+    async def download_recipe(lc, mac, g, notes: dict, u):
 
         dds_ble_init_rv_notes(notes)
         rerun_flag = get_ddh_rerun_flag_li()
@@ -78,6 +78,7 @@ class BleTDODownload:
         notes["battery_level"] = b
         if b < 982:
             ln = LoggerNotification(mac, sn, 'TDO', b)
+            ln.uuid_interaction = u
             notify_logger_error_low_battery(g, ln)
             _u("f{STATE_DDS_BLE_LOW_BATTERY}/{mac}")
             # give time to GUI to display
@@ -187,6 +188,7 @@ class BleTDODownload:
             _une(bad_rv, notes, "P_sensor_error", ce=1)
             lg.a('GSP | error {}'.format(rv))
             ln = LoggerNotification(mac, sn, 'TDO', b)
+            ln.uuid_interaction = u
             notify_logger_error_sensor_pressure(g, ln)
             _u(STATE_DDS_BLE_DOWNLOAD_ERROR_TP_SENSOR)
             await asyncio.sleep(5)
@@ -222,7 +224,7 @@ class BleTDODownload:
         return 0
 
 
-async def ble_interact_tdo(mac, info, g, h):
+async def ble_interact_tdo(mac, info, g, h, u):
 
     rv = 0
     notes = {}
@@ -233,7 +235,7 @@ async def ble_interact_tdo(mac, info, g, h):
         # BLE connection done here
         # -------------------------
         lg.a(f"interacting TDO logger, info {info}")
-        rv = await BleTDODownload.download_recipe(lc, mac, g, notes)
+        rv = await BleTDODownload.download_recipe(lc, mac, g, notes, u)
 
     except Exception as ex:
         await lc.disconnect()

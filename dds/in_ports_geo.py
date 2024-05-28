@@ -8,7 +8,7 @@ from utils.ddh_config import dds_get_cfg_skip_dl_in_port_en
 from utils.logs import lg_gps as lg
 
 
-def dds_ask_in_port_to_ddn(g):
+def dds_ask_in_port_to_ddn(g, notify=True):
 
     # ex: new bedford port: 41.63, -70.91
 
@@ -38,8 +38,10 @@ def dds_ask_in_port_to_ddn(g):
             lg.a('---------------------------------')
             lg.a(f'in_port() -> DDN API says yes')
             lg.a('---------------------------------')
-            notify_ddh_in_port(g)
+            if notify:
+                notify_ddh_in_port(g)
         return in_port
+
     except (Exception,) as err:
         lg.a(f'error: dds_ask_in_port_to_ddn request -> {err}')
         # returns FALSE in case no API, so maybe too far away
@@ -47,9 +49,16 @@ def dds_ask_in_port_to_ddn(g):
 
 
 if __name__ == '__main__':
-    # no port
-    rv = 'in_port', dds_ask_in_port_to_ddn(35, -75)
+    # NO PORT
+    g = (-9, -9, None, 1)
+    rv = 'in_port_no', dds_ask_in_port_to_ddn(g, notify=False)
     print(rv)
     # new bedford port
-    rv = 'in_port_nb', dds_ask_in_port_to_ddn(41.63, -70.91)
+    g = (41.63, -70.91, None, 1)
+    rv = 'in_port_nb', dds_ask_in_port_to_ddn(g, notify=False)
     print(rv)
+    # nick port
+    # g = (, None, 1)
+    # rv = 'in_port_nick', dds_ask_in_port_to_ddn(g, notify=False)
+    # print(rv)
+

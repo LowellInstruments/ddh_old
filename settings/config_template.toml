@@ -14,9 +14,10 @@ forget_time = 86400
 gear_type = 0
 moving_speed = [ 0.5, 7.0,]
 fake_gps_position = [ 41.63, -70.91,]
+# use [ 41.63, -70.91,] for a known port GPS position
+
 
 [monitored_macs]
-"D0:2E:AB:D9:29:48" = "tdo_bread"
 
 
 

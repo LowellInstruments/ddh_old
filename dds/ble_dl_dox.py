@@ -45,7 +45,7 @@ def _rae(rv, s):
 
 class BleCC26X2Download:
     @staticmethod
-    async def download_recipe(lc, mac, g, notes: dict):
+    async def download_recipe(lc, mac, g, notes: dict, u):
 
         dds_ble_init_rv_notes(notes)
         rerun_flag = get_ddh_rerun_flag_li()
@@ -84,6 +84,7 @@ class BleCC26X2Download:
         notes["battery_level"] = b
         if b < 1500:
             ln = LoggerNotification(mac, sn, 'DOX', b)
+            ln.uuid_interaction = u
             notify_logger_error_low_battery(g, ln)
             _u(f"{STATE_DDS_BLE_LOW_BATTERY}/{mac}")
             # give time to GUI to display
@@ -190,6 +191,7 @@ class BleCC26X2Download:
                 # notify this
                 lat, lon, _, __ = g
                 ln = LoggerNotification(mac, sn, 'DOX', b)
+                ln.uuid_interaction = u
                 notify_logger_error_sensor_oxygen(g, ln)
                 _une(bad_rv, notes, "ox_sensor_error", ce=1)
                 _rae(bad_rv, "gdo")
@@ -232,7 +234,7 @@ class BleCC26X2Download:
         return 0
 
 
-async def ble_interact_do1_or_do2(mac, info, g, h):
+async def ble_interact_do1_or_do2(mac, info, g, h, u):
 
     rv = 0
     notes = {}
@@ -243,7 +245,11 @@ async def ble_interact_do1_or_do2(mac, info, g, h):
         # BLE connection done here
         # -------------------------
         lg.a(f"interacting with DO logger: {info}")
-        rv = await BleCC26X2Download.download_recipe(lc, mac, g, notes)
+        rv = await BleCC26X2Download.download_recipe(lc,
+                                                     mac,
+                                                     g,
+                                                     notes,
+                                                     u)
 
     except Exception as ex:
         await lc.disconnect()
