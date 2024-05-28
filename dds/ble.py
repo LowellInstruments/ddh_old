@@ -61,7 +61,7 @@ def _ble_tell_logger_seen(mac, _b, _o):
             lg.a(f"warning: logger is under short forget time")
 
 
-def _ble_detect_hypoxia(f_lid, bat, g, u):
+def _ble_detect_hypoxia(f_lid, bat, g):
     # todo ---> test this hypoxia detection and notification
     try:
         if not f_lid.endswith('.lid') or not is_a_do2_file(f_lid):
