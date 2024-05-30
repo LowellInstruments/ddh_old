@@ -137,7 +137,7 @@ def ble_check_antenna_up_n_running(g, h: int):
     if not linux_is_rpi():
         return
 
-    lg.a('warning: BLE interface hci{} seems down'.format(h))
+    lg.a(f'warning: BLE interface hci{h} seems down')
 
     # only on rpi, try to recover it
     for c in [
@@ -146,12 +146,12 @@ def ble_check_antenna_up_n_running(g, h: int):
         'sudo rfkill unblock bluetooth',
         'sudo systemctl restart hciuart',
         'sudo systemctl restart bluetooth',
-        'sudo hciconfig hci{} up'.format(h)
+        f'sudo hciconfig hci{h} up'
     ]:
-        sp.run('sleep 1', shell=True, stdout=sp.PIPE, stderr=sp.PIPE)
+        sp.run('sleep 1', shell=True)
         rv = sp.run(c, shell=True, stdout=sp.PIPE, stderr=sp.PIPE)
         if rv.returncode:
-            lg.a('command {} returned error {}'.format(c, rv.stderr))
+            lg.a(f'error: command {c} returned error {rv.stderr}')
 
     # checking again the state of the bluetooth interface
     time.sleep(1)
@@ -161,7 +161,7 @@ def ble_check_antenna_up_n_running(g, h: int):
         return True
 
     # not UP and running, tell so
-    e = "error: ble_check_antenna_up_n_running #{}".format(h)
+    e = f"error: ble_check_antenna_up_n_running #{h}"
     _u(STATE_DDS_BLE_HARDWARE_ERROR)
     time.sleep(5)
     if its_time_to(e, 600):
