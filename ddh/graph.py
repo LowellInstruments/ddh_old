@@ -65,9 +65,7 @@ def gfm_serve():
     else:
         s = f'launching {_P_}'
         if its_time_to(s, 600):
-            lg.a('_' * len(s))
-            lg.a(s)
-            lg.a('_' * len(s))
+            # lg.a(s)
             p = Process(target=_gfm_serve)
             p.start()
 

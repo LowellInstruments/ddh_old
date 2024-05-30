@@ -90,13 +90,13 @@ def _cnv_fol_lid(fol, suf) -> list:
     # check asked folder (ex: dl_files/e5-fc-4e-94-ed-dd) exists
     if not pathlib.Path(fol).is_dir():
         lg.a(f"error: folder {fol} not found")
-        return 1
+        return []
 
     # check asked suffix (ex: _DissolvedOxygen) exists
     valid_suffixes = ("_DissolvedOxygen", "_Temperature", "_Pressure", "_TDO")
     if suf not in valid_suffixes:
         lg.a(f"error: unknown suffix {suf}")
-        return 1
+        return []
 
     # --------------------------
     # we only convert LID files

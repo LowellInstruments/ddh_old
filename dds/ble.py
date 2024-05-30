@@ -71,7 +71,7 @@ def _ble_detect_hypoxia(f_lid, bat, g):
             return
         # f_csv: 2404725_lab_20240407_230609.csv
         sn = os.path.basename(f_csv).split('_')[0]
-        mac = dds_get_cfg_logger_mac_from_sn()
+        mac = dds_get_cfg_logger_mac_from_sn(sn)
         ln = LoggerNotification(mac, sn, 'DOX', bat)
         # todo ---> will do in the future
         ln.uuid_interaction = ''

@@ -79,10 +79,3 @@ class DbHis:
     def delete_all(self):
         self._db.delete_all()
         self._db.commit(self.f)
-
-
-if __name__ == '__main__':
-    db = DbHis('pepi.json')
-    db.add('mac2', 'sn1', 'e1', 'lat1', 'lon1', 'ep_loc1', 'ep_utc1', True)
-    rr = db.get_all(3).values()
-    print(rr)
