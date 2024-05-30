@@ -91,7 +91,6 @@ def main_dds():
     ble_show_monitored_macs()
     ble_apply_debug_hooks_at_boot()
     ble_mat_disconnect_all_devices_ll()
-    ble_mat_bluetoothctl_power_cycle()
 
     # seems boot process is going well
     setproctitle.setproctitle(NAME_EXE_DDS)
