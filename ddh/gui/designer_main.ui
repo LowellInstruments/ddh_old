@@ -41,7 +41,7 @@
        </font>
       </property>
       <property name="currentIndex">
-       <number>3</number>
+       <number>4</number>
       </property>
       <widget class="QWidget" name="tab">
        <property name="sizePolicy">
@@ -1354,7 +1354,20 @@ font: 19pt &quot;DejaVu Sans&quot;;</string>
        <layout class="QVBoxLayout" name="verticalLayout_5">
         <item>
          <layout class="QGridLayout" name="gridLayout_6">
-          <item row="4" column="1">
+          <item row="0" column="1">
+           <spacer name="verticalSpacer_11">
+            <property name="orientation">
+             <enum>Qt::Vertical</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>20</width>
+              <height>40</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item row="5" column="1">
            <spacer name="verticalSpacer_13">
             <property name="orientation">
              <enum>Qt::Vertical</enum>
@@ -1374,13 +1387,6 @@ font: 19pt &quot;DejaVu Sans&quot;;</string>
             </property>
            </widget>
           </item>
-          <item row="3" column="1">
-           <widget class="QPushButton" name="btn_adv_purge_lo">
-            <property name="text">
-             <string>Open loggers lock-out tab</string>
-            </property>
-           </widget>
-          </item>
           <item row="0" column="0">
            <spacer name="horizontalSpacer_12">
             <property name="orientation">
@@ -1394,20 +1400,7 @@ font: 19pt &quot;DejaVu Sans&quot;;</string>
             </property>
            </spacer>
           </item>
-          <item row="0" column="1">
-           <spacer name="verticalSpacer_11">
-            <property name="orientation">
-             <enum>Qt::Vertical</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>20</width>
-              <height>40</height>
-             </size>
-            </property>
-           </spacer>
-          </item>
-          <item row="2" column="1">
+          <item row="3" column="1">
            <widget class="QLabel" name="label_10">
             <property name="text">
              <string/>
@@ -1426,6 +1419,20 @@ font: 19pt &quot;DejaVu Sans&quot;;</string>
              </size>
             </property>
            </spacer>
+          </item>
+          <item row="4" column="1">
+           <widget class="QPushButton" name="btn_adv_purge_lo">
+            <property name="text">
+             <string>Open loggers lock-out tab</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="1">
+           <widget class="QCheckBox" name="chk_b_maps">
+            <property name="text">
+             <string> Show bottom Temperature maps</string>
+            </property>
+           </widget>
           </item>
          </layout>
         </item>

@@ -277,6 +277,9 @@ class DDH(QMainWindow, d_m.Ui_MainWindow):
         # skip in port
         sk = self.cb_skip_in_port.currentIndex()
 
+        # maps, in hidden advanced tap
+        me = self.chk_b_maps.isChecked()
+
         if t < 600:
             self.lbl_setup_result.setText("bad forget_time")
             return
@@ -290,6 +293,7 @@ class DDH(QMainWindow, d_m.Ui_MainWindow):
         save_cfg['behavior']['gear_type'] = lhf
         save_cfg['monitored_macs'] = pairs
         save_cfg['flags']['skip_dl_in_port_en'] = sk
+        save_cfg['flags']['maps_en'] = me
         cfg_save_to_file(save_cfg)
 
         # we seem good to go
@@ -594,6 +598,12 @@ class DDH(QMainWindow, d_m.Ui_MainWindow):
             set_ddh_rerun_flag_li()
         else:
             clr_ddh_rerun_flag_li()
+
+    def click_chk_b_maps(self, _):
+        c = cfg_load_from_file()
+        c['flags']['maps_en'] = int(self.chk_b_maps.isChecked())
+        print(self.chk_b_maps.isChecked())
+        cfg_save_to_file(c)
 
     def click_graph_btn_reset(self):
         self.g.getPlotItem().enableAutoRange()

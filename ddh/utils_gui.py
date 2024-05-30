@@ -137,6 +137,10 @@ def gui_setup_view(my_win):
     rerun_flag = get_ddh_rerun_flag_li()
     a.chk_rerun.setChecked(rerun_flag)
 
+    # maps enable flag
+    me = ddh_get_cfg_maps_en()
+    a.chk_b_maps.setChecked(me)
+
     # test mode
     a.lbl_testmode.setVisible(False)
     if dds_get_cfg_flag_download_test_mode():
@@ -311,6 +315,7 @@ def gui_setup_buttons(my_app):
     a.btn_note_no.clicked.connect(a.click_btn_note_no)
     a.btn_note_yes_specific.clicked.connect(a.click_btn_note_yes_specific)
     a.chk_rerun.toggled.connect(a.click_chk_rerun)
+    a.chk_b_maps.toggled.connect(a.click_chk_b_maps)
     a.cb_s3_uplink_type.activated.connect(a.click_cb_s3_uplink_type)
     a.btn_sms.clicked.connect(a.click_btn_sms)
 
