@@ -42,8 +42,8 @@ from dds.ble_utils_dds import (
 from dds.timecache import its_time_to
 from mat.linux import linux_app_write_pid_to_tmp, linux_is_process_running
 from mat.ble.ble_mat_utils import (
-    ble_mat_bluetoothctl_power_cycle, ble_mat_disconnect_all_devices_ll,
-    ble_mat_get_antenna_type_v2
+    ble_mat_disconnect_all_devices_ll,
+    ble_mat_get_antenna_type_v2, ble_mat_systemctl_restart_bluetooth
 )
 from mat.utils import linux_is_rpi
 from utils.ddh_config import dds_check_cfg_has_box_info, \
@@ -196,10 +196,9 @@ def main_dds():
 
         # recovery situations
         if rvi:
-            # todo ---> test this BLE reset does not happen when all OK
             lg.a("warning: resetting Bluetooth interface due to error")
             ble_mat_disconnect_all_devices_ll()
-            ble_mat_bluetoothctl_power_cycle()
+            ble_mat_systemctl_restart_bluetooth()
 
 
 def _alarm_dds_crash(n):
