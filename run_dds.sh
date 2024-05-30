@@ -12,7 +12,7 @@ if [ -f "$LI_DDH_NEEDS_REBOOT_POST_INSTALL" ]; then
 fi
 
 
-_pb "[ RUN ] DDS | capturing SIM ID"
+_pb "[ RUN ] DDS | capturing quectel cell shield SIM ID"
 python /home/pi/li/ddh/scripts/script_find_last_usb_port_quectel.py
 
 
