@@ -12,7 +12,7 @@ for p in serial.tools.list_ports.comports():
 
 if ls:
     v = ls[-2]
-    c = f'echo -ne "AT+QCCID\\r" > /dev/{v}'
+    c = f'echo -ne "AT+QCCID\r" > /dev/{v}'
     print(c)
     sp.run(c, shell=True, stderr=sp.PIPE, stdout=sp.PIPE)
     time.sleep(.1)
