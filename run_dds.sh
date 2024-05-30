@@ -13,8 +13,7 @@ fi
 
 
 _pb "[ RUN ] DDS | capturing SIM ID"
-echo -ne "AT+QCCID\r" > /dev/ttyUSB2 && \
-(cat -v < /dev/ttyUSB2 | grep QCCID) > "$LI_FILE_ICCID"
+python /home/pi/li/ddh/scripts/script_find_last_usb_port_quectel.py
 
 
 # for crontab to detect already running
