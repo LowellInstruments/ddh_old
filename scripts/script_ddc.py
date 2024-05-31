@@ -222,7 +222,7 @@ def ddh_run_check():
     def _check_fw_cell():
         d = '/dev/ttyUSB2'
         c = 'ls -l /dev/ttyUSB4'
-        if sh(c).returncode == 0:
+        if sh(c) == 0:
             d = '/dev/ttyUSB4'
         c = f"echo -ne 'AT+CVERSION\r' > {d}"
         sh(c)
