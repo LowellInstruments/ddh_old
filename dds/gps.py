@@ -64,8 +64,10 @@ def _gps_bu353s4_find_usb_port():
     return find_usb_port_automatically('067B:23A3')
 
 
+# this is nice, it even fallbacks if config is for
+# external GPS puck but it is not present
 _g_bu353s4_port = _gps_bu353s4_find_usb_port() if \
-    dds_get_cfg_flag_gps_external else None
+    dds_get_cfg_flag_gps_external() else None
 
 
 def _gps_ll_check_hat_out_stream():
@@ -73,7 +75,7 @@ def _gps_ll_check_hat_out_stream():
     def _check():
         # give time to accumulate GPS data
         time.sleep(1)
-        c = "cat {}".format(PORT_DATA)
+        c = f"cat {PORT_DATA}"
         rv = sp.run(c, shell=True, stdout=sp.PIPE, stderr=sp.PIPE)
         return b"$GPRMC" in rv.stdout
 
