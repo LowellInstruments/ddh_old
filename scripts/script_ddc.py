@@ -226,7 +226,7 @@ def ddh_run_check():
             d = '/dev/ttyUSB4'
         c = f"echo -ne 'AT+CVERSION\r' > {d}"
         sh(c)
-        c = f"cat -v < {d} | grep 2022"
+        c = f"timeout 1 cat -v < {d} | grep 2022"
         return sh(c) == 0
 
     def _check_aws_credentials():
