@@ -12,12 +12,24 @@ if [ -f "$LI_DDH_NEEDS_REBOOT_POST_INSTALL" ]; then
 fi
 
 
-_pb "[ RUN ] DDS | capturing quectel cell shield SIM ID"
-python /home/pi/li/ddh/scripts/script_find_last_usb_port_quectel.py
-
-
 # for crontab to detect already running
 check_already_running "main_dds_controller"
+
+
+# take into account any order of these cell shields USB ports
+_pb "[ RUN ] DDS | capturing quectel cell shield SIM ID"
+rm "$LI_FILE_ICCID"
+ls /dev/ttyUSB4 > /dev/null 2>&1; rv=$?
+if [ "$rv" -eq 0 ]; then
+    echo -ne "AT+QCCID\r" > /dev/ttyUSB4 && \
+    sleep 0.1 && timeout 1 cat -v < /dev/ttyUSB4 > "$LI_FILE_ICCID"
+else
+    ls /dev/ttyUSB2 > /dev/null 2>&1; rv=$?
+    if [ "$rv" -eq 0 ]; then
+        echo -ne "AT+QCCID\r" > /dev/ttyUSB2 && \
+        sleep 0.1 && timeout 1 cat -v < /dev/ttyUSB2 > "$LI_FILE_ICCID"
+    fi
+fi
 
 
 
