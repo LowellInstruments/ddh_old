@@ -220,9 +220,13 @@ def ddh_run_check():
         str_w += f'   - {s}\n'
 
     def _check_fw_cell():
-        c = "echo -ne 'AT+CVERSION\r' > /dev/ttyUSB2"
+        d = '/dev/ttyUSB2'
+        c = 'ls -l /dev/ttyUSB4'
+        if sh(c).returncode == 0:
+            d = '/dev/ttyUSB4'
+        c = f"echo -ne 'AT+CVERSION\r' > {d}"
         sh(c)
-        c = "cat -v < /dev/ttyUSB2 | grep 2022"
+        c = f"cat -v < {d} | grep 2022"
         return sh(c) == 0
 
     def _check_aws_credentials():
@@ -259,7 +263,6 @@ def ddh_run_check():
     flag_vp_gps_puck2 = sh(f'lsusb | grep {VP_GPS_PUCK_2}') == 0
     flag_vp_quectel = sh(f'lsusb | grep {VP_QUECTEL}') == 0
     flag_mod_btuart = sh(f'md5sum /usr/bin/btuart | grep {MD5_MOD_BTUART}') == 0
-    cfg = cfg_load_from_file()
     ok_ble_v = sh('bluetoothctl -v | grep 5.66') == 0
     _c = 'systemctl is-active unit_switch_net.service | grep -w active'
     ok_service_cell_sw = sh(_c) == 0
