@@ -48,6 +48,19 @@ PERIOD_GPS_TELL_PUCK_NO_PC = 3600 * 6
 PERIOD_GPS_POWER_CYCLE = 300
 
 
+def _gps_bu353s4_find_usb_port():
+    # the GPS USB puck has 2 PIDs
+    p = find_usb_port_automatically('067B:2303')
+    if p:
+        return p
+    # try the other one
+    return find_usb_port_automatically('067B:23A3')
+
+
+_g_bu353s4_port = _gps_bu353s4_find_usb_port() if \
+    dds_get_cfg_flag_gps_external else None
+
+
 def _gps_ll_check_hat_out_stream():
     # ll: stands for 'low-level'
     def _check():
@@ -61,19 +74,6 @@ def _gps_ll_check_hat_out_stream():
         return _check()
     except Exception as ex:
         lg.a("error: gps_ll_check_hat_out_stream() -> {}".format(ex))
-
-
-def _gps_bu353s4_find_usb_port():
-    # the GPS USB puck has 2 PIDs
-    p = find_usb_port_automatically('067B:2303')
-    if p:
-        return p
-    # try the other one
-    return find_usb_port_automatically('067B:23A3')
-
-
-if dds_get_cfg_flag_gps_external():
-    _g_bu353s4_port = _gps_bu353s4_find_usb_port()
 
 
 def _coord_decode(coord: str):
@@ -201,7 +201,7 @@ def _gps_measure():
         return lat, lon, datetime.datetime.utcnow(), 1
 
     # open serial port
-    if dds_get_cfg_flag_gps_external():
+    if _g_bu353s4_port:
         sp = serial.Serial(_g_bu353s4_port, 4800, timeout=0.2)
     else:
         sp = serial.Serial(PORT_DATA, baudrate=115200, timeout=0.2,
@@ -232,7 +232,7 @@ def _gps_measure():
         b = sp.readall()
 
         # USB GPS puck
-        if dds_get_cfg_flag_gps_external():
+        if _g_bu353s4_port:
             if not b:
                 continue
             try:
@@ -453,7 +453,7 @@ def gps_power_cycle_if_so(forced=False):
         lg.a("debug: no power cycle dummy GPS")
         return
 
-    if dds_get_cfg_flag_gps_external():
+    if _g_bu353s4_port:
         if its_time_to("show_debug_power_cycle_gps_puck", PERIOD_GPS_TELL_PUCK_NO_PC):
             lg.a("debug: no power cycle BU-353-S4 GPS puck")
         return
@@ -518,7 +518,7 @@ def gps_configure_shield():
     if check_gps_dummy_mode():
         return
 
-    if dds_get_cfg_flag_gps_external():
+    if _g_bu353s4_port:
         return
 
     did_configure_ok = False
@@ -564,7 +564,7 @@ def gps_know_hat_firmware_version():
     if check_gps_dummy_mode():
         return
 
-    if dds_get_cfg_flag_gps_external():
+    if _g_bu353s4_port:
         return
 
     sp = None
@@ -620,11 +620,3 @@ def gps_simulate_boat_speed(s_lo, knots, s_hi):
 
     except (Exception, ):
         return s_lo, knots, s_hi
-
-
-if __name__ == "__main__":
-    if not dds_get_cfg_flag_gps_external():
-        gps_configure_shield()
-    while 1:
-        m = gps_measure()
-        print(m)

@@ -78,9 +78,7 @@ from utils.logs import lg_gui as lg
 STR_NOTE_PURGE_BLACKLIST = "Purge all loggers' lock-out time?"
 STR_NOTE_GPS_BAD = "Skipping logger until valid GPS fix is obtained"
 _g_ts_gui_boot = time.perf_counter()
-PERIOD_SHOW_LOGGER_DL_OK_SECS = 300
-PERIOD_SHOW_LOGGER_DL_ERROR_SECS = 300
-PERIOD_SHOW_LOGGER_DL_WARNING_SECS = 60
+PERIOD_SHOW_LOGGER_DL_OK_SECS = 120
 PERIOD_SHOW_BLE_APP_GPS_ERROR_POSITION = 60
 g_lock_icon_timer = 0
 g_app_uptime = time.perf_counter()
@@ -271,7 +269,7 @@ def gui_ddh_populate_graph_dropdown_sn(my_app):
 
     j = dds_get_cfg_monitored_serial_numbers()
     for each in j:
-        a.cb_g_sn.addItem('SN' + each)
+        a.cb_g_sn.addItem(each)
 
 
 def gui_setup_buttons(my_app):
@@ -502,7 +500,7 @@ def _gui_parse_udp(my_app, s, ip="127.0.0.1"):
         a.bar_dl.setValue(0)
 
     elif f == STATE_DDS_BLE_DOWNLOAD_OK:
-        _lock_icon(30)
+        _lock_icon(PERIOD_SHOW_LOGGER_DL_OK_SECS)
         ct = "done " + v
         ci = "ok.png"
 

@@ -53,12 +53,16 @@ if __name__ == '__main__':
     g = (-9, -9, None, 1)
     rv = 'in_port_no', dds_ask_in_port_to_ddn(g, notify=False)
     print(rv)
+    # ROTARY PORT
+    g = (41.609441, -70.608651, None, 1)
+    rv = 'in_port_ro', dds_ask_in_port_to_ddn(g, notify=False)
+    print(rv)
     # new bedford port
     g = (41.63, -70.91, None, 1)
     rv = 'in_port_nb', dds_ask_in_port_to_ddn(g, notify=False)
     print(rv)
-    # nick port
-    # g = (, None, 1)
-    # rv = 'in_port_nick', dds_ask_in_port_to_ddn(g, notify=False)
-    # print(rv)
+    # sandwich port
+    g = (41.771048, -70.503473, None, 1)
+    rv = 'in_port_sw', dds_ask_in_port_to_ddn(g, notify=False)
+    print(rv)
 

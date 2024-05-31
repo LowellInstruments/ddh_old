@@ -270,13 +270,13 @@ def _process_n_graph(a, r=''):
         # people pressing graph buttons
         sn = a.cb_g_sn.currentText()
         if not sn:
-            raise GraphException('seems no one asked for a graph?')
+            raise GraphException('no one asked for a graph?')
         if sn.startswith('SN'):
             sn = sn[2:]
         mac = dds_get_cfg_logger_mac_from_sn(sn).replace(':', '-')
         if not _graph_check_mac_has_dl_files(mac, fol_ls):
             raise GraphException(f'error: no files for sn {sn} mac {mac}')
-        lg.a('selected dropdown sn {} / mac {}'.format(sn, mac))
+        lg.a(f'selected dropdown sn {sn} / mac {mac}')
         fol = str(get_dl_folder_path_from_mac(mac))
 
     # get number of hauls

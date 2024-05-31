@@ -187,6 +187,7 @@ def ddh_get_db_status_file() -> str:
     p = str(ddh_get_root_folder_path())
     return f"{p}/ddh/db/db_status.json"
 
+
 def get_ddh_commit():
     try:
         _r = git.Repo(".")
