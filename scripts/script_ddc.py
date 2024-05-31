@@ -297,9 +297,10 @@ def ddh_run_check():
         _e('bad bluez version')
         rv += 1
     if not ((ok_arch_armv7l and ok_issue_20230503) or
+            (ok_arch_aarch64 and ok_issue_20230503) or
             (ok_arch_armv7l and ok_issue_20220922) or
             (ok_arch_aarch64 and ok_issue_20240315)):
-        _e('bad arch  /boot/issue.txt combo')
+        _e('bad arch + /boot/issue.txt combo')
         rv += 1
     if not ok_hostname:
         _e('bad hostname')
