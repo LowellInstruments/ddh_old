@@ -1,5 +1,6 @@
 import datetime
 import json
+import os
 import subprocess as sp
 import time
 import serial
@@ -46,6 +47,12 @@ PERIOD_GPS_AT_BOOT_SECS = 600
 PERIOD_GPS_TELL_GPS_HW_ERROR_SECS = 3600 * 3
 PERIOD_GPS_TELL_PUCK_NO_PC = 3600 * 6
 PERIOD_GPS_POWER_CYCLE = 300
+
+
+# some emolt boxes have too many USB ports
+port_gps_quectel = PORT_CTRL
+if os.path.exists('/home/pi/li/.gps_quectel_at_usb4'):
+    port_gps_quectel = '/dev/ttyUSB4'
 
 
 def _gps_ll_check_hat_out_stream():
@@ -465,7 +472,7 @@ def gps_power_cycle_if_so(forced=False):
     try:
         # open serial port
         sp = serial.Serial(
-            PORT_CTRL, baudrate=115200, timeout=1, rtscts=True, dsrdtr=True
+            port_gps_quectel, baudrate=115200, timeout=1, rtscts=True, dsrdtr=True
         )
         sp.flushInput()
         sp.readall()
@@ -526,7 +533,7 @@ def gps_configure_shield():
 
     try:
         _sp = serial.Serial(
-            PORT_CTRL, baudrate=115200, timeout=1, rtscts=True, dsrdtr=True
+            port_gps_quectel, baudrate=115200, timeout=1, rtscts=True, dsrdtr=True
         )
         _sp.flushInput()
         _sp.readall()
@@ -570,7 +577,7 @@ def gps_know_hat_firmware_version():
     sp = None
     try:
         sp = serial.Serial(
-            PORT_CTRL, baudrate=115200, timeout=1, rtscts=True, dsrdtr=True
+            port_gps_quectel, baudrate=115200, timeout=1, rtscts=True, dsrdtr=True
         )
         sp.flushInput()
         sp.readall()
