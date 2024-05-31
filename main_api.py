@@ -106,12 +106,17 @@ async def api_upload_conf(file: UploadFile = File(...)):
 
 @app.get('/sim')
 async def api_get_iccid():
+    s = 'nope'
     try:
         with open(LI_FILE_ICCID, 'r') as f:
-            s = f.readlines()[0]
-            s = s.replace('^M', '')
-            s = s.replace('\n', '')
-            s = s.split('+QCCID: ')[1]
+            ll = f.readlines()
+        for li in ll:
+            if li.startswith('+QCCID: '):
+                s = li
+                s = s.replace('^M', '')
+                s = s.replace('\n', '')
+                s = s.split()[1]
+                break
     except (Exception, ) as ex:
         s = str(ex)
     return {'iccid': s}
