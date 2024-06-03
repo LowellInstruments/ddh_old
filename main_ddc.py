@@ -221,7 +221,7 @@ def main_ddc():
                 if g_e:
                     PC.R(f'\t{v[0]}')
                 elif g_w:
-                    PC.W(f'\t{v[0]}')
+                    PC.Y(f'\t{v[0]}')
             # normal entry
             else:
                 print(f'\t{v[0]}')
