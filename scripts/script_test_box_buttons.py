@@ -1,3 +1,6 @@
+#!/usr/bin/env python3
+
+
 def button1_pressed_cb():
     print('1')
 
