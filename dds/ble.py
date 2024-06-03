@@ -299,7 +299,7 @@ async def _ble_id_n_interact_logger(mac, info: str, h, g):
     ep_utc = int(dt.timestamp())
     # ensure value for error_dl is populated
     if not _error_dl:
-        _error_dl = 'comm. error'
+        _error_dl = 'error comm.'
     e = 'ok' if not rv else _error_dl
 
     print('ep_loc', ep_loc)
