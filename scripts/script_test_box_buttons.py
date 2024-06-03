@@ -1,74 +1,20 @@
-from gpiozero import Button
-import time
-from signal import pause
+def button1_pressed_cb():
+    print('1')
 
 
-# bta = 0
-btb = 0.2
-btc = 0.4
-pua = 1
-pub = 1
-puc = 1
-
-button_a = Button(16, pull_up=pua)
-button_b = Button(20, pull_up=pub, bounce_time=btb)
-button_c = Button(21, pull_up=puc, bounce_time=btc)
+def button2_pressed_cb():
+    print('2')
 
 
-def button_a_held_cb():
-    print("held button A")
+def button3_pressed_cb():
+    print('3')
 
 
-def button_a_pressed_cb():
-    print("pressed button A")
+b1 = Button(16, pull_up=True, bounce_time=0.1)
+b2 = Button(20, pull_up=True, bounce_time=0.1)
+b3 = Button(21, pull_up=True, bounce_time=0.1)
+b1.when_pressed = button1_pressed_cb
+b2.when_pressed = button2_pressed_cb
+b3.when_pressed = button3_pressed_cb
 
-
-def button_a_released_cb():
-    print("released button A")
-
-
-def button_b_held_cb():
-    print("held button B")
-
-
-def button_b_pressed_cb():
-    print("pressed button B")
-
-
-def button_b_released_cb():
-    print("released button B")
-
-
-def button_c_held_cb():
-    print("held button C")
-
-
-def button_c_pressed_cb():
-    print("pressed button C")
-
-
-def button_c_released_cb():
-    print("released button C")
-
-
-button_a.when_held = button_a_held_cb
-button_a.when_pressed = button_a_pressed_cb
-button_a.when_released = button_a_released_cb
-button_b.when_held = button_b_held_cb
-button_b.when_pressed = button_b_pressed_cb
-button_b.when_released = button_b_released_cb
-button_c.when_held = button_c_held_cb
-button_c.when_pressed = button_c_pressed_cb
-button_c.when_released = button_c_released_cb
-
-
-def main_test_box_buttons():
-    print('\ntesting DDH box side buttons')
-    print('----------------------------')
-    print(f'bounce times A {0} B {btb} C {btc}')
-    print(f'pullup confs A {pua} B {pub} C {puc}')
-    pause()
-
-
-if __name__ == '__main__':
-    main_test_box_buttons()
+pause()
