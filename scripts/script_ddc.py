@@ -153,11 +153,7 @@ def p_w(s):
 
 
 def cb_calibrate_display():
-    ok_arch_aarch64 = sh('arch | grep aarch64') == 0
-    if not ok_arch_aarch64:
-        p_e('only calibrate on aarch64')
-        input()
-        return
+    # todo --> detect bookworm (new0 instead of bullseye (old)
 
     c = "export XAUTHORITY=/home/pi/.Xauthority; " \
         "export DISPLAY=:0; " \
@@ -244,7 +240,6 @@ def ddh_run_check():
 
     # -----------------------------------------------------
     # issue: Raspberry Pi reference 2023-05-03
-    # arch: armv7l
     # is_rpi3: Raspberry Pi 3 Model B Plus Rev 1.3
     # hostname: raspberrypi
     # hardware flags
@@ -254,8 +249,6 @@ def ddh_run_check():
     ok_issue_20240315 = sh('cat /boot/issue.txt | grep 2024-03-15') == 0
     ok_issue_20230503 = sh('cat /boot/issue.txt | grep 2023-05-03') == 0
     ok_issue_20220922 = sh('cat /boot/issue.txt | grep 2022-09-22') == 0
-    ok_arch_armv7l = sh('arch | grep armv7l') == 0
-    ok_arch_aarch64 = sh('arch | grep aarch64') == 0
     is_rpi3 = sh("cat /proc/cpuinfo | grep 'aspberry Pi 3'") == 0
     ok_hostname = sh('hostname | grep raspberrypi') == 0
     flag_gps_ext = sh(f'[ -f {LI_PATH_DDH_GPS_EXTERNAL} ]') == 0
@@ -296,11 +289,10 @@ def ddh_run_check():
     if not ok_ble_v != '5.66':
         _e('bad bluez version')
         rv += 1
-    if not ((ok_arch_armv7l and ok_issue_20230503) or
-            (ok_arch_aarch64 and ok_issue_20230503) or
-            (ok_arch_armv7l and ok_issue_20220922) or
-            (ok_arch_aarch64 and ok_issue_20240315)):
-        _e('bad arch + /boot/issue.txt combo')
+    if not (ok_issue_20230503 or
+            ok_issue_20220922 or
+            ok_issue_20240315):
+        _e('bad /boot/issue.txt file')
         rv += 1
     if not ok_hostname:
         _e('bad hostname')
