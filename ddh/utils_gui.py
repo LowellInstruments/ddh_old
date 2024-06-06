@@ -79,6 +79,7 @@ STR_NOTE_PURGE_BLACKLIST = "Purge all loggers' lock-out time?"
 STR_NOTE_GPS_BAD = "Skipping logger until valid GPS fix is obtained"
 _g_ts_gui_boot = time.perf_counter()
 PERIOD_SHOW_LOGGER_DL_OK_SECS = 120
+PERIOD_SHOW_LOGGER_DL_ERROR_SECS = 120
 PERIOD_SHOW_BLE_APP_GPS_ERROR_POSITION = 60
 g_lock_icon_timer = 0
 g_app_uptime = time.perf_counter()
@@ -511,7 +512,7 @@ def _gui_parse_udp(my_app, s, ip="127.0.0.1"):
         ci = "sand_clock.png"
 
     elif f == STATE_DDS_BLE_DOWNLOAD_ERROR:
-        _lock_icon(15)
+        _lock_icon(PERIOD_SHOW_LOGGER_DL_ERROR_SECS)
         ct = "{} failure".format(v)
         ci = "error.png"
 
