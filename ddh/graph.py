@@ -600,6 +600,16 @@ def _process_n_graph(a, r=''):
             title = f'Temperature (F) {title}'
             p1.getAxis('bottom').setLabel(title, **_sty('black'))
 
+            # bottom ticks, y2 are floats
+            # solves the problem of the x-axis ticks changing for T-D graph
+            bt = []
+            _i = min(y2)
+            while _i < max(y2):
+                bt.append(_i)
+                # _i += 1
+                _i += ((max(y2) - min(y2)) / 10)
+            p1.getAxis('bottom').setTicks(([[(v, '{:5.1f}'.format(v)) for v in bt]]))
+
             # or we could set the x-axis label on top
             # a.g.setTitle(e, color="red", size="15pt")
 

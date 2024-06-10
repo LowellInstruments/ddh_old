@@ -355,8 +355,6 @@ def process_graph_csv_data(fol, _, h, hi) -> dict:
     except (Exception, ):
         x = [dp.parse('{}'.format(i)).timestamp() for i in x]
 
-    print(x)
-
     # display time performance of data-grabbing procedure
     end_ts = time.perf_counter()
     el_ts = int((end_ts - start_ts) * 1000)
