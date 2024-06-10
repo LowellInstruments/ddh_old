@@ -252,8 +252,8 @@ def main_ddc():
                 print(f'\t{v[0]}')
 
         # get user input
+        c = input('\nenter your choice > ')
         try:
-            c = input('\nenter your choice > ')
             os.system('clear')
             print(f'you selected:\n\t{d[c][0]}')
             time.sleep(1)
