@@ -35,6 +35,10 @@ g_e = None
 g_w = None
 
 
+def _p(s):
+    print(s)
+
+
 def _ddh_show_issues_error():
     if g_e:
         p_e('\nErrors preventing DDH from starting:')
@@ -171,6 +175,26 @@ def cb_is_ddh_running():
 # main DCC loop
 # --------------
 
+
+def cb_ddh_show_help():
+    _p('test mode    -> prefixes downloaded filenames with "testfile_"')
+    _p('GPS dummy    -> GPS is simulated, it uses position in config.toml')
+    _p('GPS puck     -> GPS source is a USB GPS puck, not a RPi shield')
+    _p('crontab      -> automatically starts or not DDH app upon boot')
+    _p('kill DDH     -> forces DDH app to quit')
+    _p('graph demo   -> the DDH plotting tab will use simulated data')
+    _p('credentials  -> checks the DDH has all the passwords to run OK')
+    _p('GPS shield   -> tests the GPS shield, not the GPS puck')
+    _p('side buttons -> tests the DDH real side buttons to be working')
+    _p('BLE range    -> tests how well a logger\'s signal reaches the DDH')
+    _p('MAC range    -> sets the MAC address used in BLE range')
+    _p('deploy DOX   -> prepares a DO-1 or DO-2 logger for deployment')
+    _p('deploy TDO   -> prepares a TDO logger for deployment')
+    # _p('calibrate    -> tunes the DDH touch display')
+    _p('see issues   -> check any potential DDH conflict or misconfiguration')
+    input()
+
+
 def main_ddc():
 
     # clearing error log file
@@ -211,6 +235,7 @@ def main_ddc():
             # 't': (f"t) deploy logger TDO", cb_run_deploy_tdo),
             # 'c': (f"c) calibrate DDH display", cb_calibrate_display),
             'i': (f"i) ~ see issues ~", cb_ddh_show_issues),
+            'h': (f"h) help", cb_ddh_show_help),
             'q': (f"q) quit", cb_quit)
         }
 
