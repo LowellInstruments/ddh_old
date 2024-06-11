@@ -24,7 +24,7 @@ from utils.ddh_config import (dds_get_cfg_vessel_name,
                               dds_get_cfg_box_sn, dds_get_cfg_box_project,
                               dds_get_cfg_monitored_pairs)
 import uvicorn
-from fastapi import FastAPI, UploadFile, File
+from fastapi import FastAPI, UploadFile, File, status
 import os
 from fastapi.responses import FileResponse
 import concurrent.futures
@@ -35,7 +35,7 @@ from utils.tmp_paths import LI_FILE_ICCID, TMP_PATH_DDH_APP_OVERRIDE
 # instead, the DDN port is 9000
 DDH_PORT_API = 8000
 NAME_EXE_API = "main_api"
-PID_FILE_API = "/tmp/{}.pid".format(NAME_EXE_API)
+PID_FILE_API = f"/tmp/{NAME_EXE_API}.pid"
 
 
 app = FastAPI()
@@ -106,7 +106,8 @@ async def api_upload_conf(file: UploadFile = File(...)):
 
 @app.get('/sim')
 async def api_get_iccid():
-    s = 'nope'
+    if not os.path.exists(LI_FILE_ICCID):
+        return {'iccid': status.HTTP_404_NOT_FOUND}
     try:
         with open(LI_FILE_ICCID, 'r') as f:
             ll = f.readlines()
@@ -116,10 +117,9 @@ async def api_get_iccid():
                 s = s.replace('^M', '')
                 s = s.replace('\n', '')
                 s = s.split()[1]
-                break
+                return {'iccid': s}
     except (Exception, ) as ex:
-        s = str(ex)
-    return {'iccid': s}
+        return {'iccid': str(ex)}
 
 
 @app.get('/info')
