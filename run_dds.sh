@@ -16,18 +16,24 @@ fi
 check_already_running "main_dds_controller"
 
 
-# take into account any order of these cell shields USB ports
-_pb "[ RUN ] DDS | capturing quectel cell shield SIM ID"
+# detect cell shield SIM ID
 rm "$LI_FILE_ICCID"
-ls /dev/ttyUSB4 > /dev/null 2>&1; rv=$?
+lsusb | grep Quectel
+rv=$?
 if [ "$rv" -eq 0 ]; then
-    echo -ne "AT+QCCID\r" > /dev/ttyUSB4 && \
-    sleep 0.1 && timeout 1 cat -v < /dev/ttyUSB4 > "$LI_FILE_ICCID"
-else
-    ls /dev/ttyUSB2 > /dev/null 2>&1; rv=$?
+    _pb "[ RUN ] DDS | capturing quectel cell shield SIM ID"
+    # rare occasions where quectel cell USB control port is at ttyUSB4
+    ls /dev/ttyUSB4 > /dev/null 2>&1; rv=$?
     if [ "$rv" -eq 0 ]; then
-        echo -ne "AT+QCCID\r" > /dev/ttyUSB2 && \
-        sleep 0.1 && timeout 1 cat -v < /dev/ttyUSB2 > "$LI_FILE_ICCID"
+        echo -ne "AT+QCCID\r" > /dev/ttyUSB4 && \
+        sleep 0.1 && timeout 1 cat -v < /dev/ttyUSB4 > "$LI_FILE_ICCID"
+    else
+      # usually, quectel cell USB control port is at ttyUSB2
+        ls /dev/ttyUSB2 > /dev/null 2>&1; rv=$?
+        if [ "$rv" -eq 0 ]; then
+            echo -ne "AT+QCCID\r" > /dev/ttyUSB2 && \
+            sleep 0.1 && timeout 1 cat -v < /dev/ttyUSB2 > "$LI_FILE_ICCID"
+        fi
     fi
 fi
 
@@ -59,6 +65,7 @@ sudo rfkill unblock wlan
 _pb "[ RUN ] DDS | set permissions 'date' and 'ifmetric'"
 sudo setcap CAP_SYS_TIME+ep /bin/date
 sudo setcap 'cap_net_raw,cap_net_admin+eip' /usr/sbin/ifmetric
+
 
 
 echo && echo
