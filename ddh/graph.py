@@ -109,15 +109,6 @@ def _get_color_by_label(lbl):
     return 'green'
 
 
-class TimeAxisItem(pg.AxisItem):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-    def tickStrings(self, values, scale, spacing):
-        # PySide's QTime() initialiser fails miserably and dismisses args/kwargs
-        return [QTime().addMSecs(value).toString('mm:ss') for value in values]
-
-
 class LimitsTypeError(Exception):
     def __init__(self, err='Limits type must be type int or tuple of ints', *args, **kwargs):
         super().__init__(self, err, *args, **kwargs)
@@ -316,6 +307,11 @@ def _process_n_graph(a, r=''):
         p3.clear()
     p1 = g.plotItem
 
+    # patch for bottom ticks, x are floats meaning timestamps
+    # solves the problem of the x-axis ticks changing
+    g.setAxisItems({"bottom": pg.DateAxisItem()})
+
+
     # grid or not
     g.showGrid(x=True, y=True)
 
@@ -451,6 +447,7 @@ def _process_n_graph(a, r=''):
         p1.setYRange(0, upper_top_do, padding=0)
         p2.setYRange(min(y2), max(y2), padding=0)
         p1.getAxis('bottom').setLabel(title, **_sty('black'))
+
 
         # alpha, for zones, the lower, the more transparent
         alpha = 85
@@ -600,8 +597,8 @@ def _process_n_graph(a, r=''):
             title = f'Temperature (F) {title}'
             p1.getAxis('bottom').setLabel(title, **_sty('black'))
 
-            # bottom ticks, y2 are floats
-            # solves the problem of the x-axis ticks changing for T-D graph
+            # patch for bottom ticks, y2 are floats
+            # solves the problem of the x-axis ticks changing
             bt = []
             _i = min(y2)
             while _i < max(y2):
