@@ -628,6 +628,8 @@ def _gui_parse_udp(my_app, s, ip="127.0.0.1"):
         a.lbl_boat_txt.setText(v)
 
     elif f == STATE_DDS_GPS_IN_PORT:
+        # todo ---> test this
+        _lock_icon(15)
         ct = "we are in port"
         ci = "gps_in_port.png"
 
