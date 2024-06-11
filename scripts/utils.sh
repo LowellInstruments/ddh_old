@@ -18,7 +18,7 @@ export GPS_EXTERNAL_FILE_FLAG=$FOL_LI/.ddt_gps_external.flag
 export GROUPED_S3_FILE_FLAG=$FOL_LI/.ddt_this_box_has_grouped_s3_uplink.flag
 export LI_FILE_ICCID=$FOL_LI/.iccid
 export LI_DDH_NEEDS_REBOOT_POST_INSTALL=/tmp/.ddh_needs_reboot_post_install.flag
-
+export LI_PATH_DDH_GPS_CELL_SHIELD_USB4=$FOL_LI/.gps_quectel_at_usb4
 
 
 # 0 black, 1 red, 2 green, 3 yellow

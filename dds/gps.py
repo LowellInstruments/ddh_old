@@ -12,7 +12,7 @@ from mat.gps import PORT_CTRL, PORT_DATA
 from mat.utils import linux_is_rpi, linux_set_datetime
 from tzlocal import get_localzone
 
-from utils.tmp_paths import TMP_PATH_GPS_LAST_JSON, TMP_PATH_DDH_BOAT_SPEED_JSON
+from utils.tmp_paths import TMP_PATH_GPS_LAST_JSON, TMP_PATH_DDH_BOAT_SPEED_JSON, LI_PATH_DDH_GPS_CELL_SHIELD_USB4
 from utils.ddh_config import (dds_get_cfg_vessel_name,
                               dds_get_cfg_flag_gps_external,
                               dds_get_cfg_flag_gps_error_forced,
@@ -51,7 +51,7 @@ PERIOD_GPS_POWER_CYCLE = 300
 
 # some emolt boxes have too many USB ports
 port_gps_quectel = PORT_CTRL
-if os.path.exists('/home/pi/li/.gps_quectel_at_usb4'):
+if os.path.exists(LI_PATH_DDH_GPS_CELL_SHIELD_USB4):
     port_gps_quectel = '/dev/ttyUSB4'
 
 
