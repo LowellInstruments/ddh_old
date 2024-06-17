@@ -240,6 +240,7 @@ async def _ble_id_n_interact_logger(mac, info: str, h, g):
         _error_dl = notes["error"]
         rerun = notes['rerun']
         _ble_convert_lid(notes)
+        # todo: add haul summary data next to Green Checkmark
 
     elif _ble_logger_is_rn4020(mac, info):
         rv = await ble_interact_rn4020(mac, info, g, hs)
@@ -264,8 +265,9 @@ async def _ble_id_n_interact_logger(mac, info: str, h, g):
         notes['gps'] = g
         _crit_error = notes["crit_error"]
         _error_dl = notes["error"]
-        _ble_convert_lid(notes)
         rerun = notes['rerun']
+        _ble_convert_lid(notes)
+        # todo: add haul summary data next to Green Checkmark
 
     else:
         lg.a(f'error: this should not happen, info {info}')
