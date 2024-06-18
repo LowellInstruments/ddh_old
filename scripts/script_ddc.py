@@ -301,7 +301,7 @@ def ddh_run_check():
     ok_crontab_lxp = get_crontab('lxp') == 1
     ok_shield_j4h = cb_get_flag_j4h() == 1
     ok_shield_sailor = cb_get_flag_sailor() == 1
-    ok_keys = _check_files(verbose=False) == 0
+    ok_keys = _check_files() == 0
 
     # check conflicts
     rv = 0
