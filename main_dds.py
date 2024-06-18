@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+import json
 import os
 import pathlib
 from multiprocessing import Process
@@ -64,6 +65,7 @@ from utils.logs import (
 )
 import setproctitle
 from utils.ddh_shared import send_ddh_udp_gui as _u
+from utils.tmp_paths import TMP_PATH_BLE_IFACE
 
 
 def main_dds():
@@ -124,6 +126,13 @@ def main_dds():
     # detecting and selecting Bluetooth antenna
     # leave this here so BLE has time to get up
     h, h_d = ble_mat_get_antenna_type_v2()
+
+    # save which BLE interface are we using, API will read it
+    try:
+        with open(TMP_PATH_BLE_IFACE, "w") as f:
+            json.dump({"ble_iface_used": h_d}, f)
+    except (Exception, ) as ex:
+        lg.a(f'error: saving {TMP_PATH_BLE_IFACE} -> {ex}')
 
     if notify_ddh_needs_sw_update(g):
         s = 'warning: this DDH needs an update'

@@ -8,7 +8,7 @@ import subprocess as sp
 import sys
 import time
 
-from utils.tmp_paths import LI_PATH_DDH_VERSION
+from utils.tmp_paths import LI_PATH_DDH_VERSION, TMP_PATH_GPS_LAST_JSON, TMP_PATH_BLE_IFACE
 
 CTT_API_OK = 'ok'
 CTT_API_ER = 'error'
@@ -283,11 +283,20 @@ def api_get_ble_state():
 
 def api_get_gps():
     try:
-        with open('/tmp/gps_last.json', 'r') as f:
+        with open(TMP_PATH_GPS_LAST_JSON, 'r') as f:
             return json.load(f)
     except (Exception, ) as ex:
         print(f'{CTT_API_ER}: cannot api_get_gps -> {ex}')
         return {}
+
+
+def api_get_ble_iface():
+    try:
+        with open(TMP_PATH_BLE_IFACE, 'r') as f:
+            return json.load(f)['ble_iface_used']
+    except (Exception, ) as ex:
+        print(f'{CTT_API_ER}: cannot api_get_ble_iface -> {ex}')
+        return 'error'
 
 
 def api_get_commits():

@@ -26,6 +26,9 @@ TMP_PATH_GRAPH_REQ_JSON = '/tmp/graph_req.json'
 # written by real GPS to know the last GPS position
 TMP_PATH_GPS_LAST_JSON = "/tmp/gps_last.json"
 
+# written by DDS to tell which BLE interface is using
+TMP_PATH_BLE_IFACE = "/tmp/ble_iface_used.json"
+
 # indicates the DDH GUI has been closed pressing the upper-right X
 TMP_PATH_GUI_CLOSED_FLAG = "/tmp/gui_closed.flag"
 

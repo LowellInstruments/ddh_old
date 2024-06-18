@@ -153,7 +153,7 @@ def _gps_parse_rmc_frame(data: bytes):
         with open(TMP_PATH_GPS_LAST_JSON, "w") as f:
             json.dump(d, f)
     except (Exception, ) as ex:
-        lg.a(f'error: saving /tmp/gps_last.json -> {ex}')
+        lg.a(f'error: saving {TMP_PATH_GPS_LAST_JSON} -> {ex}')
 
     # everything went OK
     return lat, lon, gps_time, speed
