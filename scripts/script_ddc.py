@@ -4,6 +4,8 @@ import sys
 import time
 from os import unlink
 from os.path import exists
+
+from main_ddc import cb_print_check_all_keys
 from scripts.script_provision_get import get_provision_ddh, ping_provision_server
 # from scripts.script_provision_get import get_provision_ddh
 from utils.ddh_config import cfg_load_from_file, cfg_save_to_file
@@ -218,13 +220,13 @@ def ddh_run_check():
         global str_e
         str_e += f'   - {s}\n'
 
-    def _w(s):
-        global str_w
-        str_w += f'   - {s}\n'
-
     def _i(s):
         global str_i
         str_i += f'   - {s}\n'
+
+    def _w(s):
+        global str_w
+        str_w += f'   - {s}\n'
 
     def _check_fw_cell():
         d = '/dev/ttyUSB2'
@@ -279,9 +281,12 @@ def ddh_run_check():
     ok_crontab_lxp = get_crontab('lxp') == 1
     ok_shield_j4h = cb_get_flag_j4h() == 1
     ok_shield_sailor = cb_get_flag_sailor() == 1
+    ok_keys = cb_print_check_all_keys(verbose=False) == 0
 
     # check conflicts
     rv = 0
+    if not ok_keys:
+        _i('not all keys OK')
     if not ok_aws_cred:
         # error indicated inside other function
         rv += 1

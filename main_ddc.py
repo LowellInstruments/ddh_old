@@ -54,7 +54,7 @@ def _ddh_show_issues_warning():
 
 def _ddh_show_issues_info():
     if g_i:
-        p_i('\nthe following must be noticed')
+        p_i('\nmisc. info')
         PC.B(g_i)
 
 
@@ -140,7 +140,7 @@ def _check_aws_credentials():
     return 1
 
 
-def cb_we_have_all_keys(verbose=True):
+def cb_print_check_all_keys(verbose=True):
     path_w = '/etc/wireguard/wg0.conf'
     if is_rpi():
         c = f'sudo ls {path_w}'
@@ -212,7 +212,9 @@ def main_ddc():
         os.system('clear')
         print('\nDDC\n---')
 
-        # add extra one being displayed
+        # -------------------------
+        # check everything at once
+        # -------------------------
         global g_e
         global g_w
         global g_i
@@ -223,7 +225,7 @@ def main_ddc():
         fge = 1 if exists(LI_PATH_DDH_GPS_EXTERNAL) else 0
         fcd = get_crontab('ddh')
         fgt = 1 if exists(TMP_PATH_GRAPH_TEST_MODE_JSON) else 0
-        fdk = cb_we_have_all_keys(verbose=False)
+        fdk = cb_print_check_all_keys(verbose=False)
         fdr = cb_is_ddh_running()
         ftm = 1 if exists(LI_PATH_TEST_MODE) else 0
 
@@ -235,7 +237,7 @@ def main_ddc():
             '3': (f"3) set crontab       [{fcd}]", cb_crontab_ddh),
             '4': (f"4) kill DDH app      [{fdr}]", cb_kill_ddh),
             '5': (f"5) set graph demo    [{fgt}]", cb_graph_demo),
-            '6': (f"6) test credentials  [{fdk}]", cb_we_have_all_keys),
+            '6': (f"6) check all keys    [{fdk}]", cb_print_check_all_keys),
             '7': (f"7) test GPS shield", cb_test_gps_quectel),
             '8': (f"8) test side buttons", cb_test_buttons),
             'r': (f"r) run BLE range tool", cb_run_brt),
@@ -256,6 +258,9 @@ def main_ddc():
                     PC.R(f'\t{v[0]}')
                 elif g_w:
                     PC.Y(f'\t{v[0]}')
+                elif g_i:
+                    PC.B(f'\t{v[0]}')
+
             # normal entry
             else:
                 print(f'\t{v[0]}')
