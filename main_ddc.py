@@ -42,7 +42,7 @@ def _p(s):
 
 def _ddh_show_issues_error():
     if g_e:
-        p_e('\n[ error] the following can prevent DDH from starting')
+        p_e('\nthe following can prevent DDH from starting')
         PC.R(g_e)
 
 
@@ -54,7 +54,7 @@ def _ddh_show_issues_warning():
 
 def _ddh_show_issues_info():
     if g_i:
-        p_i('\nmisc. info')
+        p_i('\nmiscellaneous info')
         PC.B(g_i)
 
 
