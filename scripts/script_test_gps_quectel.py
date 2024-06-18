@@ -30,7 +30,13 @@ def _gps_measure():
         PORT_DATA, baudrate=115200, timeout=0.1, rtscts=True, dsrdtr=True
     )
     sp.flushInput()
-    while 1:
+
+    # loop timeout calculation
+    t = 30
+    till = time.perf_counter() + t
+    print(f'the test will run for {t} seconds\n')
+
+    while till > time.perf_counter():
         b = sp.readall()
         if not b:
             continue
@@ -41,14 +47,10 @@ def _gps_measure():
 
 def main_test_gps_quectel():
     try:
-        t = 30
         os.system('clear')
-        print('\n starting DDH GPS quectel shield test')
-        print(f'the test will run for {t} seconds\n')
+        print('\nstarting DDH GPS quectel shield test')
         gps_configure_shield()
-        till = time.perf_counter() + t
-        while time.perf_counter() < till:
-            _gps_measure()
+        _gps_measure()
     except (Exception, ) as ex:
         print(f'error gps_test -> {ex}')
         print(f'ensure GPS was ON for a while before trying')
