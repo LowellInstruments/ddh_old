@@ -4,11 +4,10 @@ import sys
 import time
 from os import unlink
 from os.path import exists
-
-from main_ddc import cb_print_check_all_keys
 from scripts.script_provision_get import get_provision_ddh, ping_provision_server
 # from scripts.script_provision_get import get_provision_ddh
 from utils.ddh_config import cfg_load_from_file, cfg_save_to_file
+from utils.ddh_shared import get_ddh_folder_path_settings
 from utils.tmp_paths import (
     LI_PATH_GROUPED_S3_FILE_FLAG,
     LI_PATH_DDH_GPS_EXTERNAL,
@@ -251,6 +250,27 @@ def ddh_run_check():
                     return 1
         return 1
 
+    def _check_files():
+        path_w = '/etc/wireguard/wg0.conf'
+        if is_rpi():
+            c = f'sudo ls {path_w}'
+            _rv = sp.run(c, shell=True, stdout=sp.PIPE, stderr=sp.PIPE)
+            w = _rv.returncode == 0
+        else:
+            w = os.path.exists(path_w)
+        a = os.path.exists(f'/home/pi/.ssh/authorized_keys')
+        c = _check_aws_credentials()
+        m = os.path.exists(f'{get_ddh_folder_path_settings()}/all_macs.toml')
+
+        if not w:
+            _e('missing wireguard conf file')
+        if not a:
+            _i('missing SSH authorized keys file')
+        if not c:
+            _e('missing ddh/settings/config.toml credentials section')
+        if not m:
+            _e('missing ddh/settings/all_macs.toml file')
+
     # -----------------------------------------------------
     # issue: Raspberry Pi reference 2023-05-03
     # is_rpi3: Raspberry Pi 3 Model B Plus Rev 1.3
@@ -281,7 +301,7 @@ def ddh_run_check():
     ok_crontab_lxp = get_crontab('lxp') == 1
     ok_shield_j4h = cb_get_flag_j4h() == 1
     ok_shield_sailor = cb_get_flag_sailor() == 1
-    ok_keys = cb_print_check_all_keys(verbose=False) == 0
+    ok_keys = _check_files(verbose=False) == 0
 
     # check conflicts
     rv = 0
