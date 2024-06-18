@@ -651,11 +651,12 @@ def _process_n_graph(a, r=''):
         s += '{:5.2f} °C\n'.format(mean(ls_t))
         s += '{:5.2f} dbar'.format(mean(ls_p))
         _u(f"{STATE_DDS_BLE_DOWNLOAD_STATISTICS}/{s}")
-    # if met == 'DOT' and r == 'BLE':
-    if met == 'DOT':
+    # if met == 'DO' and r == 'BLE':
+    if met == 'DO':
         # todo: do this
+        _do = data['DO Concentration (mg/l) DO']
         s = 'haul mean\n'
-        s += '{:5.2f} mg/l\n'.format(12.34)
+        s += '{:5.2f} mg_l'.format(mean(_do))
         _u(f"{STATE_DDS_BLE_DOWNLOAD_STATISTICS}/{s}")
 
 
