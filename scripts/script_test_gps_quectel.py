@@ -1,3 +1,6 @@
+import os
+import time
+
 import serial
 import sys
 
@@ -38,8 +41,13 @@ def _gps_measure():
 
 def main_test_gps_quectel():
     try:
+        t = 30
+        os.system('clear')
+        print('\n starting DDH GPS quectel shield test')
+        print(f'the test will run for {t} seconds\n')
         gps_configure_shield()
-        while 1:
+        till = time.perf_counter() + t
+        while time.perf_counter() < till:
             _gps_measure()
     except (Exception, ) as ex:
         print(f'error gps_test -> {ex}')

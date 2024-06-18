@@ -9,7 +9,7 @@ from scripts.script_ddc import (
     cb_gps_dummy, cb_quit, cb_gps_external, cb_crontab_ddh,
     get_crontab,
     cb_graph_demo, cb_provision_ddh,
-    cb_kill_ddh, ddh_run_check, cb_calibrate_display, sh, cb_test_mode, is_rpi, VP_QUECTEL, p_w, p_e, c_e
+    cb_kill_ddh, ddh_run_check, cb_calibrate_display, sh, cb_test_mode, is_rpi, VP_QUECTEL, p_w, p_e, c_e, p_i
 )
 from scripts.script_nadv import main_nadv
 from utils.ddh_config import _get_config_file_path, cfg_load_from_file
@@ -33,6 +33,7 @@ path_script_deploy_tdo = f'{h}/{p}/scripts/run_script_deploy_logger_tdo.sh'
 # variables for errors and warnings
 g_e = None
 g_w = None
+g_i = None
 
 
 def _p(s):
@@ -41,19 +42,26 @@ def _p(s):
 
 def _ddh_show_issues_error():
     if g_e:
-        p_e('\nErrors preventing DDH from starting:')
+        p_e('\n[ error] the following can prevent DDH from starting')
         PC.R(g_e)
 
 
 def _ddh_show_issues_warning():
     if g_w:
-        p_w('\nPlease notice:')
+        p_w('\nplease notice')
         PC.Y(g_w)
+
+
+def _ddh_show_issues_info():
+    if g_i:
+        p_i('\nthe following must be noticed')
+        PC.B(g_i)
 
 
 def cb_ddh_show_issues():
     _ddh_show_issues_error()
     _ddh_show_issues_warning()
+    _ddh_show_issues_info()
     input()
 
 
@@ -152,7 +160,7 @@ def cb_we_have_all_keys(verbose=True):
     if verbose and not w:
         p_e('missing wireguard conf file')
     if verbose and not a:
-        p_w('missing SSH authorized keys file')
+        p_i('missing SSH authorized keys file')
     if verbose and not c:
         p_e('missing ddh/settings/config.toml credentials section')
     if verbose and not m:
@@ -207,7 +215,8 @@ def main_ddc():
         # add extra one being displayed
         global g_e
         global g_w
-        _, g_e, g_w = ddh_run_check()
+        global g_i
+        _, g_e, g_w, g_i = ddh_run_check()
 
         # get flags
         fgd = 1 if exists(TMP_PATH_GPS_DUMMY) else 0

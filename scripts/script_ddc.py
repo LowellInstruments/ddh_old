@@ -137,19 +137,23 @@ def cb_kill_ddh():
         sh(f'kill -9 {pid}')
 
 
-def p_e(s):
-    PC.R('DDC error: ' + s)
-    with open(TMP_DDC_ERR, 'a') as f:
-        f.write(f'error: {s}\n')
-
-
 def c_e():
     if os.path.exists(TMP_DDC_ERR):
         os.unlink(TMP_DDC_ERR)
 
 
+def p_e(s):
+    PC.R('[ DDC error ] ' + s)
+    with open(TMP_DDC_ERR, 'a') as f:
+        f.write(f'error: {s}\n')
+
+
 def p_w(s):
-    PC.Y('DDC warning: ' + s)
+    PC.Y('[ DDC warning ] ' + s)
+
+
+def p_i(s):
+    PC.B('[ DDC information ] ' + s)
 
 
 def cb_calibrate_display():
@@ -198,14 +202,17 @@ def cb_crontab_lxp(): return _cb_crontab('lxp')
 # contains errors in system check
 str_e = ''
 str_w = ''
+str_i = ''
 
 
 def ddh_run_check():
 
     global str_e
-    str_e = ''
     global str_w
+    global str_i
+    str_e = ''
     str_w = ''
+    str_i = ''
 
     def _e(s):
         global str_e
@@ -214,6 +221,10 @@ def ddh_run_check():
     def _w(s):
         global str_w
         str_w += f'   - {s}\n'
+
+    def _i(s):
+        global str_i
+        str_i += f'   - {s}\n'
 
     def _check_fw_cell():
         d = '/dev/ttyUSB2'
@@ -313,4 +324,4 @@ def ddh_run_check():
         _e('no hardware GPS present')
     if not ok_shield_sailor and not ok_shield_j4h:
         _e('no hardware power shield present')
-    return rv, str_e, str_w
+    return rv, str_e, str_w, str_i
