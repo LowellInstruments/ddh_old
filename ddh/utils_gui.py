@@ -71,7 +71,7 @@ from utils.ddh_shared import (
     ddh_get_db_history_file,
     STATE_DDS_BLE_NO_ASSIGNED_LOGGERS, get_ddh_commit,
     get_ddh_rerun_flag_li, ddh_get_root_folder_path, STATE_DDS_BLE_CONNECTING, STATE_DDS_PRESSED_BUTTON_2,
-    get_ddh_sw_version, STATE_DDS_GPS_IN_PORT, STATE_DDS_BAD_CONF,
+    get_ddh_sw_version, STATE_DDS_GPS_IN_PORT, STATE_DDS_BAD_CONF, STATE_DDS_BLE_DOWNLOAD_STATISTICS,
 )
 from utils.logs import lg_gui as lg
 
@@ -144,6 +144,9 @@ def gui_setup_view(my_win):
     a.lbl_testmode.setVisible(False)
     if dds_get_cfg_flag_download_test_mode():
         a.lbl_testmode.setVisible(True)
+
+    # dl statistics
+    a.lbl_summary_dl.setVisible(False)
 
     return a
 
@@ -453,6 +456,10 @@ def _gui_update_icon_timer():
 
 def _gui_update_icon(my_app, ci, ct, cf):
 
+    # stats box
+    if cf not in (STATE_DDS_BLE_DOWNLOAD_OK, STATE_DDS_BLE_DOWNLOAD_STATISTICS):
+        my_app.lbl_summary_dl.setVisible(False)
+
     # cases we don't update
     if cf == STATE_DDS_BLE_SCAN and g_lock_icon_timer:
         return
@@ -496,7 +503,7 @@ def _gui_parse_udp(my_app, s, ip="127.0.0.1"):
         ci = f'ble_connecting.png'
 
     elif f == STATE_DDS_BLE_DOWNLOAD:
-        ct = "downloading {}".format(v)
+        ct = f"downloading {v}"
         ci = "dl2.png"
         a.bar_dl.setValue(0)
 
@@ -504,6 +511,13 @@ def _gui_parse_udp(my_app, s, ip="127.0.0.1"):
         _lock_icon(PERIOD_SHOW_LOGGER_DL_OK_SECS)
         ct = "done " + v
         ci = "ok.png"
+
+    elif f == STATE_DDS_BLE_DOWNLOAD_STATISTICS:
+        # v: can be filled or empty
+        a.lbl_summary_dl.setText(v)
+        a.lbl_summary_dl.setVisible(bool(v))
+        # do nothing, keep like STATE_DDS_BLE_DOWNLOAD_OK
+        f = STATE_DDS_BLE_DOWNLOAD_OK
 
     elif f == STATE_DDS_BLE_DOWNLOAD_WARNING:
         # at least same value as orange mac

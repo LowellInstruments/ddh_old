@@ -190,7 +190,7 @@ def _data_get_prune_period(x, met):
     return 1
 
 
-@lru_cache(maxsize=256)
+@lru_cache(maxsize=512)
 def cached_read_csv(f):
     df = pd.read_csv(f)
     if df.empty:
@@ -198,7 +198,7 @@ def cached_read_csv(f):
     return df
 
 
-@lru_cache(maxsize=256)
+@lru_cache(maxsize=512)
 def process_graph_csv_data(fol, _, h, hi) -> dict:
 
     # 2nd parameter ignored, only use by lru_cache()

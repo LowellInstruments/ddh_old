@@ -41,7 +41,7 @@
        </font>
       </property>
       <property name="currentIndex">
-       <number>4</number>
+       <number>0</number>
       </property>
       <widget class="QWidget" name="tab">
        <property name="sizePolicy">
@@ -73,7 +73,7 @@
            </spacer>
           </item>
           <item row="3" column="1">
-           <layout class="QHBoxLayout" name="horizontalLayout_11" stretch="1,4">
+           <layout class="QHBoxLayout" name="horizontalLayout_11" stretch="1,4,1">
             <item>
              <widget class="QLabel" name="lbl_testmode">
               <property name="maximumSize">
@@ -144,6 +144,35 @@
               </property>
               <property name="wordWrap">
                <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLabel" name="lbl_summary_dl">
+              <property name="maximumSize">
+               <size>
+                <width>100</width>
+                <height>16777215</height>
+               </size>
+              </property>
+              <property name="font">
+               <font>
+                <pointsize>14</pointsize>
+                <weight>50</weight>
+                <bold>false</bold>
+               </font>
+              </property>
+              <property name="autoFillBackground">
+               <bool>false</bool>
+              </property>
+              <property name="frameShape">
+               <enum>QFrame::Box</enum>
+              </property>
+              <property name="textFormat">
+               <enum>Qt::PlainText</enum>
+              </property>
+              <property name="alignment">
+               <set>Qt::AlignCenter</set>
               </property>
              </widget>
             </item>

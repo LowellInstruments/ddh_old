@@ -1,8 +1,10 @@
 import json
+import math
 import multiprocessing
 import sys
 from math import ceil
 from multiprocessing import Process
+from statistics import mean
 
 import numpy as np
 import time
@@ -15,16 +17,18 @@ from PyQt5.QtCore import QTime, QCoreApplication
 import pyqtgraph as pg
 from pyqtgraph.Qt import QtGui
 from pyqtgraph import LinearRegionItem
-from ddh.utils_graph import utils_graph_read_fol_req_file, \
+from ddh.utils_graph import (utils_graph_read_fol_req_file, \
     utils_graph_get_abs_fol_list, process_graph_csv_data, \
     utils_graph_does_exist_fol_req_file, \
-    utils_graph_delete_fol_req_file, utils_graph_detect_this_file_has_fast_mode, utils_graph_tdo_classify_files_fast_mode
+    utils_graph_delete_fol_req_file, utils_graph_detect_this_file_has_fast_mode,
+                             utils_graph_tdo_classify_files_fast_mode)
 from dds.timecache import its_time_to
 from mat.linux import linux_is_process_running
 from mat.utils import linux_is_rpi
 from utils.ddh_config import dds_get_cfg_logger_mac_from_sn
-from utils.ddh_shared import get_dl_folder_path_from_mac, \
-    get_number_of_hauls
+from utils.ddh_shared import (get_dl_folder_path_from_mac,
+                              get_number_of_hauls, STATE_DDS_BLE_DOWNLOAD_STATISTICS,
+                              send_ddh_udp_gui as _u)
 from utils.logs import lg_gra as lg
 from utils.mavg import get_interesting_idx_ma
 
@@ -40,6 +44,11 @@ just_booted = True
 # this one is dynamic so it needs a backup
 p3 = None
 p3_bak = None
+
+
+def _percentile(data, perc: int):
+    size = len(data)
+    return sorted(data)[int(math.ceil((size * perc) / 100)) - 1]
 
 
 def gfm_serve():
@@ -614,6 +623,38 @@ def _process_n_graph(a, r=''):
     end_ts = time.perf_counter()
     el_ts = int((end_ts - start_ts) * 1000)
     lg.a(f'graphed {len(x)} {met} points, took {el_ts} ms')
+
+    # display summary interesting data keys:
+    # 'ISO 8601 Time': x,
+    # 'DO Concentration (mg/l) DO': doc,
+    # 'Temperature (C) DO': dot,
+    # 'Temperature (F) DO': dotf,
+    # 'Temperature (C) TDO': tdo_t,
+    # 'Temperature (F) TDO': tdo_tf,
+    # 'Pressure (dbar) TDO': tdo_p,
+    # 'Depth (fathoms) TDO': tdo_pf,
+
+    # clear it
+    _u(f"{STATE_DDS_BLE_DOWNLOAD_STATISTICS}/")
+    # if met == 'TDO' and r == 'BLE':
+    if met == 'TDO':
+        dp = data['Pressure (dbar) TDO']
+        dt = data['Temperature (F) TDO']
+        # create 80th percentile lists by threshold float
+        p80 = _percentile(dp, 80)
+        ls_p, ls_t = [], []
+        for i, p in enumerate(dp):
+            if p >= p80:
+                ls_p.append(dp[i])
+                ls_t.append(dt[i])
+        s = 'haul mean\n'
+        s += '{:5.2f} °C\n'.format(mean(ls_t))
+        s += '{:5.2f} dbar'.format(mean(ls_p))
+        _u(f"{STATE_DDS_BLE_DOWNLOAD_STATISTICS}/{s}")
+    # if met == 'DOT' and r == 'BLE':
+    if met == 'DOT':
+        # todo: do this
+        pass
 
 
 def process_n_graph(a, r=''):
