@@ -654,7 +654,9 @@ def _process_n_graph(a, r=''):
     # if met == 'DOT' and r == 'BLE':
     if met == 'DOT':
         # todo: do this
-        pass
+        s = 'haul mean\n'
+        s += '{:5.2f} mg/l\n'.format(12.34)
+        _u(f"{STATE_DDS_BLE_DOWNLOAD_STATISTICS}/{s}")
 
 
 def process_n_graph(a, r=''):
