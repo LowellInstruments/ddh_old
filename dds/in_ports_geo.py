@@ -13,11 +13,11 @@ g_last_in_port = False
 
 def dds_ask_in_port_to_ddn(g, notify=True):
 
+    global g_last_in_port
     if dds_get_cfg_skip_dl_in_port_en() == 0:
         # NOT in port when feature not-enabled
         return 0
 
-    global g_last_in_port
     s = 'tell_we_in_port'
     if query_is_it_time_to(s):
         # cache, prevent always asking API
@@ -39,7 +39,6 @@ def dds_ask_in_port_to_ddn(g, notify=True):
         rsp.raise_for_status()
         j = json.loads(rsp.content.decode())
         # j: {'in_port': True}
-        global g_last_in_port
         g_last_in_port = int(j['in_port'])
         its_time_to_so_annotate_it(s, 120)
         if g_last_in_port:
