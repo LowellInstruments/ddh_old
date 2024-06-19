@@ -4,6 +4,8 @@ import shlex
 import socket
 import time
 import shutil
+from math import ceil
+
 from PyQt5.QtCore import Qt, QCoreApplication
 from PyQt5.QtGui import QPixmap, QIcon
 from PyQt5.QtWidgets import (
@@ -772,7 +774,7 @@ def gui_ddh_set_brightness(a):
         return
 
     d = {
-        0: 12.25, 18: 12.25,
+        0: 5 / 255, 18: 5 / 255,
         1: 25.5 * 2, 17: 25.5 * 2,
         2: 25.5 * 3, 16: 25.5 * 3,
         3: 25.5 * 4, 15: 25.5 * 4,
@@ -794,7 +796,7 @@ def gui_ddh_set_brightness(a):
     o = sp.DEVNULL
     sp.run(shlex.split(s1), stdout=o, stderr=o)
     sp.run(shlex.split(s2), stdout=o, stderr=o)
-    a.lbl_brightness_txt.setText(str(int(100 * v / 255)) + "%")
+    a.lbl_brightness_txt.setText(str(ceil(100 * v / 255)) + "%")
 
 
 class ButtonPressEvent:
