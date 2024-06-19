@@ -794,7 +794,7 @@ def gui_ddh_set_brightness(a):
     o = sp.DEVNULL
     sp.run(shlex.split(s1), stdout=o, stderr=o)
     sp.run(shlex.split(s2), stdout=o, stderr=o)
-    a.lbl_brightness_txt.setText(str(int(v / 255)) + "%")
+    a.lbl_brightness_txt.setText(str(int(v / 255) * 100) + "%")
 
 
 class ButtonPressEvent:
