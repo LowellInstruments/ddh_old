@@ -53,6 +53,7 @@ STATE_DDS_BLE_ERROR_RUN = "state_dds_ble_error_run"
 STATE_DDS_BLE_CONNECTING = 'state_dds_ble_connecting'
 
 
+STATE_DDS_PRESSED_BUTTON_1 = 'state_dds_pressed_button1'
 STATE_DDS_PRESSED_BUTTON_2 = 'state_dds_pressed_button2'
 
 

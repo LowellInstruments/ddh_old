@@ -72,6 +72,7 @@ from utils.ddh_shared import (
     STATE_DDS_BLE_NO_ASSIGNED_LOGGERS, get_ddh_commit,
     get_ddh_rerun_flag_li, ddh_get_root_folder_path, STATE_DDS_BLE_CONNECTING, STATE_DDS_PRESSED_BUTTON_2,
     get_ddh_sw_version, STATE_DDS_GPS_IN_PORT, STATE_DDS_BAD_CONF, STATE_DDS_BLE_DOWNLOAD_STATISTICS,
+    STATE_DDS_PRESSED_BUTTON_1,
 )
 from utils.logs import lg_gui as lg
 
@@ -546,6 +547,9 @@ def _gui_parse_udp(my_app, s, ip="127.0.0.1"):
         ct = "radio error"
         ci = "blue_err.png"
 
+    elif f == STATE_DDS_PRESSED_BUTTON_1:
+        a.keyPressEvent(ButtonPressEvent(Qt.Key_1))
+
     elif f == STATE_DDS_PRESSED_BUTTON_2:
         a.keyPressEvent(ButtonPressEvent(Qt.Key_2))
 
@@ -767,29 +771,30 @@ def gui_ddh_set_brightness(a):
         lg.a("not raspberry, no brightness control")
         return
 
-    nc = a.num_clicks_brightness
-    assert 1 <= nc <= 10
+    d = {
+        0: 12.25, 18: 12.25,
+        1: 25.5 * 2, 17: 25.5 * 2,
+        2: 25.5 * 3, 16: 25.5 * 3,
+        3: 25.5 * 4, 15: 25.5 * 4,
+        4: 25.5 * 5, 14: 25.5 * 5,
+        5: 25.5 * 6, 13: 25.5 * 6,
+        6: 25.5 * 7, 12: 25.5 * 7,
+        7: 25.5 * 8, 11: 25.5 * 8,
+        8: 25.5 * 9, 10: 25.5 * 9,
+        9: 25.5 * 10
+    }
 
-    # 25.5 is 255 / 10 -> 10%
-    v = int(nc * 25.5)
-
-    # special value for lowest click, 10 minimum or pitch black
-    one_percent = 10
-    if nc == 1:
-        v = one_percent
-
-    lg.a("setting brightness to {}".format(v))
+    v = int(d[a.num_clicks_brightness])
+    lg.a(f"setting brightness to {v}")
     b1 = '/sys/class/backlight/rpi_backlight/brightness"'
     b2 = '/sys/class/backlight/10-0045/brightness"'
     # requires root or $ chmod 777 /sys/class.../backlight
-    s1 = 'bash -c "echo {} > {}'.format(str(v), b1)
-    s2 = 'bash -c "echo {} > {}'.format(str(v), b2)
+    s1 = f'bash -c "echo {str(v)} > {b1}'
+    s2 = f'bash -c "echo {str(v)} > {b2}'
     o = sp.DEVNULL
     sp.run(shlex.split(s1), stdout=o, stderr=o)
     sp.run(shlex.split(s2), stdout=o, stderr=o)
-    if nc == 1:
-        nc = 0.5
-    a.lbl_brightness_txt.setText(str(nc * 10) + "%")
+    a.lbl_brightness_txt.setText(str(int(v / 255)) + "%")
 
 
 class ButtonPressEvent:

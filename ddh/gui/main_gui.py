@@ -98,7 +98,7 @@ class DDH(QMainWindow, d_m.Ui_MainWindow):
         self.tab_recipe_wgt_ref = None
         self.tab_graph_wgt_ref = None
         self.key_pressed = None
-        self.num_clicks_brightness = 10
+        self.num_clicks_brightness = 9  # index for 100%
         self.lbl_ble_img_filled = False
         self.boat_pressed = 0
         self.commit_pressed = 0
@@ -353,8 +353,8 @@ class DDH(QMainWindow, d_m.Ui_MainWindow):
 
     def click_lbl_brightness(self, _):
         # no shift key, adjust DDH brightness
-        v = (self.num_clicks_brightness + 1) % 11
-        self.num_clicks_brightness = 1 if v == 0 else v
+        # 5,20,30,40,50,60,70,80,90,100,90,80,70,60,50,40,30,20
+        self.num_clicks_brightness = (self.num_clicks_brightness + 1) % 18
         gui_ddh_set_brightness(self)
 
     @staticmethod
@@ -507,6 +507,9 @@ class DDH(QMainWindow, d_m.Ui_MainWindow):
         # ------------------------------
         if ev.key() == Qt.Key_1:
             lg.a("debug: main_gui detect pressed button 1")
+            self.num_clicks_brightness = (self.num_clicks_brightness + 1) % 18
+            gui_ddh_set_brightness(self)
+            return
 
         elif ev.key() == Qt.Key_2:
             lg.a("debug: main_gui detect pressed button 2")
