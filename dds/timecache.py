@@ -7,24 +7,29 @@ _g_timecache = Cache(maxsize=TIM_CACHE_MAX_SIZE,
                      ttl=0, timer=time.time, default=None)
 
 
-def its_time_to(k, t):
-    if k in _g_timecache:
-        return False
+def query_is_it_time_to(k):
+    return k not in _g_timecache
+
+
+def its_time_to_so_annotate_it(k, t):
     _g_timecache.add(k, k, ttl=t)
-    return True
 
 
-def check_if_its_time_to(k):
-    return k in _g_timecache
+def is_it_time_to(k, t):
+    if query_is_it_time_to(k):
+        its_time_to_so_annotate_it(k, t)
+        return True
+    # not enough time has passed since last occurrence of this
+    return False
 
 
 def main():
-    v = its_time_to("test", 3)
+    v = is_it_time_to("test", 3)
     print(v)
-    v = its_time_to("test", 3)
+    v = is_it_time_to("test", 3)
     print(v)
     time.sleep(3)
-    v = its_time_to("test", 3)
+    v = is_it_time_to("test", 3)
     print(v)
 
 

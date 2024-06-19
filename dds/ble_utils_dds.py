@@ -12,7 +12,7 @@ from dds.gps import gps_simulate_boat_speed
 from dds.in_ports_geo import dds_ask_in_port_to_ddn
 from dds.macs import dds_create_folder_macs_color
 from dds.notifications import notify_ddh_error_hw_ble
-from dds.timecache import its_time_to
+from dds.timecache import is_it_time_to
 from mat.ble.ble_mat_utils import ble_mat_get_bluez_version
 from mat.utils import linux_is_rpi
 from utils.ddh_config import dds_get_cfg_monitored_macs, dds_get_cfg_flag_purge_black_macs_on_boot, \
@@ -116,11 +116,11 @@ def ble_tell_gui_antenna_type(_h, desc):
     # from time to time
     _ad = f"hci{_h}"
     s = f"using {desc} antenna, adapter {_ad}"
-    if its_time_to(s, 60):
+    if is_it_time_to(s, 60):
         _u(f"{STATE_DDS_BLE_ANTENNA}/{desc} radio")
 
     # run this once
-    if its_time_to('tell_gui_antenna_type', 3600):
+    if is_it_time_to('tell_gui_antenna_type', 3600):
         lg.a('\n')
         lg.a('-----------------------')
         lg.a(s)
@@ -164,7 +164,7 @@ def ble_check_antenna_up_n_running(g, h: int):
     e = f"error: ble_check_antenna_up_n_running #{h}"
     _u(STATE_DDS_BLE_HARDWARE_ERROR)
     time.sleep(5)
-    if its_time_to(e, 600):
+    if is_it_time_to(e, 600):
         lg.a(e.format(e))
         notify_ddh_error_hw_ble(g)
 

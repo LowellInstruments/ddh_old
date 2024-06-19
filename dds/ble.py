@@ -21,7 +21,7 @@ from dds.macs import (
 )
 from dds.notifications import notify_logger_download, \
     notify_logger_error_retries, LoggerNotification, notify_logger_dox_hypoxia
-from dds.timecache import its_time_to
+from dds.timecache import is_it_time_to
 from mat.ble.ble_mat_utils import (ble_mat_get_antenna_type,
                                    ble_mat_systemctl_restart_bluetooth)
 from dds.ble_dl_rn4020 import ble_interact_rn4020
@@ -52,7 +52,7 @@ _g_logger_errors = {}
 
 
 def _ble_tell_logger_seen(mac, _b, _o):
-    if its_time_to(f'tell_saw_mac_{mac}', 1800):
+    if is_it_time_to(f'tell_saw_mac_{mac}', 1800):
         sn = dds_get_cfg_logger_sn_from_mac(mac)
         lg.a(f"warning: logger {sn} / mac {mac} nearby")
         if _b:
@@ -250,7 +250,7 @@ async def _ble_id_n_interact_logger(mac, info: str, h, g):
         rv = await ble_interact_moana(fol, mac, hs, g)
         if rv == 2:
             _u(STATE_DDS_BLE_ERROR_MOANA_PLUGIN)
-            if its_time_to(f'tell_error_moana_plugin', 900):
+            if is_it_time_to(f'tell_error_moana_plugin', 900):
                 lg.a('error: no Moana plugin installed')
             time.sleep(5)
             # 0 because this is not a BLE interaction error

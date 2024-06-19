@@ -22,7 +22,7 @@ from ddh.utils_graph import (utils_graph_read_fol_req_file, \
     utils_graph_does_exist_fol_req_file, \
     utils_graph_delete_fol_req_file, utils_graph_detect_this_file_has_fast_mode,
                              utils_graph_tdo_classify_files_fast_mode)
-from dds.timecache import its_time_to
+from dds.timecache import is_it_time_to
 from mat.linux import linux_is_process_running
 from mat.utils import linux_is_rpi
 from utils.ddh_config import dds_get_cfg_logger_mac_from_sn
@@ -73,7 +73,7 @@ def gfm_serve():
         lg.a(f"error: seems last {_P_} took a long time")
     else:
         s = f'launching {_P_}'
-        if its_time_to(s, 600):
+        if is_it_time_to(s, 600):
             # lg.a(s)
             p = Process(target=_gfm_serve)
             p.start()

@@ -1,4 +1,4 @@
-from dds.timecache import its_time_to
+from dds.timecache import is_it_time_to
 from utils.ddh_shared import send_ddh_udp_gui as _u
 from utils.ddh_shared import STATE_DDS_NOTIFY_NET_VIA
 import subprocess as sp
@@ -33,7 +33,7 @@ def ddh_get_internet_via():
 
 def net_serve():
 
-    if not its_time_to("get_internet_via", 60):
+    if not is_it_time_to("get_internet_via", 60):
         return
 
     via = _get_internet_via()

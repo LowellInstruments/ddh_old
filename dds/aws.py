@@ -11,7 +11,7 @@ from multiprocessing import Process
 import setproctitle
 from dds.emolt import this_box_has_grouped_s3_uplink
 from dds.notifications import notify_error_sw_aws_s3
-from dds.timecache import its_time_to
+from dds.timecache import is_it_time_to
 from mat.linux import linux_is_process_running
 from mat.utils import linux_is_rpi
 from utils.ddh_config import dds_get_cfg_vessel_name, dds_get_cfg_aws_en, dds_get_cfg_aws_credential
@@ -210,7 +210,7 @@ def aws_serve():
     exists_flag_gui = os.path.exists(flag_gui)
 
     # nothing to do
-    if not its_time_to("aws_s3_sync", PERIOD_AWS_S3_SECS) \
+    if not is_it_time_to("aws_s3_sync", PERIOD_AWS_S3_SECS) \
             and not exists_flag_gui:
         return
 

@@ -6,7 +6,7 @@ import json
 
 from dds.aws import ddh_write_aws_sqs_ts
 from dds.net import ddh_get_internet_via
-from dds.timecache import its_time_to
+from dds.timecache import is_it_time_to
 from utils.ddh_config import (
     dds_get_cfg_flag_sqs_en, dds_get_cfg_aws_credential)
 from utils.logs import lg_sqs as lg
@@ -52,7 +52,7 @@ def dds_create_folder_sqs():
 def sqs_serve():
 
     # this runs from time to time, not always
-    if not its_time_to("sqs_serve", 600):
+    if not is_it_time_to("sqs_serve", 600):
         return
 
     if not dds_get_cfg_flag_sqs_en():

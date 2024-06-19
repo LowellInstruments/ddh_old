@@ -7,7 +7,7 @@ import serial
 
 from dds.gpq import GpqW
 from dds.notifications import notify_ddh_error_hw_gps
-from dds.timecache import its_time_to
+from dds.timecache import is_it_time_to
 from mat.gps import PORT_CTRL, PORT_DATA
 from mat.utils import linux_is_rpi, linux_set_datetime
 from tzlocal import get_localzone
@@ -177,7 +177,7 @@ def _gps_parse_gsv_frame(data: bytes, force_print=False):
     # log satellites but not always
     try:
         n = int(data[3])
-        if force_print or its_time_to("show_gsv_frame", PERIOD_GPS_TELL_NUM_SATS_SECS):
+        if force_print or is_it_time_to("show_gsv_frame", PERIOD_GPS_TELL_NUM_SATS_SECS):
             _u("{}/{}".format(STATE_DDS_NOTIFY_GPS_NUM_SAT, n))
             if n < 7:
                 lg.a("{} satellites in view".format(n))
@@ -387,7 +387,7 @@ def gps_boot_wait_first():
 
 
 def gps_tell_vessel_name():
-    if not its_time_to("tell_vessel_name", PERIOD_GPS_TELL_VESSEL_SECS):
+    if not is_it_time_to("tell_vessel_name", PERIOD_GPS_TELL_VESSEL_SECS):
         return
     v = dds_get_cfg_vessel_name()
     _u("{}/{}".format(STATE_DDS_NOTIFY_BOAT_NAME, v))
@@ -404,7 +404,7 @@ def gps_check_for_errors(g) -> int:
         return 0
 
     # don't log GPS error too often
-    if its_time_to("tell_gps_hw_error", PERIOD_GPS_TELL_GPS_HW_ERROR_SECS):
+    if is_it_time_to("tell_gps_hw_error", PERIOD_GPS_TELL_GPS_HW_ERROR_SECS):
         lg.a("error: no GPS frame, examine further log messages")
         notify_ddh_error_hw_gps()
         return 1
@@ -454,7 +454,7 @@ def _gps_power_cycle():
 def gps_power_cycle_if_so(forced=False):
 
     # don't do this too often
-    if not forced and not its_time_to(
+    if not forced and not is_it_time_to(
             "check_we_need_gps_power_cycle", PERIOD_GPS_POWER_CYCLE):
         return
 
@@ -463,7 +463,7 @@ def gps_power_cycle_if_so(forced=False):
         return
 
     if _g_bu353s4_port:
-        if its_time_to("show_debug_power_cycle_gps_puck", PERIOD_GPS_TELL_PUCK_NO_PC):
+        if is_it_time_to("show_debug_power_cycle_gps_puck", PERIOD_GPS_TELL_PUCK_NO_PC):
             lg.a("debug: no power cycle BU-353-S4 GPS puck")
         return
 

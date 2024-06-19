@@ -6,7 +6,7 @@ from bleak.backends.bluezdbus.advertisement_monitor import OrPattern
 
 from dds.macs import macs_black, macs_orange
 from dds.notifications import notify_ddh_error_hw_ble
-from dds.timecache import its_time_to
+from dds.timecache import is_it_time_to
 from mat.ble.ble_mat_utils import ble_mat_get_bluez_version
 from utils.ddh_config import dds_get_cfg_monitored_macs
 from utils.ddh_shared import (
@@ -210,13 +210,13 @@ async def ble_scan(macs_mon, g, _h: int, _h_desc, t=6.0):
         # _our_devs: {'60:77:71:22:ca:6d': 'DO-2', ...}
         if len(_all) > 15:
             s = "warning: crowded BLE environment"
-            if its_time_to(s, t=3600 * 6):
+            if is_it_time_to(s, t=3600 * 6):
                 lg.a(s)
         return _our
 
     except (asyncio.TimeoutError, BleakError, OSError) as ex:
         e = "hardware error during scan! {}"
-        if its_time_to(e, 600):
+        if is_it_time_to(e, 600):
             lg.a(e.format(ex))
             notify_ddh_error_hw_ble(g)
         _u(STATE_DDS_BLE_HARDWARE_ERROR)

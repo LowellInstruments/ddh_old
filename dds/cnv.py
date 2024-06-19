@@ -4,7 +4,7 @@ import pathlib
 import pprint
 import threading
 
-from dds.timecache import its_time_to
+from dds.timecache import is_it_time_to
 from mat.data_converter import default_parameters, DataConverter
 from mat.data_file_factory import load_data_file
 from mat.lix import convert_lix_file, id_lid_file_flavor, LID_FILE_V1, LID_FILE_V2, lid_file_v2_has_sensor_data_type
@@ -145,7 +145,7 @@ def _cnv_serve():
         os.unlink(TMP_PATH_CNV_REQUESTED_VIA_GUI)
 
     # this function does not run always, only from time to time
-    if not its_time_to("do_some_conversions", PERIOD_CNV_SECS) and not forced:
+    if not is_it_time_to("do_some_conversions", PERIOD_CNV_SECS) and not forced:
         return
 
     # general banner
@@ -184,7 +184,7 @@ def cnv_serve():
         _cnv_serve()
     except (Exception, ) as ex:
         e = 'error: conversion exception ex ->'
-        if its_time_to(e, 3600 * 6):
+        if is_it_time_to(e, 3600 * 6):
             lg.a(f'{e} {ex}')
 
 

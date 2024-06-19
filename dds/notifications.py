@@ -5,7 +5,7 @@ import subprocess as sp
 import time
 import pytz
 import tzlocal
-from dds.timecache import its_time_to
+from dds.timecache import is_it_time_to
 from mat.ble.ble_mat_utils import ble_mat_get_antenna_type_v2
 from utils.logs import lg_sqs as lg
 from utils.ddh_config import (dds_get_cfg_box_sn,
@@ -164,7 +164,7 @@ def notify_error_sw_crash():
 
 
 def notify_ddh_alive(g):
-    if its_time_to("ddh_notification_alive", 3600 * 12):
+    if is_it_time_to("ddh_notification_alive", 3600 * 12):
         return _n(DDH_NOTIFICATION_STATUS_ALIVE, g)
 
 

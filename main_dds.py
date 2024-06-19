@@ -23,7 +23,6 @@ from dds.gps import (
     gps_power_cycle_if_so,
     gps_know_hat_firmware_version,
 )
-from dds.in_ports_geo import dds_ask_in_port_to_ddn
 from dds.macs import dds_create_folder_macs_color, dds_macs_color_show_at_boot
 from dds.net import net_serve
 from dds.notifications import notify_boot, notify_error_sw_crash, notify_ddh_needs_sw_update, \
@@ -40,7 +39,7 @@ from dds.ble_utils_dds import (
     ble_tell_gui_antenna_type,
     ble_check_antenna_up_n_running, dds_tell_software_update, dds_check_bluez_version, dds_create_buttons_thread,
 )
-from dds.timecache import its_time_to
+from dds.timecache import is_it_time_to
 from mat.linux import linux_app_write_pid_to_tmp, linux_is_process_running
 from mat.ble.ble_mat_utils import (
     ble_mat_disconnect_all_devices_ll,
@@ -213,7 +212,7 @@ def main_dds():
 def _alarm_dds_crash(n):
     if n == 0:
         return
-    if its_time_to('tell_dds_child_crash', 3600):
+    if is_it_time_to('tell_dds_child_crash', 3600):
         notify_error_sw_crash()
 
 

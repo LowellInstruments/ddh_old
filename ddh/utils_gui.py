@@ -18,7 +18,7 @@ from ddh.db.db_his import DbHis
 from ddh.graph import process_n_graph
 from ddh.utils_dtm import gui_populate_maps_tab
 from ddh.utils_net import net_get_my_current_wlan_ssid
-from dds.timecache import its_time_to
+from dds.timecache import is_it_time_to
 from locales.locales import _x
 from locales.strings import STR_SEARCHING_FOR_LOGGERS, STR_CONNECTING_LOGGER, STR_SYNCING_GPS_TIME
 from mat.ble.ble_mat_utils import DDH_GUI_UDP_PORT
@@ -710,7 +710,7 @@ def gui_timer_fxn(my_app):
     # update the maps tab, prevent freeze at boot
     if ddh_get_cfg_maps_en() and\
             _calc_app_uptime() > 10 and\
-            its_time_to('update_maps_tab', 3600):
+            is_it_time_to('update_maps_tab', 3600):
         gui_populate_maps_tab(a)
 
     _gui_update_icon_timer()

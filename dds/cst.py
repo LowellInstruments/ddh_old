@@ -9,7 +9,7 @@ from multiprocessing import Process
 import setproctitle
 
 from dds.gpq import GpqR, FMT_GPQ_TS_RECORD_DB
-from dds.timecache import its_time_to
+from dds.timecache import is_it_time_to
 from mat.linux import linux_is_process_running
 from utils.ddh_config import ddh_get_cfg_gear_type, dds_get_cfg_gpq_en
 from utils.ddh_shared import (get_ddh_folder_path_dl_files,
@@ -129,7 +129,7 @@ def cst_serve():
         lg.a(f"error: seems last {_P_} took a long time")
     else:
         s = f'launching {_P_}'
-        if its_time_to(s, 600):
+        if is_it_time_to(s, 600):
             # lg.a(s)
             p = Process(target=_cst_serve)
             p.start()

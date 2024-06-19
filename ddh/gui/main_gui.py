@@ -38,7 +38,7 @@ from ddh.utils_gui import (
 
 from dds.emolt import this_box_has_grouped_s3_uplink
 from dds.notifications import notify_via_sms
-from dds.timecache import its_time_to
+from dds.timecache import is_it_time_to
 from mat.linux import linux_is_process_running
 from mat.utils import linux_is_rpi
 from rpc.rpc_rx import th_srv_notify
@@ -208,7 +208,7 @@ class DDH(QMainWindow, d_m.Ui_MainWindow):
     @staticmethod
     def _tb_fxn():
         if not linux_is_process_running(NAME_EXE_DDS):
-            if its_time_to('tell_BLE_dead', 1800):
+            if is_it_time_to('tell_BLE_dead', 1800):
                 lg.a("warning: BLE service seems dead")
             send_ddh_udp_gui(STATE_DDS_BLE_SERVICE_INACTIVE)
 
@@ -379,7 +379,7 @@ class DDH(QMainWindow, d_m.Ui_MainWindow):
 
     def click_btn_sms(self):
         s: str
-        if its_time_to('sms', 3600):
+        if is_it_time_to('sms', 3600):
             s = 'sending'
             notify_via_sms('sms')
         else:

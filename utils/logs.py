@@ -2,7 +2,7 @@ import datetime
 import glob
 import os
 from pathlib import Path
-from dds.timecache import its_time_to
+from dds.timecache import is_it_time_to
 from utils.ddh_config import dds_get_cfg_vessel_name, dds_get_cfg_flag_download_test_mode
 from utils.ddh_shared import (
     get_ddh_folder_path_logs,
@@ -98,7 +98,7 @@ def dds_log_core_start_at_boot():
 # these TRACKING logs get uploaded
 def dds_log_tracking_add(lat, lon, tg):
 
-    if not its_time_to("track_boat_gps", t=10):
+    if not is_it_time_to("track_boat_gps", t=10):
         return
     if not lat:
         lg_dds.a("error: dds_log_tracking_add() no lat")
