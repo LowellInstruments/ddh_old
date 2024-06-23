@@ -61,7 +61,7 @@ def _ble_tell_logger_seen(mac, _b, _o):
             lg.a(f"warning: logger is under short forget time")
 
 
-def _ble_detect_hypoxia(f_lid, bat, g):
+def _ble_detect_hypoxia(f_lid, bat, g, u=''):
     # todo ---> test this hypoxia detection and notification
     try:
         if not f_lid.endswith('.lid') or not is_a_do2_file(f_lid):
@@ -73,8 +73,7 @@ def _ble_detect_hypoxia(f_lid, bat, g):
         sn = os.path.basename(f_csv).split('_')[0]
         mac = dds_get_cfg_logger_mac_from_sn(sn)
         ln = LoggerNotification(mac, sn, 'DOX', bat)
-        # todo ---> will do in the future
-        ln.uuid_interaction = ''
+        ln.uuid_interaction = u
         with open(f_csv, 'r') as f:
             ll = f.readlines()
             # headers: 'ISO 8601 Time,elapsed time (s),agg. time(s),Dissolved Oxygen (mg/l)...
@@ -87,18 +86,22 @@ def _ble_detect_hypoxia(f_lid, bat, g):
         lg.a(f'error: testing _ble_detect_hypoxia -> {ex}')
 
 
-def _ble_convert_lid(d):
+def _ble_convert_lid_after_download(d):
     ls_lid = d['dl_files']
     bat = d['battery_level']
     g = d['gps']
+    u = d['uuid_interaction']
 
     for f in ls_lid:
         # f: absolute file path ending in .lid
         n = id_lid_file_flavor(f)
         lg.a(f"after download converting LID file v{n} {f}")
         if n == LID_FILE_V2:
+            # ----------------------------
+            # convert DOX and TDO v2 files
+            # ----------------------------
             convert_lix_file(f)
-            _ble_detect_hypoxia(f, bat, g)
+            _ble_detect_hypoxia(f, bat, g, u)
         if n == LID_FILE_V1:
             # do the old MAT library conversion
             parameters = default_parameters()
@@ -239,8 +242,8 @@ async def _ble_id_n_interact_logger(mac, info: str, h, g):
         _crit_error = notes["crit_error"]
         _error_dl = notes["error"]
         rerun = notes['rerun']
-        _ble_convert_lid(notes)
-        # todo: add haul summary data next to Green Checkmark
+        notes['uuid_interaction'] = uuid_interaction
+        _ble_convert_lid_after_download(notes)
 
     elif _ble_logger_is_rn4020(mac, info):
         rv = await ble_interact_rn4020(mac, info, g, hs)
@@ -266,8 +269,8 @@ async def _ble_id_n_interact_logger(mac, info: str, h, g):
         _crit_error = notes["crit_error"]
         _error_dl = notes["error"]
         rerun = notes['rerun']
-        _ble_convert_lid(notes)
-        # todo: add haul summary data next to Green Checkmark
+        notes['uuid_interaction'] = uuid_interaction
+        _ble_convert_lid_after_download(notes)
 
     else:
         lg.a(f'error: this should not happen, info {info}')

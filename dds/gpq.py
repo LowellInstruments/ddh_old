@@ -15,14 +15,22 @@ FMT_GPQ_TS_FILENAME = '%y%m%d%H.json'
 
 
 # -----------------------------------------------
-# Global Position query W/R class
-# you can ask it where the local ship was
-# on a certain time; it returns:
-#     - the closest time
+# Global Position query W/R class,
+# ask where local ship was at a certain time!
+# it returns:
+#     - closest time to the queried one
 #     - associated position
 #     - time diff
-# between both time values
 # -----------------------------------------------
+
+
+VERBOSE = False
+
+
+def _p(s):
+    if not VERBOSE:
+        return
+    print(s)
 
 
 class GpqW:
@@ -35,18 +43,18 @@ class GpqW:
         os.makedirs(os.path.dirname(p), exist_ok=True)
         dt_s = dt.strftime(FMT_GPQ_TS_RECORD_DB)
         if os.path.exists(p):
-            print(f'GPQ_W: already exists {f}')
+            _p(f'GPQ_W: already exists {f}')
         self.db.load(p)
         self.db.add({'t': dt_s, 'lat': lat, 'lon': lon})
         self.db.commit(p)
-        print(f'GPQ_W: add {dt_s} -> {f}')
+        _p(f'GPQ_W: add {dt_s} -> {f}')
 
 
 class GpqR:
 
     # -------------------------------------
     # this is used to get gps positions
-    # for MOBILE mode, not fixed
+    # on MOBILE mode, not fixed
     # --------------------------------------
 
     def __init__(self):
@@ -59,18 +67,18 @@ class GpqR:
         # infer the database filename
         f = 'mobile_' + dt.strftime(FMT_GPQ_TS_FILENAME)
         p = f'{get_ddh_folder_path_gpq_files()}/{f}'
-        print(f'GPQ_R: value {dt} -> load ask for file {f}')
+        _p(f'GPQ_R: value {dt} -> load ask for file {f}')
         if not os.path.exists(p):
-            print(f'GPQ_R: load error -> {basename(p)} file does not exist')
+            _p(f'GPQ_R: load error -> {basename(p)} file does not exist')
             return
         if f in self.ls:
-            print(f'GPQ_R: load already -> {basename(p)}')
+            _p(f'GPQ_R: load already -> {basename(p)}')
             return
 
         # load the database filename
         self.db.load(p)
         _rr = self.db.get_all().values()
-        print(f'GPQ_R: load OK -> {len(_rr)} rows from {basename(p)}')
+        _p(f'GPQ_R: load OK -> {len(_rr)} rows from {basename(p)}')
         d = {r['t']: (r['lat'], r['lon']) for r in _rr}
         self.all.update(d)
         self.ls.append(f)
@@ -89,31 +97,31 @@ class GpqR:
         # our built big dictionary does not even have values
         if not t:
             return -1, -1, None
-        print(f'GPQ_R: value query {s}')
-        print(f'GPQ_R: range GPQ DB [ {t[0]} - {t[-1]} ] = {len(t)} rows')
+        _p(f'GPQ_R: value query {s}')
+        _p(f'GPQ_R: range GPQ DB [ {t[0]} - {t[-1]} ] = {len(t)} rows')
         i = bisect.bisect_right(t, s)
 
         # value is too early for our big dictionary
         if i == 0:
-            print(f'\tvalue {s} -> pre-range')
+            _p(f'\tvalue {s} -> pre-range')
             return 0, -1, None
 
         # value might be useful for calling functions,
         # such as CST, depending on diff
         if i >= len(t):
-            print(f'\tvalue {s} -> post-range')
+            _p(f'\tvalue {s} -> post-range')
         else:
-            print(f'\tvalue {s} -> in-range')
+            _p(f'\tvalue {s} -> in-range')
         now = datetime.strptime(s, FMT_GPQ_TS_RECORD_DB)
         bef = datetime.strptime(t[i - 1], FMT_GPQ_TS_RECORD_DB)
         _diff = (now - bef).total_seconds()
-        print('\ti', i)
-        print('\tdiff', _diff)
+        _p('\ti', i)
+        _p('\tdiff', _diff)
 
         # get the closest candidate value
         c = list(self.all.items())[i - 1]
         if i != -1:
-            print('\tcandidate', c)
+            _p('\tcandidate', c)
 
         # the calling function decides if _diff is ok or too much
         # i: index in array
@@ -164,8 +172,9 @@ if __name__ == '__main__':
 
 def dds_create_file_fixed_gpq(g, filename):
     """
+    called when downloading loggers on FIXED gear mode
+    MOBILE mode, does not use GPQ file, all done in cst.py
     ble --> fixed_filename.gpq --> cst_serve
-    called when downloading loggers attached to FIXED gear
     """
     if not filename.endswith('.lid'):
         return

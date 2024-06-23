@@ -73,7 +73,9 @@ def _create_cst_files():
             ll_fv = fv.readlines()
             lg.a(f'debug: generating CST, file {f_csv} has {len(ll_fv)} lines')
 
+        # ----------------------------------------------------------------
         # fixed mode: CST file uses 1 location from fixed_*.json GPQ file
+        # ----------------------------------------------------------------
         f_gpq = f'{get_ddh_folder_path_gpq_files()}/'\
                 f'fixed_{os.path.basename(i_lid[:-4])}.json'
         if os.path.exists(f_gpq):
@@ -86,7 +88,9 @@ def _create_cst_files():
             ft.close()
             continue
 
+        # --------------------------------------------------------------------
         # mobile mode: CST file uses N locations from mobile_*.json GPQ files
+        # --------------------------------------------------------------------
         ft = open(f_cst, 'w')
         ft.write('lat,lon,' + ll_fv[0])
         ok_i = 0
