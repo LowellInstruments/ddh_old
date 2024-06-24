@@ -12,7 +12,7 @@ from utils.tmp_paths import LI_PATH_DDH_VERSION, TMP_PATH_GPS_LAST_JSON, TMP_PAT
 
 CTT_API_OK = 'ok'
 CTT_API_ER = 'error'
-DDH_API_VERSION = "0.8.00"
+DDH_API_VERSION = "1.0.00"
 
 
 def api_get_api_version():
@@ -296,7 +296,7 @@ def api_get_ble_iface():
             return json.load(f)['ble_iface_used']
     except (Exception, ) as ex:
         print(f'{CTT_API_ER}: cannot api_get_ble_iface -> {ex}')
-        return 'error'
+        return None
 
 
 def api_get_commits():

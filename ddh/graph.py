@@ -634,30 +634,33 @@ def _process_n_graph(a, r=''):
     # 'Pressure (dbar) TDO': tdo_p,
     # 'Depth (fathoms) TDO': tdo_pf,
 
-    # clear it
-    _u(f"{STATE_DDS_BLE_DOWNLOAD_STATISTICS}/")
+    # ------------------------------------------------
+    # for now we do not show the download statistics
+    # todo ---> reenable this
+    # ------------------------------------------------
+    # _u(f"{STATE_DDS_BLE_DOWNLOAD_STATISTICS}/")
     # if met == 'TDO' and r == 'BLE':
-    if met == 'TDO':
-        dp = data['Pressure (dbar) TDO']
-        dt = data['Temperature (F) TDO']
-        # create 80th percentile lists by threshold float
-        p80 = _percentile(dp, 80)
-        ls_p, ls_t = [], []
-        for i, p in enumerate(dp):
-            if p >= p80:
-                ls_p.append(dp[i])
-                ls_t.append(dt[i])
-        s = 'haul mean\n'
-        s += '{:5.2f} °C\n'.format(mean(ls_t))
-        s += '{:5.2f} dbar'.format(mean(ls_p))
-        _u(f"{STATE_DDS_BLE_DOWNLOAD_STATISTICS}/{s}")
+    # # if met == 'TDO':
+    #     dp = data['Pressure (dbar) TDO']
+    #     dt = data['Temperature (F) TDO']
+    #     # create 80th percentile lists by threshold float
+    #     p80 = _percentile(dp, 80)
+    #     ls_p, ls_t = [], []
+    #     for i, p in enumerate(dp):
+    #         if p >= p80:
+    #             ls_p.append(dp[i])
+    #             ls_t.append(dt[i])
+    #     s = 'haul mean\n'
+    #     s += '{:5.2f} °C\n'.format(mean(ls_t))
+    #     s += '{:5.2f} dbar'.format(mean(ls_p))
+    #     _u(f"{STATE_DDS_BLE_DOWNLOAD_STATISTICS}/{s}")
     # if met == 'DO' and r == 'BLE':
-    if met == 'DO':
-        # todo: do this
-        _do = data['DO Concentration (mg/l) DO']
-        s = 'haul mean\n'
-        s += '{:5.2f} mg_l'.format(mean(_do))
-        _u(f"{STATE_DDS_BLE_DOWNLOAD_STATISTICS}/{s}")
+    # # if met == 'DO':
+    #     # todo: do this
+    #     _do = data['DO Concentration (mg/l) DO']
+    #     s = 'haul mean\n'
+    #     s += '{:5.2f} mg_l'.format(mean(_do))
+    #     _u(f"{STATE_DDS_BLE_DOWNLOAD_STATISTICS}/{s}")
 
 
 def process_n_graph(a, r=''):

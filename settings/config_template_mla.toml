@@ -1,0 +1,44 @@
+[credentials]
+cred_aws_bucket = "bkt-abc"
+cred_aws_key_id = ""
+cred_aws_secret = ""
+cred_aws_sqs_queue_name = ""
+cred_ddh_serial_number = ""
+cred_ddh_project_name = ""
+cred_aws_custom_sqs_key_id = ""
+cred_aws_custom_sqs_access_key = ""
+
+[behavior]
+ship_name = "nameofboat"
+forget_time = 86400
+gear_type = 0
+moving_speed = [ 0.5, 7.0,]
+fake_gps_position = [ 41.63, -70.91,]
+# use [ 41.63, -70.91,] for a known port GPS position
+
+
+[monitored_macs]
+# example
+# "aa:bb:cc:dd:ee:ff" = "1234556"
+
+
+
+[flags]
+# upload of files to AWS
+aws_en = 1
+# notifications, e-mails, etc.
+sqs_en = 1
+# Bluetooth
+ble_en = 1
+# generation of CST (CSV + tracking) combo files
+gpq_en = 0
+# bottom temperature maps
+maps_en = 1
+# support SMS
+sms_en = 0
+# download loggers when in port (0) or skip (1)
+skip_dl_in_port_en = 0
+# debug flags
+hook_gps_error_measurement_forced = 0
+hook_ble_purge_black_macs_on_boot = 0
+hook_ble_purge_this_mac_dl_files_folder = 0

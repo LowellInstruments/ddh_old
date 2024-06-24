@@ -62,7 +62,6 @@ def _ble_tell_logger_seen(mac, _b, _o):
 
 
 def _ble_detect_hypoxia_after_download(f_lid, bat, g, u=''):
-    # todo ---> test this hypoxia detection and notification
     try:
         if not f_lid.endswith('.lid') or not is_a_do2_file(f_lid):
             return
@@ -80,11 +79,6 @@ def _ble_detect_hypoxia_after_download(f_lid, bat, g, u=''):
             # headers: 'ISO 8601 Time,elapsed time (s),agg. time(s),Dissolved Oxygen (mg/l)...
             for i in ll[1:]:
                 do_mg_l = float(i.split(',')[3])
-
-                # todo ---> remove this
-                print('do_mg_l', do_mg_l)
-                do_mg_l = 0
-
                 if do_mg_l <= 0.0:
                     notify_logger_dox_hypoxia(g, ln)
                     break
