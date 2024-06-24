@@ -107,7 +107,8 @@ async def api_upload_conf(file: UploadFile = File(...)):
 @app.get('/sim')
 async def api_get_iccid():
     if not os.path.exists(LI_FILE_ICCID):
-        return {'iccid': status.HTTP_404_NOT_FOUND}
+        # not even Quectel shield detected
+        return {'iccid': None}
     try:
         with open(LI_FILE_ICCID, 'r') as f:
             ll = f.readlines()

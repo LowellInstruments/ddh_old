@@ -61,7 +61,7 @@ def _ble_tell_logger_seen(mac, _b, _o):
             lg.a(f"warning: logger is under short forget time")
 
 
-def _ble_detect_hypoxia(f_lid, bat, g, u=''):
+def _ble_detect_hypoxia_after_download(f_lid, bat, g, u=''):
     # todo ---> test this hypoxia detection and notification
     try:
         if not f_lid.endswith('.lid') or not is_a_do2_file(f_lid):
@@ -69,6 +69,7 @@ def _ble_detect_hypoxia(f_lid, bat, g, u=''):
         f_csv = f_lid.replace('.lid', '_DissolvedOxygen.csv')
         if not os.path.exists(f_csv):
             return
+
         # f_csv: 2404725_lab_20240407_230609.csv
         sn = os.path.basename(f_csv).split('_')[0]
         mac = dds_get_cfg_logger_mac_from_sn(sn)
@@ -79,6 +80,11 @@ def _ble_detect_hypoxia(f_lid, bat, g, u=''):
             # headers: 'ISO 8601 Time,elapsed time (s),agg. time(s),Dissolved Oxygen (mg/l)...
             for i in ll[1:]:
                 do_mg_l = float(i.split(',')[3])
+
+                # todo ---> remove this
+                print('do_mg_l', do_mg_l)
+                do_mg_l = 0
+
                 if do_mg_l <= 0.0:
                     notify_logger_dox_hypoxia(g, ln)
                     break
@@ -101,7 +107,7 @@ def _ble_convert_lid_after_download(d):
             # convert DOX and TDO v2 files
             # ----------------------------
             convert_lix_file(f)
-            _ble_detect_hypoxia(f, bat, g, u)
+            _ble_detect_hypoxia_after_download(f, bat, g, u)
         if n == LID_FILE_V1:
             # do the old MAT library conversion
             parameters = default_parameters()

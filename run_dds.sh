@@ -28,7 +28,7 @@ if [ "$rv" -eq 0 ]; then
     rv=$?
     if [ "$rv" -eq 0 ]; then
         echo -ne "AT+QCCID\r" > /dev/ttyUSB4 && \
-        sleep 0.1 && timeout 1 cat -v < /dev/ttyUSB4 > "$LI_FILE_ICCID"
+        sleep 0.1 && timeout 1 cat -v < /dev/ttyUSB4 | grep QCCID > "$LI_FILE_ICCID"
         touch "$LI_PATH_DDH_GPS_CELL_SHIELD_USB4"
     else
       # usually, quectel cell USB control port is at ttyUSB2
@@ -36,7 +36,7 @@ if [ "$rv" -eq 0 ]; then
         rv=$?
         if [ "$rv" -eq 0 ]; then
             echo -ne "AT+QCCID\r" > /dev/ttyUSB2 && \
-            sleep 0.1 && timeout 1 cat -v < /dev/ttyUSB2 > "$LI_FILE_ICCID"
+            sleep 0.1 && timeout 1 cat -v < /dev/ttyUSB2 | grep QCCID > "$LI_FILE_ICCID"
         fi
     fi
 fi
