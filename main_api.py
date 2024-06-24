@@ -119,6 +119,8 @@ async def api_get_iccid():
                 s = s.replace('\n', '')
                 s = s.split()[1]
                 return {'iccid': s}
+        # file there but empty, such as no SIM case
+        return {'iccid': None}
     except (Exception, ) as ex:
         return {'iccid': str(ex)}
 
