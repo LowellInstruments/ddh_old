@@ -170,6 +170,12 @@ def api_get_ddh_sw_version():
         return 'error_get_version'
 
 
+def api_get_shellinabox_active():
+    c = 'systemctl is-active shellinabox'
+    rv = _sh(c)
+    return int(rv.returncode == 0)
+
+
 def api_get_ip_wlan():
     return _get_iface_ip('wlan0')
 

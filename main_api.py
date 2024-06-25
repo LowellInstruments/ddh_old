@@ -17,7 +17,7 @@ from api.api_utils import (api_get_ip_vpn, api_get_ip_wlan, api_get_ip_cell,
                            api_get_timezone, CTT_API_OK,
                            CTT_API_ER, api_get_uptime_secs, api_ddh_get_folder_dl_files,
                            api_get_ddh_folder_path_macs_black, api_get_ddh_sw_version,
-                           api_get_utc_epoch, api_get_api_version, api_get_ble_iface,
+                           api_get_utc_epoch, api_get_api_version, api_get_ble_iface, api_get_shellinabox_active,
                            )
 from ddh.db.db_his import DbHis
 from utils.ddh_config import (dds_get_cfg_vessel_name,
@@ -156,7 +156,8 @@ async def api_get_info():
         "utc_time": _th(api_get_utc_epoch),
         "time_zone": _th(api_get_timezone),
         "ddh_version": _th(api_get_ddh_sw_version),
-        "api_version": _th(api_get_api_version)
+        "api_version": _th(api_get_api_version),
+        "shellinabox_active": _th(api_get_shellinabox_active)
         # "commit_mat": _th(get_git_commit_mat_local),
         # "commit_ddh": _th(get_git_commit_ddh_local),
     }
