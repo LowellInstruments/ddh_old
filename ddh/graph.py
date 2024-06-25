@@ -1,26 +1,25 @@
-import json
 import math
 import multiprocessing
 import sys
+import time
+from datetime import datetime
+from glob import glob
 from math import ceil
 from multiprocessing import Process
 from statistics import mean
 
 import numpy as np
-import time
-from datetime import datetime
-from glob import glob
-
+import pyqtgraph as pg
 import setproctitle
 from PyQt5 import QtCore
-from PyQt5.QtCore import QTime, QCoreApplication
-import pyqtgraph as pg
-from pyqtgraph.Qt import QtGui
+from PyQt5.QtCore import QCoreApplication
 from pyqtgraph import LinearRegionItem
-from ddh.utils_graph import (utils_graph_read_fol_req_file, \
-    utils_graph_get_abs_fol_list, process_graph_csv_data, \
-    utils_graph_does_exist_fol_req_file, \
-    utils_graph_delete_fol_req_file, utils_graph_detect_this_file_has_fast_mode,
+from pyqtgraph.Qt import QtGui
+
+from ddh.utils_graph import (utils_graph_read_fol_req_file,
+                             utils_graph_get_abs_fol_list, process_graph_csv_data,
+                             utils_graph_does_exist_fol_req_file,
+                             utils_graph_delete_fol_req_file, utils_graph_detect_this_file_has_fast_mode,
                              utils_graph_tdo_classify_files_fast_mode)
 from dds.timecache import is_it_time_to
 from mat.linux import linux_is_process_running
@@ -320,7 +319,6 @@ def _process_n_graph(a, r=''):
     # solves the problem of the x-axis ticks changing
     g.setAxisItems({"bottom": pg.DateAxisItem()})
 
-
     # grid or not
     g.showGrid(x=True, y=True)
 
@@ -456,7 +454,6 @@ def _process_n_graph(a, r=''):
         p1.setYRange(0, upper_top_do, padding=0)
         p2.setYRange(min(y2), max(y2), padding=0)
         p1.getAxis('bottom').setLabel(title, **_sty('black'))
-
 
         # alpha, for zones, the lower, the more transparent
         alpha = 85
@@ -624,43 +621,31 @@ def _process_n_graph(a, r=''):
     el_ts = int((end_ts - start_ts) * 1000)
     lg.a(f'graphed {len(x)} {met} points, took {el_ts} ms')
 
-    # display summary interesting data keys:
-    # 'ISO 8601 Time': x,
-    # 'DO Concentration (mg/l) DO': doc,
-    # 'Temperature (C) DO': dot,
-    # 'Temperature (F) DO': dotf,
-    # 'Temperature (C) TDO': tdo_t,
-    # 'Temperature (F) TDO': tdo_tf,
-    # 'Pressure (dbar) TDO': tdo_p,
-    # 'Depth (fathoms) TDO': tdo_pf,
-
-    # ------------------------------------------------
-    # for now we do not show the download statistics
-    # todo ---> reenable this
-    # ------------------------------------------------
-    # _u(f"{STATE_DDS_BLE_DOWNLOAD_STATISTICS}/")
-    # if met == 'TDO' and r == 'BLE':
-    # # if met == 'TDO':
-    #     dp = data['Pressure (dbar) TDO']
-    #     dt = data['Temperature (F) TDO']
-    #     # create 80th percentile lists by threshold float
-    #     p80 = _percentile(dp, 80)
-    #     ls_p, ls_t = [], []
-    #     for i, p in enumerate(dp):
-    #         if p >= p80:
-    #             ls_p.append(dp[i])
-    #             ls_t.append(dt[i])
-    #     s = 'haul mean\n'
-    #     s += '{:5.2f} °C\n'.format(mean(ls_t))
-    #     s += '{:5.2f} dbar'.format(mean(ls_p))
-    #     _u(f"{STATE_DDS_BLE_DOWNLOAD_STATISTICS}/{s}")
-    # if met == 'DO' and r == 'BLE':
-    # # if met == 'DO':
-    #     # todo: do this
-    #     _do = data['DO Concentration (mg/l) DO']
-    #     s = 'haul mean\n'
-    #     s += '{:5.2f} mg_l'.format(mean(_do))
-    #     _u(f"{STATE_DDS_BLE_DOWNLOAD_STATISTICS}/{s}")
+    _u(f"{STATE_DDS_BLE_DOWNLOAD_STATISTICS}/")
+    is_rpi = linux_is_rpi()
+    if met == 'TDO':
+        if (not is_rpi) or (is_rpi and r == 'BLE'):
+            dp = data['Pressure (dbar) TDO']
+            dt = data['Temperature (F) TDO']
+            # create 80th percentile lists by threshold float
+            p80 = _percentile(dp, 80)
+            ls_p, ls_t = [], []
+            for i, p in enumerate(dp):
+                if p >= p80:
+                    ls_p.append(dp[i])
+                    ls_t.append(dt[i])
+            s = 'haul mean\n'
+            s += '{:5.2f} dbar\n'.format(mean(ls_p))
+            s += '{:5.2f} °F'.format(mean(ls_t))
+            _u(f"{STATE_DDS_BLE_DOWNLOAD_STATISTICS}/{s}")
+    if met == 'DO':
+        if (not is_rpi) or (is_rpi and r == 'BLE'):
+            _do = data['DO Concentration (mg/l) DO']
+            dt = data['Temperature (F) DO']
+            s = 'haul mean\n'
+            s += '{:5.2f} mg_l\n'.format(mean(_do))
+            s += '{:5.2f} °F'.format(mean(dt))
+            _u(f"{STATE_DDS_BLE_DOWNLOAD_STATISTICS}/{s}")
 
 
 def process_n_graph(a, r=''):

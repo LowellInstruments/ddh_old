@@ -30,12 +30,13 @@ from fastapi.responses import FileResponse
 import concurrent.futures
 import subprocess as sp
 
-from utils.ddh_shared import NAME_EXE_API, dds_get_ddh_got_an_update_flag_file
-from utils.tmp_paths import LI_FILE_ICCID, TMP_PATH_DDH_APP_OVERRIDE
-
+from utils.tmp_paths import LI_FILE_ICCID, TMP_PATH_DDH_APP_OVERRIDE, TMP_PATH_DDH_GOT_UPDATE
 
 # instead, the DDN port is 9000
 DDH_PORT_API = 8000
+# do NOT remove this from here
+NAME_EXE_API = "main_api"
+
 
 
 app = FastAPI()
@@ -230,7 +231,7 @@ async def ep_update_ddh():
     d = api_ddt_get_folder_path_root()
     rv = _ep_update('update_ddh', f'{d}/pop_ddh.sh')
     if rv['update_ddh'] == CTT_API_OK:
-        f = dds_get_ddh_got_an_update_flag_file()
+        f = TMP_PATH_DDH_GOT_UPDATE
         pathlib.Path(f).touch(exist_ok=True)
     return rv
 
