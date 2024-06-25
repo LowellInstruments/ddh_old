@@ -80,7 +80,6 @@ NAME_EXE_DDS = "main_dds"
 NAME_EXE_API = "main_api"
 PID_FILE_DDH = "/tmp/{}.pid".format(NAME_EXE_DDH)
 PID_FILE_DDS = "/tmp/{}.pid".format(NAME_EXE_DDS)
-PID_FILE_API = "/tmp/{}.pid".format(NAME_EXE_API)
 NAME_EXE_DDH_CONTROLLER = NAME_EXE_DDH + "_controller"
 NAME_EXE_DDS_CONTROLLER = NAME_EXE_DDS + "_controller"
 PID_FILE_DDH_CONTROLLER = "/tmp/{}.pid".format(NAME_EXE_DDH_CONTROLLER)
@@ -199,11 +198,11 @@ def get_ddh_commit():
         return "none"
 
 
-def get_ddh_sw_version():
+def get_ddh_local_sw_version():
     try:
         with open(LI_PATH_DDH_VERSION, 'r') as f:
             return f.readline().replace('\n', '')
-    except (Exception, ) as ex:
+    except (Exception, ):
         return 'error_get_version'
 
 
@@ -284,7 +283,7 @@ def get_dl_folder_path_from_mac(mac):
 
 
 def create_folder_logger_by_mac(mac):
-    """mkdir folder based on mac, replaces ':' with '-'"""
+    """mkdir folder based on MAC address, replaces ':' with '-'"""
     fol = get_ddh_folder_path_dl_files()
     fol = fol / "{}/".format(mac.replace(":", "-").lower())
     os.makedirs(fol, exist_ok=True)

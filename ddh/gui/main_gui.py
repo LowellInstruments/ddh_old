@@ -61,7 +61,7 @@ from utils.ddh_shared import (
     dds_get_ddh_got_an_update_flag_file,
     STATE_DDS_SOFTWARE_UPDATED,
     ddh_get_db_history_file, ddh_kill_by_pid_file, get_ddh_toml_all_macs_content, set_ddh_rerun_flag_li,
-    clr_ddh_rerun_flag_li, dds_get_cnv_requested_via_gui_flag_file
+    clr_ddh_rerun_flag_li, dds_get_cnv_requested_via_gui_flag_file, NAME_EXE_API
 )
 
 from utils.logs import lg_gui as lg  # noqa: E402
@@ -254,7 +254,7 @@ class DDH(QMainWindow, d_m.Ui_MainWindow):
             s = "{}  {}".format(m, n)
             self.lst_mac_dst.addItem(s)
 
-    def click_btn_apply_write_json_file(self):
+    def click_btn_edit_tab_save_config(self):
         """creates a config file"""
 
         l_v = self.lst_mac_dst
@@ -300,6 +300,15 @@ class DDH(QMainWindow, d_m.Ui_MainWindow):
         s = "restarting DDH..."
         self.lbl_setup_result.setText(s)
         lg.a("closing by save config button")
+
+        # show the previous thing
+        QCoreApplication.processEvents()
+        time.sleep(1)
+
+        # also kill the DDH API so crontab restarts it
+        lg.a("kill API by save config button")
+        c = f'killall {NAME_EXE_API}'
+        sp.run(c, shell=True, stdout=sp.PIPE, stderr=sp.PIPE)
 
         # bye, bye DDS
         dds_kill_by_pid_file(only_child=False)

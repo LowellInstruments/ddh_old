@@ -73,7 +73,7 @@ from utils.ddh_shared import (
     ddh_get_db_history_file,
     STATE_DDS_BLE_NO_ASSIGNED_LOGGERS, get_ddh_commit,
     get_ddh_rerun_flag_li, ddh_get_root_folder_path, STATE_DDS_BLE_CONNECTING, STATE_DDS_PRESSED_BUTTON_2,
-    get_ddh_sw_version, STATE_DDS_GPS_IN_PORT, STATE_DDS_BAD_CONF, STATE_DDS_BLE_DOWNLOAD_STATISTICS,
+    get_ddh_local_sw_version, STATE_DDS_GPS_IN_PORT, STATE_DDS_BAD_CONF, STATE_DDS_BLE_DOWNLOAD_STATISTICS,
     STATE_DDS_PRESSED_BUTTON_1,
 )
 from utils.logs import lg_gui as lg
@@ -132,7 +132,7 @@ def gui_setup_view(my_win):
 
     # load git commit display or version
     # dc = "version: {}".format(get_ddh_commit())
-    dc = f"version: {get_ddh_sw_version()}"
+    dc = f"version: {get_ddh_local_sw_version()}"
     a.lbl_commit.setText(dc)
 
     # checkboxes rerun flag
@@ -310,7 +310,7 @@ def gui_setup_buttons(my_app):
     a.btn_see_cur.clicked.connect(a.click_btn_see_monitored_macs)
     a.btn_arrow.clicked.connect(a.click_btn_arrow_move_entries)
     # save configuration
-    a.btn_setup_apply.clicked.connect(a.click_btn_apply_write_json_file)
+    a.btn_setup_apply.clicked.connect(a.click_btn_edit_tab_save_config)
     a.btn_dl_purge.clicked.connect(a.click_btn_purge_dl_folder)
     a.btn_his_purge.clicked.connect(a.click_btn_purge_his_db)
     a.btn_adv_purge_lo.clicked.connect(a.click_btn_adv_purge_lo)

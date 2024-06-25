@@ -198,7 +198,7 @@ def dds_create_buttons_thread():
     bth.start()
 
 
-def dds_tell_software_update():
+def dds_tell_software_was_just_updated():
     # check for file created by DDH startup script
     # we may have uncommented the updater in such script
     f = dds_get_ddh_got_an_update_flag_file()

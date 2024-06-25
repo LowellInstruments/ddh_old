@@ -12,7 +12,7 @@ from utils.ddh_config import (dds_get_cfg_box_sn,
                               dds_get_cfg_box_project,
                               dds_get_cfg_vessel_name)
 from utils.ddh_shared import (get_ddh_commit,
-                              get_ddh_sw_version,
+                              get_ddh_local_sw_version,
                               get_ddh_platform,
                               get_ddh_folder_path_sqs)
 
@@ -85,7 +85,7 @@ class _DDHNotification:
         self.time_uptime_str = up.replace('\n', '')
         self.time_uptime_int_str = up_int.replace('\n', '')
         self.ddh_sw_commit = get_ddh_commit()
-        self.ddh_sw_version = get_ddh_sw_version()
+        self.ddh_sw_version = get_ddh_local_sw_version()
         self.ddh_gps_position = ''
         self.ddh_gps_speed = ''
         _, self.ddh_ble_antenna = ble_mat_get_antenna_type_v2()
@@ -195,20 +195,24 @@ def notify_logger_error_sensor_oxygen(g, ln):
 
 def notify_ddh_needs_sw_update(g):
     try:
-        vl = get_ddh_sw_version()
+        vl = get_ddh_local_sw_version()
 
         # get github version
         s = '.ddh_version'
         c = f'wget https://raw.githubusercontent.com/LowellInstruments/ddh/master/{s}'
         c += f' -O /tmp/{s}'
         rv = sp.run(c, shell=True, stdout=sp.PIPE, stderr=sp.PIPE)
-        if rv.returncode == 0:
-            with open(f'/tmp/{s}', 'r') as f:
-                vg = f.readline().replace('\n', '')
+        if rv.returncode:
+            lg.a('error: cannot obtain remote DDH version')
+            # 0 so we don't signal we need update
+            return 0
 
-            if vl < vg:
-                _n(DDH_NOTIFICATION_STATUS_NEED_SW_UPDATE, g)
-                return 1
+        with open(f'/tmp/{s}', 'r') as f:
+            vg = f.readline().replace('\n', '')
+
+        if vl < vg:
+            _n(DDH_NOTIFICATION_STATUS_NEED_SW_UPDATE, g)
+            return 1
 
     except (Exception, ) as ex:
         lg.a(f'error: sqs_msg_ddh_needs_update -> {ex}')

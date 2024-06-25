@@ -1,4 +1,5 @@
 import os
+import pathlib
 import platform
 
 
@@ -55,5 +56,7 @@ DDH_USES_SHIELD_JUICE4HALT = f'{d}/.ddt_j4h_shield.flag'
 DDH_USES_SHIELD_SAILOR = f'{d}/.ddt_sailor_shield.flag'
 LI_FILE_ICCID=f'{d}/.iccid'
 LI_PATH_TEST_MODE = f'{d}/.ddh_test_mode.flag'
-LI_PATH_DDH_VERSION = f'{d}/ddh/.ddh_version'
+h = str(pathlib.Path.home())
+h_ddh = f'{h}/li/ddh' if _is_rpi() else f'{h}/PycharmProjects/ddh'
+LI_PATH_DDH_VERSION = f'{h_ddh}/.ddh_version'
 LI_PATH_DDH_GPS_CELL_SHIELD_USB4 = f'{d}/.gps_quectel_at_usb4'

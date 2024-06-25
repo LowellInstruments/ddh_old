@@ -24,18 +24,18 @@ from utils.ddh_config import (dds_get_cfg_vessel_name,
                               dds_get_cfg_box_sn, dds_get_cfg_box_project,
                               dds_get_cfg_monitored_pairs)
 import uvicorn
-from fastapi import FastAPI, UploadFile, File, status
+from fastapi import FastAPI, UploadFile, File
 import os
 from fastapi.responses import FileResponse
 import concurrent.futures
 import subprocess as sp
+
+from utils.ddh_shared import NAME_EXE_API, dds_get_ddh_got_an_update_flag_file
 from utils.tmp_paths import LI_FILE_ICCID, TMP_PATH_DDH_APP_OVERRIDE
 
 
 # instead, the DDN port is 9000
 DDH_PORT_API = 8000
-NAME_EXE_API = "main_api"
-PID_FILE_API = f"/tmp/{NAME_EXE_API}.pid"
 
 
 app = FastAPI()
@@ -228,7 +228,11 @@ async def ep_update_ddt():
 @app.get('/update_ddh')
 async def ep_update_ddh():
     d = api_ddt_get_folder_path_root()
-    return _ep_update('update_ddh', f'{d}/pop_ddh.sh')
+    rv = _ep_update('update_ddh', f'{d}/pop_ddh.sh')
+    if rv['update_ddh'] == CTT_API_OK:
+        f = dds_get_ddh_got_an_update_flag_file()
+        pathlib.Path(f).touch(exist_ok=True)
+    return rv
 
 
 @app.get('/update_mat')
