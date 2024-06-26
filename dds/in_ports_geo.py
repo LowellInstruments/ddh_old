@@ -33,13 +33,13 @@ def dds_ask_in_port_to_ddn(_g, notify=True, tc=TIMEOUT_CACHE_IN_PORT_SECS):
 
     # send the query
     try:
-        rsp = requests.get(url, timeout=5)
+        rsp = requests.get(url, timeout=3)
         rsp.raise_for_status()
         j = json.loads(rsp.content.decode())
         # j: {'in_port': True}
         g_last_in_port = int(j['in_port'])
         its_time_to_so_annotate_it(s, tc)
-        if notify:
+        if g_last_in_port and notify:
             notify_ddh_in_port(_g)
         return g_last_in_port
 
@@ -74,4 +74,9 @@ if __name__ == '__main__':
     # sandwich port
     g = (41.771048, -70.503473, None, 1)
     rv = 'in_port_sw', dds_ask_in_port_to_ddn(g, notify=False, tc=0)
+    print(rv)
+
+    # error
+    g = (41.6101, -70.6093, None, 1)
+    rv = 'in_port_er', dds_ask_in_port_to_ddn(g, notify=False, tc=0)
     print(rv)
