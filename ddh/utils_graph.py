@@ -149,6 +149,19 @@ def process_graph_csv_data(fol, _, h, hi) -> dict:
     _g_ff_do = sorted(glob("{}/{}".format(fol, "*_DissolvedOxygen.csv")))
     _g_ff_tap = sorted(glob("{}/{}".format(fol, "*_TAP.csv")))
 
+    # error moana
+    # MOANA_0744_99_240221160010_Temperature.csv
+    # MOANA_0744_100_240221170632_Temperature.csv
+    # MOANA_0744_101_240221181608_Temperature.csv
+    # gives order 100, 101, 99 instead of 99, 100, 101
+    is_moana = False
+    for i in _g_ff_t:
+        if 'moana' in os.path.basename(i).lower():
+            is_moana = True
+    if is_moana:
+        _g_ff_t = sorted(_g_ff_t, key = lambda x: os.path.basename(x).split('_')[3])
+        _g_ff_p = sorted(_g_ff_p, key = lambda x: os.path.basename(x).split('_')[3])
+
     # type of haul to graph
     met = ''
     if _g_ff_t:
