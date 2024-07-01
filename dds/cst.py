@@ -48,6 +48,9 @@ def _create_cst_files():
         # instead of return prevents zombie processes
         sys.exit(0)
 
+    # 0 normal 1 trawling
+    _gear_type = ddh_get_cfg_gear_type()
+
     fol = get_ddh_folder_path_dl_files()
     ls_lid = glob(f'{fol}/**/*.lid', recursive=True)
 
@@ -61,6 +64,10 @@ def _create_cst_files():
         f_csv = glob(f'{i_lid[:-4]}*.csv')[0]
         if not os.path.exists(f_csv):
             continue
+
+        # cases we don't do
+        # if '_TDO' in f_csv and _gear_type == 0:
+        #     continue
 
         # infer CST filename from CSV filename
         f_cst = f_csv.replace('.csv', '.cst')

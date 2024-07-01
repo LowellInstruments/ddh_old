@@ -86,6 +86,7 @@ PERIOD_SHOW_LOGGER_DL_ERROR_SECS = 300
 PERIOD_SHOW_BLE_APP_GPS_ERROR_POSITION = 60
 g_lock_icon_timer = 0
 g_app_uptime = time.perf_counter()
+g_ci = None
 
 
 def _calc_app_uptime():
@@ -459,15 +460,13 @@ def _gui_update_icon_timer():
 
 def _gui_update_icon(my_app, ci, ct, cf):
 
-    # stats box
-    if cf not in (STATE_DDS_BLE_DOWNLOAD_OK, STATE_DDS_BLE_DOWNLOAD_STATISTICS):
-        my_app.lbl_summary_dl.setVisible(False)
-
     # cases we don't update
     if cf == STATE_DDS_BLE_SCAN and g_lock_icon_timer:
         return
 
     if ci:
+        global g_ci
+        g_ci = ci
         ci = f"{str(ddh_get_folder_path_res())}/{ci}"
         my_app.lbl_ble_img.setPixmap(QPixmap(ci))
     if ct:
@@ -693,7 +692,7 @@ def _gui_parse_udp(my_app, s, ip="127.0.0.1"):
         ci = "attention.png"
 
     else:
-        lg.a("UDP | unknown state: {}".format(f))
+        lg.a(f"UDP | unknown state: {f}")
 
     # -----------------------
     # update big icon in GUI
@@ -703,6 +702,10 @@ def _gui_parse_udp(my_app, s, ip="127.0.0.1"):
     # progress bar
     if f not in (STATE_DDS_BLE_DOWNLOAD, STATE_DDS_BLE_DOWNLOAD_PROGRESS):
         a.bar_dl.setVisible(False)
+
+    # stats box
+    if g_ci != "ok.png":
+        my_app.lbl_summary_dl.setVisible(False)
 
 
 # socket gui

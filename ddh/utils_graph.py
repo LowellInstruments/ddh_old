@@ -217,8 +217,8 @@ def process_graph_csv_data(fol, _, h, hi) -> dict:
         if 'moana' in os.path.basename(i).lower():
             is_moana = True
     if is_moana:
-        _g_ff_t = sorted(_g_ff_t, key = lambda x: os.path.basename(x).split('_')[3])
-        _g_ff_p = sorted(_g_ff_p, key = lambda x: os.path.basename(x).split('_')[3])
+        _g_ff_t = sorted(_g_ff_t, key=lambda x: os.path.basename(x).split('_')[3])
+        _g_ff_p = sorted(_g_ff_p, key=lambda x: os.path.basename(x).split('_')[3])
 
     # type of haul to graph
     met = ''
@@ -318,7 +318,7 @@ def process_graph_csv_data(fol, _, h, hi) -> dict:
 
     # simplify stuff
     if not met:
-        lg.a('error: graph_get_all_csv() unknown metric {}'.format(met))
+        lg.a(f'error: graph_get_all_csv() unknown metric {met}')
         return {}
 
     # ----------------------
