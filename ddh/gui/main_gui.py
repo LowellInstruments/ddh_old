@@ -114,6 +114,9 @@ class DDH(QMainWindow, d_m.Ui_MainWindow):
         gui_ddh_populate_note_tab_dropdown(self)
         gui_ddh_populate_graph_dropdown_sn(self)
 
+        # make that button invisible to have more room
+        self.cb_g_paint_zones.setVisible(False)
+
         # maps tab
         if not ddh_get_cfg_maps_en():
             gui_hide_map_tab(self)

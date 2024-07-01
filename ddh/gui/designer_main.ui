@@ -41,7 +41,7 @@
        </font>
       </property>
       <property name="currentIndex">
-       <number>0</number>
+       <number>5</number>
       </property>
       <widget class="QWidget" name="tab">
        <property name="sizePolicy">
@@ -1528,7 +1528,7 @@ font: 19pt &quot;DejaVu Sans&quot;;</string>
            <widget class="QComboBox" name="cb_g_sn">
             <property name="maximumSize">
              <size>
-              <width>175</width>
+              <width>200</width>
               <height>16777215</height>
              </size>
             </property>
