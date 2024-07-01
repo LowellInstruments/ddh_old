@@ -11,7 +11,7 @@ from utils.ddh_shared import (
     NAME_EXE_DDH_CONTROLLER,
     PID_FILE_DDH_CONTROLLER,
     NAME_EXE_DDH,
-    ddh_get_gui_closed_flag_file,
+    ddh_get_gui_closed_flag_file, NAME_EXE_BRT,
 )
 import setproctitle
 from utils.logs import lg_gui as lg
@@ -31,6 +31,12 @@ def main_ddh():
 
 
 def controller_main_ddh():
+
+    # don't run if brt is running
+    if linux_is_process_running(NAME_EXE_BRT):
+        print('brt running, ddh should not')
+        return
+
     s = NAME_EXE_DDH_CONTROLLER
     p = PID_FILE_DDH_CONTROLLER
     setproctitle.setproctitle(s)

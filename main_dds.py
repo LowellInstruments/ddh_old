@@ -55,7 +55,7 @@ from utils.ddh_shared import (
     dds_ensure_proper_working_folder,
     PID_FILE_DDS_CONTROLLER,
     NAME_EXE_DDS_CONTROLLER,
-    NAME_EXE_DDS, ael, dds_get_aws_has_something_to_do_via_gui_flag_file, dds_create_folder_gpq,
+    NAME_EXE_DDS, ael, dds_get_aws_has_something_to_do_via_gui_flag_file, dds_create_folder_gpq, NAME_EXE_BRT,
 )
 from utils.logs import (
     lg_dds as lg,
@@ -217,6 +217,12 @@ def _alarm_dds_crash(n):
 
 
 def controller_main_dds():
+
+    # don't run if brt is running
+    if linux_is_process_running(NAME_EXE_BRT):
+        print('brt running, ddh should not')
+        return
+
     s = NAME_EXE_DDS_CONTROLLER
     p = PID_FILE_DDS_CONTROLLER
     setproctitle.setproctitle(s)
