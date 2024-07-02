@@ -1,10 +1,6 @@
 import os
 import time
-
 import serial
-import sys
-
-sys.path.append("..")
 from dds.gps import (  # noqa: E402
     gps_configure_shield,
     _gps_parse_rmc_frame,
