@@ -88,6 +88,7 @@ def _ble_detect_hypoxia_after_download(f_lid, bat, g, u=''):
 
 def _ble_convert_lid_after_download(d):
     ls_lid = d['dl_files']
+    ls_lid = [f for f in ls_lid if '.lid' in f]
     bat = d['battery_level']
     g = d['gps']
     u = d['uuid_interaction']

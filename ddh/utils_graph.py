@@ -340,7 +340,20 @@ def process_graph_csv_data(fol, _, h, hi) -> dict:
     # Celsius to Fahrenheit
     tf = [(c * 9 / 5) + 32 for c in t]
     dotf = [(c * 9 / 5) + 32 for c in dot]
-    tdo_tf = [(c * 9 / 5) + 32 for c in tdo_t]
+    bad_idx = []
+    for i_c, c in enumerate(tdo_t):
+        if c == '000nan':
+            bad_idx.append(i_c)
+    for i in bad_idx:
+        x.pop(i)
+        tdo_t.pop(i)
+        tdo_p.pop(i)
+        tdo_ax.pop(i)
+        tdo_ay.pop(i)
+        tdo_az.pop(i)
+    tdo_tf = []
+    for c in tdo_t:
+        tdo_tf.append(((float(c) * 9) /5) + 32)
 
     # Depth calculation, convert: f = (dbar - a) * 0.5468
     pf = [(d - CTT_ATM_PRESSURE_DBAR) * .5468 for d in p]
@@ -351,9 +364,9 @@ def process_graph_csv_data(fol, _, h, hi) -> dict:
 
     # convert 2018-11-11T13:00:00.000 --> seconds
     try:
-        x = [dp.parse('{}Z'.format(i)).timestamp() for i in x]
+        x = [dp.isoparse(f'{i}Z').timestamp() for i in x]
     except (Exception, ):
-        x = [dp.parse('{}'.format(i)).timestamp() for i in x]
+        x = [dp.isoparse(f'{i}').timestamp() for i in x]
 
     # display time performance of data-grabbing procedure
     end_ts = time.perf_counter()
