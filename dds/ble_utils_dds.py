@@ -134,33 +134,6 @@ def ble_check_antenna_up_n_running(g, h: int):
     if rv.returncode == 0:
         return True
 
-    # will not be able to do next sudo <command> on laptop
-    if not linux_is_rpi():
-        return
-
-    lg.a(f'warning: BLE interface hci{h} seems down')
-
-    # only on rpi, try to recover it
-    for c in [
-        'sudo modprobe -r btusb',
-        'sudo modprobe btusb',
-        'sudo rfkill unblock bluetooth',
-        'sudo systemctl restart hciuart',
-        'sudo systemctl restart bluetooth',
-        f'sudo hciconfig hci{h} up'
-    ]:
-        sp.run('sleep 1', shell=True)
-        rv = sp.run(c, shell=True, stdout=sp.PIPE, stderr=sp.PIPE)
-        if rv.returncode:
-            lg.a(f'error: command {c} returned error {rv.stderr}')
-
-    # checking again the state of the bluetooth interface
-    time.sleep(1)
-    rv = sp.run(cr, shell=True, stdout=sp.PIPE, stderr=sp.PIPE)
-    if rv.returncode == 0:
-        lg.a('success: we recovered BLE interface from down to up')
-        return True
-
     # not UP and running, tell so
     e = f"error: ble_check_antenna_up_n_running #{h}"
     _u(STATE_DDS_BLE_HARDWARE_ERROR)
@@ -168,6 +141,27 @@ def ble_check_antenna_up_n_running(g, h: int):
     if is_it_time_to(e, 600):
         lg.a(e.format(e))
         notify_ddh_error_hw_ble(g)
+
+    # will not be able to do next sudo <command> on laptop
+    if not linux_is_rpi():
+        return
+
+    # ----------------------------------
+    # some time ago we did:
+    # 'sudo modprobe -r btusb',
+    # 'sudo modprobe btusb',
+    # 'sudo rfkill unblock bluetooth',
+    # 'sudo systemctl restart hciuart',
+    # 'sudo systemctl restart bluetooth',
+    # f'sudo hciconfig hci{h} up'
+    # ----------------------------------
+
+    # we need sudo here
+    cr = f"sudo systemctl restart bluetooth"
+    rv = sp.run(cr, shell=True, stdout=sp.PIPE, stderr=sp.PIPE)
+    if rv.returncode == 0:
+        lg.a('success: we were able to recover bluetooth error')
+        return True
 
 
 def _th_gpio_box_buttons():

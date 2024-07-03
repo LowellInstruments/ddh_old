@@ -22,8 +22,8 @@ from dds.macs import (
 from dds.notifications import notify_logger_download, \
     notify_logger_error_retries, LoggerNotification, notify_logger_dox_hypoxia
 from dds.timecache import is_it_time_to
-from mat.ble.ble_mat_utils import (ble_mat_get_antenna_type,
-                                   ble_mat_systemctl_restart_bluetooth)
+from mat.ble.ble_mat_utils import (ble_mat_systemctl_restart_bluetooth,
+                                   ble_mat_get_antenna_type_v2)
 from dds.ble_dl_rn4020 import ble_interact_rn4020
 from dds.ble_dl_dox import ble_interact_do1_or_do2
 from dds.gps import gps_tell_position_logger
@@ -281,7 +281,7 @@ async def _ble_id_n_interact_logger(mac, info: str, h, g):
     # -----------------------------------------------------------------
     # on OK and error, w/o this some external antennas don't scan again
     # -----------------------------------------------------------------
-    _, ta = ble_mat_get_antenna_type()
+    _, ta = ble_mat_get_antenna_type_v2()
     if ta == 'external' and linux_is_rpi():
         lg.a('warning: external antenna requires reset tweak')
         ble_mat_systemctl_restart_bluetooth()
