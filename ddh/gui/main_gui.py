@@ -257,6 +257,11 @@ class DDH(QMainWindow, d_m.Ui_MainWindow):
             s = "{}  {}".format(m, n)
             self.lst_mac_dst.addItem(s)
 
+    def click_btn_edit_tab_close_wo_save(self):
+        lg.a('edit tab: pressed the close without save button')
+        gui_hide_edit_tab(self)
+        self.tabs.setCurrentIndex(0)
+
     def click_btn_edit_tab_save_config(self):
         """creates a config file"""
 
