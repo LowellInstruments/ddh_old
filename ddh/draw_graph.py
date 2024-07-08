@@ -515,7 +515,7 @@ def _process_n_graph(a, r=''):
 
             # left y inverted: 1st parameter y-up, 2nd y-low
             # .1 prevents displaying negative pressure values
-            p1.setYRange(.1, max(y1), padding=0)
+            p1.setYRange(.01, max(y1), padding=0)
             # right y not inverted: 1st parameter y-low, 2nd y-up
             p2.setYRange(min(y2), max(y2), padding=0)
 

@@ -12,7 +12,7 @@ from PyQt5.QtCore import QTimer, Qt, QCoreApplication
 from PyQt5.QtWidgets import QMainWindow, QMessageBox
 import ddh.gui.designer_main as d_m
 from ddh.db.db_his import DbHis
-from ddh.graph import process_n_graph
+from ddh.draw_graph import process_n_graph
 from ddh.utils_gui import (
     gui_hide_edit_tab,
     gui_hide_note_tab,

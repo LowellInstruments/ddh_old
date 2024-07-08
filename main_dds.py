@@ -5,7 +5,7 @@ import pathlib
 from multiprocessing import Process
 import time
 
-from ddh.graph import gfm_serve
+from ddh.draw_graph import gfm_serve
 from dds.aws import aws_serve
 from dds.ble import ble_interact_all_loggers
 from dds.ble_scan import ble_scan

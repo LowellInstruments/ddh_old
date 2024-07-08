@@ -17,7 +17,7 @@ from PyQt5.QtWidgets import (
 )
 from gpiozero import Button
 from ddh.db.db_his import DbHis
-from ddh.graph import process_n_graph
+from ddh.draw_graph import process_n_graph
 from ddh.utils_dtm import gui_populate_maps_tab
 from ddh.utils_net import net_get_my_current_wlan_ssid
 from dds.timecache import is_it_time_to
