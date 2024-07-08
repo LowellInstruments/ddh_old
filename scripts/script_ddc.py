@@ -8,6 +8,7 @@ from scripts.script_provision_get import get_provision_ddh, ping_provision_serve
 # from scripts.script_provision_get import get_provision_ddh
 from utils.ddh_config import cfg_load_from_file, cfg_save_to_file
 from utils.ddh_shared import get_ddh_folder_path_settings
+from utils.find_usb_port_auto import find_usb_port_automatically
 from utils.tmp_paths import (
     LI_PATH_GROUPED_S3_FILE_FLAG,
     LI_PATH_DDH_GPS_EXTERNAL,
@@ -228,10 +229,9 @@ def ddh_run_check():
         str_w += f'   - {s}\n'
 
     def _check_fw_cell():
-        d = '/dev/ttyUSB2'
-        c = 'ls -l /dev/ttyUSB4'
-        if sh(c) == 0:
-            d = '/dev/ttyUSB4'
+        d = find_usb_port_automatically(VP_QUECTEL)
+        if not d:
+            return False
         c = f"echo -ne 'AT+CVERSION\r' > {d}"
         sh(c)
         c = f"timeout 1 cat -v < {d} | grep 2022"

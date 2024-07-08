@@ -54,3 +54,12 @@ function _di {
 function _da {
     echo "$1" >> /tmp/dbg.txt
 }
+
+
+function which_ports_has_vid_pid() {
+        find $(grep -l "PRODUCT=$(printf "%x/%x" "0x${1%:*}" "0x${1#*:}")" \
+                  /sys/bus/usb/devices/[0-9]*:*/uevent | sed 's,uevent$,,') \
+           /dev/null -name dev -o -name dev_id |
+        sed 's,[^/]*$,uevent,' |
+        xargs sed -n -e s,DEVNAME=,/dev/,p -e s,INTERFACE=,,p
+}

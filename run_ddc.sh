@@ -6,7 +6,6 @@ clear
 echo
 
 
-
 echo && echo
 _pb "###############"
 _pb "   DDC tool    "

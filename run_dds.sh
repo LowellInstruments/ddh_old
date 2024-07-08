@@ -19,25 +19,21 @@ check_already_running "main_dds_controller"
 # detect cell shield SIM ID
 rm "$LI_FILE_ICCID" > /dev/null 2>&1
 rm "$LI_PATH_DDH_GPS_CELL_SHIELD_USB4" > /dev/null 2>&1
-lsusb | grep Quectel
+QUECTEL_VID_PID=2c7c:0125
+which_ports_has_vid_pid $QUECTEL_VID_PID | grep /dev/ttyUSB4
 rv=$?
 if [ "$rv" -eq 0 ]; then
-    _pb "[ RUN ] DDS | capturing quectel cell shield SIM ID"
-    # rare occasions where quectel cell USB control port is at ttyUSB4
-    ls /dev/ttyUSB4 > /dev/null 2>&1
+    _pb "[ RUN ] DDS | capturing quectel cell shield SIM ID on /dev/ttyUSB4"
+    echo -ne "AT+QCCID\r" > /dev/ttyUSB4 && \
+    sleep 0.1 && timeout 1 cat -v < /dev/ttyUSB4 | grep QCCID > "$LI_FILE_ICCID"
+    touch "$LI_PATH_DDH_GPS_CELL_SHIELD_USB4"
+else
+    which_ports_has_vid_pid $QUECTEL_VID_PID | grep /dev/ttyUSB2
     rv=$?
     if [ "$rv" -eq 0 ]; then
-        echo -ne "AT+QCCID\r" > /dev/ttyUSB4 && \
-        sleep 0.1 && timeout 1 cat -v < /dev/ttyUSB4 | grep QCCID > "$LI_FILE_ICCID"
-        touch "$LI_PATH_DDH_GPS_CELL_SHIELD_USB4"
-    else
-      # usually, quectel cell USB control port is at ttyUSB2
-        ls /dev/ttyUSB2 > /dev/null 2>&1
-        rv=$?
-        if [ "$rv" -eq 0 ]; then
-            echo -ne "AT+QCCID\r" > /dev/ttyUSB2 && \
-            sleep 0.1 && timeout 1 cat -v < /dev/ttyUSB2 | grep QCCID > "$LI_FILE_ICCID"
-        fi
+        _pb "[ RUN ] DDS | capturing quectel cell shield SIM ID on /dev/ttyUSB2"
+        echo -ne "AT+QCCID\r" > /dev/ttyUSB2 && \
+        sleep 0.1 && timeout 1 cat -v < /dev/ttyUSB2 | grep QCCID > "$LI_FILE_ICCID"
     fi
 fi
 
