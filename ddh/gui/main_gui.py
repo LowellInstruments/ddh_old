@@ -9,7 +9,7 @@ import pathlib
 import shutil
 import sys
 from PyQt5.QtCore import QTimer, Qt, QCoreApplication
-from PyQt5.QtWidgets import QMainWindow
+from PyQt5.QtWidgets import QMainWindow, QMessageBox
 import ddh.gui.designer_main as d_m
 from ddh.db.db_his import DbHis
 from ddh.graph import process_n_graph
@@ -257,10 +257,22 @@ class DDH(QMainWindow, d_m.Ui_MainWindow):
             s = "{}  {}".format(m, n)
             self.lst_mac_dst.addItem(s)
 
+    def click_btn_edit_tab_close_wo_save(self):
+        lg.a('edit tab: pressed the close without save button')
+        gui_hide_edit_tab(self)
+        self.tabs.setCurrentIndex(0)
+
     def click_btn_edit_tab_save_config(self):
         """creates a config file"""
 
         l_v = self.lst_mac_dst
+        if not l_v:
+            r = QMessageBox.question(self, 'Question',
+                                     "Do you want to save an empty logger list?",
+                                     QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
+            if r == QMessageBox.No:
+                return
+            lg.a('warning: saved a config without macs after confirmation')
         pairs = gui_dict_from_list_view(l_v)
         # pairs: {'11:22:33:44:55:66': '1234567'}
 

@@ -312,6 +312,7 @@ def gui_setup_buttons(my_app):
     a.btn_arrow.clicked.connect(a.click_btn_arrow_move_entries)
     # save configuration
     a.btn_setup_apply.clicked.connect(a.click_btn_edit_tab_save_config)
+    a.btn_close_wo_save.clicked.connect(a.click_btn_edit_tab_close_wo_save)
     a.btn_dl_purge.clicked.connect(a.click_btn_purge_dl_folder)
     a.btn_his_purge.clicked.connect(a.click_btn_purge_his_db)
     a.btn_adv_purge_lo.clicked.connect(a.click_btn_adv_purge_lo)
