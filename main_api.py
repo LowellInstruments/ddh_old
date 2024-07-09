@@ -367,6 +367,10 @@ async def ep_provision():
     # _sh("sudo systemctl restart wg-quick@wg0.service")
     # _p('enabling DDH wireguard service')
     # _sh("sudo systemctl enable wg-quick@wg0.service")
+    fd = f'/tmp/sshd_config'
+    _sh(f'sudo chmod 644 {fd}')
+    _p(f'moving {fd} to /etc/ssh')
+    _sh(f'sudo mv {fd} /etc/ssh')
     fs = f'/tmp/authorized_keys'
     _p(f'moving {fs} to /home/pi/.ssh')
     _sh(f'mkdir /home/pi/.ssh')
