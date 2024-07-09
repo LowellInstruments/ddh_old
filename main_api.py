@@ -355,7 +355,8 @@ async def ep_provision():
     fc = f'/tmp/config.toml'
     d = '/home/pi/ddh/settings'
     _p(f'moving {fc} to DDH settings folder')
-    _sh(f'mv {fc} {d}')
+    # todo ---> reenable this
+    # _sh(f'mv {fc} {d}')
     fa = f'/tmp/all_macs.toml'
     _p(f'moving {fa} to DDH settings folder')
     _sh(f'mv {fa} {d}')
@@ -375,6 +376,7 @@ async def ep_provision():
     os.unlink(fc)
     os.unlink(fa)
     os.unlink(fs)
+    # todo ---> probably we need a SSH conf file too to only pub keys
     return {'provision': CTT_API_OK}
 
 def main_api():
