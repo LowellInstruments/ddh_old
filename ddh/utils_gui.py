@@ -294,7 +294,6 @@ def gui_setup_buttons(my_app):
     a.lbl_cloud_img.mousePressEvent = a.click_lbl_cloud_img
     a.lbl_brightness.mousePressEvent = a.click_lbl_brightness
     a.lbl_brightness_txt.mousePressEvent = a.click_lbl_brightness
-    a.lbl_uptime.mousePressEvent = a.click_lbl_uptime
     a.lbl_boat.mousePressEvent = a.click_lbl_boat_pressed
     a.lbl_boat.mouseReleaseEvent = a.click_lbl_boat_released
     a.lbl_commit.mousePressEvent = a.click_lbl_commit_pressed
@@ -303,6 +302,8 @@ def gui_setup_buttons(my_app):
     a.lbl_date.mouseReleaseEvent = a.click_lbl_datetime_released
     a.lbl_net.mousePressEvent = a.click_lbl_net_pressed
     a.lbl_net.mouseReleaseEvent = a.click_lbl_net_released
+    a.lbl_uptime.mousePressEvent = a.click_lbl_uptime_pressed
+    a.lbl_uptime.mouseReleaseEvent = a.click_lbl_uptime_released
 
     # buttons' connections
     a.btn_known_clear.clicked.connect(a.click_btn_clear_known_mac_list)
@@ -737,6 +738,8 @@ def gui_timer_fxn(my_app):
         a.datetime_pressed += 1
     if a.lbl_net_pressed > 0:
         a.lbl_net_pressed += 1
+    if a.lbl_uptime_pressed > 0:
+        a.lbl_uptime_pressed += 1
 
     _u = bytes()
     try:

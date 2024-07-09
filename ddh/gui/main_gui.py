@@ -104,6 +104,7 @@ class DDH(QMainWindow, d_m.Ui_MainWindow):
         self.commit_pressed = 0
         self.datetime_pressed = 0
         self.lbl_net_pressed = 0
+        self.lbl_uptime_pressed = 0
         self.gif_map = None
 
         gui_hide_edit_tab(self)
@@ -366,15 +367,6 @@ class DDH(QMainWindow, d_m.Ui_MainWindow):
             sys.stderr.close()
             os._exit(0)
 
-    @staticmethod
-    def click_lbl_uptime(_):
-        p = ddh_get_gui_closed_flag_file()
-        pathlib.Path.touch(p, exist_ok=True)
-        dds_kill_by_pid_file()
-        lg.a("closing by lbl_uptime clicked")
-        sys.stderr.close()
-        os._exit(0)
-
     def click_lbl_brightness(self, _):
         # no shift key, adjust DDH brightness
         # 5,20,30,40,50,60,70,80,90,100,90,80,70,60,50,40,30,20
@@ -578,6 +570,19 @@ class DDH(QMainWindow, d_m.Ui_MainWindow):
             trh = self.tab_advanced_hide = not self.tab_advanced_hide
             gui_hide_advanced_tab(self) if trh else gui_show_advanced_tab(self)
         self.commit_pressed = 0
+
+    def click_lbl_uptime_pressed(self, _):
+        self.lbl_uptime_pressed = 1
+
+    def click_lbl_uptime_released(self, _):
+        if self.lbl_uptime_pressed >= 2:
+            p = ddh_get_gui_closed_flag_file()
+            pathlib.Path.touch(p, exist_ok=True)
+            dds_kill_by_pid_file()
+            lg.a("closing by lbl_uptime clicked")
+            sys.stderr.close()
+            os._exit(0)
+        self.lbl_uptime_pressed = 0
 
     def click_lbl_datetime_pressed(self, _):
         self.datetime_pressed = 1
