@@ -7,7 +7,9 @@ import platform
 import subprocess as sp
 import sys
 import time
-
+from requests.exceptions import HTTPError
+import requests
+import re
 from utils.tmp_paths import LI_PATH_DDH_VERSION, TMP_PATH_GPS_LAST_JSON, TMP_PATH_BLE_IFACE
 
 CTT_API_OK = 'ok'
@@ -338,6 +340,45 @@ def api_read_aws_sqs_ts():
             'sqs': ('unknown', now)
         }
     return j
+
+
+def extract_filename_from_content_disposition_header(cd):
+    # src: codementor, downloading-files-from-urls-in-python-77q3bs0un
+    if not cd:
+        return None
+    s = re.findall('filename=(.+)', cd)
+    if len(s) == 0:
+        return None
+    return s[0].replace('"', '')
+
+
+def req(url):
+    try:
+        rsp = requests.get(url, timeout=5)
+        rsp.raise_for_status()
+    except HTTPError as http_err:
+        print(f'HTTP error occurred: {http_err}')
+    except requests.exceptions.Timeout:
+        # print('timeout')
+        pass
+    except (Exception, ):
+        # print(f'Other error occurred: {err}')
+        pass
+    else:
+        # success
+        return rsp
+
+
+def get_files_from_server(pr, sn, ip, addr, port):
+    url = f'http://{addr}:{port}/ddh_provision/v1?prj={pr}&sn={sn}&ip={ip}'
+    rsp = req(url)
+    if rsp and rsp.status_code == 200:
+        h = rsp.headers.get('content-disposition')
+        fn = extract_filename_from_content_disposition_header(h)
+        dst = f'/tmp/{fn}'
+        with open(dst, 'wb') as f:
+            f.write(rsp.content)
+        return dst
 
 
 if __name__ == '__main__':

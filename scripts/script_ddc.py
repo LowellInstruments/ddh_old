@@ -5,7 +5,6 @@ import time
 from os import unlink
 from os.path import exists
 from scripts.script_provision_get import get_provision_ddh, ping_provision_server
-# from scripts.script_provision_get import get_provision_ddh
 from utils.ddh_config import cfg_load_from_file, cfg_save_to_file
 from utils.ddh_shared import get_ddh_folder_path_settings
 from utils.find_usb_port_auto import find_usb_port_automatically

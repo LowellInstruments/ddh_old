@@ -17,7 +17,8 @@ from api.api_utils import (api_get_ip_vpn, api_get_ip_wlan, api_get_ip_cell,
                            api_get_timezone, CTT_API_OK,
                            CTT_API_ER, api_get_uptime_secs, api_ddh_get_folder_dl_files,
                            api_get_ddh_folder_path_macs_black, api_get_ddh_sw_version,
-                           api_get_utc_epoch, api_get_api_version, api_get_ble_iface, api_get_shellinabox_active,
+                           api_get_utc_epoch, api_get_api_version, api_get_ble_iface, api_get_shellinabox_active, req,
+                           get_files_from_server,
                            )
 from ddh.db.db_his import DbHis
 from utils.ddh_config import (dds_get_cfg_vessel_name,
@@ -32,14 +33,19 @@ import subprocess as sp
 
 from utils.tmp_paths import LI_FILE_ICCID, TMP_PATH_DDH_APP_OVERRIDE, TMP_PATH_DDH_GOT_UPDATE
 
-# instead, the DDN port is 9000
+# instead, the DDN port is 9000 & 9001
 DDH_PORT_API = 8000
+DDN_API_PROVISIONING_PORT = 9001
+DDN_API_PROVISIONING_IP = '10.5.0.1'
 # do NOT remove this from here
 NAME_EXE_API = "main_api"
 
 
-
 app = FastAPI()
+
+
+def _p(s):
+    print(s)
 
 
 @app.get('/ping')
@@ -331,6 +337,45 @@ async def ep_rpi_temperature():
     except (Exception,) as ex:
         return {'rpi_temperature': CTT_API_ER}
 
+
+@app.get("/provision")
+async def ep_provision():
+    sn = dds_get_cfg_box_sn()
+    prj = dds_get_cfg_box_project()
+    addr = DDN_API_PROVISIONING_IP
+    port = DDN_API_PROVISIONING_PORT
+    ip_ddh = api_get_ip_vpn()
+    dl_zip_file = get_files_from_server(prj, sn, ip_ddh, addr, port=port)
+    if not dl_zip_file:
+        print('error: DDH API running ep_provision')
+        return {'provision': CTT_API_ER}
+    _sh(f'unzip -o {dl_zip_file} -d /tmp')
+    if not api_linux_is_rpi():
+        return
+    fc = f'/tmp/config.toml'
+    d = '/home/pi/ddh/settings'
+    _p(f'moving {fc} to DDH settings folder')
+    _sh(f'mv {fc} {d}')
+    fa = f'/tmp/all_macs.toml'
+    _p(f'moving {fa} to DDH settings folder')
+    _sh(f'mv {fa} {d}')
+    # fw = f'/tmp/wg0.conf'
+    # _p(f'moving {fw} to wireguard settings folder')
+    # _sh(f"sudo mv {fw} /etc/wireguard/")
+    # _p('restarting DDH wireguard service')
+    # _sh("sudo systemctl restart wg-quick@wg0.service")
+    # _p('enabling DDH wireguard service')
+    # _sh("sudo systemctl enable wg-quick@wg0.service")
+    fs = f'/tmp/authorized_keys'
+    _p(f'moving {fs} to /home/pi/.ssh')
+    _sh(f'mkdir /home/pi/.ssh')
+    _sh(f'sudo mv {fs} /home/pi/.ssh/')
+    _sh('sudo chmod 600 /home/pi/.ssh/authorized_keys')
+    _sh("sudo systemctl restart ssh")
+    os.unlink(fc)
+    os.unlink(fa)
+    os.unlink(fs)
+    return {'provision': CTT_API_OK}
 
 def main_api():
     # docs at http://0.0.0.0:port/docs
