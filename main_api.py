@@ -373,11 +373,9 @@ async def ep_provision():
     _sh(f'sudo mv {fs} /home/pi/.ssh/')
     _sh('sudo chmod 600 /home/pi/.ssh/authorized_keys')
     _sh("sudo systemctl restart ssh")
-    os.unlink(fc)
-    os.unlink(fa)
-    os.unlink(fs)
     # todo ---> probably we need a SSH conf file too to only pub keys
     return {'provision': CTT_API_OK}
+
 
 def main_api():
     # docs at http://0.0.0.0:port/docs
