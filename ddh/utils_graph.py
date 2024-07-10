@@ -53,8 +53,8 @@ def _utils_graph_tdo_file_set_fast_mode(path):
     with open(path, 'r') as f:
         ll = f.readlines()
         if len(ll) <= 3:
-            # let's keep short files
-            has_fm = True
+            # let's discard short files
+            has_fm = False
         else:
             lg.a(f'processing file {path} for graph fast mode')
             lg.a(f'{ll[3]}')
