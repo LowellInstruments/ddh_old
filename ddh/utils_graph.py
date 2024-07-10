@@ -6,7 +6,6 @@ from glob import glob
 from os.path import basename
 import dateutil.parser as dp
 import pandas as pd
-
 from utils.ddh_config import dds_get_cfg_flag_graph_test_mode
 from utils.ddh_shared import (get_ddh_folder_path_dl_files,
                               get_dl_folder_path_from_mac)
@@ -194,7 +193,7 @@ def _data_get_prune_period(x, met):
 def cached_read_csv(f):
     df = pd.read_csv(f)
     if df.empty:
-        lg.a('warning: no data for file {}'.format(f))
+        lg.a(f'warning: no data for file {f}')
     return df
 
 
@@ -320,6 +319,12 @@ def process_graph_csv_data(fol, _, h, hi) -> dict:
     if not met:
         lg.a(f'error: graph_get_all_csv() unknown metric {met}')
         return {}
+
+    # things we don't plot
+    if len(x) == 1:
+        e = f'error: few data points in file {os.path.basename(f)}'
+        lg.a(e)
+        return {'error': e}
 
     # ----------------------
     # prune data or not

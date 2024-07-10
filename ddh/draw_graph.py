@@ -368,6 +368,8 @@ def _process_n_graph(a, r=''):
     if not data:
         lg.a(f'warning: no data to plot in folder {fol}')
         raise GraphException(f'no data to plot')
+    if 'error' in data.keys():
+        raise GraphException(f'{data["error"]}')
     if 'ISO 8601 Time' not in data.keys():
         raise GraphException(f'error: no time data for {fol}')
 
