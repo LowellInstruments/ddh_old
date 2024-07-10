@@ -3,6 +3,7 @@ import datetime
 import os
 
 from dds.csv_data import file_lowell_raw_csv_to_emolt_lt_csv
+from dds.gpq import dds_create_file_fixed_gpq
 from dds.lef import dds_create_file_lef
 from dds.notifications import notify_logger_error_sensor_pressure, notify_logger_error_low_battery, LoggerNotification
 from mat.ble.ble_mat_utils import (
@@ -162,6 +163,11 @@ class BleTDODownload:
             # create LEF file with download info
             lg.a("creating file LEF for {}".format(name))
             dds_create_file_lef(g, name)
+
+            # create CST file when fixed mode
+            _gear_type = ddh_get_cfg_gear_type()
+            if _gear_type == 0:
+                dds_create_file_fixed_gpq(g, name)
 
         # format file-system
         await asyncio.sleep(.1)

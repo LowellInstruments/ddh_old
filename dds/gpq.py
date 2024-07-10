@@ -115,13 +115,13 @@ class GpqR:
         now = datetime.strptime(s, FMT_GPQ_TS_RECORD_DB)
         bef = datetime.strptime(t[i - 1], FMT_GPQ_TS_RECORD_DB)
         _diff = (now - bef).total_seconds()
-        _p('\ti', i)
-        _p('\tdiff', _diff)
+        _p(f'\ti {i}')
+        _p(f'\tdiff {i}')
 
         # get the closest candidate value
         c = list(self.all.items())[i - 1]
         if i != -1:
-            _p('\tcandidate', c)
+            _p(f'\tcandidate {c}')
 
         # the calling function decides if _diff is ok or too much
         # i: index in array

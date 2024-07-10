@@ -12,7 +12,7 @@ from mat.ble.ble_mat_utils import (
 from mat.ble.bleak.cc26x2r import BleCC26X2
 from mat.ble.bleak.cc26x2r_sim import BleCC26X2Sim, ble_logger_is_cc26x2r_simulated
 from dds.ble_utils_dds import ble_logger_ccx26x2r_needs_a_reset, dds_ble_init_rv_notes
-from utils.ddh_config import dds_get_cfg_logger_sn_from_mac, dds_get_cfg_flag_download_test_mode
+from utils.ddh_config import dds_get_cfg_logger_sn_from_mac, dds_get_cfg_flag_download_test_mode, ddh_get_cfg_gear_type
 from utils.ddh_shared import (
     send_ddh_udp_gui as _u,
     STATE_DDS_BLE_LOW_BATTERY,
@@ -161,7 +161,9 @@ class BleCC26X2Download:
             # create LEF file with download info
             lg.a("creating file LEF for {}".format(name))
             dds_create_file_lef(g, name)
-            dds_create_file_fixed_gpq(g, name)
+            _gear_type = ddh_get_cfg_gear_type()
+            if _gear_type == 0:
+                dds_create_file_fixed_gpq(g, name)
 
         # format file-system, o/w DO-1 loggers (NAND mem) get slower
         await asyncio.sleep(.1)
