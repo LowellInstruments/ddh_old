@@ -25,9 +25,9 @@ from utils.ddh_config import (dds_get_cfg_vessel_name,
                               dds_get_cfg_box_sn, dds_get_cfg_box_project,
                               dds_get_cfg_monitored_pairs)
 import uvicorn
-from fastapi import FastAPI, UploadFile, File
+from fastapi import FastAPI, UploadFile, File, HTTPException
 import os
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, JSONResponse
 import concurrent.futures
 import subprocess as sp
 
@@ -348,7 +348,7 @@ async def ep_provision():
     dl_zip_file = get_files_from_server(prj, sn, ip_ddh, addr, port=port)
     if not dl_zip_file:
         print('error: DDH API running ep_provision')
-        return {'provision': CTT_API_ER}
+        raise HTTPException(status_code=503, detail="provision error")
     _sh(f'unzip -o {dl_zip_file} -d /tmp')
     if not api_linux_is_rpi():
         return
