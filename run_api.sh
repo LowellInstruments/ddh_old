@@ -15,5 +15,5 @@ _pb "###############"
 echo
 sudo chown -R pi:pi "$FOL_LI"
 source "$FOL_VAN"/bin/activate
-pip install -r requirements_api.txt
+pip install -r "$FOL_DDH"/requirements_api.txt
 cd "$FOL_DDH" && "$FOL_VAN"/bin/python main_api.py
