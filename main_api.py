@@ -352,14 +352,24 @@ async def ep_provision():
     _sh(f'unzip -o {dl_zip_file} -d /tmp')
     if not api_linux_is_rpi():
         return
+
+    # separator
+    _p('')
+
     fc = f'/tmp/config.toml'
-    d = '/home/pi/ddh/settings'
+    d = '/home/pi/li/ddh/settings'
     _p(f'moving {fc} to DDH settings folder')
     # todo ---> reenable this
     # _sh(f'mv {fc} {d}')
+
     fa = f'/tmp/all_macs.toml'
-    _p(f'moving {fa} to DDH settings folder')
-    _sh(f'mv {fa} {d}')
+    s = f'moving {fa} to DDH settings folder'
+    _p(s)
+    rv = _sh(f'mv {fa} {d}')
+    if rv.returncode:
+        print('error provision: ' + s)
+        return {'provision': CTT_API_ER}
+
     # fw = f'/tmp/wg0.conf'
     # _p(f'moving {fw} to wireguard settings folder')
     # _sh(f"sudo mv {fw} /etc/wireguard/")
@@ -367,17 +377,33 @@ async def ep_provision():
     # _sh("sudo systemctl restart wg-quick@wg0.service")
     # _p('enabling DDH wireguard service')
     # _sh("sudo systemctl enable wg-quick@wg0.service")
+
     fd = f'/tmp/sshd_config'
-    _sh(f'sudo chmod 644 {fd}')
+    rv = _sh(f'sudo chmod 644 {fd}')
+    if rv.returncode:
+        print('error provision: chmod sshd_config')
+        return {'provision': CTT_API_ER}
     _p(f'moving {fd} to /etc/ssh')
-    _sh(f'sudo mv {fd} /etc/ssh')
+    rv = _sh(f'sudo mv {fd} /etc/ssh')
+    if rv.returncode:
+        print('error provision: move sshd_config')
+        return {'provision': CTT_API_ER}
+
     fs = f'/tmp/authorized_keys'
     _p(f'moving {fs} to /home/pi/.ssh')
     _sh(f'mkdir /home/pi/.ssh')
-    _sh(f'sudo mv {fs} /home/pi/.ssh/')
-    _sh('sudo chmod 600 /home/pi/.ssh/authorized_keys')
-    _sh("sudo systemctl restart ssh")
-    # todo ---> probably we need a SSH conf file too to only pub keys
+    rv = _sh(f'sudo mv {fs} /home/pi/.ssh/')
+    if rv.returncode:
+        print('error provision: move authorized_keys')
+        return {'provision': CTT_API_ER}
+    rv = _sh('sudo chmod 600 /home/pi/.ssh/authorized_keys')
+    if rv.returncode:
+        print('error provision: chmod authorized_keys')
+        return {'provision': CTT_API_ER}
+    rv = _sh("sudo systemctl restart ssh")
+    if rv.returncode:
+        print('error provision: restart ssh')
+        return {'provision': CTT_API_ER}
     return {'provision': CTT_API_OK}
 
 
