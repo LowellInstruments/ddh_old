@@ -391,7 +391,7 @@ async def ep_provision():
 
     fs = f'/tmp/authorized_keys'
     _p(f'moving {fs} to /home/pi/.ssh')
-    _sh(f'mkdir /home/pi/.ssh')
+    _sh(f'mkdir -p /home/pi/.ssh')
     rv = _sh(f'sudo mv {fs} /home/pi/.ssh/')
     if rv.returncode:
         print('error provision: move authorized_keys')
