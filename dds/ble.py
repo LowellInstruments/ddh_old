@@ -226,6 +226,7 @@ async def _ble_id_n_interact_logger(mac, info: str, h, g):
     # initialize download status
     bat = 0
     rerun = True
+    do_we_have_notes = False
 
     # some GUI update
     _u(f"{STATE_DDS_BLE_CONNECTING}/{sn}")
@@ -245,6 +246,7 @@ async def _ble_id_n_interact_logger(mac, info: str, h, g):
         rerun = notes['rerun']
         notes['uuid_interaction'] = uuid_interaction
         _ble_convert_lid_after_download(notes)
+        do_we_have_notes = True
 
     elif _ble_logger_is_rn4020(mac, info):
         rv = await ble_interact_rn4020(mac, info, g, hs)
@@ -272,6 +274,7 @@ async def _ble_id_n_interact_logger(mac, info: str, h, g):
         rerun = notes['rerun']
         notes['uuid_interaction'] = uuid_interaction
         _ble_convert_lid_after_download(notes)
+        do_we_have_notes = True
 
     else:
         lg.a(f'error: this should not happen, info {info}')
@@ -296,6 +299,8 @@ async def _ble_id_n_interact_logger(mac, info: str, h, g):
     # ----------------------------------------------------
     ln = LoggerNotification(mac, sn, info, bat)
     ln.uuid_interaction = uuid_interaction
+    if do_we_have_notes:
+        ln.dl_files = notes['dl_files']
     _ble_analyze_logger_result(rv, g, ln, _crit_error)
 
     # ------------------------------------
