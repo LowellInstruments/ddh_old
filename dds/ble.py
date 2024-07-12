@@ -1,12 +1,9 @@
 import datetime
-import json
 import os
 import pathlib
 import shutil
 import time
 import uuid
-
-import requests
 from tzlocal import get_localzone
 
 from ddh.utils_graph import utils_graph_set_fol_req_file
@@ -39,7 +36,7 @@ from utils.ddh_shared import (
     STATE_DDS_BLE_DOWNLOAD_ERROR,
     STATE_DDS_BLE_DOWNLOAD_WARNING,
     get_dl_folder_path_from_mac,
-    STATE_DDS_BLE_DOWNLOAD, dds_get_aws_has_something_to_do_via_gui_flag_file,
+    STATE_DDS_BLE_DOWNLOAD,
     STATE_DDS_NOTIFY_HISTORY, STATE_DDS_BLE_ERROR_MOANA_PLUGIN,
     STATE_DDS_BLE_CONNECTING,
     STATE_DDS_REQUEST_GRAPH,
@@ -313,8 +310,8 @@ async def _ble_id_n_interact_logger(mac, info: str, h, g):
         _error_dl = 'error comm.'
     e = 'ok' if not rv else _error_dl
 
-    print('ep_loc', ep_loc)
-    print('ep_utc', ep_utc)
+    # print('ep_loc', ep_loc)
+    # print('ep_utc', ep_utc)
 
     _u(f"{STATE_DDS_NOTIFY_HISTORY}/add&"
        f"{mac}&{e}&{lat}&{lon}&{ep_loc}&{ep_utc}&{rerun}&{uuid_interaction}")

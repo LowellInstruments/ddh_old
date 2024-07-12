@@ -41,8 +41,6 @@ from dds.notifications import notify_via_sms
 from dds.timecache import is_it_time_to
 from mat.linux import linux_is_process_running
 from mat.utils import linux_is_rpi
-from rpc.rpc_rx import th_srv_notify
-from rpc.rpc_tx import th_cli_cmd
 from utils.ddh_config import (dds_get_cfg_vessel_name, dds_get_cfg_logger_mac_from_sn,
                               ddh_get_cfg_gear_type, cfg_load_from_file, dds_get_cfg_flag_ble_en,
                               cfg_save_to_file, dds_get_cfg_monitored_pairs, ddh_get_cfg_maps_en,

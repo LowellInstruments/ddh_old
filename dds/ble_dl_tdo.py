@@ -1,8 +1,6 @@
 import asyncio
 import datetime
 import os
-
-from dds.csv_data import file_lowell_raw_csv_to_emolt_lt_csv
 from dds.gpq import dds_create_file_fixed_gpq
 from dds.lef import dds_create_file_lef
 from dds.notifications import notify_logger_error_sensor_pressure, notify_logger_error_low_battery, LoggerNotification
@@ -12,7 +10,6 @@ from mat.ble.ble_mat_utils import (
 )
 from mat.ble.bleak.cc26x2r import BleCC26X2
 from dds.ble_utils_dds import ble_logger_ccx26x2r_needs_a_reset, dds_ble_init_rv_notes
-from mat.lix import convert_lix_file
 from mat.utils import linux_is_rpi
 from utils.ddh_config import (ddh_get_cfg_gear_type, dds_get_cfg_logger_sn_from_mac,
                               dds_get_cfg_flag_download_test_mode)

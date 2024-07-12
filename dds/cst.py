@@ -1,3 +1,4 @@
+import datetime
 import json
 import multiprocessing
 import os
@@ -7,7 +8,7 @@ from multiprocessing import Process
 
 import setproctitle
 
-from dds.gpq import GpqR
+from dds.gpq import GpqR, FMT_GPQ_TS_FILENAME
 from dds.timecache import is_it_time_to
 from mat.linux import linux_is_process_running
 from utils.ddh_config import ddh_get_cfg_gear_type, dds_get_cfg_gpq_en
@@ -39,6 +40,21 @@ def _cst_get_mobile_lat_lon_from_dt_s(dt_s_iso: str):
     dt_s = dt_s.replace('T', ' ')
     print('\n')
     return _gr.query(dt_s[:-5])
+
+
+def _purge_old_gpq_json_files():
+    # calculate last accepted filename by subtracting a week from today
+    _d = -2
+    now = datetime.datetime.now(datetime.timezone.utc)
+    now += datetime.timedelta(days=_d)
+    fol = get_ddh_folder_path_gpq_files()
+    ls = glob(f'{fol}/mobile*.json')
+    # filename: mobile_24071216.json
+    f = f'{fol}/mobile_{now.strftime(FMT_GPQ_TS_FILENAME)}'
+    ls_del = [i for i in ls if i < f]
+    for i in ls_del:
+        print(f'deleting {os.path.basename(i)}, older than {_d * -1} days')
+        os.unlink(i)
 
 
 def _create_cst_files():
@@ -130,6 +146,7 @@ def cst_serve():
     def _cst_serve():
         setproctitle.setproctitle(_P_)
         try:
+            _purge_old_gpq_json_files()
             _create_cst_files()
         except (Exception, ) as ex:
             lg.a(f'error: CST_serve exception -> {ex}')

@@ -10,7 +10,6 @@ from mat.ble.ble_mat_utils import (
     DDH_GUI_UDP_PORT, ble_mat_disconnect_all_devices_ll,
 )
 from mat.ble.bleak.cc26x2r import BleCC26X2
-from mat.ble.bleak.cc26x2r_sim import BleCC26X2Sim, ble_logger_is_cc26x2r_simulated
 from dds.ble_utils_dds import ble_logger_ccx26x2r_needs_a_reset, dds_ble_init_rv_notes
 from utils.ddh_config import dds_get_cfg_logger_sn_from_mac, dds_get_cfg_flag_download_test_mode, ddh_get_cfg_gear_type
 from utils.ddh_shared import (
