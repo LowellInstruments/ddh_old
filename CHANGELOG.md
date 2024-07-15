@@ -4,3 +4,4 @@
 4.0.01 - fixed in_ports_geo.py detection
 4.0.02 - added notification field 'dl_files'
 4.0.03 - added removal of mobile GPS JSON files older than 2 days
+4.0.04 - bug in logs.py in building file_out
