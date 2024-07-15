@@ -138,8 +138,8 @@ def dds_log_tracking_add(lat, lon, tg):
         lg_dds.a(f"started new tracking file {file_out}")
         g_last_file_out = file_out
     if dds_get_cfg_flag_download_test_mode():
-        file_out = os.path.dirname(file_out) + \
-                   TESTMODE_FILENAMEPREFIX + '/' + os.path.basename(file_out)
+        file_out = os.path.dirname(file_out) + '/' + \
+                   TESTMODE_FILENAMEPREFIX + os.path.basename(file_out)
 
     # -----------------------------
     # write the tracking line alone
