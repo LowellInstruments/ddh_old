@@ -219,18 +219,12 @@ def _graph_busy_sign_hide(a):
 
 
 def _graph_collect_filenames_to_plot(fol):
-    t = sorted(glob("{}/{}".format(fol, "*_Temperature.csv")))
-    p = sorted(glob("{}/{}".format(fol, "*_Pressure.csv")))
-    dox = sorted(glob("{}/{}".format(fol, "*_DissolvedOxygen.csv")))
-    tdo = sorted(glob("{}/{}".format(fol, "*_TDO.csv")))
+    t = sorted(glob(f"{fol}/*_Temperature.csv"))
+    p = sorted(glob(f"{fol}/*_Pressure.csv"))
+    dox = sorted(glob(f"{fol}/*_DissolvedOxygen.csv"))
+    tdo = sorted(glob(f"{fol}/*_TDO.csv"))
 
-    # maybe we skip graphing some TDO files without fast mode
-    tdo_fast = [i for i in tdo if utils_graph_detect_this_file_has_fast_mode(i)]
-    if tdo != tdo_fast:
-        lg.a('warning: dropping some TDO files because no fast mode')
-        for i in list(set(tdo).difference(set(tdo_fast))):
-            lg.a(f'warning:    - {i}')
-    tdo = tdo_fast
+
 
     # so we can use cache
     return '\n'.join(t) + '\n'.join(p) + '\n'.join(dox) + '\n'.join(tdo)
@@ -363,8 +357,7 @@ def _process_n_graph(a, r=''):
     # --------------------------
     # PROCESS folder's CSV data
     # --------------------------
-    filenames_hash = _graph_collect_filenames_to_plot(fol)
-    data = process_graph_csv_data(fol, filenames_hash, _ht, a.g_haul_idx)
+    data = process_graph_csv_data(fol, _ht, a.g_haul_idx)
     if not data:
         lg.a(f'warning: no data to plot in folder {fol}')
         raise GraphException(f'no data to plot')
@@ -623,19 +616,22 @@ def _process_n_graph(a, r=''):
     el_ts = int((end_ts - start_ts) * 1000)
     lg.a(f'graphed {len(x)} {met} points, took {el_ts} ms')
 
+    # statistics: average box in main tab
     _u(f"{STATE_DDS_BLE_DOWNLOAD_STATISTICS}/")
     is_rpi = linux_is_rpi()
     if met == 'TDO':
         if (not is_rpi) or (is_rpi and r == 'BLE'):
             dp = data['Pressure (dbar) TDO']
             dt = data['Temperature (F) TDO']
-            # create 80th percentile lists by threshold float
+            # calculate 80th percentile threshold float
+            # we only keep values at the bottom of sea
             p80 = _percentile(dp, 80)
             ls_p, ls_t = [], []
             for i, p in enumerate(dp):
                 if p >= p80:
                     ls_p.append(dp[i])
                     ls_t.append(dt[i])
+            lg.a(f'debug: percentile 80 is {p80}')
             s = 'haul mean\n'
             s += '{:5.2f} dbar\n'.format(mean(ls_p))
             s += '{:5.2f} °F'.format(mean(ls_t))

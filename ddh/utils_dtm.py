@@ -23,6 +23,8 @@ def gui_populate_maps_tab(my_app):
     # delete tdm gifs which are not the current one
     ls = glob.glob(f"{fr}/*.gif")
     for fi in ls:
+        if 'error_maps' in fi:
+            continue
         if fi == fl:
             continue
         lg.a(f'deleting old tdm file {fi}')

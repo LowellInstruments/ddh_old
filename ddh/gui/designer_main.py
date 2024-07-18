@@ -91,7 +91,7 @@ class Ui_MainWindow(object):
         font.setWeight(50)
         self.lbl_summary_dl.setFont(font)
         self.lbl_summary_dl.setAutoFillBackground(False)
-        self.lbl_summary_dl.setStyleSheet("background-color: rgb(232, 232, 232)")
+        self.lbl_summary_dl.setStyleSheet("")
         self.lbl_summary_dl.setFrameShape(QtWidgets.QFrame.NoFrame)
         self.lbl_summary_dl.setTextFormat(QtCore.Qt.PlainText)
         self.lbl_summary_dl.setAlignment(QtCore.Qt.AlignCenter)
@@ -426,7 +426,7 @@ class Ui_MainWindow(object):
         self.verticalLayout_2.setStretch(2, 1)
         self.verticalLayout_2.setStretch(3, 1)
         self.horizontalLayout_2.addLayout(self.verticalLayout_2)
-        self.horizontalLayout_2.setStretch(0, 10)
+        self.horizontalLayout_2.setStretch(0, 12)
         self.horizontalLayout_2.setStretch(1, 1)
         self.horizontalLayout_2.setStretch(2, 10)
         self.horizontalLayout_6.addLayout(self.horizontalLayout_2)
@@ -718,7 +718,7 @@ class Ui_MainWindow(object):
         MainWindow.setCentralWidget(self.centralwidget)
 
         self.retranslateUi(MainWindow)
-        self.tabs.setCurrentIndex(4)
+        self.tabs.setCurrentIndex(1)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def retranslateUi(self, MainWindow):

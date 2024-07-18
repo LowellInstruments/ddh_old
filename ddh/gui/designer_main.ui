@@ -41,7 +41,7 @@
        </font>
       </property>
       <property name="currentIndex">
-       <number>0</number>
+       <number>1</number>
       </property>
       <widget class="QWidget" name="tab">
        <property name="sizePolicy">
@@ -709,7 +709,7 @@
          <number>18</number>
         </property>
         <item>
-         <layout class="QHBoxLayout" name="horizontalLayout_2" stretch="10,1,10">
+         <layout class="QHBoxLayout" name="horizontalLayout_2" stretch="12,1,10">
           <item>
            <layout class="QVBoxLayout" name="verticalLayout" stretch="1,10,1,10">
             <item>

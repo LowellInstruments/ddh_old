@@ -39,11 +39,11 @@ def _utils_graph_tdo_file_set_fast_mode(path):
     if not path.endswith('_TDO.csv'):
         lg.a('error: can only set fast mode on TDO CSV files')
         return
+
+    # leave when already exists either fast or slow mode file flag
     fmf = _utils_graph_get_fast_mode_file_name(path)
     if os.path.exists(fmf):
         return
-
-    # slow mode file: to not process non-fmf files over and over
     smf = _utils_graph_get_slow_mode_file_name(path)
     if os.path.exists(smf):
         return
@@ -198,13 +198,19 @@ def cached_read_csv(f):
 
 
 @lru_cache(maxsize=512)
-def process_graph_csv_data(fol, _, h, hi) -> dict:
+def process_graph_csv_data(fol, h, hi, fast_mode=False) -> dict:
 
     # 2nd parameter ignored, only use by lru_cache()
     _g_ff_t = sorted(glob(f"{fol}/*_Temperature.csv"))
     _g_ff_p = sorted(glob(f"{fol}/*_Pressure.csv"))
     _g_ff_dot = sorted(glob(f"{fol}/*_DissolvedOxygen.csv"))
     _g_ff_tdo = sorted(glob(f"{fol}/*_TDO.csv"))
+
+    # make it effective or not
+    fast_mode = True
+    if fast_mode:
+        _g_ff_tdo = [i for i in _g_ff_tdo if
+                     os.path.exists(_utils_graph_get_fast_mode_file_name(i))]
 
     # error moana
     # MOANA_0744_99_240221160010_Temperature.csv
