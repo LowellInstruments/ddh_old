@@ -218,18 +218,6 @@ def _graph_busy_sign_hide(a):
     a.lbl_graph_busy.setVisible(False)
 
 
-def _graph_collect_filenames_to_plot(fol):
-    t = sorted(glob(f"{fol}/*_Temperature.csv"))
-    p = sorted(glob(f"{fol}/*_Pressure.csv"))
-    dox = sorted(glob(f"{fol}/*_DissolvedOxygen.csv"))
-    tdo = sorted(glob(f"{fol}/*_TDO.csv"))
-
-
-
-    # so we can use cache
-    return '\n'.join(t) + '\n'.join(p) + '\n'.join(dox) + '\n'.join(tdo)
-
-
 def _process_n_graph(a, r=''):
 
     # get graph from passed app
@@ -377,7 +365,7 @@ def _process_n_graph(a, r=''):
     # choose utcfromtimestamp() / fromtimestamp()
     t1 = datetime.fromtimestamp(x[0]).strftime(fmt)
     t2 = datetime.fromtimestamp(x[-1]).strftime(fmt)
-    title = '{} to {}'.format(t1, t2)
+    title = f'{t1} to {t2}'
 
     # removed on Apr 3 2024
     # if data['pruned']:
@@ -619,32 +607,42 @@ def _process_n_graph(a, r=''):
     # statistics: average box in main tab
     _u(f"{STATE_DDS_BLE_DOWNLOAD_STATISTICS}/")
     is_rpi = linux_is_rpi()
-    if met == 'TDO':
-        if (not is_rpi) or (is_rpi and r == 'BLE'):
-            dp = data['Pressure (dbar) TDO']
-            dt = data['Temperature (F) TDO']
-            # calculate 80th percentile threshold float
-            # we only keep values at the bottom of sea
-            p80 = _percentile(dp, 80)
-            ls_p, ls_t = [], []
-            for i, p in enumerate(dp):
-                if p >= p80:
-                    ls_p.append(dp[i])
-                    ls_t.append(dt[i])
-            lg.a(f'debug: percentile 80 is {p80}')
-            s = 'haul mean\n'
-            s += '{:5.2f} dbar\n'.format(mean(ls_p))
-            s += '{:5.2f} °F'.format(mean(ls_t))
-            _u(f"{STATE_DDS_BLE_DOWNLOAD_STATISTICS}/{s}")
-    if met == 'DO':
-        if (not is_rpi) or (is_rpi and r == 'BLE'):
-            _do = data['DO Concentration (mg/l) DO']
-            dt = data['Temperature (F) DO']
-            s = 'haul mean\n'
-            s += '{:5.2f} mg_l\n'.format(mean(_do))
-            s += '{:5.2f} °F'.format(mean(dt))
-            _u(f"{STATE_DDS_BLE_DOWNLOAD_STATISTICS}/{s}")
-
+    try:
+        if met == 'TDO':
+            if (not is_rpi) or (is_rpi and r == 'BLE'):
+                dp = data['Pressure (dbar) TDO']
+                dt = data['Temperature (F) TDO']
+                # calculate 80th percentile threshold float
+                # we only keep values at the bottom of sea
+                p80 = _percentile(dp, 80)
+                ls_p, ls_t = [], []
+                for i, p in enumerate(dp):
+                    if p >= p80:
+                        ls_p.append(dp[i])
+                        ls_t.append(dt[i])
+                lg.a(f'debug: percentile 80 is {p80}')
+                s = 'haul mean\n'
+                s += '{:5.2f} dbar\n'.format(mean(ls_p))
+                s += '{:5.2f} °F'.format(mean(ls_t))
+                _u(f"{STATE_DDS_BLE_DOWNLOAD_STATISTICS}/{s}")
+        if met == 'DO':
+            if (not is_rpi) or (is_rpi and r == 'BLE'):
+                _do = data['DO Concentration (mg/l) DO']
+                dt = data['Temperature (F) DO']
+                wat = data['Water Detect (%) DO']
+                ls_do, ls_dt = [], []
+                if len(wat):
+                    # DO-2 logger
+                    for i, w in enumerate(wat):
+                        if w >= 50:
+                            ls_do.append(_do[i])
+                            ls_dt.append(dt[i])
+                s = 'haul mean\n'
+                s += '{:5.2f} mg_l\n'.format(mean(ls_do))
+                s += '{:5.2f} °F'.format(mean(ls_dt))
+                _u(f"{STATE_DDS_BLE_DOWNLOAD_STATISTICS}/{s}")
+    except (Exception, ) as ex:
+        lg.a(f'warning: exception {ex} while doing summary box')
 
 def process_n_graph(a, r=''):
     try:

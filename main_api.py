@@ -359,7 +359,7 @@ async def ep_provision():
     fc = f'/tmp/config.toml'
     d = '/home/pi/li/ddh/settings'
     _p(f'moving {fc} to DDH settings folder')
-    # todo ---> reenable this
+    # todo ---> reenable this moving of config.toml file
     # _sh(f'mv {fc} {d}')
 
     fa = f'/tmp/all_macs.toml'

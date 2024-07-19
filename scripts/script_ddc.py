@@ -158,15 +158,13 @@ def p_i(s):
 
 
 def cb_calibrate_display():
-    # todo --> detect bookworm (new0 instead of bullseye (old)
-
     c = "export XAUTHORITY=/home/pi/.Xauthority; " \
         "export DISPLAY=:0; " \
         "xinput_calibrator"
     sh(c)
     # file has to be copied to
     # /etc/X11/xorg.conf.d/99-calibration.conf
-    # todo ---> do this moving of xorg file
+    # todo --> detect bookworm vs bullseye, also move xorg file
 
 
 def _cb_crontab(s):
@@ -262,7 +260,7 @@ def ddh_run_check():
         m = os.path.exists(f'{get_ddh_folder_path_settings()}/all_macs.toml')
 
         if not w:
-            _e('missing wireguard conf file')
+            _w('missing wireguard conf file')
         if not a:
             _i('missing SSH authorized keys file')
         if not c:
@@ -347,5 +345,5 @@ def ddh_run_check():
     if not (flag_vp_quectel or flag_vp_gps_puck1 or flag_vp_gps_puck2):
         _e('no hardware GPS present')
     if not ok_shield_sailor and not ok_shield_j4h:
-        _e('no hardware power shield present')
+        _w('no hardware power shield present')
     return rv, str_e, str_w, str_i

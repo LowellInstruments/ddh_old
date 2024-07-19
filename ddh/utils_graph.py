@@ -158,18 +158,25 @@ def _data_build_dict_intervals(df, di) -> dict:
 
     # dp: package dateutil_parser
     a = df.at[0, 'ISO 8601 Time']
+
+    # try:
+    #     x = [dp.isoparse(f'{i}Z').timestamp() for i in x]
+    # except (Exception, ):
+    #     x = [dp.isoparse(f'{i}').timestamp() for i in x]
+    #
+
     try:
-        ta = dp.parse('{}Z'.format(a)).timestamp()
+        ta = dp.isoparse(f'{a}Z').timestamp()
     except (Exception, ):
         # old time format, no z
-        ta = dp.parse('{}'.format(a)).timestamp()
+        ta = dp.isoparse(f'{a}').timestamp()
 
     b = df.at[1, 'ISO 8601 Time']
     try:
-        tb = dp.parse('{}Z'.format(b)).timestamp()
+        tb = dp.isoparse(f'{b}Z').timestamp()
     except (Exception, ):
         # old time format, no z
-        tb = dp.parse('{}'.format(b)).timestamp()
+        tb = dp.isoparse(f'{b}').timestamp()
 
     delta = tb - ta
     v = n
@@ -278,7 +285,7 @@ def process_graph_csv_data(fol, h, hi, fast_mode=False) -> dict:
     # ---------
     x = []
     t, p, pf, mpf = [], [], [], []
-    doc, dot = [], []
+    doc, dot, wat = [], [], []
     tdo_t, tdo_p, tdo_ax, tdo_ay, tdo_az = [], [], [], [], []
     is_moana = False
 
@@ -306,6 +313,10 @@ def process_graph_csv_data(fol, h, hi, fast_mode=False) -> dict:
             x += list(df['ISO 8601 Time'])
             doc += list(df['Dissolved Oxygen (mg/l)'])
             dot += list(df['DO Temperature (C)'])
+            try:
+                wat += list(df['Water Detect (%)'])
+            except (Exception, ):
+                pass
         if not di:
             lg.a('error: NO _data_build_dict_intervals')
             return {}
@@ -342,6 +353,7 @@ def process_graph_csv_data(fol, h, hi, fast_mode=False) -> dict:
     p = p[::n]
     doc = doc[::n]
     dot = dot[::n]
+    wat = wat[::n]
     tdo_t = tdo_t[::n]
     tdo_p = tdo_p[::n]
     tdo_ax = tdo_ax[::n]
@@ -399,6 +411,7 @@ def process_graph_csv_data(fol, h, hi, fast_mode=False) -> dict:
         'DO Concentration (mg/l) DO': doc,
         'Temperature (C) DO': dot,
         'Temperature (F) DO': dotf,
+        'Water Detect (%) DO': wat,
         'Temperature (C) TDO': tdo_t,
         'Temperature (F) TDO': tdo_tf,
         'Pressure (dbar) TDO': tdo_p,
