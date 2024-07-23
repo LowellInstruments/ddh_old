@@ -604,7 +604,9 @@ def _process_n_graph(a, r=''):
     el_ts = int((end_ts - start_ts) * 1000)
     lg.a(f'graphed {len(x)} {met} points, took {el_ts} ms')
 
-    # statistics: average box in main tab
+    # ------------------------------------
+    # statistics: summary box in main tab
+    # ------------------------------------
     _u(f"{STATE_DDS_BLE_DOWNLOAD_STATISTICS}/")
     is_rpi = linux_is_rpi()
     try:
@@ -637,12 +639,17 @@ def _process_n_graph(a, r=''):
                         if w >= 50:
                             ls_do.append(_do[i])
                             ls_dt.append(dt[i])
+                else:
+                    # DO-1 logger
+                    ls_do = _do
+                    ls_dt = dt
                 s = 'haul mean\n'
                 s += '{:5.2f} mg_l\n'.format(mean(ls_do))
                 s += '{:5.2f} °F'.format(mean(ls_dt))
                 _u(f"{STATE_DDS_BLE_DOWNLOAD_STATISTICS}/{s}")
     except (Exception, ) as ex:
         lg.a(f'warning: exception {ex} while doing summary box')
+
 
 def process_n_graph(a, r=''):
     try:
