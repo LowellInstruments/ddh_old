@@ -17,17 +17,17 @@ from api.api_utils import (api_get_ip_vpn, api_get_ip_wlan, api_get_ip_cell,
                            api_get_timezone, CTT_API_OK,
                            CTT_API_ER, api_get_uptime_secs, api_ddh_get_folder_dl_files,
                            api_get_ddh_folder_path_macs_black, api_get_ddh_sw_version,
-                           api_get_utc_epoch, api_get_api_version, api_get_ble_iface, api_get_shellinabox_active, req,
+                           api_get_utc_epoch, api_get_api_version, api_get_ble_iface,
                            get_files_from_server,
                            )
 from ddh.db.db_his import DbHis
 from utils.ddh_config import (dds_get_cfg_vessel_name,
                               dds_get_cfg_box_sn, dds_get_cfg_box_project,
-                              dds_get_cfg_monitored_pairs)
+                              dds_get_cfg_monitored_pairs, dds_get_cfg_flag_gps_external)
 import uvicorn
 from fastapi import FastAPI, UploadFile, File, HTTPException
 import os
-from fastapi.responses import FileResponse, JSONResponse
+from fastapi.responses import FileResponse
 import concurrent.futures
 import subprocess as sp
 
@@ -150,6 +150,7 @@ async def api_get_info():
         "uptime_secs": _th(api_get_uptime_secs),
         "ble_state": _th(api_get_ble_state),
         "ble_iface_used": _th(api_get_ble_iface),
+        "gps_iface_used": _th(dds_get_cfg_flag_gps_external),
         "aws_sqs_state": _th(api_read_aws_sqs_ts),
         "boat_prj": _th(dds_get_cfg_box_project),
         "boat_sn": _th(dds_get_cfg_box_sn),
@@ -163,7 +164,6 @@ async def api_get_info():
         "time_zone": _th(api_get_timezone),
         "ddh_version": _th(api_get_ddh_sw_version),
         "api_version": _th(api_get_api_version),
-        "shellinabox_active": _th(api_get_shellinabox_active)
         # "commit_mat": _th(get_git_commit_mat_local),
         # "commit_ddh": _th(get_git_commit_ddh_local),
     }

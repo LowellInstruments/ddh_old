@@ -10,7 +10,8 @@ import time
 from requests.exceptions import HTTPError
 import requests
 import re
-from utils.tmp_paths import LI_PATH_DDH_VERSION, TMP_PATH_GPS_LAST_JSON, TMP_PATH_BLE_IFACE
+from utils.tmp_paths import (LI_PATH_DDH_VERSION,
+                             TMP_PATH_GPS_LAST_JSON, TMP_PATH_BLE_IFACE)
 
 CTT_API_OK = 'ok'
 CTT_API_ER = 'error'
