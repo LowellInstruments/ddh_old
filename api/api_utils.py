@@ -10,6 +10,8 @@ import time
 from requests.exceptions import HTTPError
 import requests
 import re
+
+from utils.ddh_config import dds_get_cfg_flag_gps_external
 from utils.tmp_paths import (LI_PATH_DDH_VERSION,
                              TMP_PATH_GPS_LAST_JSON, TMP_PATH_BLE_IFACE)
 
@@ -307,6 +309,15 @@ def api_get_ble_iface():
         print(f'{CTT_API_ER}: cannot api_get_ble_iface -> {ex}')
         return None
 
+
+def api_get_gps_iface():
+    try:
+        if dds_get_cfg_flag_gps_external():
+            return "puck"
+        return "internal"
+    except (Exception, ) as ex:
+        print(f'{CTT_API_ER}: cannot api_get_gps_iface -> {ex}')
+        return None
 
 def api_get_commits():
     v_mat_l = api_get_git_commit_mat_local()
