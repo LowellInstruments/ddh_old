@@ -494,7 +494,7 @@ def _process_n_graph(a, r=''):
             arr[arr < 0] = 0
             y1 = list(arr)
             p1.plot(x, y1, pen=pen1, hoverable=True)
-            p2.addItem(pg.PlotCurveItem(x, y2, pen=pen2, hoverable=True))
+            p2.addItem(pg.PlotCurveItem(x, y2, pen=pen2, hoverable=True, connect='finite'))
 
             # left y inverted: 1st parameter y-up, 2nd y-low
             # .1 prevents displaying negative pressure values

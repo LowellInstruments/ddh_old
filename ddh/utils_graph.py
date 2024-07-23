@@ -4,6 +4,7 @@ import time
 from functools import lru_cache
 from glob import glob
 from os.path import basename
+import numpy as np
 import dateutil.parser as dp
 import pandas as pd
 from utils.ddh_config import dds_get_cfg_flag_graph_test_mode
@@ -13,6 +14,7 @@ from utils.logs import lg_gra as lg
 from utils.tmp_paths import TMP_PATH_GRAPH_REQ_JSON
 
 CTT_ATM_PRESSURE_DBAR = 10.1325
+ENABLE_FAST_MODE_GRAPH = 0
 
 
 def _utils_graph_get_fast_mode_file_name(path):
@@ -205,7 +207,7 @@ def cached_read_csv(f):
 
 
 @lru_cache(maxsize=512)
-def process_graph_csv_data(fol, h, hi, fast_mode=False) -> dict:
+def process_graph_csv_data(fol, h, hi) -> dict:
 
     # 2nd parameter ignored, only use by lru_cache()
     _g_ff_t = sorted(glob(f"{fol}/*_Temperature.csv"))
@@ -214,10 +216,8 @@ def process_graph_csv_data(fol, h, hi, fast_mode=False) -> dict:
     _g_ff_tdo = sorted(glob(f"{fol}/*_TDO.csv"))
 
     # make it effective or not
-    fast_mode = True
-    if fast_mode:
-        _g_ff_tdo = [i for i in _g_ff_tdo if
-                     os.path.exists(_utils_graph_get_fast_mode_file_name(i))]
+    _g_ff_tdo_fast = [i for i in _g_ff_tdo if
+                      os.path.exists(_utils_graph_get_fast_mode_file_name(i))]
 
     # error moana
     # MOANA_0744_99_240221160010_Temperature.csv
@@ -326,11 +326,24 @@ def process_graph_csv_data(fol, h, hi, fast_mode=False) -> dict:
             lg.a(f'reading {met} file {basename(f)}')
             df = cached_read_csv(f)
             x += list(df['ISO 8601 Time'])
-            tdo_t += list(df['Temperature (C)'])
-            tdo_p += list(df['Pressure (dbar)'])
-            tdo_ax += list(df['Ax'])
-            tdo_ay += list(df['Ay'])
-            tdo_az += list(df['Az'])
+            if ENABLE_FAST_MODE_GRAPH:
+                if f in _g_ff_tdo_fast:
+                    tdo_t += list(df['Temperature (C)'])
+                    tdo_p += list(df['Pressure (dbar)'])
+                    tdo_ax += list(df['Ax'])
+                    tdo_ay += list(df['Ay'])
+                    tdo_az += list(df['Az'])
+                else:
+                    # so when plotting with connect='finite' these don't appear
+                    print('**** naning')
+                    tdo_t += [np.nan] * len(list(df['Temperature (C)']))
+                    tdo_p += [np.nan] * len(list(df['Pressure (dbar)']))
+            else:
+                tdo_t += list(df['Temperature (C)'])
+                tdo_p += list(df['Pressure (dbar)'])
+                tdo_ax += list(df['Ax'])
+                tdo_ay += list(df['Ay'])
+                tdo_az += list(df['Az'])
 
     # simplify stuff
     if not met:
