@@ -37,12 +37,12 @@ def net_serve():
         return
 
     via = _get_internet_via()
-    _u("{}/{}".format(STATE_DDS_NOTIFY_NET_VIA, via))
+    _u(f"{STATE_DDS_NOTIFY_NET_VIA}/{via}")
 
     global _g_last_via
     if via != _g_last_via:
         if via == "none":
-            lg.a("warning: seems no internet")
+            lg.a("error: NET module found no internet access")
         else:
             lg.a(f"internet via {via}")
     _g_last_via = via

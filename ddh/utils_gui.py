@@ -33,7 +33,7 @@ from utils.ddh_config import (
     dds_get_cfg_flag_graph_test_mode,
     dds_get_cfg_logger_sn_from_mac,
     dds_get_cfg_forget_time_secs,
-    ddh_get_cfg_maps_en, dds_get_cfg_flag_download_test_mode)
+    ddh_get_cfg_maps_en, dds_get_cfg_flag_download_test_mode, dds_get_cfg_box_sn, ddh_get_file_flag_plot_wc)
 
 from utils.ddh_shared import (
     STATE_DDS_BLE_SCAN,
@@ -124,6 +124,9 @@ def gui_setup_view(my_win):
     fmt = "{}\n{}"
     a.lbl_gps.setText(fmt.format("-", "-"))
 
+    # info: box SN
+    a.lbl_box_sn.setText('DDH ' + dds_get_cfg_box_sn())
+
     # cloud: aws, cell
     a.lbl_cloud_txt.setText("-")
     a.bar_dl.setVisible(False)
@@ -143,6 +146,10 @@ def gui_setup_view(my_win):
     # maps enable flag
     me = ddh_get_cfg_maps_en()
     a.chk_b_maps.setChecked(me)
+
+    # plot data outside the water
+    dow = ddh_get_file_flag_plot_wc()
+    a.chk_plt_outside_water.setChecked(dow)
 
     # test mode
     a.lbl_testmode.setVisible(False)
@@ -324,6 +331,7 @@ def gui_setup_buttons(my_app):
     a.btn_note_yes_specific.clicked.connect(a.click_btn_note_yes_specific)
     a.chk_rerun.toggled.connect(a.click_chk_rerun)
     a.chk_b_maps.toggled.connect(a.click_chk_b_maps)
+    a.chk_plt_outside_water.toggled.connect(a.click_chk_plt_outside_water)
     a.cb_s3_uplink_type.activated.connect(a.click_cb_s3_uplink_type)
     a.btn_sms.clicked.connect(a.click_btn_sms)
 

@@ -18,13 +18,19 @@
 
 4.0.04
 
-    bug in logs.py in building file_out
+    bug in logs.py in building file_out on testing mode
 
 4.0.05
     
     prevented deletion of error_maps.gif when receiving doppio maps from DDN
-    added possibility of fast_plotting mode for TDO
+    added possibility of water column mode for TDO
 
 4.0.06
 
     added fix for summary box DO-1 / DO-2
+
+4.0.07
+
+    added water column mode for graphing for DOX and TDO loggers
+    added new logs.py entries, with unified timestamp
+    added year filtering on AWS uploads

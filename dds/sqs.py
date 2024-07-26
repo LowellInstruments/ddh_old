@@ -61,7 +61,7 @@ def sqs_serve():
 
     if ddh_get_internet_via() == "none":
         # prevents main_loop getting stuck
-        lg.a("warning: no internet to serve SQS")
+        lg.a("error: no internet to serve SQS")
         return
 
     # ---------------------------------
@@ -70,10 +70,9 @@ def sqs_serve():
     fol = get_ddh_folder_path_sqs()
     files = glob.glob("{}/*.sqs".format(fol))
     if files:
-        lg.a('\n')
         lg.a("---------------------")
         lg.a(f"serving {len(files)} SQS files")
-        lg.a("---------------------\n")
+        lg.a("---------------------")
 
     for _ in files:
 
@@ -114,10 +113,9 @@ def sqs_serve():
                 f.close()
 
     if files:
-        lg.a('\n')
         lg.a("---------------------------")
         lg.a("serving SQS files finished")
-        lg.a("---------------------------\n")
+        lg.a("---------------------------")
 
 
 if __name__ == "__main__":

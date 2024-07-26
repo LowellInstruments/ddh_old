@@ -3,11 +3,8 @@ import multiprocessing
 import sys
 import time
 from datetime import datetime
-from glob import glob
 from math import ceil
 from multiprocessing import Process
-from statistics import mean
-
 import numpy as np
 import pyqtgraph as pg
 import setproctitle
@@ -19,8 +16,8 @@ from pyqtgraph.Qt import QtGui
 from ddh.utils_graph import (utils_graph_read_fol_req_file,
                              utils_graph_get_abs_fol_list, process_graph_csv_data,
                              utils_graph_does_exist_fol_req_file,
-                             utils_graph_delete_fol_req_file, utils_graph_detect_this_file_has_fast_mode,
-                             utils_graph_tdo_classify_files_fast_mode)
+                             utils_graph_delete_fol_req_file,
+                             utils_graph_tdo_classify_files_wc_mode)
 from dds.timecache import is_it_time_to
 from mat.linux import linux_is_process_running
 from mat.utils import linux_is_rpi
@@ -51,16 +48,16 @@ def _percentile(data, perc: int):
 
 
 def gfm_serve():
-    # ---------------------------------------
-    # GFM: graph fast mode
-    # only graphs files with fast mode data
-    # ---------------------------------------
+    # -----------------------------------------
+    # GFM: graph water column mode
+    # only graphs files with water column data
+    # -----------------------------------------
     _P_ = "dds_gfm"
 
     def _gfm_serve():
         setproctitle.setproctitle(_P_)
         try:
-            utils_graph_tdo_classify_files_fast_mode()
+            utils_graph_tdo_classify_files_wc_mode()
         except (Exception, ) as ex:
             lg.a(f'error: gfm_serve -> ex {ex}')
         # instead of return prevents zombie processes
@@ -95,7 +92,7 @@ def _get_outliers_indexes(data, n1, n2):
 
 
 def _axis_room(v: list):
-    return .1 * max(v)
+    return .1 * np.nanmax(v)
 
 
 def _sty(color):
@@ -425,17 +422,17 @@ def _process_n_graph(a, r=''):
         p1.setLabel("left", lbl1, **_sty(clr_1))
         p1.getAxis('right').setLabel(lbl2, **_sty(clr_2))
         p1.plot(x, y1, pen=pen1, hoverable=True)
-        p2.addItem(pg.PlotCurveItem(x, y2, pen=pen2, hoverable=True))
+        p2.addItem(pg.PlotCurveItem(x, y2, pen=pen2, hoverable=True, connect='finite'))
 
         # dynamic upper top of DO
         upper_top_do = 10
-        if max(y1) > upper_top_do:
-            upper_top_do = max(y1) + 1
+        if np.nanmax(y1) > upper_top_do:
+            upper_top_do = np.nanmax(y1) + 1
         upper_top_do = int(ceil(upper_top_do))
 
         # y-axis ranges, bottom-axis label
         p1.setYRange(0, upper_top_do, padding=0)
-        p2.setYRange(min(y2), max(y2), padding=0)
+        p2.setYRange(np.nanmin(y2), np.nanmax(y2), padding=0)
         p1.getAxis('bottom').setLabel(title, **_sty('black'))
 
         # alpha, for zones, the lower, the more transparent
@@ -498,9 +495,9 @@ def _process_n_graph(a, r=''):
 
             # left y inverted: 1st parameter y-up, 2nd y-low
             # .1 prevents displaying negative pressure values
-            p1.setYRange(.01, max(y1), padding=0)
+            p1.setYRange(.01, np.nanmax(y1), padding=0)
             # right y not inverted: 1st parameter y-low, 2nd y-up
-            p2.setYRange(min(y2), max(y2), padding=0)
+            p2.setYRange(np.nanmin(y2), np.nanmax(y2), padding=0)
 
             # bottom-axis label
             p1.getAxis('bottom').setLabel(title, **_sty('black'))
@@ -552,7 +549,7 @@ def _process_n_graph(a, r=''):
                 # p3.addItem(a)
 
                 # range
-                p3.setYRange(0, max(y3), padding=0)
+                p3.setYRange(0, np.nanmax(y3), padding=0)
 
         # type of TDO plot 2/2: T (y2) / D (y1) vs time
         elif 'x-Temp' in tdo_graph_type:
@@ -580,7 +577,7 @@ def _process_n_graph(a, r=''):
 
             # left y inverted: 1st parameter y-up, 2nd y-low
             # .1 prevents displaying negative pressure values
-            p1.setYRange(.1, max(y1), padding=0)
+            p1.setYRange(.1, np.nanmax(y1), padding=0)
 
             # title and bottom axis
             title = f'Temperature (F) {title}'
@@ -589,11 +586,11 @@ def _process_n_graph(a, r=''):
             # patch for bottom ticks, y2 are floats
             # solves the problem of the x-axis ticks changing
             bt = []
-            _i = min(y2)
-            while _i < max(y2):
+            _i = np.nanmin(y2)
+            while _i < np.nanmax(y2):
                 bt.append(_i)
                 # _i += 1
-                _i += ((max(y2) - min(y2)) / 10)
+                _i += ((np.nanmax(y2) - np.nanmin(y2)) / 10)
             p1.getAxis('bottom').setTicks(([[(v, '{:5.1f}'.format(v)) for v in bt]]))
 
             # or we could set the x-axis label on top
@@ -622,10 +619,10 @@ def _process_n_graph(a, r=''):
                     if p >= p80:
                         ls_p.append(dp[i])
                         ls_t.append(dt[i])
-                lg.a(f'debug: percentile 80 is {p80}')
+                lg.a(f'debug: detected TDO data, percentile 80 is {p80}')
                 s = 'haul mean\n'
-                s += '{:5.2f} dbar\n'.format(mean(ls_p))
-                s += '{:5.2f} °F'.format(mean(ls_t))
+                s += '{:5.2f} dbar\n'.format(np.nanmean(ls_p))
+                s += '{:5.2f} °F'.format(np.nanmean(ls_t))
                 _u(f"{STATE_DDS_BLE_DOWNLOAD_STATISTICS}/{s}")
         if met == 'DO':
             if (not is_rpi) or (is_rpi and r == 'BLE'):
@@ -634,18 +631,18 @@ def _process_n_graph(a, r=''):
                 wat = data['Water Detect (%) DO']
                 ls_do, ls_dt = [], []
                 if len(wat):
-                    # DO-2 logger
+                    lg.a('debug: detected DO-2 data, filtering values according to water %')
                     for i, w in enumerate(wat):
                         if w >= 50:
                             ls_do.append(_do[i])
                             ls_dt.append(dt[i])
                 else:
-                    # DO-1 logger
+                    lg.a('debug: detected DO-1 data, adding all values')
                     ls_do = _do
                     ls_dt = dt
                 s = 'haul mean\n'
-                s += '{:5.2f} mg_l\n'.format(mean(ls_do))
-                s += '{:5.2f} °F'.format(mean(ls_dt))
+                s += '{:5.2f} mg_l\n'.format(np.nanmean(ls_do))
+                s += '{:5.2f} °F'.format(np.nanmean(ls_dt))
                 _u(f"{STATE_DDS_BLE_DOWNLOAD_STATISTICS}/{s}")
     except (Exception, ) as ex:
         lg.a(f'warning: exception {ex} while doing summary box')

@@ -22,6 +22,9 @@ ddh/gui/res/*_C.gif
 .ts_aws.txt
 dds/ble_dl_moana.py
 
+# volatile settings
+.ddh_plt_outside_water
+
 
 # just in case there are more dl_files here
 dds/dl_files/

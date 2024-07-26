@@ -7,81 +7,101 @@ from os.path import basename
 import numpy as np
 import dateutil.parser as dp
 import pandas as pd
-from utils.ddh_config import dds_get_cfg_flag_graph_test_mode
+from utils.ddh_config import dds_get_cfg_flag_graph_test_mode, ddh_get_file_flag_plot_wc
 from utils.ddh_shared import (get_ddh_folder_path_dl_files,
                               get_dl_folder_path_from_mac)
 from utils.logs import lg_gra as lg
 from utils.tmp_paths import TMP_PATH_GRAPH_REQ_JSON
 
 CTT_ATM_PRESSURE_DBAR = 10.1325
-ENABLE_FAST_MODE_GRAPH = 0
 
 
-def _utils_graph_get_fast_mode_file_name(path):
+def _utils_graph_build_wc_mode_file_name(path):
+    # wc: stands for water column
+    # legacy: fast mode graph (fmg) were files with water column data
     bn = '._' + os.path.basename(path)[:-4] + '.fmg'
     return f'{os.path.dirname(path)}/{bn}'
 
 
-def _utils_graph_get_slow_mode_file_name(path):
+def _utils_graph_build_nowc_mode_file_name(path):
+    # legacy: slow mode graph (smg) were files w/o water column data
     bn = '._' + os.path.basename(path)[:-4] + '.smg'
     return f'{os.path.dirname(path)}/{bn}'
 
 
-def utils_graph_detect_this_file_has_fast_mode(path):
-    # path is full path
-    path = str(path)
-    if not path.endswith('_TDO.csv'):
-        # only TDO CSV files can have fast mode
-        return
-    return os.path.exists(_utils_graph_get_fast_mode_file_name(path))
-
-
-def _utils_graph_tdo_file_set_fast_mode(path):
-    path = str(path)
-    if not path.endswith('_TDO.csv'):
-        lg.a('error: can only set fast mode on TDO CSV files')
+def _utils_graph_classify_file_wc_mode(p):
+    # p: full path
+    p = str(p)
+    bn = os.path.basename(p)
+    _is_tdo = p.endswith('_TDO.csv')
+    _is_dox = p.endswith('_DissolvedOxygen.csv')
+    if not _is_tdo and not _is_dox:
+        lg.a('error: can only set water column mode on lowell CSV files')
         return
 
-    # leave when already exists either fast or slow mode file flag
-    fmf = _utils_graph_get_fast_mode_file_name(path)
-    if os.path.exists(fmf):
+    # leave when already exists water column mode file
+    f_wc = _utils_graph_build_wc_mode_file_name(p)
+    if os.path.exists(f_wc):
         return
-    smf = _utils_graph_get_slow_mode_file_name(path)
-    if os.path.exists(smf):
+    f_nowc = _utils_graph_build_nowc_mode_file_name(p)
+    if os.path.exists(f_nowc):
         return
 
-    has_fm = False
-    with open(path, 'r') as f:
+    # consider short files have no water column info
+    with open(p, 'r') as f:
         ll = f.readlines()
         if len(ll) <= 3:
-            # let's discard short files
-            has_fm = False
-        else:
-            lg.a(f'processing file {path} for graph fast mode')
-            lg.a(f'{ll[3]}')
-            # ll[3]: 2024-04-04T13:55:51.000,10,20,28032,419,22.411,10.003,-8,235,21
-            # headers: ts,el_t,agg_t,raw T,raw P,T(C),P(dbar),Ax,Ay,Az
-            el_base = ll[3].split(',')[1]
-            for i in ll[3:]:
-                el_cur = i.split(',')[1]
-                if el_cur != el_base:
-                    has_fm = True
-                    lg.a(f'OK: set graph fast mode for TDO file {os.path.basename(path)}')
-                    break
+            pathlib.Path(f_nowc).touch()
+            return
 
-    if has_fm:
-        pathlib.Path(fmf).touch()
+    if _is_tdo:
+        lg.a(f'processing TDO file {p} for graph water column mode')
+        lg.a(f'{ll[3]}')
+        # ll[3]: 2024-04-04T13:55:51.000,10,20,28032,419,22.411,10.003,-8,235,21
+        # headers: ts,el_t,agg_t,raw T,raw P,T(C),P(dbar),Ax,Ay,Az
+        el_base = ll[3].split(',')[1]
+        for i in ll[3:]:
+            # detect changes in elapsed time
+            el_cur = i.split(',')[1]
+            if el_cur != el_base:
+                pathlib.Path(f_wc).touch()
+                lg.a(f'OK: set ON graph water column mode for TDO file {bn}')
+                return
+        pathlib.Path(f_nowc).touch()
+        lg.a(f'OK: set OFF graph water column mode for TDO file {bn}')
         return
 
-    # mark this file for the future as slow
-    pathlib.Path(smf).touch()
+    _is_do2 = 'Water' in ll[0]
+    if not _is_do2:
+        lg.a(f'OK: set ON graph water column mode for DO-1 file {bn}')
+        pathlib.Path(f_wc).touch()
+        return
+
+    if _is_do2:
+        lg.a(f'processing DO-2 file {p} for graph water column mode')
+        lg.a(f'{ll[3]}')
+        # headers: ts,mg/l,%,C,W%
+        # ll[3]: 2024-06-29T10:49:51.000Z,10.14,98.27,13.93,94.00
+        for i in ll[3:]:
+            w_cur = float(i.split(',')[-1])
+            if w_cur > 50:
+                lg.a(f'OK: set ON graph water column mode for DO-2 file {bn}')
+                pathlib.Path(f_wc).touch()
+                return
+        pathlib.Path(f_nowc).touch()
+        lg.a(f'OK: set OFF graph water column mode for DO-2 file {bn}')
+        return
+
+    lg.a(f'error: _utils_graph_classify_file_wc_mode for unknown file {p}')
 
 
-def utils_graph_tdo_classify_files_fast_mode():
+def utils_graph_tdo_classify_files_wc_mode():
     fol = get_ddh_folder_path_dl_files()
-    ls = glob(f'{fol}/**/*_TDO.csv', recursive=True)
+    ls_tdo = glob(f'{fol}/**/*_TDO.csv', recursive=True)
+    ls_dox = glob(f'{fol}/**/*_DissolvedOxygen.csv', recursive=True)
+    ls = ls_tdo + ls_dox
     for i in ls:
-        _utils_graph_tdo_file_set_fast_mode(i)
+        _utils_graph_classify_file_wc_mode(i)
 
 
 def utils_graph_get_abs_fol_list() -> list:
@@ -155,7 +175,6 @@ def _data_build_dict_intervals(df, di) -> dict:
     # shape: (rows, columns)
     n = df.shape[0]
     if n < 2:
-        print('discarding')
         return di
 
     # dp: package dateutil_parser
@@ -209,15 +228,16 @@ def cached_read_csv(f):
 @lru_cache(maxsize=512)
 def process_graph_csv_data(fol, h, hi) -> dict:
 
-    # 2nd parameter ignored, only use by lru_cache()
     _g_ff_t = sorted(glob(f"{fol}/*_Temperature.csv"))
     _g_ff_p = sorted(glob(f"{fol}/*_Pressure.csv"))
     _g_ff_dot = sorted(glob(f"{fol}/*_DissolvedOxygen.csv"))
     _g_ff_tdo = sorted(glob(f"{fol}/*_TDO.csv"))
 
     # make it effective or not
-    _g_ff_tdo_fast = [i for i in _g_ff_tdo if
-                      os.path.exists(_utils_graph_get_fast_mode_file_name(i))]
+    _g_ff_tdo_wc = [i for i in _g_ff_tdo if
+                      os.path.exists(_utils_graph_build_wc_mode_file_name(i))]
+    _g_ff_dot_wc = [i for i in _g_ff_dot if
+                      os.path.exists(_utils_graph_build_wc_mode_file_name(i))]
 
     # error moana
     # MOANA_0744_99_240221160010_Temperature.csv
@@ -302,48 +322,47 @@ def process_graph_csv_data(fol, h, hi) -> dict:
             is_moana = 'MOANA' in f or 'moana' in f
 
     elif met == 'DO':
-        di = dict()
+        plt_wc = ddh_get_file_flag_plot_wc()
+        lg.a(f'debug: plotting DOX with wc_mode = {plt_wc}')
         for f in _g_ff_dot:
-            lg.a('reading DO file {}'.format(basename(f)))
+            bn = os.path.basename(f)
+            lg.a(f'reading DO file {bn}')
             df = cached_read_csv(f)
-            _ = _data_build_dict_intervals(df, di)
-            if not _:
-                continue
-            di = _
             x += list(df['ISO 8601 Time'])
-            doc += list(df['Dissolved Oxygen (mg/l)'])
-            dot += list(df['DO Temperature (C)'])
-            try:
-                wat += list(df['Water Detect (%)'])
-            except (Exception, ):
-                pass
-        if not di:
-            lg.a('error: NO _data_build_dict_intervals')
-            return {}
+            _m = len(list(df['ISO 8601 Time']))
+            if (not plt_wc) or (plt_wc and f in _g_ff_dot_wc):
+                doc += list(df['Dissolved Oxygen (mg/l)'])
+                dot += list(df['DO Temperature (C)'])
+                try:
+                    wat += list(df['Water Detect (%)'])
+                except (Exception, ):
+                    pass
+            elif plt_wc and f not in _g_ff_dot_wc:
+                lg.a(f'warning: file {bn} no-show for water column mode')
+                # so when plotting with connect='finite' these don't appear
+                doc += [np.nan] * _m
+                dot += [np.nan] * _m
 
     elif met == 'TDO':
+        plt_wc = ddh_get_file_flag_plot_wc()
+        lg.a(f'debug: plotting TDO with wc_mode = {plt_wc}')
         for f in _g_ff_tdo:
-            lg.a(f'reading {met} file {basename(f)}')
+            bn = os.path.basename(f)
+            lg.a(f'reading {met} file {bn}')
             df = cached_read_csv(f)
             x += list(df['ISO 8601 Time'])
-            if ENABLE_FAST_MODE_GRAPH:
-                if f in _g_ff_tdo_fast:
-                    tdo_t += list(df['Temperature (C)'])
-                    tdo_p += list(df['Pressure (dbar)'])
-                    tdo_ax += list(df['Ax'])
-                    tdo_ay += list(df['Ay'])
-                    tdo_az += list(df['Az'])
-                else:
-                    # so when plotting with connect='finite' these don't appear
-                    print('**** naning')
-                    tdo_t += [np.nan] * len(list(df['Temperature (C)']))
-                    tdo_p += [np.nan] * len(list(df['Pressure (dbar)']))
-            else:
+            _m = len(list(df['ISO 8601 Time']))
+            if (not plt_wc) or (plt_wc and f in _g_ff_tdo_wc):
                 tdo_t += list(df['Temperature (C)'])
                 tdo_p += list(df['Pressure (dbar)'])
                 tdo_ax += list(df['Ax'])
                 tdo_ay += list(df['Ay'])
                 tdo_az += list(df['Az'])
+            elif plt_wc and f not in _g_ff_tdo_wc:
+                lg.a(f'warning: file {bn} no-show for water column mode')
+                # so when plotting with connect='finite' these don't appear
+                tdo_t += [np.nan] * _m
+                tdo_p += [np.nan] * _m
 
     # simplify stuff
     if not met:

@@ -65,7 +65,7 @@ from utils.ddh_shared import (
 from utils.logs import lg_gui as lg  # noqa: E402
 import subprocess as sp  # noqa: E402
 
-from utils.tmp_paths import LI_PATH_GROUPED_S3_FILE_FLAG
+from utils.tmp_paths import LI_PATH_GROUPED_S3_FILE_FLAG, LI_PATH_PLOT_OUTSIDE_WATER
 
 _g_flag_ble_en = dds_get_cfg_flag_ble_en()
 
@@ -632,8 +632,18 @@ class DDH(QMainWindow, d_m.Ui_MainWindow):
     def click_chk_b_maps(self, _):
         c = cfg_load_from_file()
         c['flags']['maps_en'] = int(self.chk_b_maps.isChecked())
-        print(self.chk_b_maps.isChecked())
         cfg_save_to_file(c)
+
+    def click_chk_plt_outside_water(self, _):
+        from ddh.utils_graph import cached_read_csv
+        from ddh.utils_graph import process_graph_csv_data
+        cached_read_csv.cache_clear()
+        process_graph_csv_data.cache_clear()
+        p = LI_PATH_PLOT_OUTSIDE_WATER
+        if os.path.exists(p):
+            os.unlink(p)
+        if self.chk_plt_outside_water.isChecked():
+            pathlib.Path(p).touch()
 
     def click_graph_btn_reset(self):
         self.g.getPlotItem().enableAutoRange()

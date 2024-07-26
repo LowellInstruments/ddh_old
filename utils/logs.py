@@ -13,6 +13,7 @@ from mat.utils import PrintColors as PC
 
 g_last_tk_ts_unit = None
 g_last_file_out = ''
+g_last_t = ''
 
 
 class DDSLogs:
@@ -40,9 +41,15 @@ class DDSLogs:
     def _pf(self, s):
         if type(s) is bytes:
             s = s.decode()
+        global g_last_t
         now = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         utcnow = datetime.datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
-        s = f"{now} / {utcnow} | [ {self.label.upper()} ] {s}"
+        ns = f'[ {self.label.upper()} ] {s}'
+        s = f"\n{now} / {utcnow}\n[ {self.label.upper()} ] {s}"
+
+        # better logs
+        s = s if g_last_t != now else ns
+        g_last_t = now
 
         # color stuff, print() is called inside
         if "error" in s:

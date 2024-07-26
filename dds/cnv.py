@@ -146,10 +146,9 @@ def _cnv_serve():
         return
 
     # general banner
-    lg.a('\n')
     lg.a('----------------------------')
     lg.a('cnv_serve sequence started')
-    lg.a('----------------------------\n')
+    lg.a('----------------------------')
 
     # iterate mac folders
     fol = str(get_ddh_folder_path_dl_files())
@@ -161,10 +160,9 @@ def _cnv_serve():
             # same file is processed for multiple metrics
             _cnv_fol_lid(f, m)
 
-    lg.a('\n')
     lg.a('----------------------------')
     lg.a('cnv_serve sequence finished')
-    lg.a('----------------------------\n')
+    lg.a('----------------------------')
 
     # GUI update
     if _g_files_we_cannot_convert:

@@ -41,7 +41,7 @@
        </font>
       </property>
       <property name="currentIndex">
-       <number>1</number>
+       <number>4</number>
       </property>
       <widget class="QWidget" name="tab">
        <property name="sizePolicy">
@@ -1274,6 +1274,22 @@ font: 19pt &quot;DejaVu Sans&quot;;</string>
               </property>
              </widget>
             </item>
+            <item>
+             <widget class="QLabel" name="lbl_box_sn">
+              <property name="frameShape">
+               <enum>QFrame::NoFrame</enum>
+              </property>
+              <property name="text">
+               <string/>
+              </property>
+              <property name="alignment">
+               <set>Qt::AlignCenter</set>
+              </property>
+              <property name="wordWrap">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
            </layout>
           </item>
           <item row="1" column="2">
@@ -1383,8 +1399,8 @@ font: 19pt &quot;DejaVu Sans&quot;;</string>
        <layout class="QVBoxLayout" name="verticalLayout_5">
         <item>
          <layout class="QGridLayout" name="gridLayout_6">
-          <item row="0" column="1">
-           <spacer name="verticalSpacer_11">
+          <item row="6" column="1">
+           <spacer name="verticalSpacer_13">
             <property name="orientation">
              <enum>Qt::Vertical</enum>
             </property>
@@ -1397,7 +1413,41 @@ font: 19pt &quot;DejaVu Sans&quot;;</string>
            </spacer>
           </item>
           <item row="5" column="1">
-           <spacer name="verticalSpacer_13">
+           <widget class="QPushButton" name="btn_adv_purge_lo">
+            <property name="text">
+             <string>Open loggers lock-out tab</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="1">
+           <widget class="QCheckBox" name="chk_b_maps">
+            <property name="text">
+             <string> Show bottom Temperature maps</string>
+            </property>
+           </widget>
+          </item>
+          <item row="4" column="1">
+           <widget class="QLabel" name="label_10">
+            <property name="text">
+             <string/>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="2">
+           <spacer name="horizontalSpacer_22">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>40</width>
+              <height>20</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item row="0" column="1">
+           <spacer name="verticalSpacer_11">
             <property name="orientation">
              <enum>Qt::Vertical</enum>
             </property>
@@ -1430,36 +1480,9 @@ font: 19pt &quot;DejaVu Sans&quot;;</string>
            </spacer>
           </item>
           <item row="3" column="1">
-           <widget class="QLabel" name="label_10">
+           <widget class="QCheckBox" name="chk_plt_outside_water">
             <property name="text">
-             <string/>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="2">
-           <spacer name="horizontalSpacer_22">
-            <property name="orientation">
-             <enum>Qt::Horizontal</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>40</width>
-              <height>20</height>
-             </size>
-            </property>
-           </spacer>
-          </item>
-          <item row="4" column="1">
-           <widget class="QPushButton" name="btn_adv_purge_lo">
-            <property name="text">
-             <string>Open loggers lock-out tab</string>
-            </property>
-           </widget>
-          </item>
-          <item row="2" column="1">
-           <widget class="QCheckBox" name="chk_b_maps">
-            <property name="text">
-             <string> Show bottom Temperature maps</string>
+             <string> Only plot data in-water</string>
             </property>
            </widget>
           </item>

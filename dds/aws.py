@@ -10,6 +10,7 @@ import time
 from multiprocessing import Process
 import setproctitle
 from dds.emolt import this_box_has_grouped_s3_uplink
+from dds.net import ddh_get_internet_via
 from dds.notifications import notify_error_sw_aws_s3
 from dds.timecache import is_it_time_to
 from mat.linux import linux_is_process_running
@@ -128,32 +129,42 @@ def _aws_s3_sync_process():
         # _n: bkt-kaz
         # um: '/home/kaz/PycharmProjects/ddh/ddh#joaquim_boat or <mac>'
         um = m.split('/')[-1]
+        y = datetime.datetime.utcnow().year
+        sy = str(y)[2:]
         if this_box_has_grouped_s3_uplink():
-            lg.a('debug: AWS upload as grouped mode')
+            lg.a(f'debug: AWS upload as grouped mode for mac {um}')
             v = dds_get_cfg_vessel_name()
             # v: "bailey's" --> BAYLEYS
             v = v.replace("'", "")
             v = v.replace(" ", "_")
             v = v.upper()
             # um: we prepend group
-            y = datetime.datetime.utcnow().year
             um = f"{str(y)}/{v}/{um}"
         else:
-            lg.a('debug: AWS upload as non-grouped mode')
+            lg.a(f'debug: AWS upload as non-grouped mode for mac {um}')
 
         # build the AWS command
         c = (
             f"AWS_ACCESS_KEY_ID={_k} AWS_SECRET_ACCESS_KEY={_s} "
             f"{_bin} s3 sync {m} s3://{_n}/{um} "
             '--exclude "*" '
-            '--include "*.csv" '
-            '--include "*.gps" '
-            '--include "*.lid" '
-            '--include "*.bin" '
-            '--include "*.cst" '
+            # Moana filenames are unpredictable
+            # MOANA_0113_173_240125092721.bin
+            f'--include "*_*_*_{sy}*.bin" '
+            f'--include "*_*_*_{sy}*.csv" '
+            # Lowell's filenames
+            # 3333333_low_20240521_101541.gps
+            f'--include "*_*_{y}????_*.gps" '
+            f'--include "*_*_{y}????_*.lid" '
+            # 3333333_low_20240521_101541_DissolvedOxygen.csv
+            f'--include "*_*_{y}????_*_*.csv" '
+            f'--include "*_*_{y}????_*_*.cst" '
+            # do not upload these
             '--exclude "test_*.csv" '
             '--exclude "test_*.lid" '
-            f'--include "*.txt" {dr}'
+            # 2024-07-24T14:11:07Z#nameofboat_track
+            f'--include "{y}-*.txt" '
+            f'{dr}'
         )
 
         # ---------------------------------------------------
@@ -217,6 +228,10 @@ def aws_serve():
     # nothing to do, in fact, disabled
     if not dds_get_cfg_aws_en():
         lg.a("warning: aws_en is disabled")
+        return
+
+    if ddh_get_internet_via() == 'none':
+        lg.a('error: no AWS sync attempt because no internet access')
         return
 
     # tell why we do AWS
