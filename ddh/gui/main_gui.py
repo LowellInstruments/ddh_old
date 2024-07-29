@@ -606,18 +606,17 @@ class DDH(QMainWindow, d_m.Ui_MainWindow):
         self.lbl_net_pressed = 1
 
     def click_lbl_map_pressed(self, ev):
-        print(ev)
         h = self.lbl_map.height()
         w = self.lbl_map.width()
         p = self.map_filename
         x = ev.pos().x()
         y = ev.pos().y()
         # x starts left, y starts top
-        if x < (w / 2):
-            print('pressed image half left')
-        else:
-            print('pressed image half right')
         print('click', h, w, p, x, y)
+        if '_dtm' in p:
+            if (.3 * w <= x <= .6 * w and
+                    .3 * h <= y <= .6 * h):
+                print('click dtm central area')
 
     def click_lbl_net_released(self, _):
         if self.lbl_net_pressed >= 2:
