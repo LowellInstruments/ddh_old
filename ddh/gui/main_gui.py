@@ -613,7 +613,7 @@ class DDH(QMainWindow, d_m.Ui_MainWindow):
         y = ev.pos().y()
         # x starts left, y starts top
         print('click', h, w, p, x, y)
-        if '_dtm' in p:
+        if p and '_dtm' in p:
             if (.3 * w <= x <= .6 * w and
                     .3 * h <= y <= .6 * h):
                 print('click dtm central area')
