@@ -39,4 +39,5 @@
 
     added new maps GOM / MAB
     cleaned logs generation
+    made the graphs show the same order than the history
 
