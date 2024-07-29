@@ -56,6 +56,7 @@ def gui_populate_maps_tab(my_app):
         except (Exception,) as err:
             lg.a(f'error: DTM maps request -> {err}')
     else:
+        got_dtm = True
         lg.a(f"debug: re-using today's DTM file {fg_dtm}")
 
     # get GOM map from DDN
@@ -73,6 +74,7 @@ def gui_populate_maps_tab(my_app):
         except (Exception,) as err:
             lg.a(f'error: GOM maps request -> {err}')
     else:
+        got_gom = True
         lg.a(f"debug: re-using today's gom file {fg_gom}")
 
     # get MAB map from DDN
@@ -90,6 +92,7 @@ def gui_populate_maps_tab(my_app):
         except (Exception,) as err:
             lg.a(f'error: GOM maps request -> {err}')
     else:
+        got_mab = True
         lg.a(f"debug: re-using today's gom file {fg_mab}")
 
     # calculate how many good maps we have
