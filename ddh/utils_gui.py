@@ -286,10 +286,16 @@ def gui_ddh_populate_graph_dropdown_sn(my_app):
     db = DbHis(ddh_get_db_history_file())
     r = db.get_all().values()
     r = sorted(r, key=lambda x: x["ep_loc"], reverse=True)
-    # we will show just one entry
-    ls_sn = list(set([h['SN'] for h in r]))
 
+    # we will show just one entry
+    ls_sn = []
+    for h in r:
+        if not h['SN']:
+            continue
+        if h['SN'] not in ls_sn:
+            ls_sn.append(h['SN'].lower())
     j = dds_get_cfg_monitored_serial_numbers()
+    j = [i.lower() for i in j]
     for i in ls_sn:
         if i in j:
             a.cb_g_sn.addItem(i)
