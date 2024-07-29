@@ -38,6 +38,7 @@
 4.0.08
 
     added new maps GOM / MAB
+    fixed bug setup_tab not opening after pressing "cancel without saving"
     cleaned logs generation
     made the graphs show the same order than the history
 
