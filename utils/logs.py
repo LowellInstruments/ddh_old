@@ -45,7 +45,7 @@ class DDSLogs:
         now = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         utcnow = datetime.datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
         ns = f'[ {self.label.upper()} ] {s}'
-        s = f"\n{now} / {utcnow}\n[ {self.label.upper()} ] {s}"
+        s = f"\n\n[ CLK ] {now} / {utcnow}\n[ {self.label.upper()} ] {s}"
 
         # better logs
         s = s if g_last_t != now else ns

@@ -14,47 +14,99 @@ def gui_populate_maps_tab(my_app):
     addr_ddn_api = 'ddn.lowellinstruments.com'
     port_ddn_api = 9000
     deg = 'F'
-    fr = str(ddh_get_folder_path_res())
-    d = str(datetime.datetime.now().strftime('%Y%m%d'))
-    fe = f"{fr}/error_maps.gif"
-    fg = f"{fr}/{d}_{deg}.gif"
-    fl = fg
 
-    # delete tdm gifs which are not the current one
-    ls = glob.glob(f"{fr}/*.gif")
-    for fi in ls:
-        if 'error_maps' in fi:
+    # create names for maps
+    fol = str(ddh_get_folder_path_res())
+    now = str(datetime.datetime.now().strftime('%Y%m%d'))
+    fg_dtm = f"{fol}/{now}_{deg}_dtm.gif"
+    fg_gom = f"{fol}/{now}_{deg}_gom.gif"
+    fg_mab = f"{fol}/{now}_{deg}_mab.gif"
+    got_dtm = got_gom = got_mab = False
+
+    # delete any previous (not today's) map gifs
+    for i in glob.glob(f"{fol}/*.gif"):
+        if 'error_maps' in i:
             continue
-        if fi == fl:
+        if i in (fg_dtm, fg_gom, fg_mab):
+            # do not delete today's maps
             continue
-        lg.a(f'deleting old tdm file {fi}')
-        os.unlink(fi)
+        lg.a(f'deleting old map gif file {i}')
+        os.unlink(i)
 
-    # when developing, force re-download
-    if not linux_is_rpi() and os.path.exists(fg):
-        lg.a(f'we developing, deleting tdm file {fg}')
-        os.unlink(fg)
+    # when developing, delete even today's maps
+    if not linux_is_rpi():
+        lg.a('debug: developing, delete even today\'s map gif files')
+        for i in glob.glob(f"{fol}/*.gif"):
+            if 'error_maps' in i:
+                continue
+            os.unlink(i)
 
-    #  we don't have today's file, download gif from server
-    if not os.path.exists(fg):
-        lg.a(f"debug: requesting today's tdm file {fg}")
-        t = 5
-        url = f'http://{addr_ddn_api}:{port_ddn_api}/dtm?t={d}&deg={deg}'
+    # get DTM map from DDN
+    t = 5
+    if not os.path.exists(fg_dtm):
+        lg.a(f"requesting today's DTM file {fg_dtm}")
+        url = f'http://{addr_ddn_api}:{port_ddn_api}/dtm?t={now}&deg={deg}'
         try:
             rsp = requests.get(url, timeout=t)
             rsp.raise_for_status()
-            # save gif to local file system
-            with open(fg, 'wb') as f:
+            with open(fg_dtm, 'wb') as f:
                 f.write(rsp.content)
-                fl = fg
+                got_dtm = True
+                lg.a('OK: got DTM map file')
         except (Exception,) as err:
-            lg.a(f'error: maps request -> {err}')
-            fl = fe
+            lg.a(f'error: DTM maps request -> {err}')
     else:
-        lg.a(f"debug: re-using today's tdm file {fg}")
+        lg.a(f"debug: re-using today's DTM file {fg_dtm}")
 
-    # load the map
+    # get GOM map from DDN
+    if not linux_is_rpi() and not os.path.exists(fg_gom):
+        lg.a(f"requesting today's GOM file {fg_gom}")
+        t = 5
+        url = f'http://{addr_ddn_api}:{port_ddn_api}/gom?t={now}&deg={deg}'
+        try:
+            rsp = requests.get(url, timeout=t)
+            rsp.raise_for_status()
+            with open(fg_gom, 'wb') as f:
+                f.write(rsp.content)
+                got_gom = True
+                lg.a('OK: got GOM map file')
+        except (Exception,) as err:
+            lg.a(f'error: GOM maps request -> {err}')
+    else:
+        lg.a(f"debug: re-using today's gom file {fg_gom}")
+
+    # get MAB map from DDN
+    if not linux_is_rpi() and not os.path.exists(fg_mab):
+        lg.a(f"requesting today's MAB file {fg_mab}")
+        t = 5
+        url = f'http://{addr_ddn_api}:{port_ddn_api}/mab?t={now}&deg={deg}'
+        try:
+            rsp = requests.get(url, timeout=t)
+            rsp.raise_for_status()
+            with open(fg_mab, 'wb') as f:
+                f.write(rsp.content)
+                got_mab = True
+                lg.a('OK: got MAB map file')
+        except (Exception,) as err:
+            lg.a(f'error: GOM maps request -> {err}')
+    else:
+        lg.a(f"debug: re-using today's gom file {fg_mab}")
+
+    # calculate how many good maps we have
+    my_app.n_good_maps = int(got_dtm) + int(got_gom) + int(got_mab)
+    if my_app.n_good_maps > 1:
+        my_app.btn_map_next.setVisible(True)
+
+    # load the map picture
+    if got_dtm:
+        fp = fg_dtm
+    elif got_gom:
+        fp = fg_gom
+    elif got_mab:
+        fp = fg_mab
+    else:
+        fp = f"{fol}/error_maps.gif"
     a = my_app
-    a.gif_map = QMovie(fl)
+    a.gif_map = QMovie(fp)
     a.lbl_map.setMovie(a.gif_map)
     a.gif_map.start()

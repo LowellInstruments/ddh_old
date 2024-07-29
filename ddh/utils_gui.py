@@ -282,9 +282,17 @@ def gui_ddh_populate_graph_dropdown_sn(my_app):
         a.cb_g_sn.addItem('SNtest333')
         return
 
+    # get the history database and order by most recent first
+    db = DbHis(ddh_get_db_history_file())
+    r = db.get_all().values()
+    r = sorted(r, key=lambda x: x["ep_loc"], reverse=True)
+    # we will show just one entry
+    ls_sn = list(set([h['SN'] for h in r]))
+
     j = dds_get_cfg_monitored_serial_numbers()
-    for each in j:
-        a.cb_g_sn.addItem(each)
+    for i in ls_sn:
+        if i in j:
+            a.cb_g_sn.addItem(i)
 
 
 def gui_setup_buttons(my_app):
@@ -334,6 +342,7 @@ def gui_setup_buttons(my_app):
     a.chk_plt_outside_water.toggled.connect(a.click_chk_plt_outside_water)
     a.cb_s3_uplink_type.activated.connect(a.click_cb_s3_uplink_type)
     a.btn_sms.clicked.connect(a.click_btn_sms)
+    a.btn_map_next.clicked.connect(a.click_btn_map_next)
 
     # graph stuff
     a.btn_g_reset.clicked.connect(a.click_graph_btn_reset)
@@ -352,11 +361,23 @@ def gui_hide_edit_tab(ui):
     ui.tabs.removeTab(i)
 
 
+def gui_show_edit_tab(ui):
+    icon = QIcon("ddh/gui/res/icon_setup.png")
+    ui.tabs.addTab(ui.tab_edit_wgt_ref, icon, " Setup")
+    p = ui.tabs.findChild(QWidget, "tab_setup")
+    i = ui.tabs.indexOf(p)
+    ui.tabs.setCurrentIndex(i)
+
+
 def gui_hide_map_tab(ui):
     p = ui.tabs.findChild(QWidget, "tab_map")
     i = ui.tabs.indexOf(p)
     ui.tab_map_wgt_ref = ui.tabs.widget(i)
     ui.tabs.removeTab(i)
+
+
+def gui_hide_maps_next_btn(ui):
+    ui.btn_map_next.setVisible(False)
 
 
 def gui_hide_advanced_tab(ui):
@@ -383,14 +404,6 @@ def gui_show_graph_tab(ui):
     icon = QIcon("ddh/gui/res/icon_graph.ico")
     ui.tabs.addTab(ui.tab_graph_wgt_ref, icon, " Graphs")
     p = ui.tabs.findChild(QWidget, "tab_graph")
-    i = ui.tabs.indexOf(p)
-    ui.tabs.setCurrentIndex(i)
-
-
-def gui_show_edit_tab(ui):
-    icon = QIcon("ddh/gui/res/icon_setup.png")
-    ui.tabs.addTab(ui.tab_edit_wgt_ref, icon, " Setup")
-    p = ui.tabs.findChild(QWidget, "tab_setup")
     i = ui.tabs.indexOf(p)
     ui.tabs.setCurrentIndex(i)
 

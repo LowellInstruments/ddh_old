@@ -54,7 +54,7 @@ DDH_ALL_NOTIFICATIONS = [
 
 
 class LoggerNotification:
-    def __init__(self, mac, sn, kind, bat, dl_files=[]):
+    def __init__(self, mac, sn, kind, bat, dl_files=[], gfv=''):
         self.mac = str(mac)
         self.sn = str(sn)
         self.kind = str(kind)
@@ -63,6 +63,7 @@ class LoggerNotification:
         self.uuid_interaction = ''
         # more stuff
         self.dl_files = dl_files
+        self.gfv = gfv
 
 
 class _DDHNotification:
@@ -104,11 +105,13 @@ class _DDHNotification:
         self.logger_type = ""
         self.logger_bat = ""
         self.logger_dl_files = ""
+        self.logger_gfv = ""
         if ln:
             self.logger_mac = ln.mac
             self.logger_sn = ln.sn
             self.logger_type = ln.kind
             self.logger_bat = ln.bat
+            self.logger_gfv = ln.gfv
             self.uuid_interaction = ln.uuid_interaction
             for i in ln.dl_files:
                 self.logger_dl_files += f'{os.path.basename(i)},'

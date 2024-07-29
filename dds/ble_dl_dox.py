@@ -92,6 +92,7 @@ class BleCC26X2Download:
         rv, v = await lc.cmd_gfv()
         _rae(rv, "gfv")
         lg.a("GFV | {}".format(v))
+        notes['gfv'] = v
 
         rv, v = await lc.cmd_gtm()
         _rae(rv, "gtm")

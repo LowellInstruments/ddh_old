@@ -98,7 +98,7 @@ def sqs_serve():
 
             md = rsp["ResponseMetadata"]
             if md and int(md["HTTPStatusCode"]) == 200:
-                lg.a("debug: SQS OK sent msg\n\n{}\n".format(m))
+                lg.a(f"debug: SQS OK sent msg\n{m}\n")
                 # delete SQS file
                 os.unlink(_)
                 # tell status database for API all went fine

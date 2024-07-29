@@ -1,3 +1,5 @@
+import datetime
+
 import time
 
 import pyqtgraph as pg
@@ -9,6 +11,7 @@ import pathlib
 import shutil
 import sys
 from PyQt5.QtCore import QTimer, Qt, QCoreApplication
+from PyQt5.QtGui import QMovie
 from PyQt5.QtWidgets import QMainWindow, QMessageBox
 import ddh.gui.designer_main as d_m
 from ddh.db.db_his import DbHis
@@ -33,7 +36,7 @@ from ddh.utils_gui import (
     gui_show_advanced_tab,
     gui_hide_graph_tab,
     gui_show_graph_tab, gui_ddh_populate_graph_dropdown_sn, gui_manage_graph_test_files,
-    gui_hide_map_tab
+    gui_hide_map_tab, gui_hide_maps_next_btn
 )
 
 from dds.emolt import this_box_has_grouped_s3_uplink
@@ -59,7 +62,7 @@ from utils.ddh_shared import (
     dds_get_ddh_got_an_update_flag_file,
     STATE_DDS_SOFTWARE_UPDATED,
     ddh_get_db_history_file, ddh_kill_by_pid_file, get_ddh_toml_all_macs_content, set_ddh_rerun_flag_li,
-    clr_ddh_rerun_flag_li, dds_get_cnv_requested_via_gui_flag_file, NAME_EXE_API
+    clr_ddh_rerun_flag_li, dds_get_cnv_requested_via_gui_flag_file, NAME_EXE_API, ddh_get_folder_path_res
 )
 
 from utils.logs import lg_gui as lg  # noqa: E402
@@ -104,6 +107,8 @@ class DDH(QMainWindow, d_m.Ui_MainWindow):
         self.lbl_net_pressed = 0
         self.lbl_uptime_pressed = 0
         self.gif_map = None
+        self.n_good_maps = 0
+        self.i_good_maps = 0
 
         gui_hide_edit_tab(self)
         gui_hide_advanced_tab(self)
@@ -117,6 +122,7 @@ class DDH(QMainWindow, d_m.Ui_MainWindow):
         self.cb_g_paint_zones.setVisible(False)
 
         # maps tab
+        gui_hide_maps_next_btn(self)
         if not ddh_get_cfg_maps_en():
             gui_hide_map_tab(self)
 
@@ -258,6 +264,7 @@ class DDH(QMainWindow, d_m.Ui_MainWindow):
 
     def click_btn_edit_tab_close_wo_save(self):
         lg.a('edit tab: pressed the close without save button')
+        self.tab_edit_hide = not self.tab_edit_hide
         gui_hide_edit_tab(self)
         self.tabs.setCurrentIndex(0)
 
@@ -291,7 +298,7 @@ class DDH(QMainWindow, d_m.Ui_MainWindow):
         # skip in port
         sk = self.cb_skip_in_port.currentIndex()
 
-        # maps, in hidden advanced tap
+        # maps, in hidden advanced tab
         me = self.chk_b_maps.isChecked()
 
         if t < 600:
@@ -633,6 +640,29 @@ class DDH(QMainWindow, d_m.Ui_MainWindow):
         c = cfg_load_from_file()
         c['flags']['maps_en'] = int(self.chk_b_maps.isChecked())
         cfg_save_to_file(c)
+
+    def click_btn_map_next(self, _):
+        fol = str(ddh_get_folder_path_res())
+        self.i_good_maps = (self.i_good_maps + 1) % self.n_good_maps
+        lg.a(f'showing map #{self.i_good_maps}')
+        now = str(datetime.datetime.now().strftime('%Y%m%d'))
+        d = {
+            0: f"{fol}/{now}_F_dtm.gif",
+            1: f"{fol}/{now}_F_gom.gif",
+            2: f"{fol}/{now}_F_mab.gif"
+        }
+
+        try:
+            m = d[self.i_good_maps]
+            if not os.path.exists(m):
+                m = f"{fol}/error_maps.gif"
+        except (Exception, ) as ex:
+            lg.a(f'error: when next map => {ex}')
+            m = f"{fol}/error_maps.gif"
+
+        self.gif_map = QMovie(m)
+        self.lbl_map.setMovie(self.gif_map)
+        self.gif_map.start()
 
     def click_chk_plt_outside_water(self, _):
         from ddh.utils_graph import cached_read_csv

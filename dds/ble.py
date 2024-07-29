@@ -298,6 +298,7 @@ async def _ble_id_n_interact_logger(mac, info: str, h, g):
     ln.uuid_interaction = uuid_interaction
     if do_we_have_notes:
         ln.dl_files = notes['dl_files']
+        ln.gfv = notes['gfv']
     _ble_analyze_logger_result(rv, g, ln, _crit_error)
 
     # ------------------------------------
