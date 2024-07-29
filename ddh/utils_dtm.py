@@ -120,3 +120,5 @@ def gui_populate_maps_tab(my_app):
     a.gif_map = QMovie(fp)
     a.lbl_map.setMovie(a.gif_map)
     a.gif_map.start()
+    a.map_filename = fp
+

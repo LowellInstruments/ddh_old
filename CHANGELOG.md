@@ -34,3 +34,9 @@
     added water column mode for graphing for DOX and TDO loggers
     added new logs.py entries, with unified timestamp
     added year filtering on AWS uploads
+
+4.0.08
+
+    added new maps GOM / MAB
+    cleaned logs generation
+

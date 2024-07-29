@@ -109,6 +109,7 @@ class DDH(QMainWindow, d_m.Ui_MainWindow):
         self.gif_map = None
         self.n_good_maps = 0
         self.i_good_maps = 0
+        self.map_filename = None
 
         gui_hide_edit_tab(self)
         gui_hide_advanced_tab(self)
@@ -604,6 +605,20 @@ class DDH(QMainWindow, d_m.Ui_MainWindow):
         # -------------------------
         self.lbl_net_pressed = 1
 
+    def click_lbl_map_pressed(self, ev):
+        print(ev)
+        h = self.lbl_map.height()
+        w = self.lbl_map.width()
+        p = self.map_filename
+        x = ev.pos().x()
+        y = ev.pos().y()
+        # x starts left, y starts top
+        if x < (w / 2):
+            print('pressed image half left')
+        else:
+            print('pressed image half right')
+        print('click', h, w, p, x, y)
+
     def click_lbl_net_released(self, _):
         if self.lbl_net_pressed >= 2:
             tgh = self.tab_graph_hide = not self.tab_graph_hide
@@ -663,6 +678,7 @@ class DDH(QMainWindow, d_m.Ui_MainWindow):
         self.gif_map = QMovie(m)
         self.lbl_map.setMovie(self.gif_map)
         self.gif_map.start()
+        self.map_filename = m
 
     def click_chk_plt_outside_water(self, _):
         from ddh.utils_graph import cached_read_csv

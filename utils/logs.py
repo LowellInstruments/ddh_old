@@ -44,14 +44,14 @@ class DDSLogs:
         global g_last_t
         now = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         utcnow = datetime.datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
-        ns = f'[ {self.label.upper()} ] {s}'
-        s = f"\n\n[ CLK ] {now} / {utcnow}\n[ {self.label.upper()} ] {s}"
 
         # better logs
-        s = s if g_last_t != now else ns
+        if g_last_t != now:
+            PC.N(f"\n\n[ CLK ] {now} / {utcnow}")
         g_last_t = now
 
         # color stuff, print() is called inside
+        s = f'[ {self.label.upper()} ] {s}'
         if "error" in s:
             PC.R(s)
         elif "debug" in s:

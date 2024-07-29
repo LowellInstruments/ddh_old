@@ -296,6 +296,11 @@ def gui_ddh_populate_graph_dropdown_sn(my_app):
             ls_sn.append(h['SN'].lower())
     j = dds_get_cfg_monitored_serial_numbers()
     j = [i.lower() for i in j]
+    if not ls_sn:
+        # case history empty
+        for i in j:
+            a.cb_g_sn.addItem(i)
+        return
     for i in ls_sn:
         if i in j:
             a.cb_g_sn.addItem(i)
@@ -325,6 +330,7 @@ def gui_setup_buttons(my_app):
     a.lbl_net.mouseReleaseEvent = a.click_lbl_net_released
     a.lbl_uptime.mousePressEvent = a.click_lbl_uptime_pressed
     a.lbl_uptime.mouseReleaseEvent = a.click_lbl_uptime_released
+    a.lbl_map.mousePressEvent = a.click_lbl_map_pressed
 
     # buttons' connections
     a.btn_known_clear.clicked.connect(a.click_btn_clear_known_mac_list)
