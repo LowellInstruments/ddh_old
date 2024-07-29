@@ -60,7 +60,7 @@ def gui_populate_maps_tab(my_app):
         lg.a(f"debug: re-using today's DTM file {fg_dtm}")
 
     # get GOM map from DDN
-    if not linux_is_rpi() and not os.path.exists(fg_gom):
+    if not os.path.exists(fg_gom):
         lg.a(f"requesting today's GOM file {fg_gom}")
         t = 5
         url = f'http://{addr_ddn_api}:{port_ddn_api}/gom?t={now}&deg={deg}'
@@ -78,7 +78,7 @@ def gui_populate_maps_tab(my_app):
         lg.a(f"debug: re-using today's gom file {fg_gom}")
 
     # get MAB map from DDN
-    if not linux_is_rpi() and not os.path.exists(fg_mab):
+    if not os.path.exists(fg_mab):
         lg.a(f"requesting today's MAB file {fg_mab}")
         t = 5
         url = f'http://{addr_ddn_api}:{port_ddn_api}/mab?t={now}&deg={deg}'
@@ -99,6 +99,13 @@ def gui_populate_maps_tab(my_app):
     my_app.n_good_maps = int(got_dtm) + int(got_gom) + int(got_mab)
     if my_app.n_good_maps > 1:
         my_app.btn_map_next.setVisible(True)
+
+    # restriction, for now
+    if linux_is_rpi():
+        my_app.n_good_maps = 1
+        my_app.btn_map_next.setVisible(False)
+        got_gom = False
+        got_mab = False
 
     # load the map picture
     if got_dtm:
