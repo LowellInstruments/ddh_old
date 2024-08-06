@@ -213,9 +213,9 @@ def ble_apply_debug_hooks_at_boot():
 def dds_check_bluez_version():
     v = ble_mat_get_bluez_version()
     if v != '5.66':
-        lg.a("warning: --------------------")
-        lg.a("warning: check bluez version")
-        lg.a("warning: --------------------")
+        lg.a("warning: ---------------------")
+        lg.a("warning: bluez version != 5.66")
+        lg.a("warning: ---------------------")
 
 
 def dds_ble_init_rv_notes(d: dict):

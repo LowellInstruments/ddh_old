@@ -18,6 +18,7 @@ from utils.logs import lg_cst as lg
 
 
 MAX_TIME_DIFF_GPS_TRACK_VS_LOGGER_SAMPLE = 30
+g_lid_already_processed = []
 
 
 def is_a_tdo_file(p):
@@ -72,7 +73,11 @@ def _create_cst_files():
     # input: GPQ, aka JSON, files
     # output: CST files
     # -----------------------------
+    global g_lid_already_processed
     for i_lid in ls_lid:
+
+        if i_lid in g_lid_already_processed:
+            continue
 
         # be sure we have CSV for this LID file
         f_csv = glob(f'{i_lid[:-4]}*.csv')[0]
@@ -105,7 +110,6 @@ def _create_cst_files():
                 for s in ll_fv[1:]:
                     ft.write(f'{d["dl_lat"]},{d["dl_lon"]},' + s)
                 ft.close()
-                continue
             else:
                 lg.a(f'warning: no fixed GPQ file {f_gpq}')
 
@@ -137,6 +141,9 @@ def _create_cst_files():
                     ft.write(f',,' + row)
             print(f'CST: output file has {ok_i} OK complete records')
             ft.close()
+
+        # so we do not process files over and over
+        g_lid_already_processed.append(i_lid)
 
 
 def cst_serve():
