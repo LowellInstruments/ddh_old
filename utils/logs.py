@@ -41,17 +41,8 @@ class DDSLogs:
     def _pf(self, s):
         if type(s) is bytes:
             s = s.decode()
-        global g_last_t
-        now = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        utcnow = datetime.datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
 
-        # better logs
-        if g_last_t != now:
-            PC.N(f"\n\n[ CLK ] {now} / {utcnow}")
-        g_last_t = now
-
-        # color stuff, print() is called inside
-        s = f'[ {self.label.upper()} ] {s}'
+        # color stuff
         if "error" in s:
             PC.R(s)
         elif "debug" in s:
@@ -71,8 +62,20 @@ class DDSLogs:
     def a(self, s):
         if not self.enabled:
             return
-        s = self._pf(s)
+
+        global g_last_t
+        now = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        utcnow = datetime.datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
+
+        # pre-pend date, better logs
         with open(self.f_name, "a") as f:
+            if g_last_t != now:
+                ts = f"\n\n[ CLK ] {now} / {utcnow}"
+                PC.N(ts)
+                f.write(ts + '\n')
+            g_last_t = now
+            s = f'[ {self.label.upper()} ] {s}'
+            self._pf(s)
             f.write(s + "\n")
 
 

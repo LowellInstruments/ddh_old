@@ -6,7 +6,7 @@ import time
 import pytz
 import tzlocal
 from dds.timecache import is_it_time_to
-from mat.ble.ble_mat_utils import ble_mat_get_antenna_type_v2
+from mat.ble.ble_mat_utils import ble_mat_get_antenna_type_v2, ble_mat_get_bluez_version
 from utils.logs import lg_sqs as lg
 from utils.ddh_config import (dds_get_cfg_box_sn,
                               dds_get_cfg_box_project,
@@ -53,6 +53,9 @@ DDH_ALL_NOTIFICATIONS = [
 ]
 
 
+g_bluez_ver = ble_mat_get_bluez_version()
+
+
 class LoggerNotification:
     def __init__(self, mac, sn, kind, bat, dl_files=[], gfv=''):
         self.mac = str(mac)
@@ -92,6 +95,7 @@ class _DDHNotification:
         self.ddh_gps_position = ''
         self.ddh_gps_speed = ''
         _, self.ddh_ble_antenna = ble_mat_get_antenna_type_v2()
+        self.ddh_bluez_version = g_bluez_ver
         if g:
             lat, lon, _, speed = g
             self.ddh_gps_position = '{:.4f}, {:.4f}'.format(float(lat), float(lon))
