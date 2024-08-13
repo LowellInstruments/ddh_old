@@ -136,7 +136,7 @@ def gui_setup_view(my_win):
 
     # load git commit display or version
     # dc = "version: {}".format(get_ddh_commit())
-    dc = f"version: {get_ddh_local_sw_version()}"
+    dc = f"v. {get_ddh_local_sw_version()}"
     a.lbl_commit.setText(dc)
 
     # checkboxes rerun flag
@@ -232,8 +232,7 @@ def gui_populate_history_tab(my_app):
             fil_r.append(h)
 
     # we only have one, the newest, history entry per mac
-    r = fil_r
-    for i, h in enumerate(r):
+    for i, h in enumerate(fil_r):
         e = h["e"]
         e = "success" if e == "ok" else e
         try:
@@ -710,6 +709,7 @@ def _gui_parse_udp(my_app, s, ip="127.0.0.1"):
             v = v.split("&")
             gui_add_to_history_database(v[1], v[2], v[3], v[4], v[5], v[6], v[7], v[8])
         gui_populate_history_tab(a)
+        gui_ddh_populate_graph_dropdown_sn(a)
 
     elif f == STATE_DDS_BLE_LOW_BATTERY:
         ct = "low battery!"

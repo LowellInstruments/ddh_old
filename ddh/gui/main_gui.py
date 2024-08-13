@@ -47,7 +47,7 @@ from mat.utils import linux_is_rpi
 from utils.ddh_config import (dds_get_cfg_vessel_name, dds_get_cfg_logger_mac_from_sn,
                               ddh_get_cfg_gear_type, cfg_load_from_file, dds_get_cfg_flag_ble_en,
                               cfg_save_to_file, dds_get_cfg_monitored_pairs, ddh_get_cfg_maps_en,
-                              dds_get_cfg_skip_dl_in_port_en)
+                              dds_get_cfg_skip_dl_in_port_en, ddh_get_file_flag_plot_wc)
 from utils.ddh_shared import (
     get_ddh_folder_path_dl_files,
     ddh_get_gui_closed_flag_file,
@@ -68,7 +68,7 @@ from utils.ddh_shared import (
 from utils.logs import lg_gui as lg  # noqa: E402
 import subprocess as sp  # noqa: E402
 
-from utils.tmp_paths import LI_PATH_GROUPED_S3_FILE_FLAG, LI_PATH_PLOT_OUTSIDE_WATER
+from utils.tmp_paths import LI_PATH_GROUPED_S3_FILE_FLAG, LI_PATH_PLOT_DATA_EVEN_OUT_WATER
 
 _g_flag_ble_en = dds_get_cfg_flag_ble_en()
 
@@ -681,11 +681,11 @@ class DDH(QMainWindow, d_m.Ui_MainWindow):
 
     def click_chk_plt_outside_water(self, _):
         from ddh.utils_graph import cached_read_csv
-        from ddh.utils_graph import process_graph_csv_data
+        # from ddh.utils_graph import process_graph_csv_data
         cached_read_csv.cache_clear()
-        process_graph_csv_data.cache_clear()
-        p = LI_PATH_PLOT_OUTSIDE_WATER
-        if os.path.exists(p):
+        # process_graph_csv_data.cache_clear()
+        p = LI_PATH_PLOT_DATA_EVEN_OUT_WATER
+        if ddh_get_file_flag_plot_wc():
             os.unlink(p)
         if self.chk_plt_outside_water.isChecked():
             pathlib.Path(p).touch()

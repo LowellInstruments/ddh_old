@@ -42,3 +42,6 @@
     cleaned logs generation
     made the graphs show the same order than the history
 
+4.0.09
+
+    Some things were not plotted for LI loggers, re-arranged water column mode

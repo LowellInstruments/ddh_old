@@ -1,3 +1,5 @@
+from glob import glob
+
 import math
 import multiprocessing
 import sys
@@ -16,15 +18,14 @@ from pyqtgraph.Qt import QtGui
 from ddh.utils_graph import (utils_graph_read_fol_req_file,
                              utils_graph_get_abs_fol_list, process_graph_csv_data,
                              utils_graph_does_exist_fol_req_file,
-                             utils_graph_delete_fol_req_file,
-                             utils_graph_tdo_classify_files_wc_mode)
+                             utils_graph_delete_fol_req_file, utils_graph_classify_file_wc_mode)
 from dds.timecache import is_it_time_to
 from mat.linux import linux_is_process_running
 from mat.utils import linux_is_rpi
 from utils.ddh_config import dds_get_cfg_logger_mac_from_sn
 from utils.ddh_shared import (get_dl_folder_path_from_mac,
                               get_number_of_hauls, STATE_DDS_BLE_DOWNLOAD_STATISTICS,
-                              send_ddh_udp_gui as _u)
+                              send_ddh_udp_gui as _u, get_ddh_folder_path_dl_files)
 from utils.logs import lg_gra as lg
 from utils.mavg import get_interesting_idx_ma
 
@@ -57,7 +58,15 @@ def gfm_serve():
     def _gfm_serve():
         setproctitle.setproctitle(_P_)
         try:
-            utils_graph_tdo_classify_files_wc_mode()
+            # first grab all of them
+            fol = get_ddh_folder_path_dl_files()
+            ls_tdo = glob(f'{fol}/**/*_TDO.csv', recursive=True)
+            ls_dox = glob(f'{fol}/**/*_DissolvedOxygen.csv', recursive=True)
+            ls = ls_tdo + ls_dox
+            # then classify them
+            for i in ls:
+                utils_graph_classify_file_wc_mode(i)
+
         except (Exception, ) as ex:
             lg.a(f'error: gfm_serve -> ex {ex}')
         # instead of return prevents zombie processes

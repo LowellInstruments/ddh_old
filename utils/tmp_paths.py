@@ -60,4 +60,4 @@ h = str(pathlib.Path.home())
 h_ddh = f'{h}/li/ddh' if _is_rpi() else f'{h}/PycharmProjects/ddh'
 LI_PATH_DDH_VERSION = f'{h_ddh}/.ddh_version'
 LI_PATH_DDH_GPS_CELL_SHIELD_USB4 = f'{d}/.gps_quectel_at_usb4'
-LI_PATH_PLOT_OUTSIDE_WATER = f'{h_ddh}/.ddh_plt_outside_water'
+LI_PATH_PLOT_DATA_EVEN_OUT_WATER = f'{h_ddh}/.ddh_plt_outside_water'

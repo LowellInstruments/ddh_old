@@ -238,7 +238,7 @@ async def ble_interact_tdo(mac, info, g, h, u):
         # -------------------------
         # BLE connection done here
         # -------------------------
-        lg.a(f"interacting TDO logger, info {info}")
+        lg.a(f"interacting {info} logger")
         rv = await BleTDODownload.download_recipe(lc, mac, g, notes, u)
 
     except Exception as ex:

@@ -93,7 +93,7 @@ def _ble_convert_lid_after_download(d):
     for f in ls_lid:
         # f: absolute file path ending in .lid
         n = id_lid_file_flavor(f)
-        lg.a(f"after download converting LID file v{n} {f}")
+        lg.a(f"after download converting LID v{n} file {f}")
         if n == LID_FILE_V2:
             # ----------------------------
             # convert DOX and TDO v2 files
@@ -104,7 +104,7 @@ def _ble_convert_lid_after_download(d):
             # do the old MAT library conversion
             parameters = default_parameters()
             DataConverter(f, parameters).convert()
-        lg.a(f"OK: after download converted LID file v{n} {f}")
+        lg.a(f"OK: after download converted LID v{n} file {f}")
 
 
 def _ble_analyze_logger_result(rv,
@@ -228,9 +228,9 @@ async def _ble_id_n_interact_logger(mac, info: str, h, g):
     # some GUI update
     _u(f"{STATE_DDS_BLE_CONNECTING}/{sn}")
 
-    # --------------------
-    # logger interaction
-    # --------------------
+    # ------------------------
+    # DOX logger interaction
+    # ------------------------
     if _ble_logger_is_do1_or_do2(info):
         rv, notes = await ble_interact_do1_or_do2(mac,
                                                   info,
@@ -259,6 +259,9 @@ async def _ble_id_n_interact_logger(mac, info: str, h, g):
             # 0 because this is not a BLE interaction error
             return 0
 
+    # -----------------------
+    # TDO logger interaction
+    # -----------------------
     elif _ble_logger_is_tdo(info):
         rv, notes = await ble_interact_tdo(mac,
                                            info,
@@ -291,14 +294,16 @@ async def _ble_id_n_interact_logger(mac, info: str, h, g):
     tz_utc = datetime.timezone.utc
     dt_local = dt.replace(tzinfo=tz_utc).astimezone(tz=tz_ddh)
 
-    # ----------------------------------------------------
     # complete logger notification with interaction UUID
-    # ----------------------------------------------------
     ln = LoggerNotification(mac, sn, info, bat)
     ln.uuid_interaction = uuid_interaction
     if do_we_have_notes:
         ln.dl_files = notes['dl_files']
         ln.gfv = notes['gfv']
+
+    # ----------------------------
+    # so we can plot this logger
+    # ----------------------------
     _ble_analyze_logger_result(rv, g, ln, _crit_error)
 
     # ------------------------------------

@@ -29,7 +29,7 @@ def _utils_graph_build_nowc_mode_file_name(path):
     return f'{os.path.dirname(path)}/{bn}'
 
 
-def _utils_graph_classify_file_wc_mode(p):
+def utils_graph_classify_file_wc_mode(p):
     # p: full path
     p = str(p)
     bn = os.path.basename(p)
@@ -47,7 +47,7 @@ def _utils_graph_classify_file_wc_mode(p):
     if os.path.exists(f_nowc):
         return
 
-    # consider short files have no water column info
+    # short files considered as to have no water column info
     with open(p, 'r') as f:
         ll = f.readlines()
         if len(ll) <= 3:
@@ -56,7 +56,6 @@ def _utils_graph_classify_file_wc_mode(p):
 
     if _is_tdo:
         lg.a(f'processing TDO file {p} for graph water column mode')
-        lg.a(f'{ll[3]}')
         # ll[3]: 2024-04-04T13:55:51.000,10,20,28032,419,22.411,10.003,-8,235,21
         # headers: ts,el_t,agg_t,raw T,raw P,T(C),P(dbar),Ax,Ay,Az
         el_base = ll[3].split(',')[1]
@@ -64,8 +63,8 @@ def _utils_graph_classify_file_wc_mode(p):
             # detect changes in elapsed time
             el_cur = i.split(',')[1]
             if el_cur != el_base:
-                pathlib.Path(f_wc).touch()
                 lg.a(f'OK: set ON graph water column mode for TDO file {bn}')
+                pathlib.Path(f_wc).touch()
                 return
         pathlib.Path(f_nowc).touch()
         lg.a(f'OK: set OFF graph water column mode for TDO file {bn}')
@@ -93,15 +92,6 @@ def _utils_graph_classify_file_wc_mode(p):
         return
 
     lg.a(f'error: _utils_graph_classify_file_wc_mode for unknown file {p}')
-
-
-def utils_graph_tdo_classify_files_wc_mode():
-    fol = get_ddh_folder_path_dl_files()
-    ls_tdo = glob(f'{fol}/**/*_TDO.csv', recursive=True)
-    ls_dox = glob(f'{fol}/**/*_DissolvedOxygen.csv', recursive=True)
-    ls = ls_tdo + ls_dox
-    for i in ls:
-        _utils_graph_classify_file_wc_mode(i)
 
 
 def utils_graph_get_abs_fol_list() -> list:
@@ -225,7 +215,9 @@ def cached_read_csv(f):
     return df
 
 
-@lru_cache(maxsize=512)
+# @lru_cache(maxsize=512)
+# this already calls cached_read_csv() so maybe do not cache
+
 def process_graph_csv_data(fol, h, hi) -> dict:
 
     _g_ff_t = sorted(glob(f"{fol}/*_Temperature.csv"))
@@ -233,11 +225,11 @@ def process_graph_csv_data(fol, h, hi) -> dict:
     _g_ff_dot = sorted(glob(f"{fol}/*_DissolvedOxygen.csv"))
     _g_ff_tdo = sorted(glob(f"{fol}/*_TDO.csv"))
 
-    # make it effective or not
-    _g_ff_tdo_wc = [i for i in _g_ff_tdo if
-                      os.path.exists(_utils_graph_build_wc_mode_file_name(i))]
-    _g_ff_dot_wc = [i for i in _g_ff_dot if
-                      os.path.exists(_utils_graph_build_wc_mode_file_name(i))]
+    # the ones NO_WC means either YES_WC or still not processed
+    _g_ff_tdo_wc = [i for i in _g_ff_tdo if not
+                      os.path.exists(_utils_graph_build_nowc_mode_file_name(i))]
+    _g_ff_dot_wc = [i for i in _g_ff_dot if not
+                      os.path.exists(_utils_graph_build_nowc_mode_file_name(i))]
 
     # error moana
     # MOANA_0744_99_240221160010_Temperature.csv
@@ -322,7 +314,8 @@ def process_graph_csv_data(fol, h, hi) -> dict:
             is_moana = 'MOANA' in f or 'moana' in f
 
     elif met == 'DO':
-        plt_wc = ddh_get_file_flag_plot_wc()
+        plt_all = ddh_get_file_flag_plot_wc()
+        plt_wc = not plt_all
         lg.a(f'debug: plotting DOX with wc_mode = {plt_wc}')
         for f in _g_ff_dot:
             bn = os.path.basename(f)
@@ -330,7 +323,7 @@ def process_graph_csv_data(fol, h, hi) -> dict:
             df = cached_read_csv(f)
             x += list(df['ISO 8601 Time'])
             _m = len(list(df['ISO 8601 Time']))
-            if (not plt_wc) or (plt_wc and f in _g_ff_dot_wc):
+            if plt_all or (plt_wc and f in _g_ff_dot_wc):
                 doc += list(df['Dissolved Oxygen (mg/l)'])
                 dot += list(df['DO Temperature (C)'])
                 try:
@@ -344,7 +337,8 @@ def process_graph_csv_data(fol, h, hi) -> dict:
                 dot += [np.nan] * _m
 
     elif met == 'TDO':
-        plt_wc = ddh_get_file_flag_plot_wc()
+        plt_all = ddh_get_file_flag_plot_wc()
+        plt_wc = not plt_all
         lg.a(f'debug: plotting TDO with wc_mode = {plt_wc}')
         for f in _g_ff_tdo:
             bn = os.path.basename(f)
@@ -352,7 +346,7 @@ def process_graph_csv_data(fol, h, hi) -> dict:
             df = cached_read_csv(f)
             x += list(df['ISO 8601 Time'])
             _m = len(list(df['ISO 8601 Time']))
-            if (not plt_wc) or (plt_wc and f in _g_ff_tdo_wc):
+            if plt_all or (plt_wc and f in _g_ff_tdo_wc):
                 tdo_t += list(df['Temperature (C)'])
                 tdo_p += list(df['Pressure (dbar)'])
                 tdo_ax += list(df['Ax'])
