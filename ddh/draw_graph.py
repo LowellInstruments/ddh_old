@@ -640,7 +640,7 @@ def _process_n_graph(a, r=''):
                 wat = data['Water Detect (%) DO']
                 ls_do, ls_dt = [], []
                 if len(wat):
-                    lg.a('debug: detected DO-2 data, filtering values according to water %')
+                    lg.a('debug: detected DO-2 data, filtering values by water %')
                     for i, w in enumerate(wat):
                         if w >= 50:
                             ls_do.append(_do[i])

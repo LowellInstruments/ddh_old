@@ -9,7 +9,7 @@ import time
 
 import toml
 
-from mat.utils import PrintColors as PC
+from mat.utils import PrintColors as PC, linux_is_rpi
 from script_logger_tdo_deploy_utils import (
     deploy_logger_tdo,
     ble_scan_for_tdo_loggers,
@@ -193,26 +193,17 @@ def _menu_execute(_m, _c):
 
 def main_logger_tdo_deploy():
     _screen_clear()
-    # print('cwd', os.getcwd())
-
     while True:
-        # --------------
-        # BLE scan
-        # --------------
         sr = ael.run_until_complete(ble_scan_for_tdo_loggers())
-
         m = _menu_build(sr, 10)
         _menu_display(m)
         c = _menu_get()
-
-        # -----------------
-        # BLE deployment
-        # -----------------
-
         _menu_execute(m, c)
         _screen_separation()
 
 
 if __name__ == "__main__":
-    # Pycharm, be sure starting directory is 'ddh/scripts'
+    if not linux_is_rpi():
+        # Pycharm, be sure starting directory is 'ddh/scripts'
+        assert str(os.getcwd()).endswith('scripts')
     main_logger_tdo_deploy()

@@ -243,7 +243,7 @@ def main_ddc():
             'r': (f"r) run BLE range tool", cb_run_brt),
             'e': (f"e) edit BLE range tool", cb_edit_brt_cfg_file),
             'o': (f"o) deploy logger DOX", cb_run_deploy_dox),
-            # 't': (f"t) deploy logger TDO", cb_run_deploy_tdo),
+            't': (f"t) deploy logger TDO", cb_run_deploy_tdo),
             # 'c': (f"c) calibrate DDH display", cb_calibrate_display),
             'i': (f"i) ~ see issues ~", cb_ddh_show_issues),
             'h': (f"h) help", cb_ddh_show_help),
