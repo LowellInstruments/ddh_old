@@ -595,7 +595,7 @@ def gps_know_hat_firmware_version():
         if ans_v:
             lg.a("debug: firmware CVERSION {}".format(ans_v))
             with open(LI_PATH_CELL_FW, 'w') as f:
-                f.write(ans_v)
+                f.write(ans_v.decode())
         else:
             lg.a("error: firmware CVERSION")
         if ans_m:
