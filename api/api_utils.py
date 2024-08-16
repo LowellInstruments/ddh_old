@@ -156,7 +156,7 @@ def api_get_ip_vpn():
 def api_get_fw_cell_version():
     try:
         with open(LI_PATH_CELL_FW) as f:
-            return f.readlines()
+            return f.readlines()[0]
     except (Exception, ) as ex:
         print(f'error: api_get_fw_cell_version -> {ex}')
         return ''
