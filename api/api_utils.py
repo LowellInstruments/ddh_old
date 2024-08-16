@@ -13,7 +13,7 @@ import re
 
 from utils.ddh_config import dds_get_cfg_flag_gps_external
 from utils.tmp_paths import (LI_PATH_DDH_VERSION,
-                             TMP_PATH_GPS_LAST_JSON, TMP_PATH_BLE_IFACE)
+                             TMP_PATH_GPS_LAST_JSON, TMP_PATH_BLE_IFACE, LI_PATH_CELL_FW)
 
 CTT_API_OK = 'ok'
 CTT_API_ER = 'error'
@@ -151,6 +151,15 @@ def _get_iface_ip(iface):
 
 def api_get_ip_vpn():
     return _get_iface_ip('wg0')
+
+
+def api_get_fw_cell_version():
+    try:
+        with open(LI_PATH_CELL_FW) as f:
+            return f.readlines()
+    except (Exception, ) as ex:
+        print(f'error: api_get_fw_cell_version -> {ex}')
+        return ''
 
 
 def api_get_timezone():

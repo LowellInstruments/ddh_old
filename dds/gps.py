@@ -12,7 +12,8 @@ from mat.gps import PORT_CTRL, PORT_DATA
 from mat.utils import linux_is_rpi, linux_set_datetime
 from tzlocal import get_localzone
 
-from utils.tmp_paths import TMP_PATH_GPS_LAST_JSON, TMP_PATH_DDH_BOAT_SPEED_JSON, LI_PATH_DDH_GPS_CELL_SHIELD_USB4
+from utils.tmp_paths import TMP_PATH_GPS_LAST_JSON, TMP_PATH_DDH_BOAT_SPEED_JSON, LI_PATH_DDH_GPS_CELL_SHIELD_USB4, \
+    LI_PATH_CELL_FW
 from utils.ddh_config import (dds_get_cfg_vessel_name,
                               dds_get_cfg_flag_gps_external,
                               dds_get_cfg_flag_gps_error_forced,
@@ -593,6 +594,8 @@ def gps_know_hat_firmware_version():
         ans_m = ans_m.replace(b"\r\n", b"")
         if ans_v:
             lg.a("debug: firmware CVERSION {}".format(ans_v))
+            with open(LI_PATH_CELL_FW, 'w') as f:
+                f.write(ans_v)
         else:
             lg.a("error: firmware CVERSION")
         if ans_m:
