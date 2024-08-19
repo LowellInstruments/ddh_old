@@ -80,7 +80,7 @@ async def deploy_logger_dox(mac, sn, flag_run, flag_sensor):
         await asyncio.sleep(.1)
 
         rv, info = await lc.cmd_rli()
-        _e(len(info.keys()) != 4, "rli")
+        _e(len(info.keys()) != 3, "rli")
 
         rv = await lc.cmd_wak("on")
         if rv:
