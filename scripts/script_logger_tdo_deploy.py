@@ -25,7 +25,7 @@ FILE_ALL_MACS_TOML = f'../settings/all_macs.toml'
 # ---------------------------------
 g_cfg = {
     "RUN": False,
-    "DFN": 'lab',
+    "DFN": 'TST',
     "PRF": 'script_logger_tdo_deploy_cfg_slow.json',
 }
 
