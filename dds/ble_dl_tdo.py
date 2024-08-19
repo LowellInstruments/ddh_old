@@ -17,7 +17,8 @@ from utils.ddh_shared import (
     send_ddh_udp_gui as _u,
     STATE_DDS_BLE_RUN_STATUS, STATE_DDS_BLE_ERROR_RUN,
     STATE_DDS_BLE_DOWNLOAD_ERROR_TP_SENSOR,
-    BLEAppException, ael, get_ddh_rerun_flag_li, TESTMODE_FILENAMEPREFIX
+    BLEAppException, ael, get_ddh_rerun_flag_li, TESTMODE_FILENAMEPREFIX, STATE_DDS_BLE_DOWNLOAD_PROGRESS,
+    STATE_DDS_BLE_LOW_BATTERY
 )
 from utils.logs import lg_dds as lg
 from utils.ddh_shared import (
@@ -40,6 +41,91 @@ def _rae(rv, s):
 
 
 class BleTDODownload:
+
+    @staticmethod
+    async def dl_fast(lc, mac, g, notes: dict, u):
+        rv, ls = await lc.cmd_ddh_a(g)
+        _rae(rv, "super __A, error listing files" + str(rv))
+        lg.a(f"super __A DIR | {ls}")
+        _u(f"{STATE_DDS_BLE_DOWNLOAD_PROGRESS}/{0}")
+
+        # iterate files present in logger
+        for name, size in ls.items():
+            # delete zero-bytes files
+            if size == 0:
+                rv = await lc.cmd_del(name)
+                _rae(rv, "del")
+                continue
+
+            # download file
+            lg.a(f"downloading file {name}")
+            rv = await lc.cmd_dwg(name)
+            _rae(rv, "dwg")
+            up = DDH_GUI_UDP_PORT
+            rv, d = await lc.cmd_dwl(int(size), ip="127.0.0.1", port=up)
+            _rae(rv, "dwl")
+            file_data = lc.ans
+
+            # save file in our local disk
+            if dds_get_cfg_flag_download_test_mode():
+                name = TESTMODE_FILENAMEPREFIX + name
+            path = str(get_dl_folder_path_from_mac(mac) / name)
+            with open(path, "wb") as f:
+                f.write(file_data)
+            lg.a(f"downloaded file {name}")
+
+            # add to the output list
+            notes['dl_files'].append(path)
+
+            # delete file in logger
+            rv = await lc.cmd_del(name)
+            _rae(rv, "del")
+            lg.a(f"deleted file {name}")
+
+            # create LEF file with download info
+            lg.a(f"creating file LEF for {name}")
+            dds_create_file_lef(g, name)
+
+            # create CST file when fixed mode
+            _gear_type = ddh_get_cfg_gear_type()
+            if _gear_type == 0:
+                dds_create_file_fixed_gpq(g, name)
+
+        rv, v = await lc.cmd_ddh_b()
+        _rae(rv, "ddh_b")
+        # a: b'__B 200020000000F072022/08/25 12:13:55'
+        v = v[17:19] + v[15:17]
+        b = int(v, 16)
+        lg.a(f"DDH_B | OK, battery {b} mV")
+        if b < 982:
+            sn = dds_get_cfg_logger_sn_from_mac(mac)
+            ln = LoggerNotification(mac, sn, 'TDO', b)
+            ln.uuid_interaction = u
+            notify_logger_error_low_battery(g, ln)
+            _u(f"{STATE_DDS_BLE_LOW_BATTERY}/{mac}")
+            # give time to GUI to display
+            await asyncio.sleep(3)
+
+        rerun_flag = get_ddh_rerun_flag_li()
+        if not rerun_flag:
+            rv = await lc.cmd_sws(g)
+            if rv:
+                _u(STATE_DDS_BLE_ERROR_RUN)
+                await asyncio.sleep(5)
+                _rae(rv, "sws")
+            # GUI telling this
+            notes['rerun'] = False
+            lg.a("warning: telling this logger is not set for auto-re-run")
+            _u(f"{STATE_DDS_BLE_RUN_STATUS}/off")
+            # give time to GUI to display
+            await asyncio.sleep(5)
+
+        # -----------------------
+        # bye, bye to this logger
+        # -----------------------
+        await lc.disconnect()
+        return 0
+
     @staticmethod
     async def download_recipe(lc, mac, g, notes: dict, u):
 
@@ -57,6 +143,23 @@ class BleTDODownload:
             await lc.cmd_rst()
             # out of here for sure
             raise BLEAppException("TDO interact logger reset file")
+
+        rv, v = await lc.cmd_gfv()
+        _rae(rv, "gfv")
+        lg.a("GFV | {}".format(v))
+        notes['gfv'] = v
+        # --------------------------------------
+        # for newer loggers with super commands
+        # --------------------------------------
+        if v >= "4.0.04":
+            lg.a("---------------------------")
+            lg.a("running DL TDO fast version")
+            lg.a("---------------------------")
+            return await BleTDODownload.dl_fast(lc, mac, g, notes, u)
+        else:
+            lg.a("-----------------------------")
+            lg.a("running DL TDO normal version")
+            lg.a("-----------------------------")
 
         rv, state = await lc.cmd_sts()
         _rae(rv, "sts")
@@ -78,14 +181,9 @@ class BleTDODownload:
             ln = LoggerNotification(mac, sn, 'TDO', b)
             ln.uuid_interaction = u
             notify_logger_error_low_battery(g, ln)
-            _u("f{STATE_DDS_BLE_LOW_BATTERY}/{mac}")
+            _u(f"{STATE_DDS_BLE_LOW_BATTERY}/{mac}")
             # give time to GUI to display
             await asyncio.sleep(3)
-
-        rv, v = await lc.cmd_gfv()
-        _rae(rv, "gfv")
-        lg.a("GFV | {}".format(v))
-        notes['gfv'] = v
 
         rv, v = await lc.cmd_gtm()
         _rae(rv, "gtm")
@@ -256,7 +354,7 @@ async def ble_interact_tdo(mac, info, g, h, u):
 if __name__ == "__main__":
     ble_mat_disconnect_all_devices_ll()
     # we currently in 'ddh/dds'
-    os.chdir('..')
+    os.chdir('')
     _m = "D0:2E:AB:D9:29:48"
     _i = "TDO"
     _g = ("+1.111111", "-2.222222", datetime.datetime.now(), 0)
