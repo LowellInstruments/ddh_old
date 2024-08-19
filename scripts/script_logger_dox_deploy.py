@@ -2,6 +2,8 @@
 
 
 import asyncio
+import time
+
 import sys
 import subprocess as sp
 import os
@@ -207,7 +209,7 @@ def _menu_execute(_m, _c, cfg):
 
 def main_logger_dox_deploy():
     _screen_clear()
-    # print('cwd', os.getcwd())
+    print(f'DOX_deploy current folder: {os.getcwd()}')
 
     while True:
         cfg = get_script_cfg_file()
