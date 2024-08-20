@@ -140,7 +140,7 @@ class BleCC26X2Download:
 
             # save file in our local disk
             del_name = name
-            if dds_get_cfg_flag_download_test_mode():
+            if dds_get_cfg_flag_download_test_mode() and name != MC_FILE:
                 name = TESTMODE_FILENAMEPREFIX + name
             path = str(get_dl_folder_path_from_mac(mac) / name)
             with open(path, "wb") as f:

@@ -45,3 +45,7 @@
 4.0.09
 
     Some things were not plotted for LI loggers, re-arranged water column mode
+
+4.0.10
+
+    Fixed command DEL using wrong filename when "testmode_" is ON.
