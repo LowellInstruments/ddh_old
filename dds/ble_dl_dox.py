@@ -139,6 +139,7 @@ class BleCC26X2Download:
                 os.unlink(path)
 
             # save file in our local disk
+            del_name = name
             if dds_get_cfg_flag_download_test_mode():
                 name = TESTMODE_FILENAMEPREFIX + name
             path = str(get_dl_folder_path_from_mac(mac) / name)
@@ -154,9 +155,9 @@ class BleCC26X2Download:
             notes['dl_files'].append(path)
 
             # delete file in logger
-            rv = await lc.cmd_del(name)
+            rv = await lc.cmd_del(del_name)
             _rae(rv, "del")
-            lg.a("deleted file {}".format(name))
+            lg.a("deleted file {}".format(del_name))
 
             # create LEF file with download info
             lg.a("creating file LEF for {}".format(name))
