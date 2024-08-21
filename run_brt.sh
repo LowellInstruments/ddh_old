@@ -13,7 +13,11 @@ _pb "     DDH BRT   "
 _pb "###############"
 echo
 
-cp "$FOL_LI"/brt/main_brt.py "$FOL_DDH"
+
+if [ -f "$FOL_LI"/cfg_brt_nadv.toml ]; then
+    _pb "generating $FOL_LI/cfg_brt_nadv.toml for you"
+    cp "$FOL_DDH"/settings/cfg_brt_nadv.toml "$FOL_LI"
+fi
 
 source "$FOL_VEN"/bin/activate
-cd "$FOL_DDH" && "$FOL_VEN"/bin/python main_brt.py
+cd "$FOL_DDH" && "$FOL_VEN"/bin/python main_brt.pyc

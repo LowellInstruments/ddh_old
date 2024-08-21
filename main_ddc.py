@@ -3,8 +3,6 @@ import pathlib
 import sys
 import time
 from os.path import exists
-
-from main_brt import main_brt
 from scripts.script_ddc import (
     cb_gps_dummy, cb_quit, cb_gps_external, cb_crontab_ddh,
     get_crontab,
@@ -91,7 +89,10 @@ def cb_test_buttons():
 
 
 def cb_run_brt():
-    main_brt()
+    c = '/home/pi/li/ddh/run_brt.sh'
+    rv = sp.run(c, shell=True, stderr=sp.PIPE, stdout=sp.PIPE)
+    if rv.returncode:
+        print('error: {rv.stderr}')
     input()
 
 
