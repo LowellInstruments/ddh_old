@@ -60,7 +60,7 @@ def _list_all_macs_file_content():
     for i, (k, v) in enumerate(ls_macs.items()):
         if k.startswith("#") or len(k) < 5:
             continue
-        print(f'{i}) {k}')
+        print(f'{i}) {k} SN{v}')
 
 
 def _menu_build(_sr: dict, n: int):
