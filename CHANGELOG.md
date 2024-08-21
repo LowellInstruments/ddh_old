@@ -49,3 +49,7 @@
 4.0.10
 
     Fixed command DEL using wrong filename when "testmode_" is ON.
+
+4.0.11
+
+    Added BRT tool to DDC and BRT compiled binary to DDH distribution.
