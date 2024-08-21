@@ -92,8 +92,8 @@ def cb_run_brt():
     c = '/home/pi/li/ddh/run_brt.sh'
     rv = sp.run(c, shell=True, stderr=sp.PIPE, stdout=sp.PIPE)
     if rv.returncode:
-        print('error: {rv.stderr}')
-    input()
+        print('BRT error: {rv.stderr}')
+        input()
 
 
 def cb_run_nadv():
