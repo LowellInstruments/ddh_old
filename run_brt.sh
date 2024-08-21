@@ -14,9 +14,11 @@ _pb "###############"
 echo
 
 
-if [ -f "$FOL_LI"/cfg_brt_nadv.toml ]; then
-    _pb "generating $FOL_LI/cfg_brt_nadv.toml for you"
-    cp "$FOL_DDH"/settings/cfg_brt_nadv.toml "$FOL_LI"
+FOL_DL=$FOL_PI/Downloads
+
+if [ ! -f "$FOL_DL"/cfg_brt_nadv.toml ]; then
+    _pb "generating $FOL_DL/cfg_brt_nadv.toml for you, press enter to continue"
+    cp "$FOL_DDH"/settings/cfg_brt_nadv.toml "$FOL_DL"
 fi
 
 source "$FOL_VEN"/bin/activate
