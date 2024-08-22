@@ -13,7 +13,7 @@ from utils.tmp_paths import (
     LI_PATH_DDH_GPS_EXTERNAL,
     TMP_PATH_GPS_DUMMY, TMP_PATH_GRAPH_TEST_MODE_JSON,
     DDH_USES_SHIELD_JUICE4HALT,
-    DDH_USES_SHIELD_SAILOR, LI_PATH_SKIP_IN_PORT_FILE_FLAG, LI_PATH_TEST_MODE
+    DDH_USES_SHIELD_SAILOR, LI_PATH_TEST_MODE
 )
 import pathlib
 import subprocess as sp
@@ -68,11 +68,6 @@ def cb_test_mode():
 
 def cb_graph_demo():
     p = TMP_PATH_GRAPH_TEST_MODE_JSON
-    unlink(p) if exists(p) else pathlib.Path(p).touch()
-
-
-def cb_skip_dl_in_port():
-    p = LI_PATH_SKIP_IN_PORT_FILE_FLAG
     unlink(p) if exists(p) else pathlib.Path(p).touch()
 
 
