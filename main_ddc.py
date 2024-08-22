@@ -92,7 +92,7 @@ def cb_run_brt():
     c = '/home/pi/li/ddh/run_brt.sh'
     rv = sp.run(c, shell=True, stderr=sp.PIPE, stdout=sp.PIPE)
     if rv.returncode:
-        print('BRT error: {rv.stderr}')
+        print(f'BRT error: {rv.stderr}')
         input()
 
 
