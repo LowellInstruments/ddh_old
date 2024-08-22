@@ -53,3 +53,7 @@
 4.0.11
 
     Added BRT tool to DDC and BRT compiled binary to DDH distribution.
+
+4.0.12
+
+    Got rid of redundant configuration file .ts_aws.txt

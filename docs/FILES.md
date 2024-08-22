@@ -68,10 +68,6 @@ Contains the version number of the DDH software.
 
 When present, the DDH graph tab plots even logger data outside the water.
 
-### .ts_aws.txt
-
-Contains the last timestamp of attempt to AWS S3. Seems redundant with db_status.json?
-
 ### dl_files/<mac>
 
 Contains several files either downloaded or automatically generated from them.

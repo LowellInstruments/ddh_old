@@ -23,7 +23,7 @@ from utils.ddh_shared import (
     STATE_DDS_NOTIFY_CLOUD_BUSY,
     STATE_DDS_NOTIFY_CLOUD_ERR,
     STATE_DDS_NOTIFY_CLOUD_OK,
-    dds_get_aws_has_something_to_do_via_gui_flag_file, get_ddh_file_path_ts_aws, ddh_get_db_status_file
+    dds_get_aws_has_something_to_do_via_gui_flag_file, ddh_get_db_status_file
 )
 from utils.logs import lg_aws as lg
 
@@ -43,6 +43,8 @@ def _get_aws_bin_path():
 
 def ddh_write_aws_sqs_ts(k, v):
     assert k in ('aws', 'sqs')
+    # v: 'ok', 'error', 'unknown'
+    assert type(v) is str
 
     # epoch utc
     t = int(time.time())
@@ -75,21 +77,17 @@ def ddh_write_aws_sqs_ts(k, v):
 # ------------------------------------------
 
 
-def _touch_s3_ts():
-    # ts: timestamp
-    p = get_ddh_file_path_ts_aws()
-    with open(p, 'w') as f:
-        f.write(str(int(time.time())))
+def ddh_get_aws_sqs_ts(k):
+    assert k in ('aws', 'sqs')
+    p = ddh_get_db_status_file()
 
-
-def _get_s3_ts():
-    p = get_ddh_file_path_ts_aws()
+    # load the file
     try:
         with open(p, 'r') as f:
-            return f.readline()
-    except FileNotFoundError:
-        # first time ever
-        lg.a(f'warning: AWS timestamp file not found {p}')
+            j = json.load(f)
+            # {"aws": ["unknown", 1724246474], ... }
+            return j[k][1]
+    except (Exception, ):
         return 0
 
 
@@ -174,42 +172,39 @@ def _aws_s3_sync_process():
         if rv.stdout:
             lg.a(rv.stdout)
         if rv.returncode:
-            lg.a("error: {}".format(rv.stderr))
+            lg.a(f"error: {rv.stderr}")
         all_rv += rv.returncode
 
     # AWS S3 sync went OK
     _t = datetime.datetime.now()
     if all_rv == 0:
         _u(STATE_DDS_NOTIFY_CLOUD_OK)
-        lg.a("success: cloud sync on {}".format(_t))
-        _touch_s3_ts()
+        lg.a(f"success: cloud sync on {_t}")
         # tell status DB for API purposes all went fine
         ddh_write_aws_sqs_ts('aws', 'ok')
-        # AWS it's a separate process, can exit here
+
+        # this AWS code is a separate process, we can exit here
         sys.exit(0)
 
     # ERROR AWS S3 sync, check case bad enough for alarm
-    ts = _get_s3_ts()
+    ts = ddh_get_aws_sqs_ts('aws')
     delta = int(time.time()) - int(ts)
     if ts:
         if delta > 0:
             if delta > PERIOD_ALARM_AWS_S3:
                 lg.a('error: too many bad S3, creating alarm SQS file')
-                _touch_s3_ts()
                 notify_error_sw_aws_s3()
             else:
                 lg.a('warning: bad S3, but not critical yet')
         else:
             lg.a('error: negative S3 delta, fixing')
-            _touch_s3_ts()
     else:
         # file does not even exist, probably first time ever
         lg.a('warning: bad S3, monitoring next ones')
-        _touch_s3_ts()
 
     # something went wrong
     _u(STATE_DDS_NOTIFY_CLOUD_ERR)
-    lg.a("error: cloud sync on {}, rv {}".format(_t, all_rv))
+    lg.a(f"error: cloud sync on {_t}, rv {all_rv}")
     ddh_write_aws_sqs_ts('aws', 'error')
     sys.exit(2)
 
