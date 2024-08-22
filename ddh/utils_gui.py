@@ -754,7 +754,8 @@ def gui_timer_fxn(my_app):
     a = my_app
 
     # dim brightness depending on night / day
-    dim_screen_depending_on_hour(a)
+    # todo ---> use this
+    # dim_screen_depending_on_hour(a)
 
     # update the maps tab, prevent freeze at boot
     if ddh_get_cfg_maps_en() and\
