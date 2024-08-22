@@ -87,6 +87,8 @@ PERIOD_SHOW_BLE_APP_GPS_ERROR_POSITION = 60
 g_lock_icon_timer = 0
 g_app_uptime = time.perf_counter()
 g_ci = None
+dim_done_day = 0
+dim_done_night = 0
 
 
 def _calc_app_uptime():
@@ -751,6 +753,9 @@ _skg.bind(("127.0.0.1", DDH_GUI_UDP_PORT))
 def gui_timer_fxn(my_app):
     a = my_app
 
+    # dim brightness depending on night / day
+    dim_screen_depending_on_hour(a)
+
     # update the maps tab, prevent freeze at boot
     if ddh_get_cfg_maps_en() and\
             _calc_app_uptime() > 10 and\
@@ -810,7 +815,7 @@ def gui_json_get_forget_time_secs():
 
 def gui_ddh_set_brightness(a):
     if not linux_is_rpi():
-        lg.a("not raspberry, no brightness control")
+        lg.a("not raspberry, not setting brightness control")
         return
 
     d = {
@@ -845,3 +850,22 @@ class ButtonPressEvent:
 
     def key(self):
         return self.code
+
+
+def dim_screen_depending_on_hour(a):
+    global dim_done_day
+    global dim_done_night
+    h = int(datetime.datetime.now().strftime("%H"))
+    if 7 < h < 19 and not dim_done_day:
+        lg.a('display: setting higher brightness during day')
+        dim_done_day = 1
+        dim_done_night = 0
+        # a bit ugly but meh
+        a.num_clicks_brightness = 9
+        gui_ddh_set_brightness(a)
+    if 19 < h < 7 and not dim_done_night:
+        lg.a('display: dimmed during night')
+        dim_done_night = 1
+        dim_done_day = 0
+        a.num_clicks_brightness = 0
+        gui_ddh_set_brightness(a)
