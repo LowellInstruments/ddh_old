@@ -25,7 +25,6 @@ dds/ble_dl_moana.py
 # volatile settings
 .ddh_plt_outside_water
 
-
 # just in case there are more dl_files here
 dds/dl_files/
 dds/macs/black/
@@ -146,3 +145,6 @@ venv.bak/
 # Emacs
 *~
 /.project
+
+# things I want to keep
+!main_brt.pyc
