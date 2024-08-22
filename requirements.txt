@@ -14,3 +14,5 @@ boto3~=1.26.0
 bullet~=2.2.0
 toml~=0.10.2
 py_cui~=0.1.6
+# for BRT tool
+simplepyble~=0.7.3
