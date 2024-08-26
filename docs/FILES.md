@@ -188,3 +188,7 @@ Indicates the DDH updated itself recently (beta).
 ### ddh_app_override_file.flag
 
 Indicates the "clear lock out" button has been pressed to clear macs, force a download, etc.
+
+### internet_via.json
+
+Indicates the last used internet via (cell or wlan or none).

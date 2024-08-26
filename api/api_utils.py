@@ -13,7 +13,7 @@ import re
 
 from utils.ddh_config import dds_get_cfg_flag_gps_external
 from utils.tmp_paths import (LI_PATH_DDH_VERSION,
-                             TMP_PATH_GPS_LAST_JSON, TMP_PATH_BLE_IFACE, LI_PATH_CELL_FW)
+                             TMP_PATH_GPS_LAST_JSON, TMP_PATH_BLE_IFACE, LI_PATH_CELL_FW, TMP_PATH_INET_VIA)
 
 CTT_API_OK = 'ok'
 CTT_API_ER = 'error'
@@ -281,6 +281,26 @@ def api_get_running_ddh_dds():
     }
 
 
+def api_get_wlan_mbps():
+    rv = _sh('iwconfig wlan0 | grep "Bit Rate"')
+    if rv.returncode:
+        return {'wlan_mbps': None}
+    # s: 'Bit Rate=325 Mb/s   Tx-Power=31 dBm'
+    s = rv.stdout.decode().split('Tx-Power')[0]
+    # only keep numbers
+    s = re.sub("[^0-9]", "", s)
+    return int(s)
+
+
+def api_get_internet_via():
+    try:
+        with open(TMP_PATH_INET_VIA, 'r') as f:
+            return json.load(f)['internet_via']
+    except (Exception, ) as ex:
+        print(f'{CTT_API_ER}: cannot api_get_internet_via -> {ex}')
+        return None
+
+
 def api_get_ble_state():
     h = '/usr/bin/hciconfig'
     rv_0 = _sh('{} -a | grep hci0'.format(h))
@@ -327,6 +347,7 @@ def api_get_gps_iface():
     except (Exception, ) as ex:
         print(f'{CTT_API_ER}: cannot api_get_gps_iface -> {ex}')
         return None
+
 
 def api_get_commits():
     v_mat_l = api_get_git_commit_mat_local()

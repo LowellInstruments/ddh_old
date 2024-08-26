@@ -1,3 +1,4 @@
+import json
 import threading
 
 import time
@@ -7,7 +8,7 @@ from utils.ddh_shared import send_ddh_udp_gui as _u
 from utils.ddh_shared import STATE_DDS_NOTIFY_NET_VIA
 import subprocess as sp
 from utils.logs import lg_net as lg
-
+from utils.tmp_paths import TMP_PATH_INET_VIA
 
 _g_last_via = ""
 IP = "8.8.8.8"
@@ -50,6 +51,13 @@ def _th_net_serve():
         else:
             lg.a(f"internet via {via}")
     _g_last_via = via
+
+    # save to file for API purposes
+    try:
+        with open(TMP_PATH_INET_VIA, "w") as f:
+            json.dump({"internet_via": via}, f)
+    except (Exception, ) as ex:
+        lg.a(f'error: saving {TMP_PATH_INET_VIA} -> {ex}')
 
 
 def net_serve():

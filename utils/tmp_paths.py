@@ -46,6 +46,9 @@ TMP_PATH_DDH_GOT_UPDATE = "/tmp/ddh_got_update_file.flag"
 # this clears macs, forces a download, etc.
 TMP_PATH_DDH_APP_OVERRIDE = "/tmp/ddh_app_override_file.flag"
 
+# internet via
+TMP_PATH_INET_VIA = '/tmp/ddh_internet_via.json'
+
 
 # permanent on DDH, temporary on dev platform
 d = '/home/pi/li/' if _is_rpi() else '/tmp'

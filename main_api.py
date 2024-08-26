@@ -18,7 +18,8 @@ from api.api_utils import (api_get_ip_vpn, api_get_ip_wlan, api_get_ip_cell,
                            CTT_API_ER, api_get_uptime_secs, api_ddh_get_folder_dl_files,
                            api_get_ddh_folder_path_macs_black, api_get_ddh_sw_version,
                            api_get_utc_epoch, api_get_api_version, api_get_ble_iface,
-                           get_files_from_server, api_get_gps_iface, api_get_fw_cell_version,
+                           get_files_from_server, api_get_gps_iface, api_get_fw_cell_version, api_get_wlan_mbps,
+                           api_get_internet_via,
                            )
 from ddh.db.db_his import DbHis
 from utils.ddh_config import (dds_get_cfg_vessel_name,
@@ -145,6 +146,8 @@ async def api_get_info():
         "ip_vpn": _th(api_get_ip_vpn),
         "ip_wlan": _th(api_get_ip_wlan),
         "ip_cell": _th(api_get_ip_cell),
+        "wlan_mbps": _th(api_get_wlan_mbps),
+        "internet_via": _th(api_get_internet_via),
         "last_gps": _th(api_get_gps),
         "uptime": _th(api_get_uptime),
         "uptime_secs": _th(api_get_uptime_secs),
