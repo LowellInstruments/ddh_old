@@ -285,8 +285,8 @@ def api_get_wlan_mbps():
     rv = _sh('iwconfig wlan0 | grep "Bit Rate"')
     if rv.returncode:
         return {'wlan_mbps': None}
-    # s: 'Bit Rate=325 Mb/s   Tx-Power=31 dBm'
-    s = rv.stdout.decode().split('Tx-Power')[0]
+    # s: 'Bit Rate=325.3 Mb/s   Tx-Power=31 dBm'
+    s = rv.stdout.decode().split('Tx-Power')[0].split('.')[0]
     # only keep numbers
     s = re.sub("[^0-9]", "", s)
     return int(s)
