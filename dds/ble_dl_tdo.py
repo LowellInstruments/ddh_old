@@ -178,7 +178,7 @@ class BleTDODownload:
 
         rv, b = await lc.cmd_bat()
         _rae(rv, "bat")
-        lg.a("BAT | {} mV".format(b))
+        lg.a(f"BAT | {b} mV")
         notes["battery_level"] = b
         if b < 982:
             ln = LoggerNotification(mac, sn, 'TDO', b)

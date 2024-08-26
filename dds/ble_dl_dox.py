@@ -79,7 +79,7 @@ class BleCC26X2Download:
         # checking battery level for DO-x loggers
         rv, b = await lc.cmd_bat()
         _rae(rv, "bat")
-        lg.a("BAT | {} mV".format(b))
+        lg.a(f"BAT | {b} mV")
         notes["battery_level"] = b
         if b < 1500:
             ln = LoggerNotification(mac, sn, 'DOX', b)

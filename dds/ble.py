@@ -242,8 +242,8 @@ async def _ble_id_n_interact_logger(mac, info: str, h, g):
         _error_dl = notes["error"]
         rerun = notes['rerun']
         notes['uuid_interaction'] = uuid_interaction
-        _ble_convert_lid_after_download(notes)
         do_we_have_notes = True
+        _ble_convert_lid_after_download(notes)
 
     elif _ble_logger_is_rn4020(mac, info):
         rv = await ble_interact_rn4020(mac, info, g, hs)
@@ -273,8 +273,8 @@ async def _ble_id_n_interact_logger(mac, info: str, h, g):
         _error_dl = notes["error"]
         rerun = notes['rerun']
         notes['uuid_interaction'] = uuid_interaction
-        _ble_convert_lid_after_download(notes)
         do_we_have_notes = True
+        _ble_convert_lid_after_download(notes)
 
     else:
         lg.a(f'error: this should not happen, info {info}')
@@ -300,6 +300,7 @@ async def _ble_id_n_interact_logger(mac, info: str, h, g):
     if do_we_have_notes:
         ln.dl_files = notes['dl_files']
         ln.gfv = notes['gfv']
+        ln.bat = notes['battery_level']
 
     # ----------------------------
     # so we can plot this logger
