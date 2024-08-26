@@ -1,0 +1,2 @@
+# for BRT tool
+simplepyble~=0.7.3
