@@ -4,7 +4,8 @@ import pathlib
 from dds.timecache import is_it_time_to
 from mat.data_converter import default_parameters, DataConverter
 from mat.data_file_factory import load_data_file
-from mat.lix import convert_lix_file, id_lid_file_flavor, LID_FILE_V1, LID_FILE_V2, lid_file_v2_has_sensor_data_type
+from mat.lix import id_lid_file_flavor, LID_FILE_V1, LID_FILE_V2, lid_file_v2_has_sensor_data_type
+from mat.lix_pr import convert_lix_file
 from mat.utils import linux_ls_by_ext
 from utils.logs import lg_cnv as lg
 from utils.ddh_shared import (
