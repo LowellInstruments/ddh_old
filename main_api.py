@@ -240,7 +240,7 @@ async def ep_update_ddt():
 @app.get('/update_ddh')
 async def ep_update_ddh():
     d = api_ddt_get_folder_path_root()
-    rv = _ep_update('update_ddh', f'{d}/pop_ddh2.sh')
+    rv = _ep_update('update_ddh', f'{d}/pop_ddh.sh')
     if rv['update_ddh'] == CTT_API_OK:
         f = TMP_PATH_DDH_GOT_UPDATE
         pathlib.Path(f).touch(exist_ok=True)

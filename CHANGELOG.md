@@ -63,4 +63,5 @@
     Added fast mode for TDO loggers.
     Added new "orange tick" icon for when we do NOT rerun the logger.
     maps GIFs to .gitignore
+    pop_ddh2.sh -> pop_ddh.sh
 
