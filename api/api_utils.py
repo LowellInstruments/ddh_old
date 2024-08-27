@@ -12,8 +12,8 @@ import requests
 import re
 
 from utils.ddh_config import dds_get_cfg_flag_gps_external
-from utils.tmp_paths import (LI_PATH_DDH_VERSION,
-                             TMP_PATH_GPS_LAST_JSON, TMP_PATH_BLE_IFACE, LI_PATH_CELL_FW, TMP_PATH_INET_VIA)
+from utils.flag_paths import (LI_PATH_DDH_VERSION,
+                              TMP_PATH_GPS_LAST_JSON, TMP_PATH_BLE_IFACE, LI_PATH_CELL_FW, TMP_PATH_INET_VIA)
 
 CTT_API_OK = 'ok'
 CTT_API_ER = 'error'
@@ -284,7 +284,7 @@ def api_get_running_ddh_dds():
 def api_get_wlan_mbps():
     rv = _sh('iwconfig wlan0 | grep "Bit Rate"')
     if rv.returncode:
-        return {'wlan_mbps': None}
+        return
     # s: 'Bit Rate=325.3 Mb/s   Tx-Power=31 dBm'
     s = rv.stdout.decode().split('Tx-Power')[0].split('.')[0]
     # only keep numbers

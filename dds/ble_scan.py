@@ -1,4 +1,6 @@
 import asyncio
+import os.path
+
 from math import ceil
 
 from bleak.assigned_numbers import AdvertisementDataType
@@ -17,6 +19,8 @@ from utils.ddh_shared import (
 from bleak import BleakScanner, BleakError
 from bleak.backends.bluezdbus.scanner import BlueZScannerArgs
 from bleak.backends.device import BLEDevice
+
+from utils.flag_paths import LI_PATH_ENABLE_EXPERIMENTAL_BLE
 from utils.logs import lg_dds as lg
 
 
@@ -26,17 +30,18 @@ _g_monitored_macs = dds_get_cfg_monitored_macs()
 _g_ble_scan_early_leave = None
 
 
-# to activate BLE experimental features you need:
-# bluez >= v5.65
-# sudo nano /lib/systemd/system/bluetooth.service
-# ExecStart=/usr/local/libexec/bluetooth/bluetoothd --experimental
-_g_use_ble_exp = False
+# to activate BLE experimental features you NEED (o/wise gives error):
+#     - bluez >= v5.65
+#     - sudo nano /lib/systemd/system/bluetooth.service
+#           ExecStart=/usr/local/libexec/bluetooth/bluetoothd --experimental
+#     - sudo systemctl daemon-reload && sudo systemctl restart bluetooth
+_g_ble_exp_flag = os.path.exists(LI_PATH_ENABLE_EXPERIMENTAL_BLE)
+
 
 # see https://github.com/hbldh/bleak/issues/1433
 _gbv = ble_mat_get_bluez_version()
-_g_ble_scan_mode = "passive" if _gbv >= '5.65' else "active"
-if _g_use_ble_exp:
-    lg.a(f'bluez v.{_gbv} -> BLE scan mode {_g_ble_scan_mode}')
+_g_ble_scan_mode = "passive" if _g_ble_exp_flag and _gbv >= '5.65' else "active"
+lg.a(f'debug: bluez v.{_gbv} -> BLE scan mode {_g_ble_scan_mode}')
 
 
 def _ble_is_supported_logger(s):
@@ -61,78 +66,6 @@ def _ble_scan_banner(_h, _h_desc):
         _g_first_ble_scan_ever = False
 
     _u(STATE_DDS_BLE_SCAN)
-
-
-# async def ble_scan(g, _h: int, _h_desc, t=5.0):
-#     """
-#     SCANs for loggers, quits fast if all found
-#     """
-#
-#     def _scan_cb(d: BLEDevice, _):
-#         mac = d.address.lower()
-#         _all[mac] = d.name
-#         if _ble_is_supported_logger(d.name):
-#             _our[mac] = d.name
-#         # allows scan to end faster
-#         global _g_ble_scan_early_leave
-#         _g_ble_scan_early_leave = len(_our) == len(_g_monitored_macs)
-#
-#     # classify devs
-#     _all = {}
-#     _our = {}
-#     _ble_scan_banner(_h, _h_desc)
-#
-#     try:
-#         # trick to go faster
-#         global _g_ble_scan_early_leave
-#         _g_ble_scan_early_leave = False
-#
-#         # convert hci format integer to string
-#         ad = "hci{}".format(_h)
-#
-#         # we need some research and activate this :)
-#         if _g_use_ble_exp:
-#             # https://github.com/hbldh/bleak/issues/1433
-#             args = BlueZScannerArgs(
-#                 or_patterns=[OrPattern(0, AdvertisementDataType.COMPLETE_LOCAL_NAME, b"ZT-MOANA"),
-#                              OrPattern(0, AdvertisementDataType.COMPLETE_LOCAL_NAME, b"TDO"),
-#                              OrPattern(0, AdvertisementDataType.COMPLETE_LOCAL_NAME, b"DO-1"),
-#                              OrPattern(0, AdvertisementDataType.COMPLETE_LOCAL_NAME, b"DO-2"),
-#                              ]
-#             )
-#             scanner = BleakScanner(_scan_cb, None, adapter=ad,
-#                                    scanning_mode=_g_ble_scan_mode,
-#                                    bluez=args)
-#         else:
-#             scanner = BleakScanner(_scan_cb, None, adapter=ad)
-#
-#         # start scanning procedure
-#         await scanner.start()
-#         for i in range(ceil(t) * 10):
-#             # * 10 to be able to sleep 100 ms
-#             await asyncio.sleep(.1)
-#             if _g_ble_scan_early_leave:
-#                 break
-#         await scanner.stop()
-#
-#         # do not stress BLE
-#         await asyncio.sleep(.1)
-#
-#         # _our_devs: {'60:77:71:22:ca:6d': 'DO-2', ...}
-#         if len(_all) > 15:
-#             s = "warning: crowded BLE environment"
-#             if its_time_to(s, t=3600 * 6):
-#                 lg.a(s)
-#         return _our
-#
-#     except (asyncio.TimeoutError, BleakError, OSError) as ex:
-#         e = "hardware error during scan! {}"
-#         if its_time_to(e, 600):
-#             lg.a(e.format(ex))
-#             notify_ddh_error_hw_ble(g)
-#         _u(STATE_DDS_BLE_HARDWARE_ERROR)
-#         await asyncio.sleep(5)
-#         return {}
 
 
 async def ble_scan(macs_mon, g, _h: int, _h_desc, t=6.0):
@@ -166,10 +99,10 @@ async def ble_scan(macs_mon, g, _h: int, _h_desc, t=6.0):
     ad = f"hci{_h}"
 
     try:
-        # we need some research and activate this :)
-        # https://github.com/hbldh/bleak/issues/1433
-        if _g_use_ble_exp:
-            # PASSIVE scanning
+        # -------------------------------
+        # active or passive BLE scanning
+        # -------------------------------
+        if _g_ble_scan_mode == 'passive':
             args = BlueZScannerArgs(
                 or_patterns=[OrPattern(0, AdvertisementDataType.COMPLETE_LOCAL_NAME, b"ZT-MOANA"),
                              OrPattern(0, AdvertisementDataType.COMPLETE_LOCAL_NAME, b"TDO"),
@@ -177,25 +110,16 @@ async def ble_scan(macs_mon, g, _h: int, _h_desc, t=6.0):
                              OrPattern(0, AdvertisementDataType.COMPLETE_LOCAL_NAME, b"DO-2"),
                              ]
             )
-            scanner = BleakScanner(_scan_cb, None, adapter=ad,
+            scanner = BleakScanner(_scan_cb, None,
+                                   adapter=ad,
                                    scanning_mode=_g_ble_scan_mode,
                                    bluez=args)
         else:
-            # ACTIVE scanning
-            scanner = BleakScanner(_scan_cb, None, adapter=ad)
+            scanner = BleakScanner(_scan_cb, None,
+                                   adapter=ad,
+                                   scanning_mode=_g_ble_scan_mode)
 
-        # ----------------------------
-        # maybe we have nothing to do
-        # ----------------------------
-        # if macs_mon == macs_bad:
-        #     s = "debug: no BLE scan, all macs either done or skipped"
-        #     if its_time_to(s, t=1800):
-        #         lg.a(s)
-        #     return {}
-
-        # ---------------------------
         # perform scanning procedure
-        # ---------------------------
         global _g_ble_scan_early_leave
         _g_ble_scan_early_leave = None
         await scanner.start()

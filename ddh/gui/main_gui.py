@@ -68,7 +68,7 @@ from utils.ddh_shared import (
 from utils.logs import lg_gui as lg  # noqa: E402
 import subprocess as sp  # noqa: E402
 
-from utils.tmp_paths import LI_PATH_GROUPED_S3_FILE_FLAG, LI_PATH_PLOT_DATA_EVEN_OUT_WATER
+from utils.flag_paths import LI_PATH_GROUPED_S3_FILE_FLAG, LI_PATH_PLOT_DATA_EVEN_OUT_WATER
 
 _g_flag_ble_en = dds_get_cfg_flag_ble_en()
 

@@ -7,7 +7,7 @@ import pandas as pd
 import os
 from os.path import exists
 
-from utils.tmp_paths import LI_PATH_GROUPED_S3_FILE_FLAG
+from utils.flag_paths import LI_PATH_GROUPED_S3_FILE_FLAG
 
 # ----------------------------------------------------------------------
 # RAW CSV file -> emolt CSV file 'zt_*' -> header-less file %85 -> msg

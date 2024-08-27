@@ -3,9 +3,9 @@ import pathlib
 import toml
 import os
 import subprocess as sp
-from utils.tmp_paths import (TMP_PATH_GRAPH_TEST_MODE_JSON,
-                             LI_PATH_DDH_GPS_EXTERNAL, LI_PATH_TEST_MODE,
-                             LI_PATH_PLOT_DATA_EVEN_OUT_WATER)
+from utils.flag_paths import (TMP_PATH_GRAPH_TEST_MODE_JSON,
+                              LI_PATH_DDH_GPS_EXTERNAL, LI_PATH_TEST_MODE,
+                              LI_PATH_PLOT_DATA_EVEN_OUT_WATER)
 
 
 def sh(c):

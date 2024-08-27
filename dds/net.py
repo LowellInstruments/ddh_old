@@ -8,7 +8,7 @@ from utils.ddh_shared import send_ddh_udp_gui as _u
 from utils.ddh_shared import STATE_DDS_NOTIFY_NET_VIA
 import subprocess as sp
 from utils.logs import lg_net as lg
-from utils.tmp_paths import TMP_PATH_INET_VIA
+from utils.flag_paths import TMP_PATH_INET_VIA
 
 _g_last_via = ""
 IP = "8.8.8.8"

@@ -42,6 +42,10 @@ def _rae(rv, s):
 
 class BleTDODownload:
 
+    # ---------------------
+    # download fast method
+    # ---------------------
+
     @staticmethod
     async def dl_fast(lc, mac, g, notes: dict, u):
         rv, ls = await lc.cmd_ddh_a(g)
@@ -89,7 +93,7 @@ class BleTDODownload:
             lg.a(f"creating file LEF for {name}")
             dds_create_file_lef(g, name)
 
-            # create CST file when fixed mode
+            # create CST file
             _gear_type = ddh_get_cfg_gear_type()
             if _gear_type == 0:
                 dds_create_file_fixed_gpq(g, name)
@@ -99,6 +103,7 @@ class BleTDODownload:
         # a: b'__B 200020000000F072022/08/25 12:13:55'
         v = v[17:19] + v[15:17]
         b = int(v, 16)
+        notes["battery_level"] = b
         lg.a(f"DDH_B | OK, battery {b} mV")
         if b < 982:
             sn = dds_get_cfg_logger_sn_from_mac(mac)

@@ -64,7 +64,7 @@ from utils.logs import (
 )
 import setproctitle
 from utils.ddh_shared import send_ddh_udp_gui as _u
-from utils.tmp_paths import TMP_PATH_BLE_IFACE
+from utils.flag_paths import TMP_PATH_BLE_IFACE
 
 
 def main_dds():

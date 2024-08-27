@@ -7,15 +7,17 @@ from scripts.script_ddc import (
     cb_gps_dummy, cb_quit, cb_gps_external, cb_crontab_ddh,
     get_crontab,
     cb_graph_demo, cb_provision_ddh,
-    cb_kill_ddh, ddh_run_check, cb_calibrate_display, sh, cb_test_mode, is_rpi, VP_QUECTEL, p_w, p_e, c_e, p_i
+    cb_kill_ddh, ddh_run_check, cb_calibrate_display, sh, cb_test_mode, is_rpi, VP_QUECTEL, p_w, p_e, c_e, p_i,
+    cb_enable_exp_ble
 )
 from scripts.script_nadv import main_nadv
 from utils.ddh_config import _get_config_file_path, cfg_load_from_file
 from utils.ddh_shared import get_ddh_folder_path_settings
-from utils.tmp_paths import (
+from utils.flag_paths import (
     TMP_PATH_GPS_DUMMY,
     LI_PATH_DDH_GPS_EXTERNAL,
-    TMP_PATH_GRAPH_TEST_MODE_JSON, LI_PATH_TEST_MODE
+    TMP_PATH_GRAPH_TEST_MODE_JSON, LI_PATH_TEST_MODE,
+    LI_PATH_ENABLE_EXPERIMENTAL_BLE
 )
 import subprocess as sp
 from mat.utils import PrintColors as PC
@@ -229,6 +231,7 @@ def main_ddc():
         fdk = cb_print_check_all_keys(verbose=False)
         fdr = cb_is_ddh_running()
         ftm = 1 if exists(LI_PATH_TEST_MODE) else 0
+        fxb = 1 if exists(LI_PATH_ENABLE_EXPERIMENTAL_BLE) else 0
 
         # create options
         d = {
@@ -245,6 +248,7 @@ def main_ddc():
             'e': (f"e) edit BLE range tool", cb_edit_brt_cfg_file),
             'o': (f"o) deploy logger DOX", cb_run_deploy_dox),
             't': (f"t) deploy logger TDO", cb_run_deploy_tdo),
+            # 'x': (f"x) DDH passive BLE   [{fxb}]", cb_enable_exp_ble),
             # 'c': (f"c) calibrate DDH display", cb_calibrate_display),
             'i': (f"i) ~ see issues ~", cb_ddh_show_issues),
             'h': (f"h) help", cb_ddh_show_help),
@@ -278,6 +282,10 @@ def main_ddc():
                 cb_provision_ddh()
             elif c == 'k':
                 cb_edit_ddh_config_file()
+            elif c == 'c':
+                cb_calibrate_display()
+            elif c == 'x':
+                cb_enable_exp_ble()
             else:
                 _, cb = d[c]
                 cb()

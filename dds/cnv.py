@@ -16,7 +16,7 @@ from utils.ddh_shared import (
 )
 import pandas as pd
 
-from utils.tmp_paths import TMP_PATH_CNV_REQUESTED_VIA_GUI
+from utils.flag_paths import TMP_PATH_CNV_REQUESTED_VIA_GUI
 
 """
 code in this file only takes care of LID data files

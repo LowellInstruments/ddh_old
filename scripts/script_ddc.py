@@ -8,12 +8,12 @@ from scripts.script_provision_get import get_provision_ddh, ping_provision_serve
 from utils.ddh_config import cfg_load_from_file, cfg_save_to_file
 from utils.ddh_shared import get_ddh_folder_path_settings
 from utils.find_usb_port_auto import find_usb_port_automatically
-from utils.tmp_paths import (
+from utils.flag_paths import (
     LI_PATH_GROUPED_S3_FILE_FLAG,
     LI_PATH_DDH_GPS_EXTERNAL,
     TMP_PATH_GPS_DUMMY, TMP_PATH_GRAPH_TEST_MODE_JSON,
     DDH_USES_SHIELD_JUICE4HALT,
-    DDH_USES_SHIELD_SAILOR, LI_PATH_TEST_MODE
+    DDH_USES_SHIELD_SAILOR, LI_PATH_TEST_MODE, LI_PATH_ENABLE_EXPERIMENTAL_BLE
 )
 import pathlib
 import subprocess as sp
@@ -63,6 +63,11 @@ def cb_gps_dummy():
 
 def cb_test_mode():
     p = LI_PATH_TEST_MODE
+    unlink(p) if exists(p) else pathlib.Path(p).touch()
+
+
+def cb_enable_exp_ble():
+    p = LI_PATH_ENABLE_EXPERIMENTAL_BLE
     unlink(p) if exists(p) else pathlib.Path(p).touch()
 
 

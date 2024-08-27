@@ -32,7 +32,7 @@ from fastapi.responses import FileResponse
 import concurrent.futures
 import subprocess as sp
 
-from utils.tmp_paths import LI_FILE_ICCID, TMP_PATH_DDH_APP_OVERRIDE, TMP_PATH_DDH_GOT_UPDATE
+from utils.flag_paths import LI_FILE_ICCID, TMP_PATH_DDH_APP_OVERRIDE, TMP_PATH_DDH_GOT_UPDATE
 
 # instead, the DDN port is 9000 & 9001
 DDH_PORT_API = 8000

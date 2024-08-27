@@ -11,7 +11,7 @@ from utils.ddh_config import dds_get_cfg_flag_graph_test_mode, ddh_get_file_flag
 from utils.ddh_shared import (get_ddh_folder_path_dl_files,
                               get_dl_folder_path_from_mac)
 from utils.logs import lg_gra as lg
-from utils.tmp_paths import TMP_PATH_GRAPH_REQ_JSON
+from utils.flag_paths import TMP_PATH_GRAPH_REQ_JSON
 
 CTT_ATM_PRESSURE_DBAR = 10.1325
 
