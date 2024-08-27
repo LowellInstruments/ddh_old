@@ -17,8 +17,9 @@ db_status.json*
 *.lef
 *.sqs
 *.rbl
-ddh/gui/res/*_F.gif
-ddh/gui/res/*_C.gif
+ddh/gui/res/*dtm.gif
+ddh/gui/res/*mab.gif
+ddh/gui/res/*gom.gif
 .ts_aws.txt
 dds/ble_dl_moana.py
 

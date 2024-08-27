@@ -62,3 +62,5 @@
 
     Added fast mode for TDO loggers.
     Added new "orange tick" icon for when we do NOT rerun the logger.
+    maps GIFs to .gitignore
+
