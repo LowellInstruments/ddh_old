@@ -40,7 +40,7 @@ from utils.ddh_shared import (
     STATE_DDS_BLE_DOWNLOAD,
     STATE_DDS_NOTIFY_HISTORY, STATE_DDS_BLE_ERROR_MOANA_PLUGIN,
     STATE_DDS_BLE_CONNECTING,
-    STATE_DDS_REQUEST_GRAPH,
+    STATE_DDS_REQUEST_GRAPH, get_ddh_do_not_rerun_flag_li, STATE_DDS_BLE_RUN_STATUS,
 )
 from utils.logs import lg_dds as lg
 from dds.ble_dl_moana import ble_interact_moana
@@ -126,7 +126,10 @@ def _ble_analyze_logger_result(rv,
         if mac in _g_logger_errors.keys():
             del _g_logger_errors[mac]
         lg.a(f"OK! logger {mac}/{sn}")
-        _u(f"{STATE_DDS_BLE_DOWNLOAD_OK}/{sn}")
+        if get_ddh_do_not_rerun_flag_li():
+            _u(f"{STATE_DDS_BLE_RUN_STATUS}/off")
+        else:
+            _u(f"{STATE_DDS_BLE_DOWNLOAD_OK}/{sn}")
         time.sleep(1)
 
         # graph loggers just downloaded

@@ -57,3 +57,8 @@
 4.0.12
 
     Got rid of redundant configuration file .ts_aws.txt
+
+4.0.13
+
+    Added fast mode for TDO loggers.
+    Added new "orange tick" icon for when we do NOT rerun the logger.

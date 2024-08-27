@@ -11,10 +11,12 @@ from utils.ddh_shared import (
     NAME_EXE_DDH_CONTROLLER,
     PID_FILE_DDH_CONTROLLER,
     NAME_EXE_DDH,
-    ddh_get_gui_closed_flag_file, NAME_EXE_BRT,
+    ddh_get_gui_closed_flag_file, NAME_EXE_BRT, ddh_kill_by_pid_file,
 )
 import setproctitle
 from utils.logs import lg_gui as lg
+from utils.wdog import gui_dog_get
+import subprocess as sp
 
 
 def main_ddh():
@@ -41,24 +43,45 @@ def controller_main_ddh():
     p = PID_FILE_DDH_CONTROLLER
     setproctitle.setproctitle(s)
     linux_app_write_pid_to_tmp(p)
-    lg.a("=== {} started ===".format(s))
+    lg.a(f"=== {s} started ===")
+
+    # while 1:
+    #     lg.a(f"=== {s} launches child ===")
+    #     p = Process(target=main_ddh)
+    #     p.start()
+    #     p.join()
+    #     lg.a(f"=== {s} waits child ===")
+    #     p = ddh_get_gui_closed_flag_file()
+    #     if os.path.exists(p):
+    #         lg.a(f"=== debug: user closed {s} ===")
+    #         os.unlink(p)
+    #         break
+    #
+    #     # only happens upon exceptions
+    #     time.sleep(5)
 
     while 1:
-        lg.a("=== {} launches child ===".format(s))
+        lg.a(f"=== {s} launches child ===")
         p = Process(target=main_ddh)
         p.start()
-        p.join()
-        lg.a("=== {} waits child ===".format(s))
-        p = ddh_get_gui_closed_flag_file()
-        if os.path.exists(p):
-            lg.a("=== debug: user closed ===")
-            os.unlink(p)
-            break
 
-        # only triggers upon exceptions
-        time.sleep(5)
-
-    lg.a("=== {} ended ===".format(s))
+        while 1:
+            time.sleep(5)
+            f = ddh_get_gui_closed_flag_file()
+            v = gui_dog_get()
+            kill = 0
+            if os.path.exists(f):
+                os.unlink(f)
+                lg.a(f"=== debug: user closed {s} ===")
+                kill = 1
+            if time.perf_counter() > v + 30:
+                # detects hangs of child GUI
+                lg.a(f"=== {s} debug: child seems crashed ===")
+                kill = 1
+            if kill:
+                # in this order or message does not show :)
+                lg.a(f'debug: closing GUI, crontab will relaunch it', show_ts=0)
+                ddh_kill_by_pid_file(only_child=False)
 
 
 if __name__ == "__main__":
@@ -70,5 +93,5 @@ if __name__ == "__main__":
     if not linux_is_process_running(NAME_EXE_DDH_CONTROLLER):
         controller_main_ddh()
     else:
-        e = "not launching {}, already running at python level"
-        print(e.format(NAME_EXE_DDH_CONTROLLER))
+        s = NAME_EXE_DDH_CONTROLLER
+        print(f"not launching {s}, already running at python level")

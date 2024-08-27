@@ -15,7 +15,6 @@ from PyQt5.QtWidgets import (
     QTableWidgetItem,
     QHeaderView, QTableWidget,
 )
-from gpiozero import Button
 from ddh.db.db_his import DbHis
 from ddh.draw_graph import process_n_graph
 from ddh.utils_dtm import gui_populate_maps_tab
@@ -72,11 +71,12 @@ from utils.ddh_shared import (
     STATE_DDS_BLE_DOWNLOAD_ERROR_TP_SENSOR,
     ddh_get_db_history_file,
     STATE_DDS_BLE_NO_ASSIGNED_LOGGERS, get_ddh_commit,
-    get_ddh_rerun_flag_li, ddh_get_root_folder_path, STATE_DDS_BLE_CONNECTING, STATE_DDS_PRESSED_BUTTON_2,
+    get_ddh_do_not_rerun_flag_li, ddh_get_root_folder_path, STATE_DDS_BLE_CONNECTING, STATE_DDS_PRESSED_BUTTON_2,
     get_ddh_local_sw_version, STATE_DDS_GPS_IN_PORT, STATE_DDS_BAD_CONF, STATE_DDS_BLE_DOWNLOAD_STATISTICS,
     STATE_DDS_PRESSED_BUTTON_1,
 )
 from utils.logs import lg_gui as lg
+from utils.wdog import gui_dog_touch
 
 STR_NOTE_PURGE_BLACKLIST = "Purge all loggers' lock-out time?"
 STR_NOTE_GPS_BAD = "Skipping logger until valid GPS fix is obtained"
@@ -142,7 +142,7 @@ def gui_setup_view(my_win):
     a.lbl_commit.setText(dc)
 
     # checkboxes rerun flag
-    rerun_flag = get_ddh_rerun_flag_li()
+    rerun_flag = get_ddh_do_not_rerun_flag_li()
     a.chk_rerun.setChecked(rerun_flag)
 
     # maps enable flag
@@ -551,6 +551,12 @@ def _gui_parse_udp(my_app, s, ip="127.0.0.1"):
         ct = "done " + v
         ci = "ok.png"
 
+    elif f == STATE_DDS_BLE_RUN_STATUS:
+        if v == "off":
+            _lock_icon(PERIOD_SHOW_LOGGER_DL_OK_SECS)
+            ct = "stopped & auto-wake OFF"
+            ci = "attention.png"
+
     elif f == STATE_DDS_BLE_DOWNLOAD_STATISTICS:
         # v: can be filled or empty
         a.lbl_summary_dl.setText(v)
@@ -717,14 +723,9 @@ def _gui_parse_udp(my_app, s, ip="127.0.0.1"):
         ct = "low battery!"
         ci = "low_battery.png"
 
-    elif f == STATE_DDS_BLE_RUN_STATUS:
-        if v == "off":
-            ct = "stopped & auto-wake OFF"
-            ci = "attention.png"
-
     elif f == STATE_DDS_BLE_NO_ASSIGNED_LOGGERS:
         ct = "no loggers assigned"
-        ci = "attention.png"
+        ci = "attention_old.png"
 
     else:
         lg.a(f"UDP | unknown state: {f}")
@@ -739,7 +740,7 @@ def _gui_parse_udp(my_app, s, ip="127.0.0.1"):
         a.bar_dl.setVisible(False)
 
     # stats box
-    if g_ci != "ok.png":
+    if g_ci not in ("ok.png", "attention.png"):
         my_app.lbl_summary_dl.setVisible(False)
 
 
@@ -752,6 +753,9 @@ _skg.bind(("127.0.0.1", DDH_GUI_UDP_PORT))
 
 def gui_timer_fxn(my_app):
     a = my_app
+
+    # useful to know if GUI crashed
+    gui_dog_touch()
 
     # dim brightness depending on night / day
     # todo ---> use this

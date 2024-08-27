@@ -16,7 +16,7 @@ from utils.ddh_shared import (
     send_ddh_udp_gui as _u,
     STATE_DDS_BLE_LOW_BATTERY,
     STATE_DDS_BLE_RUN_STATUS, STATE_DDS_BLE_DOWNLOAD_ERROR_GDO,
-    STATE_DDS_BLE_ERROR_RUN, BLEAppException, ael, get_ddh_rerun_flag_li, TESTMODE_FILENAMEPREFIX,
+    STATE_DDS_BLE_ERROR_RUN, BLEAppException, ael, get_ddh_do_not_rerun_flag_li, TESTMODE_FILENAMEPREFIX,
 )
 from utils.logs import lg_dds as lg
 from utils.ddh_shared import (
@@ -47,7 +47,7 @@ class BleCC26X2Download:
     async def download_recipe(lc, mac, g, notes: dict, u):
 
         dds_ble_init_rv_notes(notes)
-        rerun_flag = get_ddh_rerun_flag_li()
+        do_we_rerun = not get_ddh_do_not_rerun_flag_li()
         create_folder_logger_by_mac(mac)
         _is_a_lid_v2_logger = False
         sn = dds_get_cfg_logger_sn_from_mac(mac)
@@ -210,12 +210,12 @@ class BleCC26X2Download:
         await asyncio.sleep(1)
 
         # wake mode
-        w = "on" if rerun_flag else "off"
+        w = "on" if do_we_rerun else "off"
         rv = await lc.cmd_wak(w)
         _rae(rv, "wak")
         lg.a(f"WAK | {w} OK")
 
-        if rerun_flag:
+        if do_we_rerun:
             rv = await lc.cmd_rws(g)
             if rv:
                 _u(STATE_DDS_BLE_ERROR_RUN)
@@ -224,11 +224,7 @@ class BleCC26X2Download:
             lg.a("RWS | OK")
             notes['rerun'] = True
         else:
-            # GUI telling this
-            _u(f"{STATE_DDS_BLE_RUN_STATUS}/off")
             notes['rerun'] = False
-            # give time to GUI to display
-            await asyncio.sleep(5)
 
         # -----------------------
         # bye, bye to this logger

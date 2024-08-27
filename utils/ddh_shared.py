@@ -128,12 +128,13 @@ def dds_kill_by_pid_file(only_child=False):
 
 
 def ddh_kill_by_pid_file(only_child=False):
-    if not only_child:
-        print("[ KILL ] killing DDH controller process")
-        c = "pkill -F {}".format(PID_FILE_DDH_CONTROLLER)
-        sp.run(c, shell=True)
     print("[ KILL ] killing DDH child process")
     c = "pkill -F {}".format(PID_FILE_DDH)
+    sp.run(c, shell=True)
+    if only_child:
+        return
+    print("[ KILL ] killing DDH controller process")
+    c = "pkill -F {}".format(PID_FILE_DDH_CONTROLLER)
     sp.run(c, shell=True)
 
 
@@ -365,7 +366,7 @@ def get_ddh_platform():
 
 
 FILE_ALL_MACS_TOML = f"{str(get_ddh_folder_path_settings())}/all_macs.toml"
-FILE_RERUN_TOML = f"{str(get_ddh_folder_path_settings())}/rerun_flag.toml"
+FILE_DO_NOT_RERUN_TOML = "/tmp/ddh_do_not_rerun_flag.toml"
 FILE_LANGUAGE_TOML = f"{str(get_ddh_folder_path_settings())}/language.toml"
 
 
@@ -390,17 +391,17 @@ def set_ddh_toml_all_macs_content(d):
         os._exit(1)
 
 
-def get_ddh_rerun_flag_li():
-    return os.path.exists(FILE_RERUN_TOML)
+def get_ddh_do_not_rerun_flag_li():
+    return os.path.exists(FILE_DO_NOT_RERUN_TOML)
 
 
-def set_ddh_rerun_flag_li():
-    pathlib.Path(FILE_RERUN_TOML).touch()
+def set_ddh_do_not_rerun_flag_li():
+    pathlib.Path(FILE_DO_NOT_RERUN_TOML).touch()
 
 
 def clr_ddh_rerun_flag_li():
     try:
-        os.unlink(FILE_RERUN_TOML)
+        os.unlink(FILE_DO_NOT_RERUN_TOML)
     except (Exception, ) as ex:
         print(f'error clr_ddh_rerun_flag_li -> {ex}')
 

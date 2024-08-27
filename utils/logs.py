@@ -59,7 +59,7 @@ class DDSLogs:
         return s
 
     # stands for 'append'
-    def a(self, s):
+    def a(self, s, show_ts=True):
         if not self.enabled:
             return
 
@@ -70,9 +70,10 @@ class DDSLogs:
         # pre-pend date, better logs
         with open(self.f_name, "a") as f:
             if g_last_t != now:
-                ts = f"\n\n[ CLK ] {now} / {utcnow}"
-                PC.N(ts)
-                f.write(ts + '\n')
+                if show_ts:
+                    ts = f"\n\n[ CLK ] {now} / {utcnow}"
+                    PC.N(ts)
+                    f.write(ts + '\n')
             g_last_t = now
             s = f'[ {self.label.upper()} ] {s}'
             self._pf(s)

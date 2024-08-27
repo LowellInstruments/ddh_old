@@ -61,7 +61,7 @@ from utils.ddh_shared import (
     STATE_DDS_BLE_SERVICE_INACTIVE,
     dds_get_ddh_got_an_update_flag_file,
     STATE_DDS_SOFTWARE_UPDATED,
-    ddh_get_db_history_file, ddh_kill_by_pid_file, get_ddh_toml_all_macs_content, set_ddh_rerun_flag_li,
+    ddh_get_db_history_file, ddh_kill_by_pid_file, get_ddh_toml_all_macs_content, set_ddh_do_not_rerun_flag_li,
     clr_ddh_rerun_flag_li, dds_get_cnv_requested_via_gui_flag_file, NAME_EXE_API, ddh_get_folder_path_res
 )
 
@@ -69,6 +69,7 @@ from utils.logs import lg_gui as lg  # noqa: E402
 import subprocess as sp  # noqa: E402
 
 from utils.flag_paths import LI_PATH_GROUPED_S3_FILE_FLAG, LI_PATH_PLOT_DATA_EVEN_OUT_WATER
+from utils.wdog import gui_dog_clear
 
 _g_flag_ble_en = dds_get_cfg_flag_ble_en()
 
@@ -118,6 +119,8 @@ class DDH(QMainWindow, d_m.Ui_MainWindow):
         gui_ddh_set_brightness(self)
         gui_ddh_populate_note_tab_dropdown(self)
         gui_ddh_populate_graph_dropdown_sn(self)
+        self.click_chk_rerun(None)
+        gui_dog_clear()
 
         # make that button invisible to have more room
         self.cb_g_paint_zones.setVisible(False)
@@ -646,9 +649,10 @@ class DDH(QMainWindow, d_m.Ui_MainWindow):
 
     def click_chk_rerun(self, _):
         if self.chk_rerun.isChecked():
-            set_ddh_rerun_flag_li()
-        else:
+            # checked, so don't created do not rerun flag
             clr_ddh_rerun_flag_li()
+        else:
+            set_ddh_do_not_rerun_flag_li()
 
     def click_chk_b_maps(self, _):
         c = cfg_load_from_file()

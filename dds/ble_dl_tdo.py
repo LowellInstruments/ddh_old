@@ -17,7 +17,7 @@ from utils.ddh_shared import (
     send_ddh_udp_gui as _u,
     STATE_DDS_BLE_RUN_STATUS, STATE_DDS_BLE_ERROR_RUN,
     STATE_DDS_BLE_DOWNLOAD_ERROR_TP_SENSOR,
-    BLEAppException, ael, get_ddh_rerun_flag_li, TESTMODE_FILENAMEPREFIX, STATE_DDS_BLE_DOWNLOAD_PROGRESS,
+    BLEAppException, ael, get_ddh_do_not_rerun_flag_li, TESTMODE_FILENAMEPREFIX, STATE_DDS_BLE_DOWNLOAD_PROGRESS,
     STATE_DDS_BLE_LOW_BATTERY
 )
 from utils.logs import lg_dds as lg
@@ -48,6 +48,8 @@ class BleTDODownload:
 
     @staticmethod
     async def dl_fast(lc, mac, g, notes: dict, u):
+
+        # DDH "A" command includes GTM, SWS, DIR
         rv, ls = await lc.cmd_ddh_a(g)
         _rae(rv, "super __A, error listing files" + str(rv))
         lg.a(f"super __A DIR | {ls}")
@@ -98,7 +100,9 @@ class BleTDODownload:
             if _gear_type == 0:
                 dds_create_file_fixed_gpq(g, name)
 
-        rv, v = await lc.cmd_ddh_b()
+        # DDH "B" command includes STM, BAT, FRM, RWS
+        do_we_rerun = not get_ddh_do_not_rerun_flag_li()
+        rv, v = await lc.cmd_ddh_b(rerun=do_we_rerun)
         _rae(rv, "ddh_b")
         # a: b'__B 200020000000F072022/08/25 12:13:55'
         v = v[17:19] + v[15:17]
@@ -114,19 +118,10 @@ class BleTDODownload:
             # give time to GUI to display
             await asyncio.sleep(3)
 
-        rerun_flag = get_ddh_rerun_flag_li()
-        if not rerun_flag:
-            rv = await lc.cmd_sws(g)
-            if rv:
-                _u(STATE_DDS_BLE_ERROR_RUN)
-                await asyncio.sleep(5)
-                _rae(rv, "sws")
+        notes['rerun'] = do_we_rerun
+        if not do_we_rerun:
             # GUI telling this
-            notes['rerun'] = False
-            lg.a("warning: telling this logger is not set for auto-re-run")
-            _u(f"{STATE_DDS_BLE_RUN_STATUS}/off")
-            # give time to GUI to display
-            await asyncio.sleep(5)
+            lg.a("warning: this logger is not set for auto-re-run")
 
         # -----------------------
         # bye, bye to this logger
@@ -138,7 +133,7 @@ class BleTDODownload:
     async def download_recipe(lc, mac, g, notes: dict, u):
 
         dds_ble_init_rv_notes(notes)
-        rerun_flag = get_ddh_rerun_flag_li()
+        rerun_flag = get_ddh_do_not_rerun_flag_li()
         create_folder_logger_by_mac(mac)
         sn = dds_get_cfg_logger_sn_from_mac(mac)
 
