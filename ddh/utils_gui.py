@@ -6,7 +6,7 @@ import time
 import shutil
 from math import ceil
 
-from PyQt5.QtCore import Qt, QCoreApplication
+from PyQt5.QtCore import Qt, QTimer
 from PyQt5.QtGui import QPixmap, QIcon
 from PyQt5.QtWidgets import (
     QDesktopWidget,
@@ -19,12 +19,14 @@ from ddh.db.db_his import DbHis
 from ddh.draw_graph import process_n_graph
 from ddh.utils_dtm import gui_populate_maps_tab
 from ddh.utils_net import net_get_my_current_wlan_ssid
+from dds.emolt import this_box_has_grouped_s3_uplink
 from dds.timecache import is_it_time_to
 from locales.locales import _x
 from locales.strings import STR_SEARCHING_FOR_LOGGERS, STR_CONNECTING_LOGGER, STR_SYNCING_GPS_TIME
 from mat.ble.ble_mat_utils import DDH_GUI_UDP_PORT
 from mat.utils import linux_is_rpi
 import subprocess as sp
+import pyqtgraph as pg
 
 from utils.ddh_config import (
     dds_get_cfg_vessel_name,
@@ -32,7 +34,8 @@ from utils.ddh_config import (
     dds_get_cfg_flag_graph_test_mode,
     dds_get_cfg_logger_sn_from_mac,
     dds_get_cfg_forget_time_secs,
-    ddh_get_cfg_maps_en, dds_get_cfg_flag_download_test_mode, dds_get_cfg_box_sn, ddh_get_file_flag_plot_wc)
+    ddh_get_cfg_maps_en, dds_get_cfg_flag_download_test_mode, dds_get_cfg_box_sn, ddh_get_file_flag_plot_wc,
+    dds_get_cfg_skip_dl_in_port_en)
 
 from utils.ddh_shared import (
     STATE_DDS_BLE_SCAN,
@@ -100,6 +103,60 @@ def _lock_icon(t):
     g_lock_icon_timer = t
 
 
+def gui_setup_timers(a):
+    # timer to update GUI fields
+    a.tg = QTimer()
+    a.tg.timeout.connect(a._tg_fxn)
+    a.tg.start(1000)
+
+    # timer to measure RPi temperature
+    a.tt = QTimer()
+    a.tt.timeout.connect(a._tt_fxn)
+    if linux_is_rpi():
+        a.tt.start(1000)
+
+    # timer BLE service alive
+    a.tb = QTimer()
+    a.tb.timeout.connect(a._tb_fxn)
+    a.tb.start(30000)
+
+
+def gui_setup_graph_tab(a):
+    a.g = pg.PlotWidget(axisItems={'bottom': pg.DateAxisItem()})
+    a.g_haul_idx = None
+    a.lay_g_h2.addWidget(a.g)
+    a.g.setBackground('w')
+    a.btn_g_next_haul.setEnabled(False)
+    a.btn_g_next_haul.setVisible(False)
+    a.lbl_graph_busy.setVisible(False)
+    a.cb_g_switch_tp.setVisible(False)
+    gui_manage_graph_test_files()
+
+
+def gui_create_variables(a):
+    a.bright_idx = 2
+    a.tab_edit_hide = True
+    a.tab_advanced_hide = True
+    a.tab_graph_hide = True
+    a.tab_edit_wgt_ref = None
+    a.tab_map_wgt_ref = None
+    a.tab_note_wgt_ref = None
+    a.tab_recipe_wgt_ref = None
+    a.tab_graph_wgt_ref = None
+    a.key_pressed = None
+    a.num_clicks_brightness = 9  # index for 100%
+    a.lbl_ble_img_filled = False
+    a.boat_pressed = 0
+    a.commit_pressed = 0
+    a.datetime_pressed = 0
+    a.lbl_net_pressed = 0
+    a.lbl_uptime_pressed = 0
+    a.gif_map = None
+    a.n_good_maps = 0
+    a.i_good_maps = 0
+    a.map_filename = None
+
+
 def gui_setup_view(my_win):
     """fills window with titles and default contents"""
     a = my_win
@@ -160,6 +217,19 @@ def gui_setup_view(my_win):
 
     # dl statistics
     a.lbl_summary_dl.setVisible(False)
+
+    # edit tab dropdowns
+    a.cbox_gear_type.addItems(["fixed", "mobile"])
+    a.cb_s3_uplink_type.addItems(["raw", "group"])
+    a.cb_skip_in_port.addItems(["False", "True"])
+
+    # allow to have more room
+    a.cb_g_paint_zones.setVisible(False)
+
+    if this_box_has_grouped_s3_uplink():
+        a.cb_s3_uplink_type.setCurrentIndex(1)
+    if dds_get_cfg_skip_dl_in_port_en():
+        a.cb_skip_in_port.setCurrentIndex(1)
 
     return a
 

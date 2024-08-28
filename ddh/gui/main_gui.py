@@ -2,7 +2,6 @@ import datetime
 
 import time
 
-import pyqtgraph as pg
 from pathlib import Path
 import psutil
 import glob
@@ -35,19 +34,16 @@ from ddh.utils_gui import (
     gui_hide_advanced_tab,
     gui_show_advanced_tab,
     gui_hide_graph_tab,
-    gui_show_graph_tab, gui_ddh_populate_graph_dropdown_sn, gui_manage_graph_test_files,
-    gui_hide_map_tab, gui_hide_maps_next_btn
+    gui_show_graph_tab, gui_ddh_populate_graph_dropdown_sn,
+    gui_hide_map_tab, gui_hide_maps_next_btn, gui_create_variables, gui_setup_graph_tab, gui_setup_timers
 )
-
-from dds.emolt import this_box_has_grouped_s3_uplink
 from dds.notifications import notify_via_sms
 from dds.timecache import is_it_time_to
 from mat.linux import linux_is_process_running
-from mat.utils import linux_is_rpi
 from utils.ddh_config import (dds_get_cfg_vessel_name, dds_get_cfg_logger_mac_from_sn,
                               ddh_get_cfg_gear_type, cfg_load_from_file, dds_get_cfg_flag_ble_en,
                               cfg_save_to_file, dds_get_cfg_monitored_pairs, ddh_get_cfg_maps_en,
-                              dds_get_cfg_skip_dl_in_port_en, ddh_get_file_flag_plot_wc)
+                              ddh_get_file_flag_plot_wc)
 from utils.ddh_shared import (
     get_ddh_folder_path_dl_files,
     ddh_get_gui_closed_flag_file,
@@ -76,110 +72,36 @@ _g_flag_ble_en = dds_get_cfg_flag_ble_en()
 
 class DDH(QMainWindow, d_m.Ui_MainWindow):
     def __init__(self):
+
         super(DDH, self).__init__()
         gui_setup_view(self)
         gui_setup_buttons(self)
         gui_center_window(self)
-
-        # ------------------------
-        # you want GUI logs or not
-        # ------------------------
         lg.are_enabled(True)
+        gui_create_variables(self)
+        gui_dog_clear()
+        gui_ddh_set_brightness(self)
 
-        # gui: appearance
-        self.cbox_gear_type.addItems(["fixed", "mobile"])
-        self.cb_s3_uplink_type.addItems(["raw", "group"])
-        self.cb_skip_in_port.addItems(["False", "True"])
-        self.bright_idx = 2
-        self.tab_edit_hide = True
-        self.tab_advanced_hide = True
-        self.tab_graph_hide = True
-        self.tab_edit_wgt_ref = None
-        self.tab_map_wgt_ref = None
-        self.tab_note_wgt_ref = None
-        self.tab_recipe_wgt_ref = None
-        self.tab_graph_wgt_ref = None
-        self.key_pressed = None
-        self.num_clicks_brightness = 9  # index for 100%
-        self.lbl_ble_img_filled = False
-        self.boat_pressed = 0
-        self.commit_pressed = 0
-        self.datetime_pressed = 0
-        self.lbl_net_pressed = 0
-        self.lbl_uptime_pressed = 0
-        self.gif_map = None
-        self.n_good_maps = 0
-        self.i_good_maps = 0
-        self.map_filename = None
-
+        # show and hide stuff
         gui_hide_edit_tab(self)
         gui_hide_advanced_tab(self)
         gui_hide_note_tab(self)
         gui_populate_history_tab(self)
-        gui_ddh_set_brightness(self)
-        gui_ddh_populate_note_tab_dropdown(self)
-        gui_ddh_populate_graph_dropdown_sn(self)
-        gui_dog_clear()
-
-        # make that button invisible to have more room
-        self.cb_g_paint_zones.setVisible(False)
-
-        # maps tab
         gui_hide_maps_next_btn(self)
         if not ddh_get_cfg_maps_en():
             gui_hide_map_tab(self)
 
-        # s3 uplink type field
-        if this_box_has_grouped_s3_uplink():
-            self.cb_s3_uplink_type.setCurrentIndex(1)
-
-        # config: check skip_in_port
-        if dds_get_cfg_skip_dl_in_port_en():
-            self.cb_skip_in_port.setCurrentIndex(1)
-
-        # -----------
-        # graph tab
-        # -----------
-        self.g = pg.PlotWidget(axisItems={'bottom': pg.DateAxisItem()})
-        self.g_haul_idx = None
-
-        # graph layout
-        self.lay_g_h2.addWidget(self.g)
-        self.g.setBackground('w')
-        self.btn_g_next_haul.setEnabled(False)
-        self.btn_g_next_haul.setVisible(False)
-        self.lbl_graph_busy.setVisible(False)
-        self.cb_g_switch_tp.setVisible(False)
-
-        # graph test mode
-        gui_manage_graph_test_files()
-
-        # timer to update GUI fields
-        self.tg = QTimer()
-        self.tg.timeout.connect(self._tg_fxn)
-        self.tg.start(1000)
-
-        # timer to measure RPi temperature
-        self.tt = QTimer()
-        self.tt.timeout.connect(self._tt_fxn)
-        if linux_is_rpi():
-            self.tt.start(1000)
-
-        # timer BLE service alive
-        self.tb = QTimer()
-        self.tb.timeout.connect(self._tb_fxn)
-        self.tb.start(30000)
+        # fill stuff
+        gui_ddh_populate_note_tab_dropdown(self)
+        gui_ddh_populate_graph_dropdown_sn(self)
+        gui_setup_graph_tab(self)
+        gui_setup_timers(self)
 
         # check if we had an update, also done at DDS
         file_flag = dds_get_ddh_got_an_update_flag_file()
         if os.path.exists(file_flag):
             send_ddh_udp_gui(STATE_DDS_SOFTWARE_UPDATED)
 
-        # new, run RPC threads for DDH GUI
-        # th_srv_notify()
-        # th_cli_cmd()
-
-        # indicate
         lg.a("OK: DDH GUI finished booting")
 
     def _tg_fxn(self):
