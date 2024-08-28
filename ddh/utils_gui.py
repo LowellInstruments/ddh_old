@@ -89,7 +89,6 @@ PERIOD_SHOW_LOGGER_DL_ERROR_SECS = 300
 PERIOD_SHOW_BLE_APP_GPS_ERROR_POSITION = 60
 g_lock_icon_timer = 0
 g_app_uptime = time.perf_counter()
-g_ci = None
 dim_done_day = 0
 dim_done_night = 0
 
@@ -575,10 +574,8 @@ def _gui_update_icon(my_app, ci, ct, cf):
         return
 
     if ci:
-        global g_ci
-        g_ci = ci
-        ci = f"{str(ddh_get_folder_path_res())}/{ci}"
-        my_app.lbl_ble_img.setPixmap(QPixmap(ci))
+        img = f"{str(ddh_get_folder_path_res())}/{ci}"
+        my_app.lbl_ble_img.setPixmap(QPixmap(img))
     if ct:
         my_app.lbl_ble.setText(ct)
 
@@ -815,7 +812,7 @@ def _gui_parse_udp(my_app, s, ip="127.0.0.1"):
         a.bar_dl.setVisible(False)
 
     # stats box
-    if g_ci not in ("ok.png", "attention.png"):
+    if ci not in ("ok.png", "attention.png"):
         my_app.lbl_summary_dl.setVisible(False)
 
 
