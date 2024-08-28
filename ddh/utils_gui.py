@@ -571,6 +571,9 @@ def _gui_update_icon(my_app, ci, ct, cf):
     if cf == STATE_DDS_BLE_SCAN and g_lock_icon_timer:
         return
 
+    if not ci:
+        return
+
     if ci:
         global g_ci
         g_ci = ci
