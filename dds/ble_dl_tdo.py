@@ -120,7 +120,6 @@ class BleTDODownload:
 
         notes['rerun'] = do_we_rerun
         if not do_we_rerun:
-            # GUI telling this
             lg.a("warning: this logger is not set for auto-re-run")
 
         # -----------------------
@@ -133,7 +132,6 @@ class BleTDODownload:
     async def download_recipe(lc, mac, g, notes: dict, u):
 
         dds_ble_init_rv_notes(notes)
-        rerun_flag = get_ddh_do_not_rerun_flag_li()
         create_folder_logger_by_mac(mac)
         sn = dds_get_cfg_logger_sn_from_mac(mac)
 
@@ -300,6 +298,9 @@ class BleTDODownload:
             await asyncio.sleep(5)
         _rae(bad_rv, "gsp")
 
+        # get the rerun flag
+        rerun_flag = not get_ddh_do_not_rerun_flag_li()
+
         # wake mode
         w = "on" if rerun_flag else "off"
         rv = await lc.cmd_wak(w)
@@ -307,6 +308,7 @@ class BleTDODownload:
         lg.a(f"WAK | {w} OK")
         await asyncio.sleep(1)
 
+        notes['re_run'] = rerun_flag
         if rerun_flag:
             rv = await lc.cmd_rws(g)
             if rv:
@@ -314,14 +316,8 @@ class BleTDODownload:
                 await asyncio.sleep(5)
             _rae(rv, "rws")
             lg.a("RWS | OK")
-            notes['rerun'] = True
         else:
-            # GUI telling this
-            notes['rerun'] = False
             lg.a("warning: telling this logger is not set for auto-re-run")
-            _u(f"{STATE_DDS_BLE_RUN_STATUS}/off")
-            # give time to GUI to display
-            await asyncio.sleep(5)
 
         # -----------------------
         # bye, bye to this logger
