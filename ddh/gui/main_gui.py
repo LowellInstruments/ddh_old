@@ -62,7 +62,7 @@ from utils.ddh_shared import (
     dds_get_ddh_got_an_update_flag_file,
     STATE_DDS_SOFTWARE_UPDATED,
     ddh_get_db_history_file, ddh_kill_by_pid_file, get_ddh_toml_all_macs_content, set_ddh_do_not_rerun_flag_li,
-    clr_ddh_rerun_flag_li, dds_get_cnv_requested_via_gui_flag_file, NAME_EXE_API, ddh_get_folder_path_res
+    clr_ddh_do_not_rerun_flag_li, dds_get_cnv_requested_via_gui_flag_file, NAME_EXE_API, ddh_get_folder_path_res
 )
 
 from utils.logs import lg_gui as lg  # noqa: E402
@@ -119,7 +119,6 @@ class DDH(QMainWindow, d_m.Ui_MainWindow):
         gui_ddh_set_brightness(self)
         gui_ddh_populate_note_tab_dropdown(self)
         gui_ddh_populate_graph_dropdown_sn(self)
-        self.click_chk_rerun(None)
         gui_dog_clear()
 
         # make that button invisible to have more room
@@ -650,7 +649,7 @@ class DDH(QMainWindow, d_m.Ui_MainWindow):
     def click_chk_rerun(self, _):
         if self.chk_rerun.isChecked():
             # checked, so don't created do not rerun flag
-            clr_ddh_rerun_flag_li()
+            clr_ddh_do_not_rerun_flag_li()
         else:
             set_ddh_do_not_rerun_flag_li()
 

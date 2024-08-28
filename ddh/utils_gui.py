@@ -142,7 +142,7 @@ def gui_setup_view(my_win):
     a.lbl_commit.setText(dc)
 
     # checkboxes rerun flag
-    rerun_flag = get_ddh_do_not_rerun_flag_li()
+    rerun_flag = not get_ddh_do_not_rerun_flag_li()
     a.chk_rerun.setChecked(rerun_flag)
 
     # maps enable flag

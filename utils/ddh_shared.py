@@ -399,7 +399,7 @@ def set_ddh_do_not_rerun_flag_li():
     pathlib.Path(FILE_DO_NOT_RERUN_TOML).touch()
 
 
-def clr_ddh_rerun_flag_li():
+def clr_ddh_do_not_rerun_flag_li():
     try:
         os.unlink(FILE_DO_NOT_RERUN_TOML)
     except (Exception, ) as ex:
