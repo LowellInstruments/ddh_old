@@ -130,7 +130,6 @@ def _ble_analyze_logger_result(rv,
             _u(f"{STATE_DDS_BLE_RUN_STATUS}/off")
         else:
             _u(f"{STATE_DDS_BLE_DOWNLOAD_OK}/{sn}")
-        time.sleep(1)
 
         # graph loggers just downloaded
         utils_graph_set_fol_req_file(mac)

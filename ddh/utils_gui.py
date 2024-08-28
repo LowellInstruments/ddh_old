@@ -571,10 +571,6 @@ def _gui_update_icon(my_app, ci, ct, cf):
     if cf == STATE_DDS_BLE_SCAN and g_lock_icon_timer:
         return
 
-    if not ci:
-        # for example, statistics box
-        return
-
     if ci:
         global g_ci
         g_ci = ci
@@ -637,6 +633,8 @@ def _gui_parse_udp(my_app, s, ip="127.0.0.1"):
         a.lbl_summary_dl.setVisible(bool(v))
         # do nothing
         f = None
+        ci = ''
+        ct = ''
 
     elif f == STATE_DDS_BLE_DOWNLOAD_WARNING:
         # at least same value as orange mac
