@@ -15,7 +15,7 @@ from utils.ddh_config import (ddh_get_cfg_gear_type, dds_get_cfg_logger_sn_from_
                               dds_get_cfg_flag_download_test_mode)
 from utils.ddh_shared import (
     send_ddh_udp_gui as _u,
-    STATE_DDS_BLE_RUN_STATUS, STATE_DDS_BLE_ERROR_RUN,
+    STATE_DDS_BLE_ERROR_RUN,
     STATE_DDS_BLE_DOWNLOAD_ERROR_TP_SENSOR,
     BLEAppException, ael, get_ddh_do_not_rerun_flag_li, TESTMODE_FILENAMEPREFIX, STATE_DDS_BLE_DOWNLOAD_PROGRESS,
     STATE_DDS_BLE_LOW_BATTERY
@@ -172,7 +172,7 @@ class BleTDODownload:
 
         rv, t = await lc.cmd_utm()
         _rae(rv, "utm")
-        lg.a("UTM | {}".format(t))
+        lg.a(f"UTM | {t}")
 
         rv, b = await lc.cmd_bat()
         _rae(rv, "bat")
@@ -188,7 +188,7 @@ class BleTDODownload:
 
         rv, v = await lc.cmd_gtm()
         _rae(rv, "gtm")
-        lg.a("GTM | {}".format(v))
+        lg.a(f"GTM | {v}")
 
         rv = await lc.cmd_stm()
         _rae(rv, "stm")
@@ -308,7 +308,7 @@ class BleTDODownload:
         lg.a(f"WAK | {w} OK")
         await asyncio.sleep(1)
 
-        notes['re_run'] = rerun_flag
+        notes['rerun'] = rerun_flag
         if rerun_flag:
             rv = await lc.cmd_rws(g)
             if rv:

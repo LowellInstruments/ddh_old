@@ -60,28 +60,31 @@ def controller_main_ddh():
     #     # only happens upon exceptions
     #     time.sleep(5)
 
-    while 1:
-        lg.a(f"=== {s} launches child ===")
-        p = Process(target=main_ddh)
-        p.start()
+    lg.a(f"=== {s} launches child ===")
+    p = Process(target=main_ddh)
+    p.start()
 
-        while 1:
-            time.sleep(5)
-            f = ddh_get_gui_closed_flag_file()
-            v = gui_dog_get()
-            kill = 0
-            if os.path.exists(f):
-                os.unlink(f)
-                lg.a(f"=== debug: user closed {s} ===")
-                kill = 1
-            if time.perf_counter() > v + 30:
-                # detects hangs of child GUI
-                lg.a(f"=== {s} debug: child seems crashed ===")
-                kill = 1
-            if kill:
-                # in this order or message does not show :)
-                lg.a(f'debug: closing GUI, crontab will relaunch it', show_ts=0)
-                ddh_kill_by_pid_file(only_child=False)
+    # maybe left from before
+    f = ddh_get_gui_closed_flag_file()
+    if os.path.exists(f):
+        os.unlink(f)
+
+    while 1:
+        time.sleep(5)
+        v = gui_dog_get()
+        kill = 0
+        if os.path.exists(f):
+            os.unlink(f)
+            lg.a(f"=== debug: user closed {s} ===")
+            kill = 1
+        if time.perf_counter() > v + 30:
+            # detects hangs of child GUI
+            lg.a(f"=== {s} debug: child seems crashed ===")
+            kill = 1
+        if kill:
+            # in this order or message does not show :)
+            lg.a(f'debug: closing GUI, crontab will relaunch it', show_ts=0)
+            ddh_kill_by_pid_file(only_child=False)
 
 
 if __name__ == "__main__":

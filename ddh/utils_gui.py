@@ -93,6 +93,10 @@ dim_done_day = 0
 dim_done_night = 0
 
 
+g_last_ci = ''
+g_last_ct = ''
+
+
 def _calc_app_uptime():
     return int(time.perf_counter() - g_app_uptime)
 
@@ -568,16 +572,15 @@ def _gui_update_icon(my_app, ci, ct, cf):
 
     # cases we don't update
     if cf == STATE_DDS_BLE_SCAN and g_lock_icon_timer:
-        return
+        return False
 
-    if not ci:
-        return
-
+    # update icon an text
     if ci:
         img = f"{str(ddh_get_folder_path_res())}/{ci}"
         my_app.lbl_ble_img.setPixmap(QPixmap(img))
     if ct:
         my_app.lbl_ble.setText(ct)
+    return True
 
 
 def _gui_parse_udp(my_app, s, ip="127.0.0.1"):
@@ -590,6 +593,9 @@ def _gui_parse_udp(my_app, s, ip="127.0.0.1"):
 
     f, v = s.split("/")
     # lg.a('UDP | parsing \'{}/{}\''.format(f, v))
+
+    global g_last_ci
+    global g_last_ct
 
     # variables for big icon and text
     ci = ""
@@ -620,21 +626,23 @@ def _gui_parse_udp(my_app, s, ip="127.0.0.1"):
         _lock_icon(PERIOD_SHOW_LOGGER_DL_OK_SECS)
         ct = "done " + v
         ci = "ok.png"
+        g_last_ci = ci
+        g_last_ct = ct
 
     elif f == STATE_DDS_BLE_RUN_STATUS:
         if v == "off":
             _lock_icon(PERIOD_SHOW_LOGGER_DL_OK_SECS)
             ct = "stopped & auto-wake OFF"
             ci = "attention.png"
+            g_last_ci = ci
+            g_last_ct = ct
 
     elif f == STATE_DDS_BLE_DOWNLOAD_STATISTICS:
         # v: can be filled or empty
         a.lbl_summary_dl.setText(v)
         a.lbl_summary_dl.setVisible(bool(v))
-        # do nothing
-        f = None
-        ci = ''
-        ct = ''
+        ci = g_last_ci
+        ct = g_last_ct
 
     elif f == STATE_DDS_BLE_DOWNLOAD_WARNING:
         # at least same value as orange mac
@@ -805,14 +813,19 @@ def _gui_parse_udp(my_app, s, ip="127.0.0.1"):
     # -----------------------
     # update big icon in GUI
     # -----------------------
-    _gui_update_icon(a, ci, ct, cf)
+    _icon_updated = _gui_update_icon(a, ci, ct, cf)
 
-    # progress bar
+    if not ci:
+        # this helps keeping the stats box visible
+        return
+
+    # progress bar visible or not
     if f not in (STATE_DDS_BLE_DOWNLOAD, STATE_DDS_BLE_DOWNLOAD_PROGRESS):
         a.bar_dl.setVisible(False)
 
     # stats box
-    if ci not in ("ok.png", "attention.png"):
+    if _icon_updated and ci not in ("ok.png", "attention.png"):
+        print('I dont know, ci was', ci)
         my_app.lbl_summary_dl.setVisible(False)
 
 
