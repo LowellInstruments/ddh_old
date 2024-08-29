@@ -104,6 +104,9 @@ async def deploy_logger_tdo(mac, sn, cfg_from_menu):
             if len(tag) != 3:
                 print(f'error: bad SCF tag {tag}')
                 break
+            if tag == 'MAC':
+                print('ignoring tag MAC for now')
+                continue
             if len(v) != 5:
                 print(f'error: bad SCF value {v} for tag {tag}')
                 break
