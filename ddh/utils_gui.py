@@ -825,7 +825,6 @@ def _gui_parse_udp(my_app, s, ip="127.0.0.1"):
 
     # stats box
     if _icon_updated and ci not in ("ok.png", "attention.png"):
-        print('I dont know, ci was', ci)
         my_app.lbl_summary_dl.setVisible(False)
 
 

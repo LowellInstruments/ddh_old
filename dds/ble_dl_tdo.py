@@ -3,7 +3,9 @@ import datetime
 import os
 from dds.gpq import dds_create_file_fixed_gpq
 from dds.lef import dds_create_file_lef
-from dds.notifications import notify_logger_error_sensor_pressure, notify_logger_error_low_battery, LoggerNotification
+from dds.notifications import (notify_logger_error_sensor_pressure,
+                               notify_logger_error_low_battery,
+                               LoggerNotification)
 from mat.ble.ble_mat_utils import (
     ble_mat_crc_local_vs_remote,
     DDH_GUI_UDP_PORT, ble_mat_disconnect_all_devices_ll,
@@ -17,7 +19,8 @@ from utils.ddh_shared import (
     send_ddh_udp_gui as _u,
     STATE_DDS_BLE_ERROR_RUN,
     STATE_DDS_BLE_DOWNLOAD_ERROR_TP_SENSOR,
-    BLEAppException, ael, get_ddh_do_not_rerun_flag_li, TESTMODE_FILENAMEPREFIX, STATE_DDS_BLE_DOWNLOAD_PROGRESS,
+    BLEAppException, ael, get_ddh_do_not_rerun_flag_li,
+    TESTMODE_FILENAMEPREFIX, STATE_DDS_BLE_DOWNLOAD_PROGRESS,
     STATE_DDS_BLE_LOW_BATTERY
 )
 from utils.logs import lg_dds as lg
@@ -25,6 +28,9 @@ from utils.ddh_shared import (
     get_dl_folder_path_from_mac,
     create_folder_logger_by_mac,
 )
+
+
+g_debug_not_delete_files = False
 
 
 def _une(rv, notes, e, ce=0):
@@ -51,8 +57,8 @@ class BleTDODownload:
 
         # DDH "A" command includes GTM, SWS, DIR
         rv, ls = await lc.cmd_ddh_a(g)
-        _rae(rv, "super __A, error listing files" + str(rv))
-        lg.a(f"super __A DIR | {ls}")
+        _rae(rv, "DDA error listing files: " + str(rv))
+        lg.a(f"DIR: {ls}")
         _u(f"{STATE_DDS_BLE_DOWNLOAD_PROGRESS}/{0}")
 
         # iterate files present in logger
@@ -87,9 +93,13 @@ class BleTDODownload:
             notes['dl_files'].append(path)
 
             # delete file in logger
-            rv = await lc.cmd_del(del_name)
-            _rae(rv, "del")
-            lg.a(f"deleted file {del_name}")
+            global g_debug_not_delete_files
+            if g_debug_not_delete_files:
+                lg.a('warning: test, we are NOT deleting files')
+            else:
+                rv = await lc.cmd_del(del_name)
+                _rae(rv, "del")
+                lg.a(f"deleted file {del_name}")
 
             # create LEF file with download info
             lg.a(f"creating file LEF for {name}")
@@ -108,7 +118,7 @@ class BleTDODownload:
         v = v[17:19] + v[15:17]
         b = int(v, 16)
         notes["battery_level"] = b
-        lg.a(f"DDH_B | OK, battery {b} mV")
+        lg.a(f"DDB: battery {b} mV")
         if b < 982:
             sn = dds_get_cfg_logger_sn_from_mac(mac)
             ln = LoggerNotification(mac, sn, 'TDO', b)
@@ -138,7 +148,7 @@ class BleTDODownload:
         rv = await lc.connect(mac)
         _une(rv, notes, "comm.")
         _rae(rv, "connecting")
-        lg.a("connected to {}".format(mac))
+        lg.a(f"connected to {mac}")
 
         if ble_logger_ccx26x2r_needs_a_reset(mac):
             await lc.cmd_rst()
@@ -147,7 +157,7 @@ class BleTDODownload:
 
         rv, v = await lc.cmd_gfv()
         _rae(rv, "gfv")
-        lg.a("GFV | {}".format(v))
+        lg.a(f"GFV | {v}")
         notes['gfv'] = v
         # --------------------------------------
         # for newer loggers with super commands
@@ -209,7 +219,7 @@ class BleTDODownload:
 
         rv, ls = await lc.cmd_dir()
         _rae(rv, "dir error " + str(rv))
-        lg.a("DIR | {}".format(ls))
+        lg.a(f"DIR | {ls}")
 
         # iterate files present in logger
         for name, size in ls.items():
@@ -221,7 +231,7 @@ class BleTDODownload:
                 continue
 
             # download file
-            lg.a("downloading file {}".format(name))
+            lg.a(f"downloading file {name}")
             rv = await lc.cmd_dwg(name)
             _rae(rv, "dwg")
             up = DDH_GUI_UDP_PORT
@@ -237,8 +247,7 @@ class BleTDODownload:
             _rae(rv, "crc")
             rv, l_crc = ble_mat_crc_local_vs_remote(path, r_crc)
             if (not rv) and os.path.exists(path):
-                e = "error: bad CRC so removing local file {}"
-                lg.a(e.format(path))
+                lg.a(f"error: bad CRC so removing local file {path}")
                 os.unlink(path)
 
             # save file in our local disk
@@ -248,7 +257,7 @@ class BleTDODownload:
             path = str(get_dl_folder_path_from_mac(mac) / name)
             with open(path, "wb") as f:
                 f.write(file_data)
-            lg.a("downloaded file {}".format(name))
+            lg.a(f"downloaded file {name}")
 
             # add to the output list
             notes['dl_files'].append(path)
@@ -256,10 +265,10 @@ class BleTDODownload:
             # delete file in logger
             rv = await lc.cmd_del(del_name)
             _rae(rv, "del")
-            lg.a("deleted file {}".format(del_name))
+            lg.a(f"deleted file {del_name}")
 
             # create LEF file with download info
-            lg.a("creating file LEF for {}".format(name))
+            lg.a(f"creating file LEF for {name}")
             dds_create_file_lef(g, name)
 
             # create CST file when fixed mode
@@ -279,7 +288,7 @@ class BleTDODownload:
         bad_rv = not rv or rv[0] == 1 or rv[1] == 0xFFFF or rv[1] == 0
         if bad_rv:
             _une(bad_rv, notes, "T_sensor_error", ce=1)
-            lg.a('GST | error {}'.format(rv))
+            lg.a(f'GST | error {rv}')
             _u(STATE_DDS_BLE_DOWNLOAD_ERROR_TP_SENSOR)
             await asyncio.sleep(5)
         _rae(bad_rv, "gst")
@@ -290,7 +299,7 @@ class BleTDODownload:
         bad_rv = not rv or rv[0] == 1 or rv[1] == 0xFFFF or rv[1] == 0
         if bad_rv:
             _une(bad_rv, notes, "P_sensor_error", ce=1)
-            lg.a('GSP | error {}'.format(rv))
+            lg.a(f'GSP | error {rv}')
             ln = LoggerNotification(mac, sn, 'TDO', b)
             ln.uuid_interaction = u
             notify_logger_error_sensor_pressure(g, ln)
@@ -333,15 +342,12 @@ async def ble_interact_tdo(mac, info, g, h, u):
     lc = BleCC26X2(h)
 
     try:
-        # -------------------------
-        # BLE connection done here
-        # -------------------------
         lg.a(f"interacting {info} logger")
         rv = await BleTDODownload.download_recipe(lc, mac, g, notes, u)
 
     except Exception as ex:
         await lc.disconnect()
-        lg.a("error dl_tdo_exception {}".format(ex))
+        lg.a(f"error dl_tdo_exception {ex}")
         rv = 1
 
     finally:

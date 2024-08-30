@@ -620,8 +620,7 @@ def _process_n_graph(a, r=''):
             if (not is_rpi) or (is_rpi and r == 'BLE'):
                 dp = data['Pressure (dbar) TDO']
                 dt = data['Temperature (F) TDO']
-                # calculate 80th percentile threshold float
-                # we only keep values at the bottom of sea
+                # calculate 80th percentile to ensure bottom sea values
                 p80 = _percentile(dp, 80)
                 ls_p, ls_t = [], []
                 for i, p in enumerate(dp):
@@ -633,6 +632,7 @@ def _process_n_graph(a, r=''):
                 s += '{:5.2f} dbar\n'.format(np.nanmean(ls_p))
                 s += '{:5.2f} °F'.format(np.nanmean(ls_t))
                 _u(f"{STATE_DDS_BLE_DOWNLOAD_STATISTICS}/{s}")
+
         if met == 'DO':
             if (not is_rpi) or (is_rpi and r == 'BLE'):
                 _do = data['DO Concentration (mg/l) DO']
