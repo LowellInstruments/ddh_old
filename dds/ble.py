@@ -7,6 +7,7 @@ import uuid
 from tzlocal import get_localzone
 
 from ddh.utils_graph import utils_graph_set_fol_req_file
+from dds.aws import aws_cp
 from dds.ble_dl_tdo import ble_interact_tdo
 from dds.macs import (
     rm_mac_black,
@@ -304,6 +305,8 @@ async def _ble_id_n_interact_logger(mac, info: str, h, g):
         ln.dl_files = notes['dl_files']
         ln.gfv = notes['gfv']
         ln.bat = notes['battery_level']
+        if os.path.exists('/tmp/nick_cp'):
+            aws_cp(notes['dl_files'])
 
     # ----------------------------
     # so we can plot this logger

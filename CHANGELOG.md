@@ -70,4 +70,8 @@
     fixed notification GPS error from Nick
     https://app.asana.com/0/1206361785539879/1208148157218367/f
     rearranged a bit main_gui and utils_gui.py
+
+4.0.15
+
+
     
