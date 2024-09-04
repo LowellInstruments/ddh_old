@@ -75,4 +75,9 @@
 
     added, and disabled, AWS_CP after each logger download
     for Lowell loggers, added scaled BAT measurement via factor
+
+4.0.16
+
+    improved script_ddc
+
     
