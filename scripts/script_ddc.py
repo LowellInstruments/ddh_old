@@ -266,15 +266,12 @@ def ddh_run_check():
         else:
             w = os.path.exists(path_w)
         a = os.path.exists(f'/home/pi/.ssh/authorized_keys')
-        c = _check_aws_credentials()
         m = os.path.exists(f'{get_ddh_folder_path_settings()}/all_macs.toml')
 
         if not w:
             _w('missing wireguard conf file')
         if not a:
             _i('missing SSH authorized keys file')
-        if not c:
-            _e('missing ddh/settings/config.toml credentials section')
         if not m:
             _e('missing ddh/settings/all_macs.toml file')
 
