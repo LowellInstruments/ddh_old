@@ -253,7 +253,7 @@ def ddh_run_check():
                     break
                 else:
                     _w(f'config.toml no custom credential {k}')
-        return rv
+        return _rv
 
     def _check_files():
         path_w = '/etc/wireguard/wg0.conf'
