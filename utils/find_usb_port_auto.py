@@ -38,6 +38,7 @@ if __name__ == '__main__':
     # quectel shield
     # p = find_usb_port_automatically('2c7c:0125')
     # print(p)
-    find_n_list_all_usb_port_automatically('2c7c:0125')
+    rv = find_n_list_all_usb_port_automatically('2c7c:0125')
+    print(rv)
 
 
