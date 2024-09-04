@@ -227,6 +227,8 @@ def ddh_run_check():
 
     def _check_fw_cell():
         ls = find_n_list_all_usb_port_automatically(VP_QUECTEL)
+        print(ls)
+        time.sleep(1)
         if not ls:
             _e('detecting cell shield gave 0 entries')
             return 0
@@ -235,6 +237,8 @@ def ddh_run_check():
             return 0
         # d: goes from N to N-3 downwards
         d = ls[-2]
+        print(d)
+        time.sleep(1)
         c = f"echo -ne 'AT+CVERSION\r' > {d}"
         sh(c)
         c = f"timeout 1 cat -v < /dev/{d} | grep 2022"
