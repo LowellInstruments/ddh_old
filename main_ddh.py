@@ -80,10 +80,12 @@ def controller_main_ddh():
         if time.perf_counter() > v + 30:
             # detects hangs of child GUI
             lg.a(f"=== {s} debug: child seems crashed ===")
+            lg.a(f"=== {s} debug: {time.perf_counter()}, {v} child seems crashed ===")
             kill = 1
         if kill:
-            # in this order or message does not show :)
+            # in this order or message does not show
             lg.a(f'debug: closing GUI, crontab will relaunch it', show_ts=0)
+            # this kills everything DDH, not DDS
             ddh_kill_by_pid_file(only_child=False)
 
 
