@@ -7,7 +7,7 @@ echo
 
 # check we need a reboot
 if [ -f "$LI_DDH_NEEDS_REBOOT_POST_INSTALL" ]; then
-    _pr "[ RUN ] DDH | you just installed, please reboot"
+    _pr "DDH was just installed, please reboot"
     exit 0
 fi
 
@@ -17,15 +17,16 @@ fi
 check_already_running "main_ddh_controller"
 
 
-_pb "[ RUN ] DDH | setting XAUTHORITY and DISPLAY environment variables"
+
+_pb "DDH set XAUTHORITY, DISPLAY env. variables"
 export XAUTHORITY=/home/pi/.Xauthority
 export DISPLAY=:0
 
 
 echo && echo
-_pb "###############"
-_pb "     DDH GUI   "
-_pb "###############"
+_pb "-------------"
+_pb "run DDH GUI  "
+_pb "-------------"
 echo
 sudo chown -R pi:pi "$FOL_LI"
 source "$FOL_VEN"/bin/activate

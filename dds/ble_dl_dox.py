@@ -27,6 +27,7 @@ import json
 
 
 MC_FILE = "MAT.cfg"
+BAT_FACTOR_DOT = 0.4545
 
 
 def _une(rv, notes, e, ce=0):
@@ -74,15 +75,17 @@ class BleCC26X2Download:
 
         rv, t = await lc.cmd_utm()
         _rae(rv, "utm")
-        lg.a("UTM | {}".format(t))
+        lg.a(f"UTM | {t}")
 
         # checking battery level for DO-x loggers
         rv, b = await lc.cmd_bat()
         _rae(rv, "bat")
-        lg.a(f"BAT | {b} mV")
+        adc_b = b
+        b /= BAT_FACTOR_DOT
+        lg.a(f"BAT | ADC {adc_b} mV -> {b} mV")
         notes["battery_level"] = b
-        if b < 1500:
-            ln = LoggerNotification(mac, sn, 'DOX', b)
+        if adc_b < 1500:
+            ln = LoggerNotification(mac, sn, 'DOX', adc_b)
             ln.uuid_interaction = u
             notify_logger_error_low_battery(g, ln)
             _u(f"{STATE_DDS_BLE_LOW_BATTERY}/{mac}")

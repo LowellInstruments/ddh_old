@@ -74,4 +74,5 @@
 4.0.15
 
     added, and disabled, AWS_CP after each logger download
+    for Lowell loggers, added scaled BAT measurement via factor
     
