@@ -7,7 +7,7 @@ from os.path import exists
 from scripts.script_provision_get import get_provision_ddh, ping_provision_server
 from utils.ddh_config import cfg_load_from_file, cfg_save_to_file
 from utils.ddh_shared import get_ddh_folder_path_settings
-from utils.find_usb_port_auto import find_usb_port_automatically
+from utils.find_usb_port_auto import find_usb_port_automatically, find_n_list_all_usb_port_automatically
 from utils.flag_paths import (
     LI_PATH_GROUPED_S3_FILE_FLAG,
     LI_PATH_DDH_GPS_EXTERNAL,
@@ -226,26 +226,34 @@ def ddh_run_check():
         str_w += f'   - {s}\n'
 
     def _check_fw_cell():
-        d = find_usb_port_automatically(VP_QUECTEL)
-        if not d:
-            return False
+        ls = find_n_list_all_usb_port_automatically(VP_QUECTEL)
+        if not ls:
+            _e('detecting cell shield gave 0 entries')
+            return 0
+        if len(ls) != 4:
+            _e('detecting cell shield should have 4 entries')
+            return 0
+        # d: goes from N to N-3 downwards
+        d = ls[-2]
         c = f"echo -ne 'AT+CVERSION\r' > {d}"
         sh(c)
-        c = f"timeout 1 cat -v < {d} | grep 2022"
+        c = f"timeout 1 cat -v < /dev/{d} | grep 2022"
+        time.sleep(2)
         return sh(c) == 0
 
     def _check_aws_credentials():
         c = cfg_load_from_file()
         f = c['credentials']
+        _rv = 1
         for k, v in f.items():
             if not v:
                 if 'custom' not in k:
                     _e(f'config.toml no credential {k}')
-                    return 0
+                    _rv = 0
+                    break
                 else:
                     _w(f'config.toml no custom credential {k}')
-                    return 1
-        return 1
+        return rv
 
     def _check_files():
         path_w = '/etc/wireguard/wg0.conf'
