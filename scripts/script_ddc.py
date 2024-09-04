@@ -227,14 +227,16 @@ def ddh_run_check():
 
     def _check_fw_cell():
         ls = find_n_list_all_usb_port_automatically(VP_QUECTEL)
+        # ls: ['/dev/ttyUSB3', '/dev/ttyUSB2', '/dev/ttyUSB1, '/dev/ttyUSB0']
         if not ls:
             _e('detecting cell shield gave 0 entries')
             return 0
         if len(ls) != 4:
             _e('detecting cell shield should have 4 entries')
             return 0
-        # d: goes from N to N-3 downwards
-        d = ls[-2]
+
+        # we want always the highest USB index - 1, so second in list
+        d = ls[1]
         c = f"echo -ne 'AT+CVERSION\r' > {d}"
         sh(c)
         c = f"timeout 1 cat -v < {d} | grep 2022"
