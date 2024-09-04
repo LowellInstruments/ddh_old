@@ -59,6 +59,7 @@ def _ddh_show_issues_info():
 
 
 def cb_ddh_show_issues():
+    _p('')
     _ddh_show_issues_error()
     _ddh_show_issues_warning()
     _ddh_show_issues_info()
