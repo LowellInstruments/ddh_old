@@ -9,6 +9,7 @@ from dds.gps import (  # noqa: E402
 
 # hardcoded, since they are FIXED on SixFab hats
 PORT_DATA = "/dev/ttyUSB1"
+DURATION_GPS_TEST_SECS = 60
 
 
 def _coord_decode(coord: str):
@@ -28,9 +29,8 @@ def _gps_measure():
     sp.flushInput()
 
     # loop timeout calculation
-    t = 30
-    till = time.perf_counter() + t
-    print(f'the test will run for {t} seconds\n')
+    till = time.perf_counter() + DURATION_GPS_TEST_SECS
+    print(f'GPS test will run for {DURATION_GPS_TEST_SECS} seconds\n')
 
     while till > time.perf_counter():
         b = sp.readall()

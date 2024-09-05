@@ -267,6 +267,7 @@ def _gps_measure():
             ns = _gps_parse_gsv_frame(b)
             g = _gps_parse_rmc_frame(b)
 
+        # todo ---> let's define these conditions
         if (g and ns and
                 is_it_time_to('send_notif_gps_num_satellites', PERIOD_GPS_NOTI_NUM_GPS_SAT)):
             notify_ddh_number_of_gps_satellites(g, ns)
