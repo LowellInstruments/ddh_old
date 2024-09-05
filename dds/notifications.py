@@ -32,6 +32,7 @@ DDH_NOTIFICATION_ERROR_SW_CRASH = 'DDH just crashed, or at least restarted'
 DDH_NOTIFICATION_OK_LOGGER_DL = 'logger download OK'
 DDH_NOTIFICATION_OK_LOGGER_HYPOXIA = 'logger detected hypoxia'
 DDH_NOTIFICATION_SMS = 'DDH sent a SMS'
+DDH_NOTIFICATION_GPS_NUM_SAT = 'DDH GPS #sat'
 
 
 DDH_ALL_NOTIFICATIONS = [
@@ -49,7 +50,8 @@ DDH_ALL_NOTIFICATIONS = [
     DDH_NOTIFICATION_ERROR_SW_CRASH,
     DDH_NOTIFICATION_OK_LOGGER_DL,
     DDH_NOTIFICATION_OK_LOGGER_HYPOXIA,
-    DDH_NOTIFICATION_SMS
+    DDH_NOTIFICATION_SMS,
+    DDH_NOTIFICATION_GPS_NUM_SAT
 ]
 
 
@@ -192,6 +194,10 @@ def notify_ddh_error_hw_gps():
 
 def notify_ddh_in_port(g):
     return _n(DDH_NOTIFICATION_STATUS_IN_PORT, g)
+
+
+def notify_ddh_number_of_gps_satellites(g, n):
+    return _n(DDH_NOTIFICATION_GPS_NUM_SAT, g, extra=str(n))
 
 
 def notify_logger_dox_hypoxia(g, ln):

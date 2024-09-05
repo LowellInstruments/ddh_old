@@ -6,7 +6,7 @@ import time
 import serial
 
 from dds.gpq import GpqW
-from dds.notifications import notify_ddh_error_hw_gps
+from dds.notifications import notify_ddh_error_hw_gps, notify_ddh_number_of_gps_satellites
 from dds.timecache import is_it_time_to
 from mat.gps import PORT_CTRL, PORT_DATA
 from mat.utils import linux_is_rpi, linux_set_datetime
@@ -48,6 +48,7 @@ PERIOD_GPS_AT_BOOT_SECS = 600
 PERIOD_GPS_TELL_GPS_HW_ERROR_SECS = 3600 * 3
 PERIOD_GPS_TELL_PUCK_NO_PC = 3600 * 6
 PERIOD_GPS_POWER_CYCLE = 300
+PERIOD_GPS_NOTI_NUM_GPS_SAT = 1800
 
 
 # some emolt boxes have too many USB ports
@@ -182,6 +183,7 @@ def _gps_parse_gsv_frame(data: bytes, force_print=False):
             _u("{}/{}".format(STATE_DDS_NOTIFY_GPS_NUM_SAT, n))
             if n < 7:
                 lg.a("{} satellites in view".format(n))
+        return n
 
     except (Exception,) as ex:
         lg.a("error: parse GSV frame {} -> {}".format(data, ex))
@@ -240,6 +242,7 @@ def _gps_measure():
         # --------------------------
         g = []
         b = sp.readall()
+        ns = 0
 
         # USB GPS puck
         if _g_bu353s4_port:
@@ -257,12 +260,15 @@ def _gps_measure():
                 g = _gps_parse_rmc_frame(b"$GPRMC" + re_rmc.group(1))
             re_gsv = re.search(b"GPGSV(.*)\r\n", b)
             if re_gsv:
-                _gps_parse_gsv_frame(b"$GPGSV" + re_gsv.group(1))
+                ns = _gps_parse_gsv_frame(b"$GPGSV" + re_gsv.group(1))
 
         # GPS shield
         else:
-            _gps_parse_gsv_frame(b)
+            ns = _gps_parse_gsv_frame(b)
             g = _gps_parse_rmc_frame(b)
+
+        if ns and is_it_time_to('send_notif_gps_num_satellites', PERIOD_GPS_NOTI_NUM_GPS_SAT):
+            notify_ddh_number_of_gps_satellites(g, ns)
 
         if g:
             break
