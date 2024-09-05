@@ -80,9 +80,13 @@ def _create_cst_files():
             continue
 
         # be sure we have CSV for this LID file
-        f_csv = glob(f'{i_lid[:-4]}*.csv')[0]
-        if not os.path.exists(f_csv):
+        f_csv_mask = f'{i_lid[:-4]}*.csv'
+        f_csv = glob(f_csv_mask)
+        if not f_csv:
+            _bn = os.path.basename(i_lid)
+            lg.a(f'warning: CST, no CSV file for {_bn}')
             continue
+        f_csv = f_csv[0]
 
         # infer CST filename from CSV filename
         f_cst = f_csv.replace('.csv', '.cst')
