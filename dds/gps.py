@@ -6,7 +6,7 @@ import time
 import serial
 
 from dds.gpq import GpqW
-from dds.notifications import notify_ddh_error_hw_gps, notify_ddh_number_of_gps_satellites
+from dds.notifications import notify_ddh_error_hw_gps
 from dds.timecache import is_it_time_to
 from mat.gps import PORT_CTRL, PORT_DATA
 from mat.utils import linux_is_rpi, linux_set_datetime
@@ -48,7 +48,6 @@ PERIOD_GPS_AT_BOOT_SECS = 600
 PERIOD_GPS_TELL_GPS_HW_ERROR_SECS = 3600 * 3
 PERIOD_GPS_TELL_PUCK_NO_PC = 3600 * 6
 PERIOD_GPS_POWER_CYCLE = 300
-PERIOD_GPS_NOTI_NUM_GPS_SAT = 1800
 
 
 # some emolt boxes have too many USB ports
@@ -168,25 +167,24 @@ def _gps_parse_gsv_frame(data: bytes, force_print=False):
 
     # data: b'$GPGSV,...,$GPGGA,...' all mixed
     if b"GPGSV" not in data:
-        return 0, 0
+        return
 
+    # $GPGSV, #messages, msg_num, num sat, ...
+    data = data.decode()
+    data = data.split(",")
+    idx = data.index("$GPGSV")
+    data = data[idx:]
+
+    # log satellites but not always
     try:
-        # $GPGSV, #messages, msg_num, num sat, ...
-        data = data.decode().split(",")
-        idx = data.index("$GPGSV")
-        data = data[idx:]
         n = int(data[3])
-
-        # log number of satellites but not always
-        _u(f"{STATE_DDS_NOTIFY_GPS_NUM_SAT}/{n}")
         if force_print or is_it_time_to("show_gsv_frame", PERIOD_GPS_TELL_NUM_SATS_SECS):
+            _u("{}/{}".format(STATE_DDS_NOTIFY_GPS_NUM_SAT, n))
             if n < 7:
-                lg.a(f"{n} satellites in view")
-        return n, 1
+                lg.a("{} satellites in view".format(n))
 
     except (Exception,) as ex:
-        lg.a(f"error: parse GSV frame {data} -> {ex}")
-        return 0, 1
+        lg.a("error: parse GSV frame {} -> {}".format(data, ex))
 
 
 def _gps_measure():
@@ -242,8 +240,6 @@ def _gps_measure():
         # --------------------------
         g = []
         b = sp.readall()
-        ns = 0
-        _w = 0
 
         # USB GPS puck
         if _g_bu353s4_port:
@@ -261,16 +257,12 @@ def _gps_measure():
                 g = _gps_parse_rmc_frame(b"$GPRMC" + re_rmc.group(1))
             re_gsv = re.search(b"GPGSV(.*)\r\n", b)
             if re_gsv:
-                ns, _w = _gps_parse_gsv_frame(b"$GPGSV" + re_gsv.group(1))
+                _gps_parse_gsv_frame(b"$GPGSV" + re_gsv.group(1))
 
         # GPS shield
         else:
-            ns, _w = _gps_parse_gsv_frame(b)
+            _gps_parse_gsv_frame(b)
             g = _gps_parse_rmc_frame(b)
-
-        # _w: was GSV
-        if _w and is_it_time_to('SQS_gps_num_satellites', PERIOD_GPS_NOTI_NUM_GPS_SAT):
-            notify_ddh_number_of_gps_satellites(ns)
 
         if g:
             break
