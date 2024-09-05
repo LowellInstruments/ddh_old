@@ -196,8 +196,10 @@ def notify_ddh_in_port(g):
     return _n(DDH_NOTIFICATION_STATUS_IN_PORT, g)
 
 
-def notify_ddh_number_of_gps_satellites(g, n):
-    return _n(DDH_NOTIFICATION_GPS_NUM_SAT, g, extra=str(n))
+def notify_ddh_number_of_gps_satellites(n):
+    if n is None:
+        n = 0
+    return _n(DDH_NOTIFICATION_GPS_NUM_SAT, extra=str(n))
 
 
 def notify_logger_dox_hypoxia(g, ln):

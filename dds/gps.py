@@ -168,26 +168,25 @@ def _gps_parse_gsv_frame(data: bytes, force_print=False):
 
     # data: b'$GPGSV,...,$GPGGA,...' all mixed
     if b"GPGSV" not in data:
-        return
+        return 0, 0
 
-    # $GPGSV, #messages, msg_num, num sat, ...
-    data = data.decode()
-    data = data.split(",")
-    idx = data.index("$GPGSV")
-    data = data[idx:]
-
-    # log satellites but not always
     try:
+        # $GPGSV, #messages, msg_num, num sat, ...
+        data = data.decode().split(",")
+        idx = data.index("$GPGSV")
+        data = data[idx:]
         n = int(data[3])
+
+        # log number of satellites but not always
+        _u(f"{STATE_DDS_NOTIFY_GPS_NUM_SAT}/{n}")
         if force_print or is_it_time_to("show_gsv_frame", PERIOD_GPS_TELL_NUM_SATS_SECS):
-            _u("{}/{}".format(STATE_DDS_NOTIFY_GPS_NUM_SAT, n))
             if n < 7:
                 lg.a(f"{n} satellites in view")
-        return n
+        return n, 1
 
     except (Exception,) as ex:
         lg.a(f"error: parse GSV frame {data} -> {ex}")
-        return 0
+        return 0, 1
 
 
 def _gps_measure():
@@ -244,6 +243,7 @@ def _gps_measure():
         g = []
         b = sp.readall()
         ns = 0
+        _w = 0
 
         # USB GPS puck
         if _g_bu353s4_port:
@@ -261,17 +261,16 @@ def _gps_measure():
                 g = _gps_parse_rmc_frame(b"$GPRMC" + re_rmc.group(1))
             re_gsv = re.search(b"GPGSV(.*)\r\n", b)
             if re_gsv:
-                ns = _gps_parse_gsv_frame(b"$GPGSV" + re_gsv.group(1))
+                ns, _w = _gps_parse_gsv_frame(b"$GPGSV" + re_gsv.group(1))
 
         # GPS shield
         else:
-            ns = _gps_parse_gsv_frame(b)
+            ns, _w = _gps_parse_gsv_frame(b)
             g = _gps_parse_rmc_frame(b)
 
-        # todo ---> let's define these conditions
-        # if (g and ns and
-            #     is_it_time_to('send_notif_gps_num_satellites', PERIOD_GPS_NOTI_NUM_GPS_SAT)):
-            # notify_ddh_number_of_gps_satellites(g, ns)
+        # _w: was GSV
+        if _w and is_it_time_to('SQS_gps_num_satellites', PERIOD_GPS_NOTI_NUM_GPS_SAT):
+            notify_ddh_number_of_gps_satellites(ns)
 
         if g:
             break
