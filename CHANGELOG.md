@@ -84,3 +84,4 @@
 
     added notification number of GPS satellites
     modified test GPS duration from 30 -> 60 seconds
+    added a condition to ignore filenames containing 'testfile_' in CST

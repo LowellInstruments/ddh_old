@@ -13,7 +13,7 @@ from dds.timecache import is_it_time_to
 from mat.linux import linux_is_process_running
 from utils.ddh_config import ddh_get_cfg_gear_type, dds_get_cfg_gpq_en
 from utils.ddh_shared import (get_ddh_folder_path_dl_files,
-                              get_ddh_folder_path_gpq_files)
+                              get_ddh_folder_path_gpq_files, TESTMODE_FILENAMEPREFIX)
 from utils.logs import lg_cst as lg
 
 
@@ -85,6 +85,8 @@ def _create_cst_files():
         if not f_csv:
             _bn = os.path.basename(i_lid)
             lg.a(f'warning: CST, no CSV file for {_bn}')
+            if TESTMODE_FILENAMEPREFIX in _bn:
+                g_lid_already_processed.append(i_lid)
             continue
         f_csv = f_csv[0]
 
