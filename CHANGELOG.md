@@ -80,4 +80,7 @@
 
     improved script_ddc
 
-    
+4.0.17
+
+    added notification number of GPS satellites
+    modified test GPS duration from 30 -> 60 seconds
