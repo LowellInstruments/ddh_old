@@ -182,11 +182,12 @@ def _gps_parse_gsv_frame(data: bytes, force_print=False):
         if force_print or is_it_time_to("show_gsv_frame", PERIOD_GPS_TELL_NUM_SATS_SECS):
             _u("{}/{}".format(STATE_DDS_NOTIFY_GPS_NUM_SAT, n))
             if n < 7:
-                lg.a("{} satellites in view".format(n))
+                lg.a(f"{n} satellites in view")
         return n
 
     except (Exception,) as ex:
-        lg.a("error: parse GSV frame {} -> {}".format(data, ex))
+        lg.a(f"error: parse GSV frame {data} -> {ex}")
+        return 0
 
 
 def _gps_measure():
@@ -269,8 +270,8 @@ def _gps_measure():
 
         # todo ---> let's define these conditions
         if (g and ns and
-                is_it_time_to('send_notif_gps_num_satellites', PERIOD_GPS_NOTI_NUM_GPS_SAT)):
-            notify_ddh_number_of_gps_satellites(g, ns)
+            #     is_it_time_to('send_notif_gps_num_satellites', PERIOD_GPS_NOTI_NUM_GPS_SAT)):
+            # notify_ddh_number_of_gps_satellites(g, ns)
 
         if g:
             break
