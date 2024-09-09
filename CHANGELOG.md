@@ -85,3 +85,7 @@
     added notification number of GPS satellites
     modified test GPS duration from 30 -> 60 seconds
     added a condition to ignore filenames containing 'testfile_' in CST
+
+4.0.18
+
+    made number of satellites notification only run on "Maggie Sue"
