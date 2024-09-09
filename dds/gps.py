@@ -290,7 +290,7 @@ def _gps_measure():
 
         # do the number of satellites notification
         if dds_get_cfg_vessel_name() == "Maggie Sue":
-            if is_it_time_to('SQS_gps_num_satellites', PERIOD_GPS_NOTI_NUM_GPS_SAT):
+            if 0 < ns <= 5 and is_it_time_to('SQS_gps_num_satellites', PERIOD_GPS_NOTI_NUM_GPS_SAT):
                 notify_ddh_number_of_gps_satellites(ns)
 
         return g
