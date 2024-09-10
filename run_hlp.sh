@@ -18,14 +18,14 @@ sudo ifmetric ppp0 0
 
 
 # _pb "install ngrok"
-# wget https://bin.equinox.io/c/bNyj1mQVY4c/ngrok-v3-stable-linux-arm64.tgz
+# wget https://bin.equinox.io/c/bNyj1mQVY4c/ngrok-v3-stable-linux-arm64.tgz -P ~/Downloads
 # sudo tar -xvzf ~/Downloads/ngrok-v3-stable-linux-arm64.tgz -C /usr/local/bin
 
 
 
 _pb "open ngrok tunnel to port 22"
 # ngrok runs remotely, we don't need sudo
-ngrok config add-authtoken 1g8HyapGtz0Sx9s9nzifSXr1yy7_uavBAnz9u2dpx76NHDL9
+ngrok config add-authtoken 2lslTteWfMioUxAggtQvgY0yM42_7LJhKttjudg3k28feRmJX
 ngrok tcp 22
 
 
