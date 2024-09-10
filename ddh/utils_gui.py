@@ -22,7 +22,7 @@ from ddh.utils_net import net_get_my_current_wlan_ssid
 from dds.emolt import this_box_has_grouped_s3_uplink
 from dds.timecache import is_it_time_to
 from locales.locales import _x
-from locales.strings import STR_SEARCHING_FOR_LOGGERS, STR_CONNECTING_LOGGER, STR_SYNCING_GPS_TIME
+from locales.strings import *
 from mat.ble.ble_mat_utils import DDH_GUI_UDP_PORT
 from mat.utils import linux_is_rpi
 import subprocess as sp
@@ -610,7 +610,7 @@ def _gui_parse_udp(my_app, s, ip="127.0.0.1"):
         ci = "blue{}.png".format(i)
 
     elif f == STATE_DDS_SOFTWARE_UPDATED:
-        ct = "DDH updated!"
+        ct = _x(STR_DDH_UPDATED)
         ci = "update.png"
 
     elif f == STATE_DDS_BLE_CONNECTING:
@@ -618,13 +618,13 @@ def _gui_parse_udp(my_app, s, ip="127.0.0.1"):
         ci = f'ble_connecting.png'
 
     elif f == STATE_DDS_BLE_DOWNLOAD:
-        ct = f"downloading {v}"
+        ct = f'{_x(STR_DOWNLOADING_LOGGER)} {v}'
         ci = "dl2.png"
         a.bar_dl.setValue(0)
 
     elif f == STATE_DDS_BLE_DOWNLOAD_OK:
         _lock_icon(PERIOD_SHOW_LOGGER_DL_OK_SECS)
-        ct = "done " + v
+        ct = f'{_x(STR_DOWNLOADING_LOGGER_DONE)} {v}'
         ci = "ok.png"
         g_last_ci = ci
         g_last_ct = ct
@@ -632,7 +632,7 @@ def _gui_parse_udp(my_app, s, ip="127.0.0.1"):
     elif f == STATE_DDS_BLE_RUN_STATUS:
         if v == "off":
             _lock_icon(PERIOD_SHOW_LOGGER_DL_OK_SECS)
-            ct = "stopped & auto-wake OFF"
+            ct = _x(STR_STOPPED_AUTOWAKE_OFF)
             ci = "attention.png"
             g_last_ci = ci
             g_last_ct = ct
@@ -647,28 +647,28 @@ def _gui_parse_udp(my_app, s, ip="127.0.0.1"):
     elif f == STATE_DDS_BLE_DOWNLOAD_WARNING:
         # at least same value as orange mac
         _lock_icon(15)
-        ct = "{} retrying".format(v)
+        ct = f'{v} {_x(STR_RETRYING_LOGGER)}'
         ci = "sand_clock.png"
 
     elif f == STATE_DDS_BLE_DOWNLOAD_ERROR:
         _lock_icon(PERIOD_SHOW_LOGGER_DL_ERROR_SECS)
-        ct = "{} failure".format(v)
+        ct = f'{v} {_x(STR_LOGGER_FAILURE)}'
         ci = "error.png"
 
     elif f == STATE_DDS_BLE_DOWNLOAD_ERROR_GDO:
-        ct = "error oxygen sensor"
+        ct = _x(STR_LOGGER_ERROR_OX_SENSOR)
         ci = "error.png"
 
     elif f == STATE_DDS_BLE_DOWNLOAD_ERROR_TP_SENSOR:
-        ct = "error oxygen TP"
+        ct = _x(STR_LOGGER_ERROR_TP_SENSOR)
         ci = "error.png"
 
     elif f == STATE_DDS_BLE_ERROR_RUN:
-        ct = "error running logger"
+        ct = _x(STR_LOGGER_ERROR_RUN)
         ci = "error.png"
 
     elif f == STATE_DDS_BLE_HARDWARE_ERROR:
-        ct = "radio error"
+        ct = _x(STR_LOGGER_ERROR_RADIO)
         ci = "blue_err.png"
 
     elif f == STATE_DDS_PRESSED_BUTTON_1:
@@ -678,22 +678,22 @@ def _gui_parse_udp(my_app, s, ip="127.0.0.1"):
         a.keyPressEvent(ButtonPressEvent(Qt.Key_2))
 
     elif f == STATE_DDS_BLE_DISABLED:
-        ct = "radio is disabled"
+        ct = _x(STR_RADIO_IS_DISABLED)
         ci = "blue_dis.png"
 
     elif f == STATE_DDS_BLE_APP_GPS_ERROR_POSITION:
-        ct = "need GPS"
+        ct = _x(STR_NEED_GPS)
         ci = "gps_err.png"
         a.lbl_gps.setText("-")
         a.lbl_gps_sat.setText("-")
 
     elif f == STATE_DDS_BLE_APP_GPS_ERROR_SPEED:
-        ct = "app resting"
-        ci = "blue{}.png".format(i)
+        ct = _x(STR_APP_RESTING)
+        ci = f"blue{i}.png"
 
     elif f == STATE_DDS_NOTIFY_GPS_BOOT:
         v = int(v)
-        ct = f"waiting GPS {v} seconds"
+        ct = f'{_x(STR_WAITING_GPS_SECONDS)} {v}'
         ci = f"gps_boot{i}.png"
 
     elif f == STATE_DDS_BLE_DOWNLOAD_PROGRESS:
@@ -702,13 +702,13 @@ def _gui_parse_udp(my_app, s, ip="127.0.0.1"):
             a.bar_dl.setVisible(False)
         else:
             if not a.lbl_ble_img_filled:
-                ct = "downloading..."
+                ct = f"{_x(STR_DOWNLOADING_LOGGER)}..."
                 ci = "dl2.png"
             a.bar_dl.setVisible(True)
             a.bar_dl.setValue(v)
 
     elif f == STATE_DDS_BLE_SERVICE_INACTIVE:
-        ct = "no BLE service"
+        ct = _x(STR_NO_BLE_SERVICE)
         ci = "blue_err.png"
         a.lbl_antenna.setText("")
 
@@ -720,7 +720,7 @@ def _gui_parse_udp(my_app, s, ip="127.0.0.1"):
         ci = "moana_plugin.png"
 
     elif f == STATE_DDS_BAD_CONF:
-        ct = "error config, see log"
+        ct = _x(STR_DDS_BAD_CONF)
         ci = "bad_conf.png"
 
     # -------------------
@@ -771,7 +771,7 @@ def _gui_parse_udp(my_app, s, ip="127.0.0.1"):
 
     elif f == STATE_DDS_GPS_IN_PORT:
         _lock_icon(15)
-        ct = "we are in port"
+        ct = _x(STR_WE_ARE_IN_PORT)
         ci = "gps_in_port.png"
 
     elif f == STATE_DDS_NOTIFY_GPS:
@@ -779,7 +779,7 @@ def _gui_parse_udp(my_app, s, ip="127.0.0.1"):
 
     elif f == STATE_DDS_GPS_POWER_CYCLE:
         # time controlled via function calling this state
-        ct = "wait, power-cycling GPS"
+        ct = _x(STR_WAIT_POWER_CYCLE_GPS)
         ci = "gps_power_cycle.png"
 
     elif f == STATE_DDS_NOTIFY_GPS_CLOCK:
@@ -800,11 +800,11 @@ def _gui_parse_udp(my_app, s, ip="127.0.0.1"):
         gui_ddh_populate_graph_dropdown_sn(a)
 
     elif f == STATE_DDS_BLE_LOW_BATTERY:
-        ct = "low battery!"
+        ct = _x(STR_LOGGER_LOW_BATTERY)
         ci = "low_battery.png"
 
     elif f == STATE_DDS_BLE_NO_ASSIGNED_LOGGERS:
-        ct = "no loggers assigned"
+        ct = _x(STR_NO_LOGGERS_ASSIGNED)
         ci = "attention_old.png"
 
     else:

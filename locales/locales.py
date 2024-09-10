@@ -11,14 +11,17 @@ g_lang = get_ddh_language_file_content()
 
 lang_msg_db = {
     STR_SEARCHING_FOR_LOGGERS: {
+        'pt': '--',
         'fr': 'cherchant sondes',
         'ca': 'buscant loggers'
     },
     STR_CONNECTING_LOGGER: {
+        'pt': '--',
         'fr': 'en cours de connexion',
         'ca': 'connectant'
     },
     STR_SYNCING_GPS_TIME: {
+        'pt': '--',
         'fr': 'synchronisation GPS',
         'ca': 'esperant GPS'
     }

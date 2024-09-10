@@ -1,4 +1,23 @@
 STR_SEARCHING_FOR_LOGGERS = 'searching for loggers'
 STR_CONNECTING_LOGGER = 'connecting'
 STR_SYNCING_GPS_TIME = 'syncing GPS time'
-
+STR_DDH_UPDATED = "DDH updated!"
+STR_DOWNLOADING_LOGGER = 'downloading'
+STR_DOWNLOADING_LOGGER_DONE = 'done'
+STR_STOPPED_AUTOWAKE_OFF = "stopped & auto-wake OFF"
+STR_RETRYING_LOGGER = 'retrying'
+STR_LOGGER_FAILURE = 'failure'
+STR_LOGGER_ERROR_OX_SENSOR = "error oxygen sensor"
+STR_LOGGER_ERROR_TP_SENSOR = "error TP"
+STR_LOGGER_ERROR_RUN = "error running logger"
+STR_LOGGER_ERROR_RADIO = 'radio error'
+STR_RADIO_IS_DISABLED = 'radio is disabled'
+STR_NEED_GPS = 'need GPS'
+STR_APP_RESTING = 'app resting'
+STR_WAITING_GPS_SECONDS = 'waiting GPS:'
+STR_NO_BLE_SERVICE = 'no BLE service'
+STR_DDS_BAD_CONF = 'error config, see log'
+STR_WE_ARE_IN_PORT = 'we are in port'
+STR_WAIT_POWER_CYCLE_GPS = 'wait, power-cycling GPS'
+STR_LOGGER_LOW_BATTERY = "low battery!"
+STR_NO_LOGGERS_ASSIGNED = 'no loggers assigned'
