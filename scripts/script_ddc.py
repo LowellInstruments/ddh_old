@@ -283,6 +283,7 @@ def ddh_run_check():
     # grep exact (-w) for 'active' detection
     # dwservice
     # -----------------------------------------------------
+    _ts = time.perf_counter()
     ok_issue_20240315 = sh('cat /boot/issue.txt | grep 2024-03-15') == 0
     ok_issue_20230503 = sh('cat /boot/issue.txt | grep 2023-05-03') == 0
     ok_issue_20220922 = sh('cat /boot/issue.txt | grep 2022-09-22') == 0
@@ -297,7 +298,7 @@ def ddh_run_check():
     _c = 'systemctl is-active unit_switch_net.service | grep -w active'
     ok_service_cell_sw = sh(_c) == 0
     ok_fw_cell = _check_fw_cell()
-    ok_internet_via_cell = sh('ping -I ppp0 www.google.com -c 1') == 0
+    ok_internet_via_cell = sh('timeout 1 ping -I ppp0 www.google.com -c 1') == 0
     ok_dwservice = sh('ps -aux | grep dwagent') == 0
     ok_aws_cred = _check_aws_credentials()
     ok_crontab_ddh = get_crontab('ddh') == 1
@@ -306,6 +307,8 @@ def ddh_run_check():
     ok_shield_j4h = cb_get_flag_j4h() == 1
     ok_shield_sailor = cb_get_flag_sailor() == 1
     ok_keys = _check_files() == 0
+    _ts = time.perf_counter()
+
 
     # check conflicts
     rv = 0
