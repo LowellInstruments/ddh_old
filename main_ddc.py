@@ -13,6 +13,7 @@ from scripts.script_ddc import (
 from scripts.script_nadv import main_nadv
 from utils.ddh_config import _get_config_file_path, cfg_load_from_file
 from utils.ddh_shared import get_ddh_folder_path_settings
+from utils.find_usb_port_auto import find_n_list_all_usb_port_automatically
 from utils.flag_paths import (
     TMP_PATH_GPS_DUMMY,
     LI_PATH_DDH_GPS_EXTERNAL,
@@ -78,6 +79,14 @@ def cb_test_gps_quectel():
             p_e('no GPS puck')
     except (Exception,) as ex:
         p_e(str(ex))
+
+
+def cb_list_usb_ports():
+    ls = find_n_list_all_usb_port_automatically(VP_QUECTEL)
+    print('list of Quectel USB ports')
+    for i in ls:
+        print(f'\t{i}')
+    input()
 
 
 def cb_test_buttons():
@@ -249,6 +258,7 @@ def main_ddc():
             'e': (f"e) edit BLE range tool", cb_edit_brt_cfg_file),
             'o': (f"o) deploy logger DOX", cb_run_deploy_dox),
             't': (f"t) deploy logger TDO", cb_run_deploy_tdo),
+            'u': (f"u) list USB ports", cb_list_usb_ports),
             # 'x': (f"x) DDH passive BLE   [{fxb}]", cb_enable_exp_ble),
             # 'c': (f"c) calibrate DDH display", cb_calibrate_display),
             'i': (f"i) ~ see issues ~", cb_ddh_show_issues),
