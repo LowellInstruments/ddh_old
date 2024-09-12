@@ -93,3 +93,8 @@
 4.0.19
 
     added auto detection of USB ports for Quectel shield
+
+4.0.20
+
+    fixed an issue with new DDH GUI watchdog
+

@@ -10,12 +10,14 @@ def gui_dog_clear():
 
 
 def gui_dog_touch():
+    # written by main_ddh
     with open(DOG_GUI, 'w') as f:
         now = int(time.perf_counter())
         f.write(str(now))
 
 
 def gui_dog_get():
+    # read by main_ddh_controller
     try:
         with open(DOG_GUI) as f:
             return int(f.readline())
