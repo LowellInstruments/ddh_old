@@ -3,6 +3,8 @@ import pathlib
 import sys
 import time
 from os.path import exists
+import serial
+from mat.quectel import detect_quectel_usb_ports
 from scripts.script_ddc import (
     cb_gps_dummy, cb_quit, cb_gps_external, cb_crontab_ddh,
     get_crontab,
@@ -72,11 +74,20 @@ def cb_test_gps_quectel():
         if not is_rpi():
             p_e('no Rpi for GPS quectel test')
             return
-        from scripts.script_test_gps_quectel import main_test_gps_quectel
         if sh(f'lsusb | grep {VP_QUECTEL}') == 0:
-            main_test_gps_quectel()
+            port_usb_gps, _ = detect_quectel_usb_ports()
+            timeout_gps_test = 60
+            till = time.perf_counter() + timeout_gps_test
+            ser = serial.Serial(port_usb_gps, 115200,
+                                timeout=.1, rtscts=True, dsrdtr=True)
+            print(f'GPS test will last {timeout_gps_test} seconds')
+            while time.perf_counter() < till:
+                line = ser.readline()
+                if line:
+                    print(line)
+            ser.close()
         else:
-            p_e('no GPS puck')
+            p_e('no testing GPS puck')
     except (Exception,) as ex:
         p_e(str(ex))
 
