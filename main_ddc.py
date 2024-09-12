@@ -81,9 +81,9 @@ def cb_test_gps_quectel():
         p_e(str(ex))
 
 
-def cb_list_usb_ports():
+def cb_list_quectel_usb_ports():
     ls = find_n_list_all_usb_port_automatically(VP_QUECTEL)
-    print('list of Quectel USB ports')
+    print('\tlist of Quectel USB ports')
     for i in ls:
         print(f'\t{i}')
     input()
@@ -258,7 +258,7 @@ def main_ddc():
             'e': (f"e) edit BLE range tool", cb_edit_brt_cfg_file),
             'o': (f"o) deploy logger DOX", cb_run_deploy_dox),
             't': (f"t) deploy logger TDO", cb_run_deploy_tdo),
-            'u': (f"u) list USB ports", cb_list_usb_ports),
+            'u': (f"u) list Quectel USB ports", cb_list_quectel_usb_ports),
             # 'x': (f"x) DDH passive BLE   [{fxb}]", cb_enable_exp_ble),
             # 'c': (f"c) calibrate DDH display", cb_calibrate_display),
             'i': (f"i) ~ see issues ~", cb_ddh_show_issues),

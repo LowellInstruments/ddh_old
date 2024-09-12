@@ -8,12 +8,14 @@ import serial
 from dds.gpq import GpqW
 from dds.notifications import notify_ddh_error_hw_gps, notify_ddh_number_of_gps_satellites
 from dds.timecache import is_it_time_to
-from mat.gps import PORT_CTRL, PORT_DATA
+from mat.quectel import detect_quectel_usb_ports
 from mat.utils import linux_is_rpi, linux_set_datetime
 from tzlocal import get_localzone
 
-from utils.flag_paths import TMP_PATH_GPS_LAST_JSON, TMP_PATH_DDH_BOAT_SPEED_JSON, LI_PATH_DDH_GPS_CELL_SHIELD_USB4, \
+from utils.flag_paths import (
+    TMP_PATH_GPS_LAST_JSON, TMP_PATH_DDH_BOAT_SPEED_JSON,
     LI_PATH_CELL_FW
+)
 from utils.ddh_config import (dds_get_cfg_vessel_name,
                               dds_get_cfg_flag_gps_external,
                               dds_get_cfg_flag_gps_error_forced,
@@ -51,10 +53,14 @@ PERIOD_GPS_POWER_CYCLE = 300
 PERIOD_GPS_NOTI_NUM_GPS_SAT = 1800
 
 
-# some emolt boxes have too many USB ports
-port_gps_quectel = PORT_CTRL
-if os.path.exists(LI_PATH_DDH_GPS_CELL_SHIELD_USB4):
-    port_gps_quectel = '/dev/ttyUSB4'
+# hardcoded or you can also set them from another file
+g_quectel_port_usb_gps = '/dev/ttyUSB1'
+g_quectel_port_usb_ctl = '/dev/ttyUSB2'
+auto_port_usb_gps, auto_port_usb_ctl = detect_quectel_usb_ports()
+if auto_port_usb_gps:
+    g_quectel_port_usb_gps = auto_port_usb_gps
+if auto_port_usb_ctl:
+    g_quectel_port_usb_ctl = auto_port_usb_ctl
 
 
 def _gps_bu353s4_find_usb_port():
@@ -77,7 +83,7 @@ def _gps_ll_check_hat_out_stream():
     def _check():
         # give time to accumulate GPS data
         time.sleep(1)
-        c = f"cat {PORT_DATA}"
+        c = f"cat {g_quectel_port_usb_gps}"
         rv = sp.run(c, shell=True, stdout=sp.PIPE, stderr=sp.PIPE)
         return b"$GPRMC" in rv.stdout
 
@@ -217,7 +223,7 @@ def _gps_measure():
     if _g_bu353s4_port:
         sp = serial.Serial(_g_bu353s4_port, 4800, timeout=0.2)
     else:
-        sp = serial.Serial(PORT_DATA, baudrate=115200, timeout=0.2,
+        sp = serial.Serial(g_quectel_port_usb_gps, baudrate=115200, timeout=0.2,
                            rtscts=True, dsrdtr=True)
     sp.flushInput()
 
@@ -486,7 +492,8 @@ def gps_power_cycle_if_so(forced=False):
     try:
         # open serial port
         sp = serial.Serial(
-            port_gps_quectel, baudrate=115200, timeout=1, rtscts=True, dsrdtr=True
+            g_quectel_port_usb_ctl, baudrate=115200,
+            timeout=1, rtscts=True, dsrdtr=True
         )
         sp.flushInput()
         sp.readall()
@@ -547,7 +554,8 @@ def gps_configure_shield():
 
     try:
         _sp = serial.Serial(
-            port_gps_quectel, baudrate=115200, timeout=1, rtscts=True, dsrdtr=True
+            g_quectel_port_usb_ctl, baudrate=115200,
+            timeout=1, rtscts=True, dsrdtr=True
         )
         _sp.flushInput()
         _sp.readall()
@@ -591,7 +599,8 @@ def gps_know_hat_firmware_version():
     sp = None
     try:
         sp = serial.Serial(
-            port_gps_quectel, baudrate=115200, timeout=1, rtscts=True, dsrdtr=True
+            g_quectel_port_usb_ctl, baudrate=115200,
+            timeout=1, rtscts=True, dsrdtr=True
         )
         sp.flushInput()
         sp.readall()
