@@ -77,9 +77,8 @@ def controller_main_ddh():
             os.unlink(f)
             lg.a(f"=== debug: user closed {s} ===")
             kill = 1
-        if time.perf_counter() > v + 30:
+        if v > 30 and time.perf_counter() > v + 30:
             # detects hangs of child GUI
-            lg.a(f"=== {s} debug: child seems crashed ===")
             lg.a(f"=== {s} debug: {time.perf_counter()}, {v} child seems crashed ===")
             kill = 1
         if kill:
