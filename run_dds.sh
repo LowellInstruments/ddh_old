@@ -51,7 +51,8 @@ sudo chown -R pi:pi "$FOL_DDH"
 source "$FOL_VEN"/bin/activate
 
 
-_pb "DDS running main_qus.py"
+
+_pb "DDS auto-detecting Quectel shield USB ports"
 cd "$FOL_DDH" && "$FOL_VEN"/bin/python main_qus.py
 
 
