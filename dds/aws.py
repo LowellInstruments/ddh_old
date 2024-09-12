@@ -12,6 +12,7 @@ import setproctitle
 from dds.emolt import this_box_has_grouped_s3_uplink
 from dds.net import ddh_get_internet_via
 from dds.notifications import notify_error_sw_aws_s3
+from dds.state import ddh_state
 from dds.timecache import is_it_time_to
 from mat.linux import linux_is_process_running
 from mat.utils import linux_is_rpi
@@ -215,6 +216,10 @@ def aws_serve():
     # check someone asked for AWS sync from GUI
     flag_gui = dds_get_aws_has_something_to_do_via_gui_flag_file()
     exists_flag_gui = os.path.exists(flag_gui)
+
+    if ddh_state.get_downloading_ble():
+        lg.a('warning: not doing AWS sync while downloading BLE')
+        return
 
     # nothing to do
     if not is_it_time_to("aws_s3_sync", PERIOD_AWS_S3_SECS) \

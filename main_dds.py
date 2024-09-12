@@ -39,6 +39,7 @@ from dds.ble_utils_dds import (
     ble_tell_gui_antenna_type,
     ble_check_antenna_up_n_running, dds_tell_software_was_just_updated, dds_check_bluez_version, dds_create_buttons_thread,
 )
+from dds.state import ddh_state
 from dds.timecache import is_it_time_to
 from mat.linux import linux_app_write_pid_to_tmp, linux_is_process_running
 from mat.ble.ble_mat_utils import (
@@ -185,6 +186,9 @@ def main_dds():
         if not ble_op_conditions_met(g):
             continue
 
+        # poor semaphore
+        ddh_state.set_downloading_ble(1)
+
         # BLE scan stage
         args = [m_j, g, h, h_d]
         det = ael.run_until_complete(ble_scan(*args))
@@ -192,6 +196,9 @@ def main_dds():
         # BLE download stage
         args = [det, m_j, g, h, h_d]
         rvi = ael.run_until_complete(ble_interact_all_loggers(*args))
+
+        # poor semaphore
+        ddh_state.set_downloading_ble(0)
 
         # tell AWS has stuff to do
         try:
