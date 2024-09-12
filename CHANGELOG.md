@@ -89,3 +89,7 @@
 4.0.18
 
     made number of satellites notification only run on "Maggie Sue"
+
+4.0.19
+
+    added auto detection of USB ports for Quectel shield
