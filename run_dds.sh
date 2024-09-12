@@ -17,6 +17,14 @@ check_already_running "main_dds_controller"
 
 
 
+# todo ----->
+# 0) run main_qus.py from here, do it just before run_dds.sh
+# 1) here: write ICCID file by reading port in /tmp/usb_quectel_ctrl written by main_qus
+# 2) find LI_PATH_DDH_GPS_CELL_SHIELD_USB4 and remove it from everywhere
+# 3) gps.py: modify to autodetect /tmp/usb_quectel_ctrl and gps
+
+
+
 # detect cell shield SIM ID
 rm "$LI_FILE_ICCID" > /dev/null 2>&1
 rm "$LI_PATH_DDH_GPS_CELL_SHIELD_USB4" > /dev/null 2>&1
