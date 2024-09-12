@@ -80,7 +80,9 @@ def cb_test_gps_quectel():
             till = time.perf_counter() + timeout_gps_test
             ser = serial.Serial(port_usb_gps, 115200,
                                 timeout=.1, rtscts=True, dsrdtr=True)
-            print(f'GPS test will last {timeout_gps_test} seconds')
+
+            print(f'\n-- GPS Quectel test will last {timeout_gps_test} seconds --')
+            time.sleep(1)
             while time.perf_counter() < till:
                 line = ser.readline()
                 if line:
