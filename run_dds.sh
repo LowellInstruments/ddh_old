@@ -54,13 +54,13 @@ source "$FOL_VEN"/bin/activate
 
 _pb "DDS auto-detecting Quectel shield USB ports"
 cd "$FOL_DDH" && "$FOL_VEN"/bin/python main_qus.py
+QUECTEL_USB_CTL=$(cat /tmp/usb_quectel_ctl)
 
 
 
 # detect cell shield SIM ID and write it to file
 _pb "DDS query Quectel cell shield for SIM ID on $QUECTEL_USB_CTL"
 rm "$LI_FILE_ICCID" > /dev/null 2>&1
-QUECTEL_USB_CTL=$(cat /tmp/usb_quectel_ctl)
 echo -ne "AT+QCCID\r" > $QUECTEL_USB_CTL && \
 sleep 0.1 && timeout 1 cat -v < $QUECTEL_USB_CTL | grep QCCID > "$LI_FILE_ICCID"
 
