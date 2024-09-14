@@ -267,6 +267,8 @@ async def _ble_id_n_interact_logger(mac, info: str, h, g):
     # TDO logger interaction
     # -----------------------
     elif _ble_logger_is_tdo(info):
+        # if exp_get_use_lsb_for_tdo_loggers():
+        #   rv, notes = ble_interact_tdo_lsb(mac, info, g, hs, uuid_interaction)
         rv, notes = await ble_interact_tdo(mac,
                                            info,
                                            g,
