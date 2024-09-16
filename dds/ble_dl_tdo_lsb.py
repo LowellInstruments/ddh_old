@@ -45,7 +45,7 @@ def _rae(s):
     raise BLEAppException("TDO interact LSB: " + s)
 
 
-def _dl_logger_tdo_lsb(mac, g, notes: dict, u, h):
+def _dl_logger_tdo_lsb(mac, g, notes: dict, u, hs):
 
     dds_ble_init_rv_notes(notes)
     create_folder_logger_by_mac(mac)
@@ -53,8 +53,8 @@ def _dl_logger_tdo_lsb(mac, g, notes: dict, u, h):
 
     # get internal / external adapters
     ads = get_adapters()
-    ad = ads[h]
-    lg.a(f'debug: using LSB with antenna #{h}')
+    ad = ads[hs[-1]]
+    lg.a(f'debug: using LSB with antenna #{hs}')
 
     # scan
     ad.set_callback_on_scan_found(cb_scan)
