@@ -10,7 +10,6 @@ def exp_load_from_file():
             c = toml.load(f)
             return c['experimental']
     except (Exception, ) as ex:
-        print('error: exp_load_from_file: ', ex)
         os._exit(1)
 
 
