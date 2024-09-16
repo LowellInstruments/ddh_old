@@ -4,6 +4,8 @@ import sys
 import time
 from os import unlink
 from os.path import exists
+
+from mat.quectel import VP_QUECTEL
 from scripts.script_provision_get import get_provision_ddh, ping_provision_server
 from utils.ddh_config import cfg_load_from_file, cfg_save_to_file
 from utils.ddh_shared import get_ddh_folder_path_settings
@@ -21,7 +23,6 @@ from mat.utils import PrintColors as PC
 
 
 
-VP_QUECTEL = '2c7c:0125'
 VP_GPS_PUCK_1 = '067B:2303'
 VP_GPS_PUCK_2 = '067B:23A3'
 MD5_MOD_BTUART = '95da1d6d0bea327aa5426b7f90303778'
