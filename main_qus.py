@@ -3,7 +3,7 @@ from mat.quectel import detect_quectel_usb_ports
 
 def main_qus():
     rv = detect_quectel_usb_ports()
-    print(f'QUS -> {rv}')
+    print(f'QUS: GPS, CTL -> {rv}')
 
 
 if __name__ == '__main__':
