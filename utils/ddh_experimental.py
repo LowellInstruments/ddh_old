@@ -1,6 +1,6 @@
 import toml
 import os
-from utils.ddh_config import _get_config_file_path
+from ddh_config import _get_config_file_path
 
 
 def exp_load_from_file():
@@ -10,6 +10,7 @@ def exp_load_from_file():
             c = toml.load(f)
             return c['experimental']
     except (Exception, ) as ex:
+        print(f'error: exp_load_from_file {ex}')
         os._exit(1)
 
 
