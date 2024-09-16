@@ -9,7 +9,7 @@ import dateutil.parser as dp
 import pandas as pd
 from utils.ddh_config import dds_get_cfg_flag_graph_test_mode, ddh_get_file_flag_plot_wc
 from utils.ddh_shared import (get_ddh_folder_path_dl_files,
-                              get_dl_folder_path_from_mac)
+                              get_dl_folder_path_from_mac, TESTMODE_FILENAMEPREFIX)
 from utils.logs import lg_gra as lg
 from utils.flag_paths import TMP_PATH_GRAPH_REQ_JSON
 
@@ -223,6 +223,12 @@ def process_graph_csv_data(fol, h, hi) -> dict:
     _g_ff_p = sorted(glob(f"{fol}/*_Pressure.csv"))
     _g_ff_dot = sorted(glob(f"{fol}/*_DissolvedOxygen.csv"))
     _g_ff_tdo = sorted(glob(f"{fol}/*_TDO.csv"))
+
+    # we don't plot files starting with testfile_
+    _g_ff_t = [i for i in _g_ff_t if TESTMODE_FILENAMEPREFIX not in i]
+    _g_ff_p = [i for i in _g_ff_p if TESTMODE_FILENAMEPREFIX not in i]
+    _g_ff_dot = [i for i in _g_ff_dot if TESTMODE_FILENAMEPREFIX not in i]
+    _g_ff_tdo = [i for i in _g_ff_tdo if TESTMODE_FILENAMEPREFIX not in i]
 
     # the ones NO_WC means either YES_WC or still not processed
     _g_ff_tdo_wc = [i for i in _g_ff_tdo if not
