@@ -1,3 +1,5 @@
+import time
+
 from dds.ble_utils_dds import (
     dds_ble_init_rv_notes,
     ble_logger_ccx26x2r_needs_a_reset
@@ -146,13 +148,23 @@ def _dl_logger_tdo_lsb(mac, g, notes: dict, u, hs):
             _rae("del")
             continue
 
-        # download file
+        # targeting file to download
         lg.a(f"downloading file {name}")
         cmd_dwg(p, name)
         _rae("dwg")
         up = DDH_GUI_UDP_PORT
-        file_data = cmd_dwl(p, int(size), ip="127.0.0.1", port=up)
-        _rae("dwl")
+        dl_t = time.perf_counter()
+
+        # download normal
+        # file_data = cmd_dwl(p, int(size), ip="127.0.0.1", port=up)
+        # _rae("dwl")
+
+        # download fast
+        file_data = cmd_dwf(p, int(size), ip="127.0.0.1", port=up)
+        _rae("dwf")
+        dl_t = time.perf_counter() - dl_t
+        speed = (size / dl_t) / 1000
+        lg.a('download speed {:.2f} kB/s'.format(speed))
 
         # save file in our local disk
         del_name = name
@@ -169,18 +181,24 @@ def _dl_logger_tdo_lsb(mac, g, notes: dict, u, hs):
             f.write(file_data)
         r_crc = cmd_crc(p, name)
         _rae("crc")
+        # r_crc: b'CRC 08ea96f561'
+        r_crc = r_crc.decode()[-8:]
         rv, l_crc = ble_mat_crc_local_vs_remote(path, r_crc)
         if (not rv) and os.path.exists(path):
             lg.a(f"error: bad CRC so removing local file {path}")
             os.unlink(path)
+        if l_crc != r_crc:
+            e = f'error: remote crc {r_crc} != local {l_crc}'
+            lg.a(e)
+            _rae(e)
 
         # add to the output list
         notes['dl_files'].append(path)
 
         # delete file in logger
-        #cmd_del(p, del_name)
-        #_rae("del")
-        #lg.a(f"deleted file {del_name}")
+        cmd_del(p, del_name)
+        _rae("del")
+        lg.a(f"deleted file {del_name}")
 
         # create LEF file with download info
         lg.a(f"creating file LEF for {name}")
@@ -193,9 +211,9 @@ def _dl_logger_tdo_lsb(mac, g, notes: dict, u, hs):
 
     # format file-system
     time.sleep(.1)
-    # cmd_frm(p)
-    # _rae("frm")
-    # lg.a("FRM | OK")
+    cmd_frm(p)
+    _rae("frm")
+    lg.a("FRM | OK")
 
     # check sensors measurement, Temperature
     rv = cmd_gst(p)
@@ -225,9 +243,9 @@ def _dl_logger_tdo_lsb(mac, g, notes: dict, u, hs):
     w = "on" if rerun_flag else "off"
     cmd_wak(p, w)
     _rae("wak")
-    # lg.a(f"WAK | {w} OK")
-    time.sleep(1)
+    lg.a(f"WAK | {w} OK")
 
+    # re-run logger, maybe
     notes['rerun'] = rerun_flag
     if rerun_flag:
         rv = cmd_rws(p, g)
