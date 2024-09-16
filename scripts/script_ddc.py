@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 import os
+
+import serial
 import sys
 import time
 from os import unlink
@@ -236,13 +238,27 @@ def ddh_run_check():
             _e('detecting cell shield should have 4 entries')
             return 0
 
-        # we want always the highest USB index - 1, so second in list
-        d = ls[1]
-        c = f"echo -ne 'AT+CVERSION\r' > {d}"
-        sh(c)
-        c = f"timeout 1 cat -v < {d} | grep 2022"
-        time.sleep(2)
-        return sh(c) == 0
+        version = ''
+        for p in ls:
+            till = time.perf_counter() + 1
+            b = bytes()
+            ser = None
+            try:
+                ser = serial.Serial(p, 115200, timeout=.1, rtscts=True, dsrdtr=True)
+                ser.write(b'AT+CVERSION \rAT+CVERSION \r')
+                while time.perf_counter() < till:
+                    b += ser.read()
+                ser.close()
+                if b'VERSION' in b:
+                    version = b.decode()
+                    break
+            except (Exception,) as ex:
+                if ser and ser.isOpen():
+                    ser.close()
+                # print(f'error {p} -> {ex}')
+
+        # check
+        return '2022' in version
 
     def _check_aws_credentials():
         c = cfg_load_from_file()

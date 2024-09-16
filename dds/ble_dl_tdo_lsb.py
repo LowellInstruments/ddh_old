@@ -32,7 +32,7 @@ BAT_FACTOR_TDO = 0.5454
 
 # une: update notes error
 def _une(notes, e, ce=0):
-    if rx:
+    if get_rx():
         return
     notes["error"] = "error " + str(e)
     notes["crit_error"] = int(ce)
@@ -40,7 +40,7 @@ def _une(notes, e, ce=0):
 
 # rae: raise app exception
 def _rae(s):
-    if rx:
+    if get_rx():
         return
     raise BLEAppException("TDO interact LSB: " + s)
 
@@ -53,7 +53,8 @@ def _dl_logger_tdo_lsb(mac, g, notes: dict, u, hs):
 
     # get internal / external adapters
     ads = get_adapters()
-    ad = ads[hs[-1]]
+    ad_i = int(hs[-1])
+    ad = ads[ad_i]
     lg.a(f'debug: using LSB with antenna #{hs}')
 
     # scan
@@ -121,7 +122,7 @@ def _dl_logger_tdo_lsb(mac, g, notes: dict, u, hs):
     # disable log for lower power consumption
     v = cmd_log(p)
     _rae("log")
-    v = v[-1].decode()
+    v = v.decode()[-1]
     if linux_is_rpi():
         if v != '0':
             cmd_log(p)
@@ -153,6 +154,15 @@ def _dl_logger_tdo_lsb(mac, g, notes: dict, u, hs):
         file_data = cmd_dwl(p, int(size), ip="127.0.0.1", port=up)
         _rae("dwl")
 
+        # save file in our local disk
+        del_name = name
+        if dds_get_cfg_flag_download_test_mode():
+            name = TESTMODE_FILENAMEPREFIX + name
+        path = str(get_dl_folder_path_from_mac(mac) / name)
+        with open(path, "wb") as f:
+            f.write(file_data)
+        lg.a(f"downloaded file {name}")
+
         # calculate crc
         path = "/tmp/ddh_crc_file"
         with open(path, "wb") as f:
@@ -164,22 +174,13 @@ def _dl_logger_tdo_lsb(mac, g, notes: dict, u, hs):
             lg.a(f"error: bad CRC so removing local file {path}")
             os.unlink(path)
 
-        # save file in our local disk
-        del_name = name
-        if dds_get_cfg_flag_download_test_mode():
-            name = TESTMODE_FILENAMEPREFIX + name
-        path = str(get_dl_folder_path_from_mac(mac) / name)
-        with open(path, "wb") as f:
-            f.write(file_data)
-        lg.a(f"downloaded file {name}")
-
         # add to the output list
         notes['dl_files'].append(path)
 
         # delete file in logger
-        cmd_del(p, del_name)
-        _rae("del")
-        lg.a(f"deleted file {del_name}")
+        #cmd_del(p, del_name)
+        #_rae("del")
+        #lg.a(f"deleted file {del_name}")
 
         # create LEF file with download info
         lg.a(f"creating file LEF for {name}")
@@ -190,53 +191,53 @@ def _dl_logger_tdo_lsb(mac, g, notes: dict, u, hs):
         if _gear_type == 0:
             dds_create_file_fixed_gpq(g, name)
 
-        # format file-system
-        time.sleep(.1)
-        # cmd_frm(p)
-        # _rae("frm")
-        # lg.a("FRM | OK")
+    # format file-system
+    time.sleep(.1)
+    # cmd_frm(p)
+    # _rae("frm")
+    # lg.a("FRM | OK")
 
-        # check sensors measurement, Temperature
-        rv = cmd_gst(p)
+    # check sensors measurement, Temperature
+    rv = cmd_gst(p)
+    if not rv:
+        _une(notes, "T_sensor_error", ce=1)
+        lg.a(f'GST | error {rv}')
+        _u(STATE_DDS_BLE_DOWNLOAD_ERROR_TP_SENSOR)
+        time.sleep(5)
+    _rae("gst")
+
+    # check sensors measurement, Pressure
+    rv = cmd_gsp(p)
+    if not rv:
+        _une(notes, "P_sensor_error", ce=1)
+        lg.a(f'GSP | error {rv}')
+        ln = LoggerNotification(mac, sn, 'TDO', b)
+        ln.uuid_interaction = u
+        notify_logger_error_sensor_pressure(g, ln)
+        _u(STATE_DDS_BLE_DOWNLOAD_ERROR_TP_SENSOR)
+        time.sleep(5)
+    _rae("gsp")
+
+    # get the rerun flag
+    rerun_flag = not get_ddh_do_not_rerun_flag_li()
+
+    # wake mode
+    w = "on" if rerun_flag else "off"
+    cmd_wak(p, w)
+    _rae("wak")
+    # lg.a(f"WAK | {w} OK")
+    time.sleep(1)
+
+    notes['rerun'] = rerun_flag
+    if rerun_flag:
+        rv = cmd_rws(p, g)
         if not rv:
-            _une(notes, "T_sensor_error", ce=1)
-            lg.a(f'GST | error {rv}')
-            _u(STATE_DDS_BLE_DOWNLOAD_ERROR_TP_SENSOR)
+            _u(STATE_DDS_BLE_ERROR_RUN)
             time.sleep(5)
-        _rae("gst")
-
-        # check sensors measurement, Pressure
-        rv = cmd_gsp(p)
-        if not rv:
-            _une(notes, "P_sensor_error", ce=1)
-            lg.a(f'GSP | error {rv}')
-            ln = LoggerNotification(mac, sn, 'TDO', b)
-            ln.uuid_interaction = u
-            notify_logger_error_sensor_pressure(g, ln)
-            _u(STATE_DDS_BLE_DOWNLOAD_ERROR_TP_SENSOR)
-            time.sleep(5)
-        _rae("gsp")
-
-        # get the rerun flag
-        rerun_flag = not get_ddh_do_not_rerun_flag_li()
-
-        # wake mode
-        w = "on" if rerun_flag else "off"
-        cmd_wak(p, w)
-        _rae("wak")
-        # lg.a(f"WAK | {w} OK")
-        time.sleep(1)
-
-        notes['rerun'] = rerun_flag
-        if rerun_flag:
-            rv = cmd_rws(p, g)
-            if not rv:
-                _u(STATE_DDS_BLE_ERROR_RUN)
-                time.sleep(5)
-                _rae("rws")
-            lg.a("RWS | OK")
-        else:
-            lg.a("warning: telling this logger is not set for auto-re-run")
+            _rae("rws")
+        lg.a("RWS | OK")
+    else:
+        lg.a("warning: this logger is not set for auto-re-run")
 
     # -----------------------
     # bye, bye to this logger
