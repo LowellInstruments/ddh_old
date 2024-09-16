@@ -17,10 +17,21 @@ sudo ifmetric wlan0 400
 sudo ifmetric ppp0 0
 
 
-# _pb "install ngrok"
-# wget https://bin.equinox.io/c/bNyj1mQVY4c/ngrok-v3-stable-linux-arm64.tgz -P ~/Downloads
-# sudo tar -xvzf ~/Downloads/ngrok-v3-stable-linux-arm64.tgz -C /usr/local/bin
 
+_pb "test ngrok is installed"
+ngrok
+rv=$?
+if [ $rv -ne 0 ]; then
+    MY_ARCH=$(arch)
+    MY_OUT=/home/pi/li/Downloads/ngrok.tgz
+    _pb "ngrok not installed, installing ngrok $MY_ARCH"
+    if [ "$MY_ARCH" == "aarch64" ]; then
+        wget -O $MY_OUT https://bin.equinox.io/c/bNyj1mQVY4c/ngrok-v3-stable-linux-arm64.tgz
+    elif [ "$MY_ARCH" == "arm7vl" ]; then
+        wget -O $MY_OUT https://bin.equinox.io/c/bNyj1mQVY4c/ngrok-v3-stable-linux-arm.tgz
+    fi
+    sudo tar -xvzf $MY_OUT -C /usr/local/bin
+fi
 
 
 _pb "open ngrok tunnel to port 22"
