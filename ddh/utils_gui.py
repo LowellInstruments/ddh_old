@@ -210,8 +210,8 @@ def gui_setup_view(my_win):
     a.chk_b_maps.setChecked(me)
 
     # plot data outside the water
-    dow = ddh_get_file_flag_plot_wc()
-    a.chk_plt_outside_water.setChecked(dow)
+    plot_out_water = ddh_get_file_flag_plot_wc()
+    a.chk_plt_outside_water.setChecked(not plot_out_water)
 
     # test mode
     a.lbl_testmode.setVisible(False)

@@ -56,13 +56,12 @@ def utils_graph_classify_file_wc_mode(p):
 
     if _is_tdo:
         lg.a(f'processing TDO file {p} for graph water column mode')
-        # ll[3]: 2024-04-04T13:55:51.000,10,20,28032,419,22.411,10.003,-8,235,21
-        # headers: ts,el_t,agg_t,raw T,raw P,T(C),P(dbar),Ax,Ay,Az
-        el_base = ll[3].split(',')[1]
+        # headers: ISO 8601 Time,Temperature (C),Pressure (dbar),Ax,Ay,Az
+        # ll[3]: 2024-09-13T14:52:49.000Z,19.120,10.462,-176,19,-162
+        i_pc = ll[0].split(',').index('Pressure (dbar)')
         for i in ll[3:]:
-            # detect changes in elapsed time
-            el_cur = i.split(',')[1]
-            if el_cur != el_base:
+            vp = float(i.split(',')[i_pc])
+            if vp > 15:
                 lg.a(f'OK: set ON graph water column mode for TDO file {bn}')
                 pathlib.Path(f_wc).touch()
                 return
@@ -316,7 +315,10 @@ def process_graph_csv_data(fol, h, hi) -> dict:
     elif met == 'DO':
         plt_all = ddh_get_file_flag_plot_wc()
         plt_wc = not plt_all
-        lg.a(f'debug: plotting DOX with wc_mode = {plt_wc}')
+        if plt_all:
+            lg.a(f'debug: plotting DOX, all files, no filtering by water column')
+        else:
+            lg.a(f'debug: plotting DOX filtering by water column')
         for f in _g_ff_dot:
             bn = os.path.basename(f)
             lg.a(f'reading DO file {bn}')
@@ -339,7 +341,10 @@ def process_graph_csv_data(fol, h, hi) -> dict:
     elif met == 'TDO':
         plt_all = ddh_get_file_flag_plot_wc()
         plt_wc = not plt_all
-        lg.a(f'debug: plotting TDO with wc_mode = {plt_wc}')
+        if plt_all:
+            lg.a(f'debug: plotting TDO, all files, no filtering by water column')
+        else:
+            lg.a(f'debug: plotting TDO filtering by water column')
         for f in _g_ff_tdo:
             bn = os.path.basename(f)
             lg.a(f'reading {met} file {bn}')
@@ -353,8 +358,9 @@ def process_graph_csv_data(fol, h, hi) -> dict:
                 tdo_ay += list(df['Ay'])
                 tdo_az += list(df['Az'])
             elif plt_wc and f not in _g_ff_tdo_wc:
-                lg.a(f'warning: file {bn} no-show for water column mode')
-                # so when plotting with connect='finite' these don't appear
+                lg.a(f'warning: file {bn} no-show due to water column mode')
+                # so when plotting with connect='finite' these don't display
+                # although the space occupied by them is there
                 tdo_t += [np.nan] * _m
                 tdo_p += [np.nan] * _m
 

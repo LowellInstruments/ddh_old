@@ -44,22 +44,6 @@ def controller_main_ddh():
     setproctitle.setproctitle(s)
     linux_app_write_pid_to_tmp(p)
     lg.a(f"=== {s} started ===")
-
-    # while 1:
-    #     lg.a(f"=== {s} launches child ===")
-    #     p = Process(target=main_ddh)
-    #     p.start()
-    #     p.join()
-    #     lg.a(f"=== {s} waits child ===")
-    #     p = ddh_get_gui_closed_flag_file()
-    #     if os.path.exists(p):
-    #         lg.a(f"=== debug: user closed {s} ===")
-    #         os.unlink(p)
-    #         break
-    #
-    #     # only happens upon exceptions
-    #     time.sleep(5)
-
     lg.a(f"=== {s} launches child ===")
     p = Process(target=main_ddh)
     p.start()
@@ -93,6 +77,10 @@ if __name__ == "__main__":
     # ------------------------
     # run DDH controller
     # ------------------------
+
+    # debug: run without controller
+    # main_ddh()
+    # sys.exit(0)
 
     if not linux_is_process_running(NAME_EXE_DDH_CONTROLLER):
         controller_main_ddh()

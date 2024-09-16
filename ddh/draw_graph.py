@@ -348,9 +348,9 @@ def _process_n_graph(a, r=''):
     p1.getAxis("left").setStyle(tickFont=font)
     p1.getAxis("right").setStyle(tickFont=font)
 
-    # --------------------------
+    # ==========================
     # PROCESS folder's CSV data
-    # --------------------------
+    # ==========================
     data = process_graph_csv_data(fol, _ht, a.g_haul_idx)
     if not data:
         lg.a(f'warning: no data to plot in folder {fol}')
@@ -521,20 +521,13 @@ def _process_n_graph(a, r=''):
                 ax3.setLabel(lbl3, **_sty(clr_3))
                 ax3.setTextPen(pen3)
 
-                # get indexes with interesting accelerometer data
-                w = 2
-                th = 3
-                li = get_interesting_idx_ma(y5, w, th)
-
                 # simulate arrows height
                 # y5 = [140] * len(y5)
 
                 # add some more accelerometer arrows
-                n = int(len(y5) / 5)
+                n = int(len(y5) / 10)
                 if n > 0:
-                    yn = [i for i in range(0, len(y5), n)]
-                    li += yn
-                    # print('yn', yn)
+                    li = [i for i in range(0, len(y5), int(len(y5) / n))]
 
                     # add arrows
                     for i in li:

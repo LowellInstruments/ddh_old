@@ -312,7 +312,6 @@ def get_utc_offset():
 
 def get_number_of_hauls(path):
     # path: /home/kaz/PycharmProjects/ddh/dl_files/<mac>
-    print(f'debug: checking hauls in {path}')
     ls_lid = len(glob.glob('{}/*.lid'.format(path)))
     ls_bin = (len(glob.glob('{}/moana*.bin'.format(path))) +
               len(glob.glob('{}/MOANA*.bin'.format(path))))
@@ -335,8 +334,9 @@ def get_number_of_hauls(path):
         mask = f'{path}/*_Pressure.csv'
 
     # example, when no .LID or .BIN files downloaded
-    print(f"debug: mask get_number_of_hauls = {os.path.basename(mask)}")
     n = len(glob.glob(mask))
+    bn = os.path.basename(path)
+    print(f"debug: get_number_of_hauls = {n} for {bn}, mask {os.path.basename(mask)}")
     return n
 
 
