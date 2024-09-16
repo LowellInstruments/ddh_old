@@ -1,6 +1,5 @@
 import datetime
 import json
-import os
 import subprocess as sp
 import time
 import serial
