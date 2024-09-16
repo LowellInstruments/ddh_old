@@ -66,6 +66,12 @@ sleep 0.1 && timeout 1 cat -v < $QUECTEL_USB_CTL | grep QCCID > "$LI_FILE_ICCID"
 
 
 
+_pb "tweak the connection supervision timeout parameter"
+touch /tmp/200
+sudo cp /tmp/200 /sys/kernel/debug/bluetooth/hci0/supervision_timeout
+sudo cp /tmp/200 /sys/kernel/debug/bluetooth/hci1/supervision_timeout
+
+
 
 echo && echo
 _pb "-------------"

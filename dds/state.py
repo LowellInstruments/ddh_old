@@ -17,5 +17,11 @@ class DdhState:
     def get_downloading_ble(self):
         return self.downloading_ble
 
+    def get_ble_antenna_i(self):
+        return self.ble_antenna_i
+
+    def get_ble_antenna_s(self):
+        return self.ble_antenna_s
+
 
 ddh_state = DdhState()
