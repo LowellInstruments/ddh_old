@@ -32,8 +32,8 @@ from mat.lix_dox import is_a_do2_file
 from mat.lix_pr import convert_lix_file
 from mat.utils import linux_is_rpi
 from utils.ddh_config import (dds_get_cfg_flag_purge_this_mac_dl_files_folder,
-                              dds_get_cfg_logger_sn_from_mac, dds_get_cfg_logger_mac_from_sn)
-from utils.ddh_experimental import exp_get_use_lsb_for_tdo_loggers
+                              dds_get_cfg_logger_sn_from_mac, dds_get_cfg_logger_mac_from_sn,
+                              exp_get_use_lsb_for_tdo_loggers)
 from utils.ddh_shared import (
     send_ddh_udp_gui as _u,
     STATE_DDS_BLE_DOWNLOAD_OK,

@@ -258,6 +258,20 @@ def ddh_get_cfg_maps_en():
         return False
 
 
+def _get_exp_key_from_cfg(k):
+    try:
+        return cfg['experimental'][k]
+    except (Exception, ) as ex:
+        # print(f'error: _get_exp_key_from_cfg -> {ex}')
+        # not value, but indicates error
+        return -1
+
+
+def exp_get_use_lsb_for_tdo_loggers():
+    return _get_exp_key_from_cfg('use_lsb_for_tdo_loggers')
+
+
+
 if __name__ == '__main__':
     print('vessel_name', dds_get_cfg_vessel_name())
     print('aws_en', dds_get_cfg_aws_en())
