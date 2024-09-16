@@ -7,7 +7,7 @@ import serial
 from dds.gpq import GpqW
 from dds.notifications import notify_ddh_error_hw_gps, notify_ddh_number_of_gps_satellites
 from dds.timecache import is_it_time_to
-from mat.quectel import detect_quectel_usb_ports
+from mat.quectel import detect_quectel_usb_ports, is_this_telit_cell
 from mat.utils import linux_is_rpi, linux_set_datetime
 from tzlocal import get_localzone
 
@@ -55,11 +55,12 @@ PERIOD_GPS_NOTI_NUM_GPS_SAT = 1800
 # hardcoded or you can also set them from another file
 g_quectel_port_usb_gps = '/dev/ttyUSB1'
 g_quectel_port_usb_ctl = '/dev/ttyUSB2'
-auto_port_usb_gps, auto_port_usb_ctl = detect_quectel_usb_ports()
-if auto_port_usb_gps:
-    g_quectel_port_usb_gps = auto_port_usb_gps
-if auto_port_usb_ctl:
-    g_quectel_port_usb_ctl = auto_port_usb_ctl
+if not is_this_telit_cell():
+    auto_port_usb_gps, auto_port_usb_ctl = detect_quectel_usb_ports()
+    if auto_port_usb_gps:
+        g_quectel_port_usb_gps = auto_port_usb_gps
+    if auto_port_usb_ctl:
+        g_quectel_port_usb_ctl = auto_port_usb_ctl
 
 
 def _gps_bu353s4_find_usb_port():
