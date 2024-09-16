@@ -98,3 +98,8 @@
 
     fixed an issue with new DDH GUI watchdog
 
+4.0.21 - September 16, 2024
+
+    fixed checkbox value plt_outside_water
+    do not plot testfile_ files
+
