@@ -220,7 +220,6 @@ def aws_serve():
     if ddh_state.get_downloading_ble():
         lg.a('warning: not doing AWS sync while downloading BLE')
         return
-    lg.a('debug: not downloading BLE, we are allowed to serve AWS')
 
     # nothing to do
     if not is_it_time_to("aws_s3_sync", PERIOD_AWS_S3_SECS) \
