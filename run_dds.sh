@@ -54,7 +54,7 @@ source "$FOL_VEN"/bin/activate
 
 _pb "DDS auto-detecting Quectel shield USB ports"
 cd "$FOL_DDH" && "$FOL_VEN"/bin/python main_qus.py
-QUECTEL_USB_CTL=$(cat /tmp/usb_quectel_ctl 2> /dev/null)
+QUECTEL_USB_CTL=$(cat /tmp/usb_quectel_ctl)
 
 
 
