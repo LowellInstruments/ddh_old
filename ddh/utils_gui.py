@@ -684,7 +684,7 @@ def _gui_parse_udp(my_app, s, ip="127.0.0.1"):
     elif f == STATE_DDS_BLE_APP_GPS_ERROR_POSITION:
         ct = _x(STR_NEED_GPS)
         ci = "gps_err.png"
-        a.lbl_gps.setText("-")
+        a.lbl_gps.setText("-\n-")
         a.lbl_gps_sat.setText("-")
 
     elif f == STATE_DDS_BLE_APP_GPS_ERROR_SPEED:

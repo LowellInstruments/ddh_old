@@ -290,7 +290,7 @@ def _gps_measure():
         if g[3] == "":
             g[3] = "0"
         # float, float, datetime UTC, speed
-        _u(f"{STATE_DDS_NOTIFY_GPS}/{lat}, {lon}")
+        _u(f"{STATE_DDS_NOTIFY_GPS}/{lat}\n{lon}")
         _g_ts_cached_gps_valid_for = now + PERIOD_GPS_CACHE_VALID_SECS
         _g_cached_gps = lat, lon, g[2], float(g[3])
 
@@ -311,7 +311,7 @@ def _gps_measure():
     now = time.perf_counter()
     if now < _g_ts_cached_gps_valid_for:
         lat, lon, dt_utc, speed = _g_cached_gps
-        _u("{}/{}, {}".format(STATE_DDS_NOTIFY_GPS, lat, lon))
+        _u(f"{STATE_DDS_NOTIFY_GPS}/{lat}\n{lon}")
         lg.a("using cached position {}, {}".format(lat, lon))
         return _g_cached_gps
 
