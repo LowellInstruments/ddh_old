@@ -176,7 +176,7 @@ def api_get_kernel():
     c = 'uname -r'
     rv = _sh(c)
     if rv.returncode == 0:
-        return rv.stdout.decode()
+        return rv.stdout.decode().replace('\n', '')
     return f'{CTT_API_ER}: api_get_kernel()'
 
 
