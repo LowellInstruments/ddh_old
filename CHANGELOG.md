@@ -103,3 +103,8 @@
     fixed checkbox value plt_outside_water
     do not plot testfile_ files
 
+4.0.22 - September 18, 2024
+
+    added new BLE library for DOX / TDO and [experimental] section
+    script_ddc now detecting properly cell internet on issues 'i'
+
