@@ -183,8 +183,7 @@ def gui_setup_view(my_win):
     a.tabs.setCurrentIndex(0)
 
     # info: lat, lon, time
-    fmt = "{}\n{}"
-    a.lbl_gps.setText(fmt.format("-", "-"))
+    a.lbl_gps.setText('-\n-')
 
     # info: box SN
     a.lbl_box_sn.setText('DDH ' + dds_get_cfg_box_sn())
