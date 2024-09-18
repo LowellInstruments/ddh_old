@@ -17,6 +17,18 @@ check_already_running "main_dds_controller"
 
 
 
+_pb "DDS deleting BLUEZ cache"
+grep 'ble_del_cache = 1' "$FOL_DDH"/settings/config.toml
+rv=$?
+if [ $rv -eq 0 ]; then
+    _pb "removing cache from /etc/bluetooth/main.conf"
+    sudo sed -i '/#Cache = always/c\Cache = no' /etc/bluetooth/main.conf
+    sudo systemctl restart bluetooth
+    sleep 1
+fi
+
+
+
 _pb "DDS set BLE interfaces UP"
 sudo hciconfig hci0 up 2> /dev/null || _py "cannot UP hci0"
 sudo hciconfig hci1 up 2> /dev/null || _py "cannot UP hci1"
@@ -72,17 +84,6 @@ touch /tmp/200
 sudo cp /tmp/200 /sys/kernel/debug/bluetooth/hci0/supervision_timeout 2> /dev/null
 sudo cp /tmp/200 /sys/kernel/debug/bluetooth/hci1/supervision_timeout 2> /dev/null
 
-
-
-
-_pb "deleting ble cache"
-grep 'ble_del_cache = 1' "$FOL_DDH"/settings/config.toml
-rv=$?
-if [ $rv -eq 0 ]; then
-    _pb "removing cache from /etc/bluetooth/main.conf"
-    sudo sed -i '/#Cache = always/c\Cache = no' /etc/bluetooth/main.conf
-    sudo systemctl restart bluetooth
-fi
 
 
 
