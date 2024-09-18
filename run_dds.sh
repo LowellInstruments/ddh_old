@@ -74,6 +74,22 @@ sudo cp /tmp/200 /sys/kernel/debug/bluetooth/hci1/supervision_timeout 2> /dev/nu
 
 
 
+
+_pb "deleting ble cache"
+grep 'ble_del_cache = 1' "$FOL_DDH"/settings/config.toml
+rv=$?
+if [ $rv -eq 0 ]; then
+    sudo sed -i '/#Cache = always/c\Cache = no' /etc/bluetooth/main.conf
+    for dir_hci in /var/lib/bluetooth/*/ ; do
+        # last / already included
+        echo "removing \"$dir_hci\"cache/"
+        rm -rf "$dir_hci/cache/"
+    done
+    sudo systemctl restart bluetooth
+fi
+
+
+
 echo && echo
 _pb "-------------"
 _pb "run DDS core "

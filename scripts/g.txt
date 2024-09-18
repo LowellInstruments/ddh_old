@@ -1,0 +1,16 @@
+red errors
+no internet via cell
+no all_macs.toml file
+no DWService running
+no service switch cell / wi-fi
+no Bluetooth driver v5.66
+no supported OS
+no a raspberry
+no GPS source available of the 2
+no AWS credentials
+no crontab
+
+yellow errors
+no updated firmware for cell modem
+no power shield of the 2
+no wireguard file
