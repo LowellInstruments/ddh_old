@@ -8,6 +8,7 @@ from tzlocal import get_localzone
 
 from ddh.utils_graph import utils_graph_set_fol_req_file
 from dds.aws import aws_cp
+from dds.ble_dl_dox_lsb import ble_interact_dox_lsb
 from dds.ble_dl_tdo import ble_interact_tdo
 from dds.ble_dl_tdo_lsb import ble_interact_tdo_lsb
 from dds.macs import (
@@ -33,7 +34,7 @@ from mat.lix_pr import convert_lix_file
 from mat.utils import linux_is_rpi
 from utils.ddh_config import (dds_get_cfg_flag_purge_this_mac_dl_files_folder,
                               dds_get_cfg_logger_sn_from_mac, dds_get_cfg_logger_mac_from_sn,
-                              exp_get_use_lsb_for_tdo_loggers)
+                              exp_get_use_lsb_for_tdo_loggers, exp_get_use_lsb_for_dox_loggers)
 from utils.ddh_shared import (
     send_ddh_udp_gui as _u,
     STATE_DDS_BLE_DOWNLOAD_OK,
@@ -238,11 +239,14 @@ async def _ble_id_n_interact_logger(mac, info: str, h, g):
     # DOX logger interaction
     # ------------------------
     if _ble_logger_is_do1_or_do2(info):
-        rv, notes = await ble_interact_do1_or_do2(mac,
-                                                  info,
-                                                  g,
-                                                  hs,
-                                                  uuid_interaction)
+        if exp_get_use_lsb_for_dox_loggers() == 1:
+            rv, notes = ble_interact_dox_lsb(mac, info, g, hs, uuid_interaction)
+        else:
+            rv, notes = await ble_interact_do1_or_do2(mac,
+                                                      info,
+                                                      g,
+                                                      hs,
+                                                      uuid_interaction)
         notes['gps'] = g
         _crit_error = notes["crit_error"]
         _error_dl = notes["error"]

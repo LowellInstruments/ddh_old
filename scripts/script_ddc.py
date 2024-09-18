@@ -315,7 +315,7 @@ def ddh_run_check():
     _c = 'systemctl is-active unit_switch_net.service | grep -w active'
     ok_service_cell_sw = sh(_c) == 0
     ok_fw_cell = _check_fw_cell()
-    ok_internet_via_cell = sh('timeout 1 ping -I ppp0 www.google.com -c 1') == 0
+    ok_internet_via_cell = sh('timeout 1 ping -I ppp0 8.8.8.8') == 0
     ok_dwservice = sh('ps -aux | grep dwagent') == 0
     ok_aws_cred = _check_aws_credentials()
     ok_crontab_ddh = get_crontab('ddh') == 1

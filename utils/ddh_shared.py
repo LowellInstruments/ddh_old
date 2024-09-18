@@ -350,6 +350,9 @@ def ddh_get_root_folder_path() -> Path:
 
 
 def check_gps_dummy_mode():
+    # comment when testing laptop + puck
+    if not linux_is_rpi():
+        return True
     return os.path.exists(TMP_PATH_GPS_DUMMY)
 
 

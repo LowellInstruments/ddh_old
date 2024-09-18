@@ -271,6 +271,9 @@ def exp_get_use_lsb_for_tdo_loggers():
     return _get_exp_key_from_cfg('use_lsb_for_tdo_loggers')
 
 
+def exp_get_use_lsb_for_dox_loggers():
+    return _get_exp_key_from_cfg('use_lsb_for_dox_loggers')
+
 
 if __name__ == '__main__':
     print('vessel_name', dds_get_cfg_vessel_name())
