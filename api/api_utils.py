@@ -172,6 +172,14 @@ def api_get_timezone():
     return f'{CTT_API_ER}: get_local_timezone()'
 
 
+def api_get_kernel():
+    c = 'uname -r'
+    rv = _sh(c)
+    if rv.returncode == 0:
+        return rv.stdout.decode()
+    return f'{CTT_API_ER}: api_get_kernel()'
+
+
 def api_get_utc_epoch():
     return int(time.time())
 
