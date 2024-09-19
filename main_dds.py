@@ -219,7 +219,8 @@ def main_dds():
 def _alarm_dds_crash(n):
     if n == 0:
         return
-    if is_it_time_to('tell_dds_child_crash', 3600):
+    lg.a(f'error: _alarm_dds_crash, n = {n}')
+    if is_it_time_to('tell_dds_child_crash', 300):
         notify_error_sw_crash()
 
 

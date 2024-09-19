@@ -265,10 +265,10 @@ def _dl_logger_dox_lsb(mac, g, notes: dict, u, hs):
 
     if do_we_rerun:
         rv = cmd_rws(p, g)
-        if rv:
+        if not rv:
             _u(STATE_DDS_BLE_ERROR_RUN)
             time.sleep(5)
-        _rae("rws")
+            _rae("rws")
         lg.a("RWS | OK")
         notes['rerun'] = True
     else:

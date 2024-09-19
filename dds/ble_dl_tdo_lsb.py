@@ -246,7 +246,6 @@ def _dl_logger_tdo_lsb(mac, g, notes: dict, u, hs):
     lg.a(f"WAK | {w} OK")
 
     # re-run logger, maybe
-    notes['rerun'] = rerun_flag
     if rerun_flag:
         rv = cmd_rws(p, g)
         if not rv:
@@ -256,6 +255,7 @@ def _dl_logger_tdo_lsb(mac, g, notes: dict, u, hs):
         lg.a("RWS | OK")
     else:
         lg.a("warning: this logger is not set for auto-re-run")
+    notes['rerun'] = rerun_flag
 
     # -----------------------
     # bye, bye to this logger
