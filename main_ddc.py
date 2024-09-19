@@ -9,8 +9,8 @@ from scripts.script_ddc import (
     cb_gps_dummy, cb_quit, cb_gps_external, cb_crontab_ddh,
     get_crontab,
     cb_graph_demo, cb_provision_ddh,
-    cb_kill_ddh, ddh_run_check, cb_calibrate_display, sh, cb_test_mode, is_rpi, VP_QUECTEL, p_w, p_e, c_e, p_i,
-    cb_enable_exp_ble
+    cb_kill_ddh, ddh_run_check, cb_calibrate_display, sh,
+    cb_test_mode, is_rpi, VP_QUECTEL, p_w, p_e, c_e, p_i,
 )
 from scripts.script_nadv import main_nadv
 from utils.ddh_config import _get_config_file_path, cfg_load_from_file
@@ -99,6 +99,37 @@ def cb_list_quectel_usb_ports():
     print('\tlist of Quectel USB ports')
     for i in ls:
         print(f'\t{i}')
+    input()
+
+
+def _p_e(param):
+    pass
+
+
+def cb_get_csq():
+    rv = detect_quectel_usb_ports()
+    if not rv:
+        _p_e('could not detect quectel USB ports for CSQ')
+        time.sleep(2)
+        return
+    _, p_ctl = rv
+
+    till = time.perf_counter() + 1
+    b = bytes()
+    ser = None
+    try:
+        ser = serial.Serial(p, 115200, timeout=.1, rtscts=True, dsrdtr=True)
+        ser.write(b'AT+CSQ \r')
+        time.sleep(.5)
+        while time.perf_counter() < till:
+            b += ser.read()
+        ser.close()
+    except (Exception,):
+        _p_e('error working with serial port on CSQ')
+        if ser and ser.is_open:
+            ser.close()
+
+    _p(f'answer of CSQ is {b}')
     input()
 
 
@@ -272,8 +303,7 @@ def main_ddc():
             'o': (f"o) deploy logger DOX", cb_run_deploy_dox),
             't': (f"t) deploy logger TDO", cb_run_deploy_tdo),
             'u': (f"u) list Quectel USB ports", cb_list_quectel_usb_ports),
-            # 'x': (f"x) DDH passive BLE   [{fxb}]", cb_enable_exp_ble),
-            # 'c': (f"c) calibrate DDH display", cb_calibrate_display),
+            'v': (f"v) get cell signal quality", cb_get_csq),
             'i': (f"i) ~ see issues ~", cb_ddh_show_issues),
             'h': (f"h) help", cb_ddh_show_help),
             'q': (f"q) quit", cb_quit)
@@ -308,8 +338,6 @@ def main_ddc():
                 cb_edit_ddh_config_file()
             elif c == 'c':
                 cb_calibrate_display()
-            elif c == 'x':
-                cb_enable_exp_ble()
             else:
                 _, cb = d[c]
                 cb()

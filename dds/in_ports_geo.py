@@ -25,6 +25,9 @@ def dds_ask_in_port_to_ddn(_g, notify=True, tc=TIMEOUT_CACHE_IN_PORT_SECS):
 
     # build the query to API
     lat, lon, tg, speed = _g
+    if not lat:
+        # NOT in port on error 'lat'
+        return 0
     addr_ddn_api = 'ddn.lowellinstruments.com'
     port_ddn_api = 9000
     ep = 'gps_in_port'

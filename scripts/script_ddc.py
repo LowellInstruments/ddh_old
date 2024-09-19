@@ -69,11 +69,6 @@ def cb_test_mode():
     unlink(p) if exists(p) else pathlib.Path(p).touch()
 
 
-def cb_enable_exp_ble():
-    p = LI_PATH_ENABLE_EXPERIMENTAL_BLE
-    unlink(p) if exists(p) else pathlib.Path(p).touch()
-
-
 def cb_graph_demo():
     p = TMP_PATH_GRAPH_TEST_MODE_JSON
     unlink(p) if exists(p) else pathlib.Path(p).touch()
@@ -325,7 +320,6 @@ def ddh_run_check():
     ok_shield_sailor = cb_get_flag_sailor() == 1
     ok_keys = _check_files() == 0
     _ts = time.perf_counter()
-
 
     # check conflicts
     rv = 0
