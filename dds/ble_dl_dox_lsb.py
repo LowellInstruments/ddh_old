@@ -62,7 +62,7 @@ def _dl_logger_dox_lsb(mac, g, notes: dict, u, hs):
     found, p_i = is_mac_in_found_peripherals(pp, mac)
     if not found:
         _une(notes, "scan")
-        _rae("scanning")
+        _rae(f"mac {mac} during scanning")
 
     # connect
     p = pp[p_i]

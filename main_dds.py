@@ -57,6 +57,7 @@ from utils.ddh_shared import (
     PID_FILE_DDS_CONTROLLER,
     NAME_EXE_DDS_CONTROLLER,
     NAME_EXE_DDS, ael, dds_get_aws_has_something_to_do_via_gui_flag_file, dds_create_folder_gpq, NAME_EXE_BRT,
+    STATE_DDS_NOTIFY_ERROR_GPS_CLOCK_SYNC,
 )
 from utils.logs import (
     lg_dds as lg,
@@ -122,6 +123,8 @@ def main_dds():
             if gps_clock_sync_if_so(tg):
                 break
         time.sleep(1)
+        if is_it_time_to('tell_not_able_to_gps_clock_sync', 1800):
+            _u(STATE_DDS_NOTIFY_ERROR_GPS_CLOCK_SYNC)
 
     # detecting and selecting Bluetooth antenna
     # leave this here so BLE has time to get up

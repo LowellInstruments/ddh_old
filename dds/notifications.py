@@ -33,7 +33,7 @@ DDH_NOTIFICATION_OK_LOGGER_DL = 'logger download OK'
 DDH_NOTIFICATION_OK_LOGGER_HYPOXIA = 'logger detected hypoxia'
 DDH_NOTIFICATION_SMS = 'DDH sent a SMS'
 DDH_NOTIFICATION_GPS_NUM_SAT = 'DDH GPS #sat'
-
+DDH_NOTIFICATION_ERROR_GPS_CLOCK_SYNC = 'gps_error_clock_time_sync'
 
 DDH_ALL_NOTIFICATIONS = [
     DDH_NOTIFICATION_STATUS_BOOT,
@@ -51,7 +51,8 @@ DDH_ALL_NOTIFICATIONS = [
     DDH_NOTIFICATION_OK_LOGGER_DL,
     DDH_NOTIFICATION_OK_LOGGER_HYPOXIA,
     DDH_NOTIFICATION_SMS,
-    DDH_NOTIFICATION_GPS_NUM_SAT
+    DDH_NOTIFICATION_GPS_NUM_SAT,
+    DDH_NOTIFICATION_ERROR_GPS_CLOCK_SYNC
 ]
 
 
@@ -140,7 +141,7 @@ class _DDHNotification:
         # generate a SQS FILE from dict, its content is JSON
         fol = str(get_ddh_folder_path_sqs())
         now = int(time.time_ns())
-        path = "{}/{}.sqs".format(fol, now)
+        path = f"{fol}/{now}.sqs"
         with open(path, "w") as f:
             json.dump(vars(self), f, indent=4)
         lg.a(f"generated SQS file {path}, details next")
@@ -173,6 +174,10 @@ def notify_logger_error_low_battery(g, ln):
 
 def notify_error_sw_aws_s3():
     return _n(DDH_NOTIFICATION_ERROR_SW_AWS_S3)
+
+
+def notify_error_gps_clock_sync():
+    return _n(DDH_NOTIFICATION_ERROR_GPS_CLOCK_SYNC)
 
 
 def notify_error_sw_crash():
