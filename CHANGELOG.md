@@ -108,3 +108,8 @@
     added new BLE library for DOX / TDO and [experimental] section
     script_ddc now detecting properly cell internet on issues 'i'
 
+4.0.23 - September 19, 2024
+
+    fixed some bug in BLE_LSB_DOX
+    added notification when cannot clock sync at boot
+

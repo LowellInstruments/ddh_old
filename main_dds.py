@@ -57,7 +57,6 @@ from utils.ddh_shared import (
     PID_FILE_DDS_CONTROLLER,
     NAME_EXE_DDS_CONTROLLER,
     NAME_EXE_DDS, ael, dds_get_aws_has_something_to_do_via_gui_flag_file, dds_create_folder_gpq, NAME_EXE_BRT,
-    STATE_DDS_NOTIFY_ERROR_GPS_CLOCK_SYNC,
 )
 from utils.logs import (
     lg_dds as lg,
