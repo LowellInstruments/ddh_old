@@ -129,7 +129,40 @@ def cb_get_csq():
         if ser and ser.is_open:
             ser.close()
 
-    _p(f'answer of CSQ is {b}')
+    # +CSQ: 19,99 among other lines
+    try:
+        _p_e(f'CSQ b = {b}')
+        v = b.split(b'+CSQ: ')[1].split(b',')[0]
+        _p_e(f'CSQ v = {v}')
+        v = int(v.decode())
+    except (Exception, ) as ex:
+        _p_e(f'exception on CSQ {ex}')
+        input()
+        return
+
+    # page 81 datasheet EG25
+    s = ''
+    if v == 0:
+        s = '< -113 dBm'
+    elif v == 1:
+        s = '-111 dBm'
+    elif 2 <= v <= 30:
+        s = f'{-113 + (2 * v)} dBm'
+    elif v == 31:
+        s = '> -51 dBm'
+    elif v == 99:
+        s = 'not detectable'
+    elif v == 100:
+        s = '< -116 dBm'
+    elif v == 101:
+        s = '-115 dBm'
+    elif 102 <= v <= 190:
+        s = f'{-114 + (1 * v)} dBm'
+    elif v == 191:
+        s = '> -25 dBm'
+    elif v == 199:
+        s = 'not detectable'
+    _p(f'cell signal quality {s}')
     input()
 
 
