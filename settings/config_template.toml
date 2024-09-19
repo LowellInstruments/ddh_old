@@ -45,7 +45,9 @@ hook_ble_purge_this_mac_dl_files_folder = 0
 
 
 [experimental]
-# KEEP these as = 0 when not sure
+# already implemented, KEEP as = 0 when not sure
 use_lsb_for_tdo_loggers = 0
 use_lsb_for_dox_loggers = 0
 del_ble_cache = 0
+
+# not implemented yet, some ideas
