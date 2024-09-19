@@ -21,7 +21,7 @@ _pb "DDS deleting BLUEZ cache"
 grep 'ble_del_cache = 1' "$FOL_DDH"/settings/config.toml
 rv=$?
 if [ $rv -eq 0 ]; then
-    _pb "removing cache from /etc/bluetooth/main.conf"
+    _pb "* EXP * removing cache from /etc/bluetooth/main.conf"
     LS_HCI_MACS=$(hciconfig -a | grep "BD Address" | cut -d " " -f 3)
     for HM in $LS_HCI_MACS; do sudo rm "/var/lib/bluetooth/$HM"/cache/*; done
     sudo sed -i '/#Cache = always/c\Cache = no' /etc/bluetooth/main.conf
