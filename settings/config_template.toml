@@ -49,5 +49,6 @@ hook_ble_purge_this_mac_dl_files_folder = 0
 use_lsb_for_tdo_loggers = 0
 use_lsb_for_dox_loggers = 0
 del_ble_cache = 0
+use_aws_cp = 0
 
 # not implemented yet, some ideas

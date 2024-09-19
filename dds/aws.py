@@ -258,7 +258,7 @@ def aws_serve():
     if ff_ctt:
         lg.a('warning: AWS same number of files, not syncing')
         return
-    lg.a(f'debug: "dl_files" folder currently has {len(mon_ls)} files')
+    lg.a(f'folder "dl_files" currently has {len(mon_ls)} files')
 
     # useful to remove past AWS bin zombie processes
     multiprocessing.active_children()

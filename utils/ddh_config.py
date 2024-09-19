@@ -275,6 +275,10 @@ def exp_get_use_lsb_for_dox_loggers():
     return _get_exp_key_from_cfg('use_lsb_for_dox_loggers')
 
 
+def exp_get_use_aws_cp():
+    return _get_exp_key_from_cfg('use_aws_cp')
+
+
 if __name__ == '__main__':
     print('vessel_name', dds_get_cfg_vessel_name())
     print('aws_en', dds_get_cfg_aws_en())
