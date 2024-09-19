@@ -118,7 +118,7 @@ def cb_get_csq():
     b = bytes()
     ser = None
     try:
-        ser = serial.Serial(p, 115200, timeout=.1, rtscts=True, dsrdtr=True)
+        ser = serial.Serial(p_ctl, 115200, timeout=.1, rtscts=True, dsrdtr=True)
         ser.write(b'AT+CSQ \r')
         time.sleep(.5)
         while time.perf_counter() < till:
@@ -128,12 +128,14 @@ def cb_get_csq():
         _p_e('error working with serial port on CSQ')
         if ser and ser.is_open:
             ser.close()
+        input()
+        return
 
     # +CSQ: 19,99 among other lines
     try:
-        _p_e(f'CSQ b = {b}')
+        # _p_e(f'CSQ b = {b}')
         v = b.split(b'+CSQ: ')[1].split(b',')[0]
-        _p_e(f'CSQ v = {v}')
+        # _p_e(f'CSQ v = {v}')
         v = int(v.decode())
     except (Exception, ) as ex:
         _p_e(f'exception on CSQ {ex}')
@@ -162,7 +164,7 @@ def cb_get_csq():
         s = '> -25 dBm'
     elif v == 199:
         s = 'not detectable'
-    _p(f'cell signal quality {s}')
+    _p(f'cell signal quality {s} (lowest is -115 dBm)')
     input()
 
 
