@@ -336,7 +336,7 @@ def main_ddc():
             'o': (f"o) deploy logger DOX", cb_run_deploy_dox),
             't': (f"t) deploy logger TDO", cb_run_deploy_tdo),
             'u': (f"u) list Quectel USB ports", cb_list_quectel_usb_ports),
-            'v': (f"v) get cell signal quality", cb_get_csq),
+            'v': (f"v) get cell signal quality (beta)", cb_get_csq),
             'i': (f"i) ~ see issues ~", cb_ddh_show_issues),
             'h': (f"h) help", cb_ddh_show_help),
             'q': (f"q) quit", cb_quit)
