@@ -56,11 +56,11 @@ _g_logger_errors = {}
 def _ble_tell_logger_seen(mac, _b, _o):
     if is_it_time_to(f'tell_saw_mac_{mac}', 1800):
         sn = dds_get_cfg_logger_sn_from_mac(mac)
-        lg.a(f"warning: logger {sn} / mac {mac} nearby")
+        lg.a(f"logger {sn} / mac {mac} nearby")
         if _b:
-            lg.a(f"warning: logger is under long forget time")
+            lg.a(f"logger {sn} is under long forget time")
         if _o:
-            lg.a(f"warning: logger is under short forget time")
+            lg.a(f"logger {sn} under short forget time")
 
 
 def _ble_detect_hypoxia_after_download(f_lid, bat, g, u=''):

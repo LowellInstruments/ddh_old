@@ -51,7 +51,7 @@ def _cnv_lid_file_v1(path, suf):
 
     # check v1 file header to skip files w/o this sensor data / suffix
     if not _lid_v1_file_has_sensor_data_type(f, suf):
-        lg.a(f'debug: skip conversion, file {f} has no {suf} data')
+        lg.a(f'warning: skip conversion, file {f} has no {suf} data')
         return
 
     # do the v1 conversion
@@ -111,7 +111,7 @@ def _cnv_fol_lid(fol, suf) -> list:
         f_csv = f"{f.split('.')[0]}{suf}.csv"
         if pathlib.Path(f_csv).is_file():
             if f_csv not in _g_files_already_converted:
-                lg.a(f"skip conversion, CSV file {f_csv} already exists")
+                # lg.a(f"skip conversion, CSV file {f_csv} already exists")
                 _g_files_already_converted.append(f_csv)
             continue
 

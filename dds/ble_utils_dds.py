@@ -38,8 +38,10 @@ _g_ant_ble = "undefined"
 
 def ble_show_monitored_macs():
     mm = dds_get_cfg_monitored_macs()
+    if mm:
+        lg.a('monitored macs list: ')
     for i in mm:
-        lg.a("debug: monitored mac {}".format(i))
+        lg.a(f"    - {i}")
 
 
 def ble_logger_ccx26x2r_needs_a_reset(mac):

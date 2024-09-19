@@ -54,7 +54,8 @@ def _purge_old_gpq_json_files():
     f = f'{fol}/mobile_{now.strftime(FMT_GPQ_TS_FILENAME)}'
     ls_del = [i for i in ls if i < f]
     for i in ls_del:
-        print(f'deleting {os.path.basename(i)}, older than {_d * -1} days')
+        bn = os.path.basename(i)
+        lg.a(f'warning: deleting {bn}, older than {_d * -1} days')
         os.unlink(i)
 
 

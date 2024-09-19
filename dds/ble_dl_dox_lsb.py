@@ -54,7 +54,7 @@ def _dl_logger_dox_lsb(mac, g, notes: dict, u, hs):
     ads = get_adapters()
     ad_i = int(hs[-1])
     ad = ads[ad_i]
-    lg.a(f'debug: using LSB with antenna #{hs}')
+    lg.a(f'using LSB with antenna #{ad_i}')
 
     # scan
     ad.set_callback_on_scan_found(cb_scan)

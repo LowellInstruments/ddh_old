@@ -477,7 +477,7 @@ def gps_power_cycle_if_so(forced=False):
         return
 
     if check_gps_dummy_mode():
-        lg.a("debug: no power cycle dummy GPS")
+        # lg.a("debug: no power cycle dummy GPS")
         return
 
     if _g_bu353s4_port:

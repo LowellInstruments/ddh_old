@@ -98,10 +98,10 @@ def _aws_s3_sync_process():
     # useful on RPi3 to prevent BLE and AWS (wi-fi) collisions
     global g_fresh_boot
     if g_fresh_boot:
-        lg.a("debug: AWS politely waiting upon boot")
+        lg.a("AWS politely waiting upon boot")
         g_fresh_boot = 0
         time.sleep(30)
-        lg.a("debug: AWS politely resuming after boot")
+        lg.a("AWS politely resuming after boot")
 
     # sys.exit() instead of return prevents zombie processes
     setproctitle.setproctitle(AWS_S3_SYNC_PROC_NAME)
@@ -132,7 +132,7 @@ def _aws_s3_sync_process():
         y = datetime.datetime.utcnow().year
         sy = str(y)[2:]
         if this_box_has_grouped_s3_uplink():
-            lg.a(f'debug: AWS upload-sync as grouped mode for mac {um}')
+            lg.a(f'AWS upload-sync as grouped mode for mac {um}')
             v = dds_get_cfg_vessel_name()
             # v: "bailey's" --> BAYLEYS
             v = v.replace("'", "")
@@ -141,7 +141,7 @@ def _aws_s3_sync_process():
             # um: we prepend grouped structure year and boat
             um = f"{str(y)}/{v}/{um}"
         else:
-            lg.a(f'debug: AWS upload-sync as non-grouped mode for mac {um}')
+            lg.a(f'AWS upload-sync as NON-grouped mode for mac {um}')
 
         # build the AWS command
         c = (
@@ -307,7 +307,7 @@ def _aws_s3_cp_process(d):
         f_bn = os.path.basename(f)
         y = datetime.datetime.utcnow().year
         if this_box_has_grouped_s3_uplink():
-            lg.a(f'debug: AWS upload-cp as grouped mode for mac {um}')
+            lg.a(f'AWS upload-cp as grouped mode for mac {um}')
             v = dds_get_cfg_vessel_name()
             # v: "bailey's" --> BAYLEYS
             v = v.replace("'", "")
@@ -316,7 +316,7 @@ def _aws_s3_cp_process(d):
             # um: we prepend grouped structure year and boat
             um = f"{str(y)}/{v}/{um}"
         else:
-            lg.a(f'debug: AWS upload-cp as non-grouped mode for mac {um}')
+            lg.a(f'AWS upload-cp as NON-grouped mode for mac {um}')
 
         # build the AWS command
         c = (
