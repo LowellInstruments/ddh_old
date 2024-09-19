@@ -26,7 +26,7 @@ from dds.gps import (
 from dds.macs import dds_create_folder_macs_color, dds_macs_color_show_at_boot
 from dds.net import net_serve
 from dds.notifications import notify_boot, notify_error_sw_crash, notify_ddh_needs_sw_update, \
-    notify_ddh_alive
+    notify_ddh_alive, notify_error_gps_clock_sync
 from dds.sqs import (
     dds_create_folder_sqs,
     sqs_serve,
@@ -123,7 +123,7 @@ def main_dds():
                 break
         time.sleep(1)
         if is_it_time_to('tell_not_able_to_gps_clock_sync', 1800):
-            _u(STATE_DDS_NOTIFY_ERROR_GPS_CLOCK_SYNC)
+            notify_error_gps_clock_sync()
 
     # detecting and selecting Bluetooth antenna
     # leave this here so BLE has time to get up
