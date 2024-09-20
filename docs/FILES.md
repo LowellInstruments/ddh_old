@@ -1,10 +1,15 @@
-# Files in /home/pi/li
+folder ~li
+==========
 
-Files more global than DDH ones, so it is useful they survive a wipe of the ``ddh`` folder.
+Files more global than DDH ones, they survive a wipe of the ``ddh`` folder.
 
 ### .ddt_cell_shield.flag
 
-The presence of this file indicates the DDH uses the cell shield hardware.
+Indicates the DDH uses cell shield hardware.
+
+### .ddt_j4h_shield.flag
+
+Indicates the DDH uses the power shield juiceforhalt hardware.
 
 ### .ddt_sailor_shield.flag
 
@@ -12,51 +17,45 @@ The presence of this field indicates the DDH uses the power shield sailor-hat ha
 
 ### .ddt_this_box_has_grouped_s3_uplink.flag
 
-Means the DDH uploads its file to AWS S3 in a grouped structure.
+DDH uploads its file to AWS S3 in a grouped structure.
 
 ### .ddt_gps_external.flag
 
-Means the DDH uses a GPS puck to get its GPS position instead of the cell shield.
-
-### .ddt_j4h_shield.flag
-
-The presence of this field indicates the DDH uses the power shield juiceforhalt hardware.
+DDH uses a GPS puck to get its GPS position instead of the cell shield.
 
 ### .fw_cell_ver
 
-Contains the firmware version of the cell shield. Populated when DDH GUI runs.
+Contains the firmware version of the cell shield. Populated when DDH python code runs.
 
 ### .iccid
 
-Contains the ID of the SIM of the cell shield. Populated when DDH GUI runs.
+Contains the ID of the SIM of the cell shield. Populated by ``run_dds.sh``.
 
 ### .ddh_test_mode.flag
 
-Sends files to AWS with the ``testfile`` filename prefix for easy identification of test runs. Set by using ``DDC`` tool.
+Sends files to AWS with the ``testfile`` filename prefix for easy identification of test runs. 
 
-### .gps_quectel_at_usb4'
-
-If present, indicates the cell shield does not operate on USB2 but USB4. Created by ``run_dds.sh``.
+Set by using ``DDC`` tool.
 
 
 
 
+folder ~li/ddh
+===============
 
-# Files in /home/pi/li/ddh
-
-While operating, the DDH relies on a series of files to indicate flags, configuration, temporary states, small databases, etc.
+DDH application's flags, configuration, temporary states, small databases, etc.
 
 This page lists some of them for development purposes or simply understanding of the code.
 
 ### db/db_his.json
 
-Small database for the table in the history tab. Requires package ``strip.pysondb`` which is a very small and fast database.
+Small database for history tab. Requires package ``strip.pysondb``.
 
 ### db/db_status.json
 
-Contains the result of the last interaction the DDH had with AWS S3 and SQS.
+Contains the result of last interaction with AWS S3 and SQS.
 
-### gui/res/*.gif
+### gui/res/*_dtm.gif, *_gom.gif, *_mab.gif
 
 Daily forecast maps downloaded from DDN / Lightsail.
 
@@ -66,23 +65,29 @@ Contains the version number of the DDH software.
 
 ### .ddh_plt_outside_water
 
-When present, the DDH graph tab plots even logger data outside the water.
+When present, the DDH graph tab plots all logger data, not only the one inside the water.
 
 ### dl_files/<mac>
 
 Contains several files either downloaded or automatically generated from them.
 - LID: data binary file.
 - CSV: data CSV file.
-- GPS: information downloaded from logger.
+- GPS: location information downloaded from logger.
 - CST: data + GPS tracking file. Automatically generated with GPQ engine (see below).
 
-FMG and SMG files work in conjunction with the file ``.ddh_plt_ouside_water`` and allow for the graph tab to show data out of the water or discard it.
-- FMG: fast mode graph. If present, means this file has profiling (fast recording rate) data.
-- SMG: slow mode graph. If present, means this file has NOT profiling data. This file helps not plotting data outside the water.
+FMG and SMG files work in conjunction with the file ``.ddh_plt_ouside_water``.
+- FMG: fast mode graph. This file has profiling (fast recording rate) data.
+- SMG: slow mode graph. This file has NOT profiling data, so it won't show when plotting only inside-water.
+
+### dds/lef
+
+Stands for Lowell Event File. Created when a logger download event happens. 
+
+This info is attached to the vessel TRACKING log (next) to synchronize time / event happened / position for ODN.
 
 ### dl_files/ddh#nameoftheboat
 
-Contains the TRACKING log of the vessel. When something interesting happens at a GPS position, the content of a LEF file is concatenated to one line in this file.
+Contains the TRACKING log of the vessel. Some lines can have concatenated a LEF event after symbol ``***``.
 
 ### dds/gpq
 
@@ -90,25 +95,26 @@ This contains a small database of GPS positions for the last few days. Contains 
 - fixed_filename.json: fixed hauls, helps in generating a CST file with 1 repeated location.
 - mobile_date.json: mobile hauls, helps in generating a CST file with N different locations to reconstruct GPS path of trawl.
 
-### dds/lef
-
-Stands for Lowell Event File. Files here are created when a download event happens. This info is attached to the TRACKING log to synchronize time / event happened / position for ODN.
 
 ### dds/macs
 
-Stores black and orange temporary excluded macs
+Black and orange temporary excluded macs.
 
 ### dds/sqs
 
-Contains notification files not yet sent uplink via SQS.
+Contains notification files not yet sent uplink via SQS. Deleted once sent.
 
 ### dds/tweak
 
-Contains files such as ``11-22-33-44-55-66.rst``. If this file is present, the next time DDH encounters this logger MAC, it will send the RST command to make the logger restart itself.
+Contains files such as ``11-22-33-44-55-66.rst``. 
+
+If present, the next time DDH encounters this logger MAC, it will restart the logger.
+
+Solves some old bugs.
 
 ### logs
 
-DDH running logs.
+DDH application logs, contains python messages.
 
 ### rpc
 
@@ -124,18 +130,21 @@ Indicates the language the DDH should display its text with. Under development.
 
 ### settings/all_macs.toml
 
-Contains all the MACs of the project the DDH is part of.
+Contains all the logger MACs of the 3-letters project name this current DDH is part of.
 
 ### settings/config.toml
 
-Contains the configuration of the running DDH. May contain all the MACs in ``all_macs.toml`` or a subset of them.
+DDH main configuration file. May contain all the MACs in ``all_macs.toml`` or a subset of them.
 
 
 
 
-# Files in /tmp
+folder /tmp
+===========
 
-These fields only last while the DDH is on and get eliminated upon reboot. They are useful to indicate temporary flags.
+These fields only last while the DDH is on.
+
+They get eliminated upon reboot. They are useful to indicate temporary expiring flags.
 
 ### .ddh_needs_reboot_post_install.flag
 
@@ -143,7 +152,7 @@ DDH GUI application will not boot while this field is present.
 
 ### gps_dummy_mode.json
 
-DDH simulates latitude and longitude values specified in ``config.toml``.
+This flag indicates the DDH it should use the simulated latitude and longitude values specified in ``config.toml``.
 
 ### ddh_boat_speed.json
 
@@ -155,11 +164,11 @@ When present, the DDH does NOT scan for Bluetooth loggers.
 
 ### ddh_graph_test_mode.json
 
-When present, DDH graphs test data, not real one. Toggled with ``DDC`` tool.
+When present, DDH graphs display test data, not real one. Toggled with ``DDC`` tool.
 
 ### graph_req.json 
 
-Written by DDS to indicate DDH GUI the logger it wants a plot for.
+Written by DDS to indicate DDH GUI a logger it wants a plot for. Used after a logger download.
 
 ### gps_last.json
 
@@ -175,7 +184,7 @@ Indicates the DDH GUI has been closed pressing the upper-right ``X``.
 
 ### ddh_aws_has_something_to_do_via_gui.flag
 
-Useful to indicate from the GUI we want to force an AWS sync.
+Useful to indicate from the GUI we want to force an AWS sync. The user may have pressed the cloud icon.
 
 ### ddh_cnv_requested_via_gui.flag
 
@@ -187,7 +196,7 @@ Indicates the DDH updated itself recently (beta).
 
 ### ddh_app_override_file.flag
 
-Indicates the "clear lock out" button has been pressed to clear macs, force a download, etc.
+Indicates the ``clear lock out`` button has been pressed to clear macs, force a download, etc.
 
 ### internet_via.json
 
