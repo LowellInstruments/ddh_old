@@ -68,23 +68,23 @@ def sqs_serve():
     # grab / collect SQS files to send
     # ---------------------------------
     fol = get_ddh_folder_path_sqs()
-    files = glob.glob("{}/*.sqs".format(fol))
+    files = glob.glob(f"{fol}/*.sqs")
     if files:
         lg.a("---------------------")
         lg.a(f"serving {len(files)} SQS files")
         lg.a("---------------------")
 
-    for _ in files:
+    for i_f in files:
 
         # this happens not often but did once
-        if os.path.getsize(_) == 0:
-            os.unlink(_)
+        if os.path.getsize(i_f) == 0:
+            os.unlink(i_f)
             continue
 
         # reads local SQS file as JSON
-        f = open(_, "r")
+        f = open(i_f, "r")
         j = json.load(f)
-        lg.a("serving file {}".format(_))
+        lg.a(f"serving file {i_f}")
 
         try:
             # ENQUEUES the JSON as string to SQS service
@@ -98,9 +98,9 @@ def sqs_serve():
 
             md = rsp["ResponseMetadata"]
             if md and int(md["HTTPStatusCode"]) == 200:
-                lg.a(f"SQS OK sent msg\n{m}")
+                lg.a(f"SQS OK sent msg\n\t{m}")
                 # delete SQS file
-                os.unlink(_)
+                os.unlink(i_f)
                 # tell status database for API all went fine
                 ddh_write_aws_sqs_ts('sqs', 'ok')
 
