@@ -78,36 +78,35 @@ class _DDHNotification:
         now_utc = datetime.utcnow()
         rv = sp.run("uptime -p", shell=True, stdout=sp.PIPE)
         up = rv.stdout.decode()
-        
         rv = sp.run("awk '{print $1}' /proc/uptime", shell=True, stdout=sp.PIPE)
         up_int = rv.stdout.decode()
 
         self.msg_ver = ver
         self.reason = s
-        self.time_local_epoch = int(now.timestamp())
-        self.time_local_str = str(now).split('.')[0]
-        self.time_utc_epoch = int(now_utc.timestamp())
-        self.time_utc_str = str(now_utc).split('.')[0]
-        self.time_zone_ddh = tzlocal.get_localzone_name()
-        _o = datetime.now(pytz.timezone(self.time_zone_ddh)).strftime('%z')
-        self.time_zone_offset = _o
-        self.time_uptime_str = up.replace('\n', '')
-        self.time_uptime_int_str = up_int.replace('\n', '')
-        self.ddh_sw_commit = get_ddh_commit()
+        self.ddh_box_name = dds_get_cfg_vessel_name()
+        self.ddh_box_sn = dds_get_cfg_box_sn()
+        self.ddh_box_project = dds_get_cfg_box_project()
+        self.ddh_platform = get_ddh_platform()
         self.ddh_sw_version = get_ddh_local_sw_version()
+        self.ddh_bluez_version = g_bluez_ver
+        _, self.ddh_ble_antenna = ble_mat_get_antenna_type_v2()
         self.ddh_gps_position = ''
         self.ddh_gps_speed = ''
-        _, self.ddh_ble_antenna = ble_mat_get_antenna_type_v2()
-        self.ddh_bluez_version = g_bluez_ver
         if g:
             lat, lon, _, speed = g
             if lat:
                 self.ddh_gps_position = '{:.4f}, {:.4f}'.format(float(lat), float(lon))
             self.ddh_gps_speed = '{:.2f} knots'.format(float(speed))
-        self.ddh_box_name = dds_get_cfg_vessel_name()
-        self.ddh_box_sn = dds_get_cfg_box_sn()
-        self.ddh_box_project = dds_get_cfg_box_project()
-        self.ddh_platform = get_ddh_platform()
+        self.ddh_sw_commit = get_ddh_commit()
+        self.time_local_str = str(now).split('.')[0]
+        self.time_utc_str = str(now_utc).split('.')[0]
+        self.time_local_epoch = int(now.timestamp())
+        self.time_utc_epoch = int(now_utc.timestamp())
+        self.time_zone_ddh = tzlocal.get_localzone_name()
+        _o = datetime.now(pytz.timezone(self.time_zone_ddh)).strftime('%z')
+        self.time_zone_offset = _o
+        self.time_uptime_str = up.replace('\n', '')
+        self.time_uptime_int_str = up_int.replace('\n', '')
         self.logger_mac = ""
         self.logger_sn = ""
         self.logger_type = ""
