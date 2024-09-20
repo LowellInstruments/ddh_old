@@ -122,6 +122,7 @@ def main_dds():
             if gps_clock_sync_if_so(tg):
                 break
         time.sleep(1)
+        # todo ---> what the F is wrong with this
         # if is_it_time_to('tell_not_able_to_gps_clock_sync', 1800):
         #     notify_error_gps_clock_sync()
         #     sqs_serve()

@@ -13,8 +13,8 @@ sudo systemctl stop unit_switch_net.service
 
 _pb "setting cell as default output network interface"
 sudo setcap 'cap_net_raw,cap_net_admin+eip' /usr/sbin/ifmetric
-sudo ifmetric wlan0 400
-sudo ifmetric ppp0 0
+sudo /usr/sbin/ifmetric wlan0 400
+sudo /usr/sbin/ifmetric ppp0 0
 
 
 
