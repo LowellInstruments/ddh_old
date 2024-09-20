@@ -36,7 +36,7 @@ def main():
         _p('cell')
         return
 
-    _p('none')
+    _p('.')
 
 
 if __name__ == '__main__':
