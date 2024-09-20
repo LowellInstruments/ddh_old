@@ -129,7 +129,7 @@ class DDH(QMainWindow, d_m.Ui_MainWindow):
                 ans = ans.replace(b"'C", b"")
                 ans = ans.replace(b"temp=", b"")
                 ans = float(ans.decode())
-                if ans > 55:
+                if ans > 65:
                     lg.a(f"debug: box temperature {ans} degrees Celsius")
 
         except (Exception,) as ex:

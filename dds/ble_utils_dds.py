@@ -121,8 +121,8 @@ def ble_tell_gui_antenna_type(_h, desc):
     if is_it_time_to(s, 60):
         _u(f"{STATE_DDS_BLE_ANTENNA}/{desc} radio")
 
-    # run this once
-    if is_it_time_to('tell_gui_antenna_type', 3600):
+    # run this once a day at most
+    if is_it_time_to('tell_gui_antenna_type', 86400):
         lg.a(s)
 
 

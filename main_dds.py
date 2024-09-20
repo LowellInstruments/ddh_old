@@ -124,6 +124,7 @@ def main_dds():
         time.sleep(1)
         if is_it_time_to('tell_not_able_to_gps_clock_sync', 1800):
             notify_error_gps_clock_sync()
+            sqs_serve()
 
     # detecting and selecting Bluetooth antenna
     # leave this here so BLE has time to get up

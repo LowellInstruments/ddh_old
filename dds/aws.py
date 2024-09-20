@@ -237,10 +237,10 @@ def aws_serve():
 
     # tell why we do AWS
     if os.path.exists(flag_gui):
-        lg.a("debug: the aws_do_flag_gui is set")
+        lg.a("GUI requested a AWS S3 sync")
         os.unlink(flag_gui)
     else:
-        lg.a("it seems it's time for some AWS S3 syncing")
+        lg.a("periodic AWS S3 sync")
 
     # ---------------------------------------------------
     # nothing to AWS sync, number of files did not change
@@ -253,10 +253,10 @@ def aws_serve():
     past_n_files = len(mon_ls)
     if len(mon_ls) == 0:
         _u(STATE_DDS_NOTIFY_CLOUD_OK)
-        lg.a('warning: AWS zero number of files, not syncing')
+        lg.a('number of files is 0, not AWS S3 syncing')
         return
     if ff_ctt:
-        lg.a('warning: AWS same number of files, not syncing')
+        lg.a('number of files did not change, not AWS S3 syncing')
         return
     lg.a(f'folder "dl_files" currently has {len(mon_ls)} files')
 
