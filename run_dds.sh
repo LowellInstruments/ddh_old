@@ -17,7 +17,7 @@ check_already_running "main_dds_controller"
 
 
 
-_pb "DDS deleting BLUEZ cache"
+_pb "DDS delete BLE cache"
 grep 'ble_del_cache = 1' "$FOL_DDH"/settings/config.toml
 rv=$?
 if [ $rv -eq 0 ]; then
@@ -49,12 +49,19 @@ fi
 
 
 
+_pb "DDS set BLE connection supervision timeout"
+touch /tmp/200
+sudo cp /tmp/200 /sys/kernel/debug/bluetooth/hci0/supervision_timeout 2> /dev/null
+sudo cp /tmp/200 /sys/kernel/debug/bluetooth/hci1/supervision_timeout 2> /dev/null
+
+
+
 _pb "DDS check wi-fi interface is not rf-killed"
 sudo rfkill unblock wlan
 
 
 
-_pb "DDS set permissions 'date' and 'ifmetric'"
+_pb "DDS set permissions on linux binaries 'date' and 'ifmetric'"
 sudo setcap CAP_SYS_TIME+ep /bin/date
 sudo setcap 'cap_net_raw,cap_net_admin+eip' /usr/sbin/ifmetric
 
@@ -66,7 +73,7 @@ source "$FOL_VEN"/bin/activate
 
 
 
-_pb "DDS auto-detecting Quectel shield USB ports"
+_pb "DDS run main_qus.py to auto-detect Quectel shield USB ports"
 cd "$FOL_DDH" && "$FOL_VEN"/bin/python main_qus.py
 QUECTEL_USB_CTL=$(cat /tmp/usb_quectel_ctl)
 
@@ -79,13 +86,6 @@ if [ "${QUECTEL_USB_CTL}" ]; then
     echo -ne "AT+QCCID\r" > "$QUECTEL_USB_CTL" && \
     sleep 0.1 && timeout 1 cat -v < "$QUECTEL_USB_CTL" | grep QCCID > "$LI_FILE_ICCID"
 fi
-
-
-_pb "tweak the connection supervision timeout parameter"
-touch /tmp/200
-sudo cp /tmp/200 /sys/kernel/debug/bluetooth/hci0/supervision_timeout 2> /dev/null
-sudo cp /tmp/200 /sys/kernel/debug/bluetooth/hci1/supervision_timeout 2> /dev/null
-
 
 
 

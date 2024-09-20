@@ -18,9 +18,11 @@ check_already_running "main_ddh_controller"
 
 
 
-_pb "DDH set XAUTHORITY, DISPLAY env. variables"
+_pb "DDH set XAUTHORITY, DISPLAY linux environment variables"
 export XAUTHORITY=/home/pi/.Xauthority
 export DISPLAY=:0
+
+
 
 
 echo && echo
