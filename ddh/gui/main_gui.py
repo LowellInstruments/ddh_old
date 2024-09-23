@@ -611,9 +611,9 @@ class DDH(QMainWindow, d_m.Ui_MainWindow):
         # process_graph_csv_data.cache_clear()
         p = LI_PATH_PLOT_DATA_EVEN_OUT_WATER
         if ddh_get_file_flag_plot_wc():
-            os.unlink(p)
-        if self.chk_plt_outside_water.isChecked():
             pathlib.Path(p).touch()
+        if self.chk_plt_outside_water.isChecked():
+            os.unlink(p)
 
     def click_graph_btn_reset(self):
         self.g.getPlotItem().enableAutoRange()
