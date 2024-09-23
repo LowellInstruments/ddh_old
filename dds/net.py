@@ -17,7 +17,7 @@ IP = "8.8.8.8"
 def _get_internet_via():
 
     # check we have any type of internet
-    c = f"timeout 1 ping -c 1 {IP}"
+    c = f"timeout 1 ping -c 1 www.google.com -4"
     for i in range(3):
         rv = sp.run(c, shell=True, stdout=sp.PIPE, stderr=sp.PIPE)
         if rv.returncode == 0:

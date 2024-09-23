@@ -22,14 +22,14 @@ g_debug = 0
 
 def main():
 
-    wlan_via = _sh(f'timeout 1 ping -c 1 -I wlan0 {IP}')
+    wlan_via = _sh(f'timeout 1 ping -c 1 -I wlan0 www.google.com -4')
     wlan_used = _sh(f'ip route get {IP} | grep wlan0')
 
     if wlan_via and wlan_used:
         _p('wifi')
         return
 
-    cell_via = _sh(f'timeout 1 ping -c 1 -I ppp0 {IP}')
+    cell_via = _sh(f'timeout 1 ping -c 1 -I ppp0 www.google.com -4')
     cell_used = _sh(f'ip route get {IP} | grep ppp0')
 
     if cell_via and cell_used:
