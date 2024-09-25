@@ -40,7 +40,7 @@ _g_ble_scan_early_leave = None
 # PASSIVE scanning makes loggers relying on SCAN_REQ to detect out-of-water slower
 # see https://github.com/hbldh/bleak/issues/1433
 _gbv = ble_mat_get_bluez_version()
-_g_ble_scan_mode = "passive" if (exp_get_use_ble_passive_scanning()
+_g_ble_scan_mode = "passive" if (exp_get_use_ble_passive_scanning() == 1
                                  and _gbv >= '5.65') else "active"
 lg.a(f'bluez v.{_gbv} -> BLE scan mode {_g_ble_scan_mode}')
 
