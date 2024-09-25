@@ -184,6 +184,10 @@ class DDH(QMainWindow, d_m.Ui_MainWindow):
         # update lower box
         self.lst_mac_dst.clear()
         for m, n in d_b.items():
+            if '-' in m:
+                s = f'MAC {m} is wrong'
+                gui_confirm_by_user(s)
+                continue
             s = "{}  {}".format(m, n)
             self.lst_mac_dst.addItem(s)
 

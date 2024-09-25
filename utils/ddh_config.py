@@ -1,5 +1,7 @@
 import copy
 import pathlib
+import time
+
 import toml
 import os
 import subprocess as sp
@@ -28,12 +30,15 @@ def _check_monitored_macs_in_cfg_file(c):
     for k, v in c['monitored_macs'].items():
         if '-' in k:
             print('error: "-" symbol in monitored macs, use ":"')
+            time.sleep(2)
             os._exit(1)
         if type(k) is not str:
             print(f'error: {k} in config file is not a string')
+            time.sleep(2)
             os._exit(1)
         if type(v) is not str:
             print(f'error: {v} in config file is not a string')
+            time.sleep(2)
             os._exit(1)
 
 
