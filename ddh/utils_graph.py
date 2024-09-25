@@ -12,6 +12,7 @@ from utils.ddh_shared import (get_ddh_folder_path_dl_files,
                               get_dl_folder_path_from_mac, TESTMODE_FILENAMEPREFIX)
 from utils.logs import lg_gra as lg
 from utils.flag_paths import TMP_PATH_GRAPH_REQ_JSON
+from utils.units import dbar_to_fathoms
 
 CTT_ATM_PRESSURE_DBAR = 10.1325
 
@@ -248,7 +249,7 @@ def process_graph_csv_data(fol, h, hi) -> dict:
 
     # check
     if not met:
-        lg.a('error: no metric keys to graph folder {}'.format(fol))
+        lg.a(f'error: no metric keys to graph folder {fol}')
         return {}
 
     # summary
@@ -263,7 +264,7 @@ def process_graph_csv_data(fol, h, hi) -> dict:
     # read CSV
     # ---------
     x = []
-    t, p, pf, mpf = [], [], [], []
+    t, p, pftm, mpf = [], [], [], []
     doc, dot, wat = [], [], []
     tdo_t, tdo_p, tdo_ax, tdo_ay, tdo_az = [], [], [], [], []
     is_moana = False
@@ -386,12 +387,12 @@ def process_graph_csv_data(fol, h, hi) -> dict:
     for c in tdo_t:
         tdo_tf.append(((float(c) * 9) /5) + 32)
 
-    # Depth calculation, convert: f = (dbar - a) * 0.5468
-    pf = [(d - CTT_ATM_PRESSURE_DBAR) * .5468 for d in p]
-    tdo_pf = [(d - CTT_ATM_PRESSURE_DBAR) * .5468 for d in tdo_p]
-    mpf = [d * .5468 for d in p]
+    # Depth conversion to fathoms ftm
+    pftm = [dbar_to_fathoms(d - CTT_ATM_PRESSURE_DBAR) for d in p]
+    tdo_pftm = [dbar_to_fathoms(d - CTT_ATM_PRESSURE_DBAR) for d in tdo_p]
     # Moana loggers pressure does not include atm. pressure
-    pf = pf if not is_moana else mpf
+    mpf = [d * .5468 for d in p]
+    pftm = pftm if not is_moana else mpf
 
     # convert 2018-11-11T13:00:00.000 --> seconds
     try:
@@ -415,7 +416,7 @@ def process_graph_csv_data(fol, h, hi) -> dict:
         'Temperature (C) TP': t,
         'Temperature (F) TP': tf,
         'Pressure (dbar) TP': p,
-        'Depth (fathoms) TP': pf,
+        'Depth (fathoms) TP': pftm,
         'DO Concentration (mg/l) DO': doc,
         'Temperature (C) DO': dot,
         'Temperature (F) DO': dotf,
@@ -423,7 +424,7 @@ def process_graph_csv_data(fol, h, hi) -> dict:
         'Temperature (C) TDO': tdo_t,
         'Temperature (F) TDO': tdo_tf,
         'Pressure (dbar) TDO': tdo_p,
-        'Depth (fathoms) TDO': tdo_pf,
+        'Depth (fathoms) TDO': tdo_pftm,
         'Ax TDO': tdo_ax,
         'Ay TDO': tdo_ay,
         'Az TDO': tdo_az,

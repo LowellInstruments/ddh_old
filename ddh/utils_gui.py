@@ -642,7 +642,8 @@ def _gui_parse_udp(my_app, s, ip="127.0.0.1"):
             g_last_ct = ct
 
     elif f == STATE_DDS_BLE_DOWNLOAD_STATISTICS:
-        # v: can be filled or empty
+        # v: can be filled or empty, also it needs a small patch
+        v = v.replace('mg_l', 'mg/l')
         a.lbl_summary_dl.setText(v)
         a.lbl_summary_dl.setVisible(bool(v))
         ci = g_last_ci

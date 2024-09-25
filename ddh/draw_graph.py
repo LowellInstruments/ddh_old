@@ -612,7 +612,7 @@ def _process_n_graph(a, r=''):
     try:
         if met == 'TDO':
             if (not is_rpi) or (is_rpi and r == 'BLE'):
-                dp = data['Pressure (dbar) TDO']
+                dp = data['Depth (fathoms) TDO']
                 dt = data['Temperature (F) TDO']
                 # calculate 80th percentile to ensure bottom sea values
                 p80 = _percentile(dp, 80)
@@ -622,8 +622,9 @@ def _process_n_graph(a, r=''):
                         ls_p.append(dp[i])
                         ls_t.append(dt[i])
                 lg.a(f'debug: detected TDO data, percentile 80 is {p80}')
-                s = 'haul mean\n'
-                s += '{:5.2f} dbar\n'.format(np.nanmean(ls_p))
+                s = 'haul summary\n'
+                s += f'{t1} to {t2}'
+                s += '{:5.2f} fathoms\n'.format(np.nanmean(ls_p))
                 s += '{:5.2f} °F'.format(np.nanmean(ls_t))
                 _u(f"{STATE_DDS_BLE_DOWNLOAD_STATISTICS}/{s}")
 
@@ -643,7 +644,8 @@ def _process_n_graph(a, r=''):
                     lg.a('debug: detected DO-1 data, adding all values')
                     ls_do = _do
                     ls_dt = dt
-                s = 'haul mean\n'
+                s = 'haul summary\n'
+                s += f'{t1} to {t2}'
                 s += '{:5.2f} mg_l\n'.format(np.nanmean(ls_do))
                 s += '{:5.2f} °F'.format(np.nanmean(ls_dt))
                 _u(f"{STATE_DDS_BLE_DOWNLOAD_STATISTICS}/{s}")
