@@ -88,7 +88,7 @@ def cb_test_gps_quectel():
                     print(line)
             ser.close()
         else:
-            p_e('no testing GPS puck')
+            p_e('no testing GPS USB puck')
     except (Exception,) as ex:
         p_e(str(ex))
 
@@ -278,12 +278,12 @@ def cb_is_ddh_running():
 def cb_ddh_show_help():
     _p('test mode    -> prefixes downloaded filenames with "testfile_"')
     _p('GPS dummy    -> GPS is simulated, it uses position in config.toml')
-    _p('GPS puck     -> GPS source is a USB GPS puck, not a RPi shield')
+    _p('GPS USB puck -> GPS source is a GPS USB puck, not a RPi shield')
     _p('crontab      -> automatically starts or not DDH app upon boot')
     _p('kill DDH     -> forces DDH app to quit')
     _p('graph demo   -> the DDH plotting tab will use simulated data')
     _p('credentials  -> checks the DDH has all the passwords to run OK')
-    _p('GPS shield   -> tests the GPS shield, not the GPS puck')
+    _p('GPS shield   -> tests the GPS shield, not the GPS USB puck')
     _p('side buttons -> tests the DDH real side buttons to be working')
     _p('BLE range    -> tests how well a logger\'s signal reaches the DDH')
     _p('MAC range    -> sets the MAC address used in BLE range')
@@ -324,7 +324,7 @@ def main_ddc():
         d = {
             '0': (f"0) set test mode     [{ftm}]", cb_test_mode),
             '1': (f"1) set GPS dummy     [{fgd}]", cb_gps_dummy),
-            '2': (f"2) set GPS puck      [{fge}]", cb_gps_external),
+            '2': (f"2) set GPS USB puck  [{fge}]", cb_gps_external),
             '3': (f"3) set crontab       [{fcd}]", cb_crontab_ddh),
             '4': (f"4) kill DDH app      [{fdr}]", cb_kill_ddh),
             '5': (f"5) set graph demo    [{fgt}]", cb_graph_demo),
