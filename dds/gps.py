@@ -74,8 +74,9 @@ def _gps_bu353s4_find_usb_port():
 
 # this is nice, it even fallbacks if config is for
 # external GPS puck but it is not present
-_g_bu353s4_port = _gps_bu353s4_find_usb_port() if \
-    dds_get_cfg_flag_gps_external() else None
+_g_bu353s4_port = None
+if dds_get_cfg_flag_gps_external():
+    _g_bu353s4_port = _gps_bu353s4_find_usb_port()
 
 
 def _gps_ll_check_hat_out_stream():
@@ -482,7 +483,7 @@ def gps_power_cycle_if_so(forced=False):
 
     if _g_bu353s4_port:
         if is_it_time_to("show_debug_power_cycle_gps_puck", PERIOD_GPS_TELL_PUCK_NO_PC):
-            lg.a("debug: no power cycle BU-353-S4 GPS puck")
+            lg.a(f"debug: no power cycle BU-353-S4 GPS puck on {_g_bu353s4_port}")
         return
 
     # ------------------------
