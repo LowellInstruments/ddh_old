@@ -113,3 +113,6 @@
     fixed some bug in BLE_LSB_DOX
     added notification when cannot clock sync at boot
 
+4.0.24 - September 23, 2024
+
+    fixed logic bug plot-in-water, out-of-water
