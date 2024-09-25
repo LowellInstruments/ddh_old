@@ -17,8 +17,7 @@ from PyQt5.QtWidgets import (
 )
 from ddh.db.db_his import DbHis
 from ddh.draw_graph import process_n_graph
-from ddh.utils_dtm import gui_populate_maps_tab
-from ddh.utils_net import net_get_my_current_wlan_ssid
+from ddh.utils_maps import gui_populate_maps_tab
 from dds.emolt import this_box_has_grouped_s3_uplink
 from dds.timecache import is_it_time_to
 from locales.locales import _x
@@ -91,10 +90,16 @@ g_lock_icon_timer = 0
 g_app_uptime = time.perf_counter()
 dim_done_day = 0
 dim_done_night = 0
-
-
 g_last_ci = ''
 g_last_ct = ''
+
+
+class ButtonPressEvent:
+    def __init__(self, code):
+        self.code = code
+
+    def key(self):
+        return self.code
 
 
 def _calc_app_uptime():
@@ -728,7 +733,7 @@ def _gui_parse_udp(my_app, s, ip="127.0.0.1"):
     elif f == STATE_DDS_NOTIFY_NET_VIA:
         a.lbl_net_txt.setText(v)
         if v in ("wifi", "wi-fi"):
-            ssid = net_get_my_current_wlan_ssid()
+            ssid = gui_get_my_current_wlan_ssid()
             a.lbl_net_txt.setText(ssid)
 
     # -------------------
@@ -841,8 +846,7 @@ def gui_timer_fxn(my_app):
     gui_dog_touch()
 
     # dim brightness depending on night / day
-    # todo ---> use this
-    # dim_screen_depending_on_hour(a)
+    # gui_dim_screen_depending_on_hour(a)
 
     # update the maps tab, prevent freeze at boot
     if ddh_get_cfg_maps_en() and\
@@ -932,15 +936,7 @@ def gui_ddh_set_brightness(a):
     a.lbl_brightness_txt.setText(str(ceil(100 * v / 255)) + "%")
 
 
-class ButtonPressEvent:
-    def __init__(self, code):
-        self.code = code
-
-    def key(self):
-        return self.code
-
-
-def dim_screen_depending_on_hour(a):
+def gui_dim_screen_depending_on_hour(a):
     global dim_done_day
     global dim_done_night
     h = int(datetime.datetime.now().strftime("%H"))
@@ -957,3 +953,27 @@ def dim_screen_depending_on_hour(a):
         dim_done_day = 0
         a.num_clicks_brightness = 0
         gui_ddh_set_brightness(a)
+
+
+def gui_get_my_current_wlan_ssid() -> str:
+    """gets connected wi-fi network name, if any"""
+
+    if linux_is_rpi():
+        c = "/usr/sbin/iwgetid -r"
+        s = sp.run(c, shell=True, stdout=sp.PIPE)
+        return s.stdout.decode().rstrip("\n")
+
+    # when developing
+    c = "nmcli -t -f name connection show --active"
+    rv = sp.run(c, shell=True, stdout=sp.PIPE)
+    if rv.returncode == 0:
+        # rv.stdout: b'Candy_Corn\nwg0\n'
+        return rv.stdout.decode().split("\n")[0]
+
+    # this may return a command not found error
+    c = "iwgetid -r"
+    rv = sp.run(c, shell=True, stdout=sp.PIPE)
+    if rv.returncode == 0:
+        return rv.stdout.decode().rstrip("\n")
+
+    return ""

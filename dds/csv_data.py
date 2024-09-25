@@ -9,6 +9,8 @@ from utils.logs import lg_cnv as lg
 
 # --------------------------------------------------
 # outputs a CST file (CSV file + tracking GPS info)
+# this CST file is different from logger CST files
+# I think we don't use this anymore
 # --------------------------------------------------
 
 def _file_lowell_raw_csv_to_emolt_lt_csv(filename):

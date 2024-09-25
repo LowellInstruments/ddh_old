@@ -4,7 +4,10 @@ import pathlib
 from dds.timecache import is_it_time_to
 from mat.data_converter import default_parameters, DataConverter
 from mat.data_file_factory import load_data_file
-from mat.lix import id_lid_file_flavor, LID_FILE_V1, LID_FILE_V2, lid_file_v2_has_sensor_data_type
+from mat.lix import (
+    id_lid_file_flavor, LID_FILE_V1,
+    LID_FILE_V2, lid_file_v2_has_sensor_data_type
+)
 from mat.lix_pr import convert_lix_file
 from mat.utils import linux_ls_by_ext
 from utils.logs import lg_cnv as lg
@@ -55,8 +58,8 @@ def _cnv_lid_file_v1(path, suf):
         return
 
     # do the v1 conversion
-    parameters = default_parameters()
-    DataConverter(f, parameters).convert()
+    _params = default_parameters()
+    DataConverter(f, _params).convert()
     lg.a(f"OK: converted LID file v1 {f} for suffix {suf}")
 
     # --------------------------------
@@ -85,24 +88,22 @@ def _cnv_lid_file_v2(f, suf):
 
 def _cnv_fol_lid(fol, suf) -> list:
 
-    # check asked folder (ex: dl_files/e5-fc-4e-94-ed-dd) exists
+    # check folder (ex: dl_files/e5-fc-4e-94-ed-dd) exists
     if not pathlib.Path(fol).is_dir():
         lg.a(f"error: folder {fol} not found")
         return []
 
-    # check asked suffix (ex: _DissolvedOxygen) exists
+    # check suffix (ex: _DissolvedOxygen) exists
     valid_suffixes = ("_DissolvedOxygen", "_Temperature", "_Pressure", "_TDO")
     if suf not in valid_suffixes:
         lg.a(f"error: unknown suffix {suf}")
         return []
 
-    # --------------------------
-    # we only convert LID files
-    # --------------------------
+    # convert LID files
     global _g_files_we_cannot_convert
     global _g_files_already_converted
-    for f in linux_ls_by_ext(fol, "lid"):
 
+    for f in linux_ls_by_ext(fol, "lid"):
         # IGNORE test_files
         if os.path.basename(f).startswith('test'):
             continue
@@ -156,9 +157,9 @@ def _cnv_serve():
     mac_folders = [f.path for f in os.scandir(fol) if f.is_dir()]
     mac_folders = [f for f in mac_folders if '#' not in f]
     for f in mac_folders:
-        # this routine only converts LID files, not BIN or anything
+        # only converts LID files, not BIN or anything
         for m in ("_DissolvedOxygen", "_Temperature", "_Pressure", "_TDO"):
-            # same file is processed for multiple metrics
+            # same file processed for multiple metrics
             _cnv_fol_lid(f, m)
 
     lg.a('----------------------------')

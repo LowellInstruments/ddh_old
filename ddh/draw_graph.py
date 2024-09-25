@@ -18,7 +18,7 @@ from pyqtgraph.Qt import QtGui
 from ddh.utils_graph import (utils_graph_read_fol_req_file,
                              utils_graph_get_abs_fol_list, process_graph_csv_data,
                              utils_graph_does_exist_fol_req_file,
-                             utils_graph_delete_fol_req_file, utils_graph_classify_file_wc_mode)
+                             utils_graph_delete_fol_req_file, utils_graph_gfm_classify_file_wc_mode)
 from dds.timecache import is_it_time_to
 from mat.linux import linux_is_process_running
 from mat.utils import linux_is_rpi
@@ -49,26 +49,27 @@ def _percentile(data, perc: int):
 
 
 def gfm_serve():
-    # -----------------------------------------
-    # GFM: graph water column mode
-    # only graphs files with water column data
-    # -----------------------------------------
+    # ------------------------------------------------------------------
+    # GFM: graph water column Mode only plots files with in-water data
+    # ------------------------------------------------------------------
     _P_ = "dds_gfm"
 
     def _gfm_serve():
         setproctitle.setproctitle(_P_)
         try:
-            # first grab all of them
+            # step 1, grab all CSV files
             fol = get_ddh_folder_path_dl_files()
             ls_tdo = glob(f'{fol}/**/*_TDO.csv', recursive=True)
             ls_dox = glob(f'{fol}/**/*_DissolvedOxygen.csv', recursive=True)
             ls = ls_tdo + ls_dox
-            # then classify them
+
+            # step 2, classify them
             for i in ls:
-                utils_graph_classify_file_wc_mode(i)
+                utils_graph_gfm_classify_file_wc_mode(i)
 
         except (Exception, ) as ex:
             lg.a(f'error: gfm_serve -> ex {ex}')
+
         # instead of return prevents zombie processes
         sys.exit(0)
 
@@ -254,7 +255,7 @@ def _process_n_graph(a, r=''):
         lg.a('graph: selected last BLE download {}'.format(fol))
         utils_graph_delete_fol_req_file()
     else:
-        # people pressing graph buttons
+        # people pressing GUI graph buttons
         sn = a.cb_g_sn.currentText()
         if not sn:
             raise GraphException('no one asked for a graph?')
@@ -284,7 +285,7 @@ def _process_n_graph(a, r=''):
             a.btn_g_next_haul.setEnabled(False)
             a.btn_g_next_haul.setVisible(False)
 
-    # get buttons visible or not conditionally
+    # GUI buttons visible or not conditionally
     a.cb_g_switch_tp.setVisible(False)
 
     # ----------------------------------------
@@ -566,7 +567,7 @@ def _process_n_graph(a, r=''):
             arr[arr < 0] = 0
             y1 = list(arr)
 
-            # chop, this graph mess x-axis when outliers
+            # chopped, this graph messes x-axis when outliers
             # ls_idx = _get_outliers_indexes(y2, 10, 90)
             # cy1 = [j for i, j in enumerate(y1) if i not in ls_idx]
             # cy2 = [j for i, j in enumerate(y2) if i not in ls_idx]
@@ -652,12 +653,8 @@ def _process_n_graph(a, r=''):
 
 def process_n_graph(a, r=''):
     try:
-        # ----------
-        # graph it
-        # ----------
         _graph_busy_sign_show(a)
         _process_n_graph(a, r)
-
         # remove any past error
         a.g.setTitle('')
 

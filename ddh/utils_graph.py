@@ -16,20 +16,19 @@ from utils.flag_paths import TMP_PATH_GRAPH_REQ_JSON
 CTT_ATM_PRESSURE_DBAR = 10.1325
 
 
-def _utils_graph_build_wc_mode_file_name(path):
-    # wc: stands for water column
-    # legacy: fast mode graph (fmg) were files with water column data
+def _gfm_build_filename_wc(path):
+    # wc: water column, legacy versions called fast (profiling) mode graph (fmg)
     bn = '._' + os.path.basename(path)[:-4] + '.fmg'
     return f'{os.path.dirname(path)}/{bn}'
 
 
-def _utils_graph_build_nowc_mode_file_name(path):
-    # legacy: slow mode graph (smg) were files w/o water column data
+def _gfm_build_filename_no_wc(path):
+    # legacy: old slow (no profiling) mode graph (smg) files w/o water column data
     bn = '._' + os.path.basename(path)[:-4] + '.smg'
     return f'{os.path.dirname(path)}/{bn}'
 
 
-def utils_graph_classify_file_wc_mode(p):
+def utils_graph_gfm_classify_file_wc_mode(p):
     # p: full path
     p = str(p)
     bn = os.path.basename(p)
@@ -40,14 +39,14 @@ def utils_graph_classify_file_wc_mode(p):
         return
 
     # leave when already exists water column mode file
-    f_wc = _utils_graph_build_wc_mode_file_name(p)
+    f_wc = _gfm_build_filename_wc(p)
+    f_nowc = _gfm_build_filename_no_wc(p)
     if os.path.exists(f_wc):
         return
-    f_nowc = _utils_graph_build_nowc_mode_file_name(p)
     if os.path.exists(f_nowc):
         return
 
-    # short files considered as to have no water column info
+    # short files considered to have NO water column info
     with open(p, 'r') as f:
         ll = f.readlines()
         if len(ll) <= 3:
@@ -65,12 +64,14 @@ def utils_graph_classify_file_wc_mode(p):
                 lg.a(f'OK: set ON graph water column mode for TDO file {bn}')
                 pathlib.Path(f_wc).touch()
                 return
+
         pathlib.Path(f_nowc).touch()
         lg.a(f'OK: set OFF graph water column mode for TDO file {bn}')
         return
 
     _is_do2 = 'Water' in ll[0]
     if not _is_do2:
+        # this way, we force them to appear on graphs
         lg.a(f'OK: set ON graph water column mode for DO-1 file {bn}')
         pathlib.Path(f_wc).touch()
         return
@@ -86,6 +87,7 @@ def utils_graph_classify_file_wc_mode(p):
                 lg.a(f'OK: set ON graph water column mode for DO-2 file {bn}')
                 pathlib.Path(f_wc).touch()
                 return
+
         pathlib.Path(f_nowc).touch()
         lg.a(f'OK: set OFF graph water column mode for DO-2 file {bn}')
         return
@@ -160,43 +162,6 @@ def utils_graph_set_fol_req_file(mac):
         lg.a("error: graph_set_fol_req_file() {}".format(ex))
 
 
-def _data_build_dict_intervals(df, di) -> dict:
-    # shape: (rows, columns)
-    n = df.shape[0]
-    if n < 2:
-        return di
-
-    # dp: package dateutil_parser
-    a = df.at[0, 'ISO 8601 Time']
-
-    # try:
-    #     x = [dp.isoparse(f'{i}Z').timestamp() for i in x]
-    # except (Exception, ):
-    #     x = [dp.isoparse(f'{i}').timestamp() for i in x]
-    #
-
-    try:
-        ta = dp.isoparse(f'{a}Z').timestamp()
-    except (Exception, ):
-        # old time format, no z
-        ta = dp.isoparse(f'{a}').timestamp()
-
-    b = df.at[1, 'ISO 8601 Time']
-    try:
-        tb = dp.isoparse(f'{b}Z').timestamp()
-    except (Exception, ):
-        # old time format, no z
-        tb = dp.isoparse(f'{b}').timestamp()
-
-    delta = tb - ta
-    v = n
-    if delta in di.keys():
-        v = di[delta]
-        v += n
-    di[delta] = v
-    return di
-
-
 def _data_get_prune_period(x, met):
     if len(x) > 8000:
         lg.a('--------------------------------------')
@@ -214,9 +179,6 @@ def cached_read_csv(f):
     return df
 
 
-# @lru_cache(maxsize=512)
-# this already calls cached_read_csv() so maybe do not cache
-
 def process_graph_csv_data(fol, h, hi) -> dict:
 
     _g_ff_t = sorted(glob(f"{fol}/*_Temperature.csv"))
@@ -230,11 +192,11 @@ def process_graph_csv_data(fol, h, hi) -> dict:
     _g_ff_dot = [i for i in _g_ff_dot if TESTMODE_FILENAMEPREFIX not in i]
     _g_ff_tdo = [i for i in _g_ff_tdo if TESTMODE_FILENAMEPREFIX not in i]
 
-    # the ones NO_WC means either YES_WC or still not processed
-    _g_ff_tdo_wc = [i for i in _g_ff_tdo if not
-                      os.path.exists(_utils_graph_build_nowc_mode_file_name(i))]
-    _g_ff_dot_wc = [i for i in _g_ff_dot if not
-                      os.path.exists(_utils_graph_build_nowc_mode_file_name(i))]
+    # files NOT_NO_WC = YES_WC + ones still not processed
+    _g_ff_tdo_wc = [i for i in _g_ff_tdo
+                    if not os.path.exists(_gfm_build_filename_no_wc(i))]
+    _g_ff_dot_wc = [i for i in _g_ff_dot
+                    if not os.path.exists(_gfm_build_filename_no_wc(i))]
 
     # error moana
     # MOANA_0744_99_240221160010_Temperature.csv
@@ -331,6 +293,10 @@ def process_graph_csv_data(fol, h, hi) -> dict:
             df = cached_read_csv(f)
             x += list(df['ISO 8601 Time'])
             _m = len(list(df['ISO 8601 Time']))
+
+            # -----------------------------------------
+            # use water column filter for data or not
+            # -----------------------------------------
             if plt_all or (plt_wc and f in _g_ff_dot_wc):
                 doc += list(df['Dissolved Oxygen (mg/l)'])
                 dot += list(df['DO Temperature (C)'])
@@ -357,6 +323,10 @@ def process_graph_csv_data(fol, h, hi) -> dict:
             df = cached_read_csv(f)
             x += list(df['ISO 8601 Time'])
             _m = len(list(df['ISO 8601 Time']))
+
+            # -----------------------------------------
+            # use water column filter for data or not
+            # -----------------------------------------
             if plt_all or (plt_wc and f in _g_ff_tdo_wc):
                 tdo_t += list(df['Temperature (C)'])
                 tdo_p += list(df['Pressure (dbar)'])

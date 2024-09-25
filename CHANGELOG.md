@@ -116,3 +116,8 @@
 4.0.24 - September 23, 2024
 
     fixed logic bug plot-in-water, out-of-water
+
+4.0.25 - September 25, 2024
+
+    improved code readability on DDH, not MAT
+

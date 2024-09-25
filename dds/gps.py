@@ -5,7 +5,7 @@ import time
 import serial
 
 from dds.gpq import GpqW
-from dds.notifications import notify_ddh_error_hw_gps, notify_ddh_number_of_gps_satellites
+from dds.notifications_v2 import notify_ddh_error_hw_gps, notify_ddh_number_of_gps_satellites
 from dds.timecache import is_it_time_to
 from mat.quectel import detect_quectel_usb_ports, is_this_telit_cell
 from mat.utils import linux_is_rpi, linux_set_datetime
@@ -411,7 +411,7 @@ def gps_tell_vessel_name():
     _u("{}/{}".format(STATE_DDS_NOTIFY_BOAT_NAME, v))
 
 
-def gps_tell_position_logger(g):
+def gps_log_position_logger(g):
     lat, lon, tg, speed = g
     lg.a(f"logger process at {lat}, {lon}, speed {speed}")
 
@@ -651,4 +651,5 @@ def gps_simulate_boat_speed(s_lo, knots, s_hi):
             return float(k_min), float(k_set), float(k_max)
 
     except (Exception, ):
+        # return default values when file does not exist
         return s_lo, knots, s_hi

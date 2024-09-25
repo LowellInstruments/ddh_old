@@ -4,9 +4,9 @@ from dds.ble_utils_dds import (
     dds_ble_init_rv_notes,
     ble_logger_ccx26x2r_needs_a_reset
 )
-from dds.gpq import dds_create_file_fixed_gpq
-from dds.lef import dds_create_file_lef
-from dds.notifications import *
+from dds.gpq import gpq_create_fixed_mode_file
+from dds.lef import lef_create_file
+from dds.notifications_v2 import *
 from lsb.cmd import *
 from lsb.connect import *
 from lsb.li import UUID_S, UUID_T
@@ -202,12 +202,12 @@ def _dl_logger_tdo_lsb(mac, g, notes: dict, u, hs):
 
         # create LEF file with download info
         lg.a(f"creating file LEF for {name}")
-        dds_create_file_lef(g, name)
+        lef_create_file(g, name)
 
         # create CST file when fixed mode
         _gear_type = ddh_get_cfg_gear_type()
         if _gear_type == 0:
-            dds_create_file_fixed_gpq(g, name)
+            gpq_create_fixed_mode_file(g, name)
 
     # format file-system
     time.sleep(.1)

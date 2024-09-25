@@ -4,13 +4,11 @@ import shutil
 import time
 import threading
 from signal import pause
-
 from gpiozero import Button
-
 from dds.gps import gps_simulate_boat_speed
 from dds.in_ports_geo import dds_ask_in_port_to_ddn
 from dds.macs import dds_create_folder_macs_color
-from dds.notifications import notify_ddh_error_hw_ble
+from dds.notifications_v2 import notify_ddh_error_hw_ble
 from dds.timecache import is_it_time_to
 from mat.ble.ble_mat_utils import ble_mat_get_bluez_version
 from mat.utils import linux_is_rpi
@@ -31,9 +29,6 @@ from utils.ddh_shared import (
 )
 from utils.logs import lg_dds as lg
 import subprocess as sp
-
-
-_g_ant_ble = "undefined"
 
 
 def ble_show_monitored_macs():
@@ -63,12 +58,11 @@ def ble_op_conditions_met(g) -> bool:
     lat, lon, tg, knots = g
 
     # when Bluetooth is disabled
-    flag = ddh_get_disabled_ble_flag_file()
-    if os.path.isfile(flag):
+    if os.path.isfile(ddh_get_disabled_ble_flag_file()):
         _u(STATE_DDS_BLE_DISABLED)
         return False
 
-    # are we forced to work
+    # we are forced to BLE work, ex: button 2 is pressed
     flag = ddh_get_app_override_flag_file()
 
     # are we in port
@@ -77,10 +71,10 @@ def ble_op_conditions_met(g) -> bool:
         _u(STATE_DDS_GPS_IN_PORT)
         return False
 
-    # seems we are going to work
+    # seems we are allowed to start working, let's scan
     _u(STATE_DDS_BLE_SCAN)
 
-    # when it is forced to work, ex: button 2 is pressed
+    # when it is forced to work
     if os.path.isfile(flag):
         lg.a("debug: application override set")
         os.unlink(flag)
@@ -92,14 +86,14 @@ def ble_op_conditions_met(g) -> bool:
         time.sleep(5)
         return False
 
-    # when speed does not matter
+    # boat speed matters depending on haul type
     l_h = ddh_get_cfg_gear_type()
-    speed_range = dds_get_cfg_moving_speed()
     if not l_h:
         # fixed gear case
         return True
 
     # CASE: trawling, we know for sure l_h is set here
+    speed_range = dds_get_cfg_moving_speed()
     s_lo, s_hi = speed_range
     s_lo = float(s_lo)
     knots = float(knots)
@@ -108,7 +102,7 @@ def ble_op_conditions_met(g) -> bool:
     # simulation of boat speed
     s_lo, knots, s_hi = gps_simulate_boat_speed(s_lo, knots, s_hi)
 
-    # check we are on valid moving range
+    # check we are on valid boat moving range
     if s_lo <= knots <= s_hi:
         return True
     _u(f"{STATE_DDS_BLE_APP_GPS_ERROR_SPEED}/{knots}")

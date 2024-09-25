@@ -13,22 +13,13 @@ from dds.timecache import is_it_time_to
 from mat.linux import linux_is_process_running
 from utils.ddh_config import ddh_get_cfg_gear_type, dds_get_cfg_gpq_en
 from utils.ddh_shared import (get_ddh_folder_path_dl_files,
-                              get_ddh_folder_path_gpq_files, TESTMODE_FILENAMEPREFIX)
+                              get_ddh_folder_path_gpq_files,
+                              TESTMODE_FILENAMEPREFIX)
 from utils.logs import lg_cst as lg
 
 
 MAX_TIME_DIFF_GPS_TRACK_VS_LOGGER_SAMPLE = 30
 g_lid_already_processed = []
-
-
-def is_a_tdo_file(p):
-    with open(p, 'rb') as f:
-        b = f.read()
-        return b[:3] == b'TDO'
-
-
-def tdo_file_has_pfm_1(p):
-    pass
 
 
 _gr = GpqR()
@@ -44,7 +35,7 @@ def _cst_get_mobile_lat_lon_from_dt_s(dt_s_iso: str):
 
 
 def _purge_old_gpq_json_files():
-    # calculate last accepted filename by subtracting a week from today
+    # calculate last accepted filename by subtracting from today
     _d = -2
     now = datetime.datetime.now(datetime.timezone.utc)
     now += datetime.timedelta(days=_d)
@@ -65,15 +56,15 @@ def _create_cst_files():
         # instead of return prevents zombie processes
         sys.exit(0)
 
-    # 0 normal 1 trawling
+    # 0 normal, 1 trawling
     _gear_type = ddh_get_cfg_gear_type()
     fol = get_ddh_folder_path_dl_files()
     ls_lid = glob(f'{fol}/**/*.lid', recursive=True)
 
-    # -----------------------------
-    # input: GPQ, aka JSON, files
+    # ---------------------------------------------------
+    # input: GPQ files (JSON) + timestamp from CSV files
     # output: CST files
-    # -----------------------------
+    # ---------------------------------------------------
     global g_lid_already_processed
     for i_lid in ls_lid:
 
@@ -94,29 +85,30 @@ def _create_cst_files():
         # infer CST filename from CSV filename
         f_cst = f_csv.replace('.csv', '.cst')
         if os.path.exists(f_cst):
-            # this CST file already exists, bye
+            # CST file already exists, bye
             continue
 
         # read lines of CSV file
         with open(f_csv, 'r') as fv:
             ll_fv = fv.readlines()
-            lg.a(f'debug: generating CST, file {f_csv} has {len(ll_fv)} lines')
+            lg.a(f'generating CST, file {f_csv} has {len(ll_fv)} lines')
 
-        # ----------------------------------------------------------------
-        # fixed mode: CST file uses 1 location from fixed_*.json GPQ file
-        # ----------------------------------------------------------------
+        # ------------------------------------------------------------------------
+        # fixed mode: CST file created with 1 location from fixed_*.json GPQ file
+        # ------------------------------------------------------------------------
         if _gear_type == 0:
             f_gpq = f'{get_ddh_folder_path_gpq_files()}/'\
                     f'fixed_{os.path.basename(i_lid[:-4])}.json'
             if os.path.exists(f_gpq):
-                lg.a(f'debug: using fixed GPQ file {f_gpq}')
+                lg.a(f'using fixed GPQ file {f_gpq}')
                 with open(f_gpq, 'r') as f:
                     d = json.load(f)
-                ft = open(f_cst, 'w')
-                ft.write('lat,lon,' + ll_fv[0])
-                for s in ll_fv[1:]:
-                    ft.write(f'{d["dl_lat"]},{d["dl_lon"]},' + s)
-                ft.close()
+
+                # CST fixed file, GPS location repeated every CSV line
+                with open(f_cst, 'w') as ft:
+                    ft.write('lat,lon,' + ll_fv[0])
+                    for s in ll_fv[1:]:
+                        ft.write(f'{d["dl_lat"]},{d["dl_lon"]},' + s)
             else:
                 lg.a(f'warning: no fixed GPQ file {f_gpq}')
 
@@ -129,9 +121,8 @@ def _create_cst_files():
             ok_i = 0
             for row in ll_fv[1:]:
                 dt_s = row.split(',')[0]
-                # -------------------
-                # ask to GPQ database
-                # -------------------
+
+                # CST mobile file, GPS location asked to GPQ DB for every CSV line
                 index, diff, t_lat_lon = _cst_get_mobile_lat_lon_from_dt_s(dt_s)
                 if index > 0:
                     # -1, means none, 0 means too early
@@ -149,7 +140,7 @@ def _create_cst_files():
             print(f'CST: output file has {ok_i} OK complete records')
             ft.close()
 
-        # so we do not process files over and over
+        # we do not process input files over and over
         g_lid_already_processed.append(i_lid)
 
 

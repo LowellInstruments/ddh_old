@@ -16,7 +16,7 @@ FMT_GPQ_TS_FILENAME = '%y%m%d%H.json'
 
 # -----------------------------------------------
 # Global Position query W/R class,
-# ask where local ship was at a certain time!
+# ask where local ship was at a certain time
 # it returns:
 #     - closest time to the queried one
 #     - associated position
@@ -34,6 +34,11 @@ def _p(s):
 
 
 class GpqW:
+
+    # -----------------------------------------------------------------
+    # used by GPS module to record positions on MOBILE mode, not fixed
+    # -----------------------------------------------------------------
+
     def __init__(self):
         self.db = DB(keys=['t', 'lat', 'lon'])
 
@@ -52,10 +57,9 @@ class GpqW:
 
 class GpqR:
 
-    # -------------------------------------
-    # this is used to get gps positions
-    # on MOBILE mode, not fixed
-    # --------------------------------------
+    # ----------------------------------------------------
+    # used to get gps positions on MOBILE mode, not fixed
+    # ----------------------------------------------------
 
     def __init__(self):
         self.db = DB(keys=['t', 'lat', 'lon'])
@@ -130,7 +134,32 @@ class GpqR:
         return i, _diff, c
 
 
-def gpq_gen_test():
+def gpq_create_fixed_mode_file(g, filename):
+    """
+    called when downloading loggers on FIXED gear mode
+    MOBILE mode, does not use GPQ fixed files
+    MOBILE mode, it queries all CSV lines to GPQ database
+    ble --> fixed_filename.gpq --> cst_serve
+    """
+    if not filename.endswith('.lid'):
+        return
+
+    lat, lon, tg, speed = g
+    d = {
+        "dl_lat": lat,
+        "dl_lon": lon,
+        "dl_utc_tg": str(tg),
+        "dl_filename": filename
+    }
+    fol = str(get_ddh_folder_path_gpq_files())
+    path = f"{fol}/fixed_{filename[:-4]}.json"
+    with open(path, "w") as fl:
+        # from dict to file
+        # it has only one entry
+        json.dump(d, fl)
+
+
+def _gpq_gen_test():
     # ------------------------------------------------
     # W test: generate one file lat/lon every second
     # file name is today down to hour
@@ -164,31 +193,3 @@ def gpq_gen_test():
     i, diff, c = ngr.query(a_out_aft)
     print(c)
     print('time elapsed NGpqR', time.perf_counter() - el)
-
-
-if __name__ == '__main__':
-    gpq_gen_test()
-
-
-def dds_create_file_fixed_gpq(g, filename):
-    """
-    called when downloading loggers on FIXED gear mode
-    MOBILE mode, does not use GPQ file, all done in cst.py
-    ble --> fixed_filename.gpq --> cst_serve
-    """
-    if not filename.endswith('.lid'):
-        return
-
-    lat, lon, tg, speed = g
-    d = {
-        "dl_lat": lat,
-        "dl_lon": lon,
-        "dl_utc_tg": str(tg),
-        "dl_filename": filename
-    }
-    fol = str(get_ddh_folder_path_gpq_files())
-    path = f"{fol}/fixed_{filename[:-4]}.json"
-    with open(path, "w") as fl:
-        # from dict to file
-        # it has only one entry
-        json.dump(d, fl)

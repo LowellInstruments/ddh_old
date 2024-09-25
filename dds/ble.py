@@ -19,22 +19,25 @@ from dds.macs import (
     is_mac_in_orange,
     add_mac_orange,
 )
-from dds.notifications import notify_logger_download, \
+from dds.notifications_v2 import notify_logger_download, \
     notify_logger_error_retries, LoggerNotification, notify_logger_dox_hypoxia
+from dds.state import ddh_state
 from dds.timecache import is_it_time_to
-from mat.ble.ble_mat_utils import (ble_mat_systemctl_restart_bluetooth,
-                                   ble_mat_get_antenna_type_v2)
+from mat.ble.ble_mat_utils import ble_mat_systemctl_restart_bluetooth, ble_mat_get_antenna_type_v2
 from dds.ble_dl_rn4020 import ble_interact_rn4020
 from dds.ble_dl_dox import ble_interact_do1_or_do2
-from dds.gps import gps_tell_position_logger
+from dds.gps import gps_log_position_logger
 from mat.data_converter import default_parameters, DataConverter
 from mat.lix import id_lid_file_flavor, LID_FILE_V2, LID_FILE_V1
 from mat.lix_dox import is_a_do2_file
 from mat.lix_pr import convert_lix_file
 from mat.utils import linux_is_rpi
 from utils.ddh_config import (dds_get_cfg_flag_purge_this_mac_dl_files_folder,
-                              dds_get_cfg_logger_sn_from_mac, dds_get_cfg_logger_mac_from_sn,
-                              exp_get_use_lsb_for_tdo_loggers, exp_get_use_lsb_for_dox_loggers, exp_get_use_aws_cp)
+                              dds_get_cfg_logger_sn_from_mac,
+                              dds_get_cfg_logger_mac_from_sn,
+                              exp_get_use_lsb_for_tdo_loggers,
+                              exp_get_use_lsb_for_dox_loggers, exp_get_use_aws_cp
+                              )
 from utils.ddh_shared import (
     send_ddh_udp_gui as _u,
     STATE_DDS_BLE_DOWNLOAD_OK,
@@ -99,12 +102,14 @@ def _ble_convert_lid_after_download(d):
         # f: absolute file path ending in .lid
         n = id_lid_file_flavor(f)
         lg.a(f"after download converting LID v{n} file {f}")
+
+        # ----------------------------
+        # convert DOX and TDO v2 files
+        # ----------------------------
         if n == LID_FILE_V2:
-            # ----------------------------
-            # convert DOX and TDO v2 files
-            # ----------------------------
             convert_lix_file(f)
             _ble_detect_hypoxia_after_download(f, bat, g, u)
+
         if n == LID_FILE_V1:
             # do the old MAT library conversion
             parameters = default_parameters()
@@ -112,16 +117,16 @@ def _ble_convert_lid_after_download(d):
         lg.a(f"OK: after download converted LID v{n} file {f}")
 
 
-def _ble_analyze_logger_result(rv,
-                               g,
-                               ln: LoggerNotification,
-                               err_critical):
+def _ble_analyze_and_graph_logger_result(rv,
+                                         g,
+                                         ln: LoggerNotification,
+                                         err_critical):
 
     # grab variables
     mac = ln.mac
     sn = ln.sn
 
-    # success :)
+    # success, update GUI with rerun
     if rv == 0:
         rm_mac_black(mac)
         rm_mac_orange(mac)
@@ -135,7 +140,9 @@ def _ble_analyze_logger_result(rv,
         else:
             _u(f"{STATE_DDS_BLE_DOWNLOAD_OK}/{sn}")
 
+        # ------------------------------
         # graph loggers just downloaded
+        # ------------------------------
         utils_graph_set_fol_req_file(mac)
         lg.a(f"requesting auto-graph for {mac}")
         _u(STATE_DDS_REQUEST_GRAPH)
@@ -143,14 +150,12 @@ def _ble_analyze_logger_result(rv,
 
     # NOT success
     if mac not in _g_logger_errors:
-        # CREATE error entry for this mac
         _g_logger_errors[mac] = 1
         rm_mac_black(mac)
     else:
-        # INCREASE error entry for this mac
         _g_logger_errors[mac] += 1
 
-    # speed up things
+    # NOT success, and the thing is serious
     if err_critical:
         _g_logger_errors[mac] = 5
 
@@ -189,7 +194,7 @@ def _ble_logger_is_rn4020(mac, info):
         return True
 
 
-async def _ble_id_n_interact_logger(mac, info: str, h, g):
+async def _ble_interact_one_logger(mac, info: str, h, g):
 
     # debug
     # l_d_('forcing query of hardcoded mac')
@@ -223,16 +228,14 @@ async def _ble_id_n_interact_logger(mac, info: str, h, g):
         # 0 because this is not a BLE interaction error
         return 0
 
-    # allows discarding loggers faster
+    # initialize download status
     _crit_error = False
     _error_dl = ""
-
-    # initialize download status
     bat = 0
     rerun = True
-    do_we_have_notes = False
+    _we_took_dl_notes = False
 
-    # some GUI update
+    # update GUI with connection icon
     _u(f"{STATE_DDS_BLE_CONNECTING}/{sn}")
 
     # ------------------------
@@ -252,7 +255,7 @@ async def _ble_id_n_interact_logger(mac, info: str, h, g):
         _error_dl = notes["error"]
         rerun = notes['rerun']
         notes['uuid_interaction'] = uuid_interaction
-        do_we_have_notes = True
+        _we_took_dl_notes = True
         _ble_convert_lid_after_download(notes)
 
     elif _ble_logger_is_rn4020(mac, info):
@@ -277,29 +280,29 @@ async def _ble_id_n_interact_logger(mac, info: str, h, g):
             rv, notes = ble_interact_tdo_lsb(mac, info, g, hs, uuid_interaction)
         else:
             rv, notes = await ble_interact_tdo(mac, info, g,
-                                           hs, uuid_interaction)
+                                               hs, uuid_interaction)
         notes['gps'] = g
         _crit_error = notes["crit_error"]
         _error_dl = notes["error"]
         rerun = notes['rerun']
         notes['uuid_interaction'] = uuid_interaction
-        do_we_have_notes = True
+        _we_took_dl_notes = True
         _ble_convert_lid_after_download(notes)
 
     else:
         lg.a(f'error: this should not happen, info {info}')
-        # 0 because this is not a BLE interaction error
+        # 0 because not a BLE interaction error
         return 0
 
     # -----------------------------------------------------------------
     # on OK and error, w/o this some external antennas don't scan again
     # -----------------------------------------------------------------
-    _, ta = ble_mat_get_antenna_type_v2()
-    if ta == 'external' and linux_is_rpi():
+    _, antenna_type_str = ble_mat_get_antenna_type_v2()
+    if antenna_type_str == 'external' and linux_is_rpi():
         lg.a('warning: external antenna requires reset tweak')
         ble_mat_systemctl_restart_bluetooth()
 
-    # on GUI, all times are local, not UTC
+    # on GUI, all times are local, we don't use UTC on GUI
     tz_ddh = get_localzone()
     tz_utc = datetime.timezone.utc
     dt_local = dt.replace(tzinfo=tz_utc).astimezone(tz=tz_ddh)
@@ -307,31 +310,27 @@ async def _ble_id_n_interact_logger(mac, info: str, h, g):
     # complete logger notification with interaction UUID
     ln = LoggerNotification(mac, sn, info, bat)
     ln.uuid_interaction = uuid_interaction
-    if do_we_have_notes:
+    if _we_took_dl_notes:
         ln.dl_files = notes['dl_files']
         ln.gfv = notes['gfv']
         ln.bat = notes['battery_level']
         if exp_get_use_aws_cp() == 1:
             aws_cp(notes['dl_files'])
 
-    # ----------------------------
-    # so we can plot this logger
-    # ----------------------------
-    _ble_analyze_logger_result(rv, g, ln, _crit_error)
+    # plot this logger download
+    _ble_analyze_and_graph_logger_result(rv, g, ln, _crit_error)
 
-    # ------------------------------------
-    # so GUI can update its HISTORY tab
-    # ------------------------------------
+    # -------------------------------
+    # GUI update HISTORY tab's table
+    # -------------------------------
     ep_loc = int(dt_local.timestamp())
     ep_utc = int(dt.timestamp())
     # ensure value for error_dl is populated
     if not _error_dl:
         _error_dl = 'error comm.'
     e = 'ok' if not rv else _error_dl
-
     # print('ep_loc', ep_loc)
     # print('ep_utc', ep_utc)
-
     _u(f"{STATE_DDS_NOTIFY_HISTORY}/add&"
        f"{mac}&{e}&{lat}&{lon}&{ep_loc}&{ep_utc}&{rerun}&{uuid_interaction}")
 
@@ -341,7 +340,6 @@ async def _ble_id_n_interact_logger(mac, info: str, h, g):
 async def ble_interact_all_loggers(macs_det, macs_mon, g, _h: int, _h_desc):
 
     for mac, model in macs_det.items():
-        # because macs_det, macs_mon macs_mon are lowercase
         mac = mac.lower()
         if mac not in macs_mon:
             continue
@@ -349,14 +347,14 @@ async def ble_interact_all_loggers(macs_det, macs_mon, g, _h: int, _h_desc):
         _b = is_mac_in_black(mac)
         _o = is_mac_in_orange(mac)
 
-        # helps in distance-detection issues
+        # small helps in distance-detection issues
         _ble_tell_logger_seen(mac, _b, _o)
 
         if _b or _o:
             continue
 
         # show the position of the logger we will download
-        gps_tell_position_logger(g)
+        gps_log_position_logger(g)
 
-        # MAC passed all filters, work with it
-        return await _ble_id_n_interact_logger(mac, model, _h, g)
+        # work with logger
+        return await _ble_interact_one_logger(mac, model, _h, g)

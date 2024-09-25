@@ -1,11 +1,11 @@
 import asyncio
 import datetime
 import os
-from dds.gpq import dds_create_file_fixed_gpq
-from dds.lef import dds_create_file_lef
-from dds.notifications import (notify_logger_error_sensor_pressure,
-                               notify_logger_error_low_battery,
-                               LoggerNotification)
+from dds.gpq import gpq_create_fixed_mode_file
+from dds.lef import lef_create_file
+from dds.notifications_v2 import (notify_logger_error_sensor_pressure,
+                                  notify_logger_error_low_battery,
+                                  LoggerNotification)
 from mat.ble.ble_mat_utils import (
     ble_mat_crc_local_vs_remote,
     DDH_GUI_UDP_PORT, ble_mat_disconnect_all_devices_ll,
@@ -104,12 +104,12 @@ class BleTDODownload:
 
             # create LEF file with download info
             lg.a(f"creating file LEF for {name}")
-            dds_create_file_lef(g, name)
+            lef_create_file(g, name)
 
             # create CST file
             _gear_type = ddh_get_cfg_gear_type()
             if _gear_type == 0:
-                dds_create_file_fixed_gpq(g, name)
+                gpq_create_fixed_mode_file(g, name)
 
         # DDH "B" command includes STM, BAT, FRM, RWS
         do_we_rerun = not get_ddh_do_not_rerun_flag_li()
@@ -274,12 +274,12 @@ class BleTDODownload:
 
             # create LEF file with download info
             lg.a(f"creating file LEF for {name}")
-            dds_create_file_lef(g, name)
+            lef_create_file(g, name)
 
             # create CST file when fixed mode
             _gear_type = ddh_get_cfg_gear_type()
             if _gear_type == 0:
-                dds_create_file_fixed_gpq(g, name)
+                gpq_create_fixed_mode_file(g, name)
 
         # format file-system
         await asyncio.sleep(.1)

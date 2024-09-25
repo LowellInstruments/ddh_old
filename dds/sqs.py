@@ -4,7 +4,7 @@ import uuid
 import boto3
 import json
 
-from dds.aws import ddh_write_aws_sqs_ts
+from dds.aws import ddh_write_timestamp_aws_sqs
 from dds.net import ddh_get_internet_via
 from dds.timecache import is_it_time_to
 from utils.ddh_config import (
@@ -102,11 +102,11 @@ def sqs_serve():
                 # delete SQS file
                 os.unlink(i_f)
                 # tell status database for API all went fine
-                ddh_write_aws_sqs_ts('sqs', 'ok')
+                ddh_write_timestamp_aws_sqs('sqs', 'ok')
 
         except (Exception,) as ex:
             lg.a(f"error sqs_serve: {ex}")
-            ddh_write_aws_sqs_ts('sqs', f'error {str(ex)}')
+            ddh_write_timestamp_aws_sqs('sqs', f'error {str(ex)}')
 
         finally:
             if f:

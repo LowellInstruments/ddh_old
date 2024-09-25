@@ -4,7 +4,7 @@ import uuid
 import boto3
 import json
 
-from dds.aws import ddh_write_aws_sqs_ts
+from dds.aws import ddh_write_timestamp_aws_sqs
 from dds.net import ddh_get_internet_via
 from dds.timecache import is_it_time_to
 from utils.ddh_config import (

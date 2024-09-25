@@ -14,12 +14,12 @@ import os
 # ----------------------------------------------------------
 
 
-def dds_create_folder_lef():
+def lef_create_folder():
     r = get_ddh_folder_path_lef()
     os.makedirs(r, exist_ok=True)
 
 
-def dds_create_file_lef(g, name):
+def lef_create_file(g, name):
     lat, lon, tg, speed = g
     d = {
         "dl_lat": lat,
@@ -30,16 +30,14 @@ def dds_create_file_lef(g, name):
         "dl_vessel": dds_get_cfg_vessel_name()
     }
     fol = str(get_ddh_folder_path_lef())
-    path = "{}/dl_{}.lef".format(fol, name)
+    path = f"{fol}/dl_{name}.lef"
     with open(path, "w") as fl:
         # from dict to file
         json.dump(d, fl)
 
 
 if __name__ == '__main__':
-    # -----------------------------------------
     # how to grab json fields from track files
-    # -----------------------------------------
     os.chdir("../dl_files/ddh#joaquim")
     s = glob.glob('*.txt')[-1]
     print('parsing track file', s)

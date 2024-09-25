@@ -1,8 +1,8 @@
 import json
 import time
 import requests
-from dds.notifications import notify_ddh_in_port
-from dds.timecache import query_is_it_time_to, its_time_to_so_annotate_it
+from dds.notifications_v2 import notify_ddh_in_port
+from dds.timecache import query_is_it_time_to, _annotate_time
 from utils.ddh_config import dds_get_cfg_skip_dl_in_port_en
 from utils.logs import lg_gps as lg
 
@@ -41,7 +41,7 @@ def dds_ask_in_port_to_ddn(_g, notify=True, tc=TIMEOUT_CACHE_IN_PORT_SECS):
         j = json.loads(rsp.content.decode())
         # j: {'in_port': True}
         g_last_in_port = int(j['in_port'])
-        its_time_to_so_annotate_it(s, tc)
+        _annotate_time(s, tc)
         if g_last_in_port and notify:
             notify_ddh_in_port(_g)
         return g_last_in_port

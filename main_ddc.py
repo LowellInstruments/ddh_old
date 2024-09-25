@@ -20,7 +20,6 @@ from utils.flag_paths import (
     TMP_PATH_GPS_DUMMY,
     LI_PATH_DDH_GPS_EXTERNAL,
     TMP_PATH_GRAPH_TEST_MODE_JSON, LI_PATH_TEST_MODE,
-    LI_PATH_ENABLE_EXPERIMENTAL_BLE
 )
 import subprocess as sp
 from mat.utils import PrintColors as PC
@@ -320,7 +319,6 @@ def main_ddc():
         fdk = cb_print_check_all_keys(verbose=False)
         fdr = cb_is_ddh_running()
         ftm = 1 if exists(LI_PATH_TEST_MODE) else 0
-        fxb = 1 if exists(LI_PATH_ENABLE_EXPERIMENTAL_BLE) else 0
 
         # create options
         d = {

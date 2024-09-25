@@ -37,7 +37,7 @@ from ddh.utils_gui import (
     gui_show_graph_tab, gui_ddh_populate_graph_dropdown_sn,
     gui_hide_map_tab, gui_hide_maps_next_btn, gui_create_variables, gui_setup_graph_tab, gui_setup_timers
 )
-from dds.notifications import notify_via_sms
+from dds.notifications_v2 import notify_via_sms
 from dds.timecache import is_it_time_to
 from mat.linux import linux_is_process_running
 from utils.ddh_config import (dds_get_cfg_vessel_name, dds_get_cfg_logger_mac_from_sn,

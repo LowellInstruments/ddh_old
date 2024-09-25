@@ -7,10 +7,10 @@ from bleak.assigned_numbers import AdvertisementDataType
 from bleak.backends.bluezdbus.advertisement_monitor import OrPattern
 
 from dds.macs import macs_black, macs_orange
-from dds.notifications import notify_ddh_error_hw_ble
+from dds.notifications_v2 import notify_ddh_error_hw_ble
 from dds.timecache import is_it_time_to
 from mat.ble.ble_mat_utils import ble_mat_get_bluez_version
-from utils.ddh_config import dds_get_cfg_monitored_macs
+from utils.ddh_config import dds_get_cfg_monitored_macs, exp_get_use_ble_passive_scanning
 from utils.ddh_shared import (
     send_ddh_udp_gui as _u,
     STATE_DDS_BLE_SCAN_FIRST_EVER,
@@ -19,8 +19,6 @@ from utils.ddh_shared import (
 from bleak import BleakScanner, BleakError
 from bleak.backends.bluezdbus.scanner import BlueZScannerArgs
 from bleak.backends.device import BLEDevice
-
-from utils.flag_paths import LI_PATH_ENABLE_EXPERIMENTAL_BLE
 from utils.logs import lg_dds as lg
 
 
@@ -30,17 +28,20 @@ _g_monitored_macs = dds_get_cfg_monitored_macs()
 _g_ble_scan_early_leave = None
 
 
-# to activate BLE experimental features you NEED (o/wise gives error):
+# ----------------------------------------------------------------------------
+# activate BLE experimental features you NEED (o/wise gives error):
 #     - bluez >= v5.65
 #     - sudo nano /lib/systemd/system/bluetooth.service
 #           ExecStart=/usr/local/libexec/bluetooth/bluetoothd --experimental
 #     - sudo systemctl daemon-reload && sudo systemctl restart bluetooth
-_g_ble_exp_flag = os.path.exists(LI_PATH_ENABLE_EXPERIMENTAL_BLE)
+# ----------------------------------------------------------------------------
 
 
+# PASSIVE scanning makes loggers relying on SCAN_REQ to detect out-of-water slower
 # see https://github.com/hbldh/bleak/issues/1433
 _gbv = ble_mat_get_bluez_version()
-_g_ble_scan_mode = "passive" if _g_ble_exp_flag and _gbv >= '5.65' else "active"
+_g_ble_scan_mode = "passive" if (exp_get_use_ble_passive_scanning()
+                                 and _gbv >= '5.65') else "active"
 lg.a(f'bluez v.{_gbv} -> BLE scan mode {_g_ble_scan_mode}')
 
 
@@ -60,19 +61,14 @@ def _ble_is_supported_logger(s):
 
 
 def _ble_scan_banner(_h, _h_desc):
-
     global _g_first_ble_scan_ever
     if _g_first_ble_scan_ever:
         _u(STATE_DDS_BLE_SCAN_FIRST_EVER)
         _g_first_ble_scan_ever = False
-
     _u(STATE_DDS_BLE_SCAN)
 
 
 async def ble_scan(macs_mon, g, _h: int, _h_desc, t=6.0):
-    """
-    SCANs for loggers with fast ending capability
-    """
 
     # classify devs
     _all = {}
@@ -87,7 +83,7 @@ async def ble_scan(macs_mon, g, _h: int, _h_desc, t=6.0):
         _all[mac] = dt
         if not _ble_is_supported_logger(dt):
             return
-        # allows scan to end faster
+        # allows bleak scan to end faster
         if mac in macs_mon and mac not in macs_bad:
             _our[mac] = dt
             global _g_ble_scan_early_leave
@@ -120,7 +116,7 @@ async def ble_scan(macs_mon, g, _h: int, _h_desc, t=6.0):
                                    adapter=ad,
                                    scanning_mode=_g_ble_scan_mode)
 
-        # perform scanning procedure
+        # perform bleak scanning procedure
         global _g_ble_scan_early_leave
         _g_ble_scan_early_leave = None
         await scanner.start()

@@ -16,7 +16,7 @@ IP = "8.8.8.8"
 
 def _get_internet_via():
 
-    # check we have any type of internet
+    # check we have ANY type of internet
     c = f"timeout 1 ping -c 1 www.google.com -4"
     for i in range(3):
         rv = sp.run(c, shell=True, stdout=sp.PIPE, stderr=sp.PIPE)
@@ -47,7 +47,7 @@ def _th_net_serve():
     global _g_last_via
     if via != _g_last_via:
         if via == "none":
-            lg.a("error: NET module found no internet access")
+            lg.a("error: NET module found no internet")
         else:
             lg.a(f"internet via {via}")
     _g_last_via = via

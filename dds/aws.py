@@ -11,7 +11,7 @@ from multiprocessing import Process
 import setproctitle
 from dds.emolt import this_box_has_grouped_s3_uplink
 from dds.net import ddh_get_internet_via
-from dds.notifications import notify_error_sw_aws_s3
+from dds.notifications_v2 import notify_error_sw_aws_s3
 from dds.state import ddh_state
 from dds.timecache import is_it_time_to
 from mat.linux import linux_is_process_running
@@ -37,23 +37,22 @@ dev = not linux_is_rpi()
 past_n_files = 0
 
 
-def _get_aws_bin_path():
+def _get_path_of_aws_binary():
     # apt install awscli
     # 2024 is 1.22.34
     return "aws"
 
 
-def ddh_write_aws_sqs_ts(k, v):
+def ddh_write_timestamp_aws_sqs(k, v):
     assert k in ('aws', 'sqs')
     # v: 'ok', 'error', 'unknown'
     assert type(v) is str
 
     # epoch utc
     t = int(time.time())
-    # in API code, this path is also used
     p = ddh_get_db_status_file()
 
-    # load the file or get custom content
+    # load file or get default content
     try:
         with open(p, 'r') as f:
             j = json.load(f)
@@ -69,7 +68,7 @@ def ddh_write_aws_sqs_ts(k, v):
         with open(p, 'w') as f:
             json.dump(j, f)
     except (Exception, ):
-        lg.a(f'error: cannot record AWS / SQS state to {p}')
+        lg.a(f'error: cannot ddh_write_timestamp_aws_sqs to {p}')
 
 
 # ------------------------------------------
@@ -79,11 +78,9 @@ def ddh_write_aws_sqs_ts(k, v):
 # ------------------------------------------
 
 
-def ddh_get_aws_sqs_ts(k):
+def _ddh_get_timestamp_aws_sqs(k):
     assert k in ('aws', 'sqs')
     p = ddh_get_db_status_file()
-
-    # load the file
     try:
         with open(p, 'r') as f:
             j = json.load(f)
@@ -117,12 +114,12 @@ def _aws_s3_sync_process():
     if not _n.startswith("bkt-"):
         lg.a('warning: bucket name does not start with bkt-')
 
-    # prepare to run it
+    # signal we are about to run an AWS sync
     _u(STATE_DDS_NOTIFY_CLOUD_BUSY)
-    _bin = _get_aws_bin_path()
+    _bin = _get_path_of_aws_binary()
     dr = "--dryrun" if dev else ""
 
-    # get list of macs within dl_files folder
+    # get macs and vessel sub-folders within dl_files folder
     ms = [d for d in glob.glob(str(fol_dl_files) + '/*') if os.path.isdir(d)]
     all_rv = 0
     for m in ms:
@@ -138,12 +135,12 @@ def _aws_s3_sync_process():
             v = v.replace("'", "")
             v = v.replace(" ", "_")
             v = v.upper()
-            # um: we prepend grouped structure year and boat
+            # um: prepend grouped structure year and boat
             um = f"{str(y)}/{v}/{um}"
         else:
             lg.a(f'AWS upload-sync as NON-grouped mode for mac {um}')
 
-        # build the AWS command
+        # format the AWS sync command
         c = (
             f"AWS_ACCESS_KEY_ID={_k} AWS_SECRET_ACCESS_KEY={_s} "
             f"{_bin} s3 sync {m} s3://{_n}/{um} "
@@ -167,9 +164,7 @@ def _aws_s3_sync_process():
             f'{dr}'
         )
 
-        # ---------------------------------------------------
-        # once formatted the proper AWS sync command, run it
-        # ---------------------------------------------------
+        # run the AWS sync command
         rv = sp.run(c, shell=True, stdout=sp.PIPE, stderr=sp.PIPE)
         if rv.stdout:
             lg.a(rv.stdout)
@@ -182,14 +177,13 @@ def _aws_s3_sync_process():
     if all_rv == 0:
         _u(STATE_DDS_NOTIFY_CLOUD_OK)
         lg.a(f"success: cloud sync on {_t}")
-        # tell status DB for API purposes all went fine
-        ddh_write_aws_sqs_ts('aws', 'ok')
-
-        # this AWS code is a separate process, we can exit here
+        # for API purposes, tell all went fine
+        ddh_write_timestamp_aws_sqs('aws', 'ok')
+        # this AWS sync code is a separate process, we can exit here
         sys.exit(0)
 
     # ERROR AWS S3 sync, check case bad enough for alarm
-    ts = ddh_get_aws_sqs_ts('aws')
+    ts = _ddh_get_timestamp_aws_sqs('aws')
     delta = int(time.time()) - int(ts)
     if ts:
         if delta > 0:
@@ -202,26 +196,24 @@ def _aws_s3_sync_process():
             lg.a('error: negative S3 delta, fixing')
     else:
         # file does not even exist, probably first time ever
-        lg.a('warning: bad S3, monitoring next ones')
+        lg.a('warning: bad AWS S3 sync, monitoring next ones')
 
-    # something went wrong
+    # notify something went wrong
     _u(STATE_DDS_NOTIFY_CLOUD_ERR)
     lg.a(f"error: cloud sync on {_t}, rv {all_rv}")
-    ddh_write_aws_sqs_ts('aws', 'error')
+    ddh_write_timestamp_aws_sqs('aws', 'error')
     sys.exit(2)
 
 
 def aws_serve():
 
-    # check someone asked for AWS sync from GUI
-    flag_gui = dds_get_aws_has_something_to_do_via_gui_flag_file()
-    exists_flag_gui = os.path.exists(flag_gui)
-
     if ddh_state.get_downloading_ble():
         lg.a('warning: not doing AWS sync while downloading BLE')
         return
 
-    # nothing to do
+    # nothing to do, no one asked AWS S3 sync and not long since last one
+    flag_gui = dds_get_aws_has_something_to_do_via_gui_flag_file()
+    exists_flag_gui = os.path.exists(flag_gui)
     if not is_it_time_to("aws_s3_sync", PERIOD_AWS_S3_SECS) \
             and not exists_flag_gui:
         return
@@ -242,9 +234,7 @@ def aws_serve():
     else:
         lg.a("periodic AWS S3 sync")
 
-    # ---------------------------------------------------
-    # nothing to AWS sync, number of files did not change
-    # ---------------------------------------------------
+    # nothing to do, number of files did not change
     mon_ls = []
     for i in ('lid', 'lix', 'csv', 'cst', 'gps', 'bin'):
         mon_ls += glob.glob(f'{get_ddh_folder_path_dl_files()}/**/*.{i}')
@@ -263,17 +253,16 @@ def aws_serve():
     # useful to remove past AWS bin zombie processes
     multiprocessing.active_children()
 
-    # don't run if already doing so
-    # which would be bad because means is taking too long
+    # don't run when already doing so (bad, because means is taking too long)
     if linux_is_process_running(AWS_S3_SYNC_PROC_NAME):
         s = "warning: seems last {} took a long time"
         lg.a(s.format(AWS_S3_SYNC_PROC_NAME))
         _u(STATE_DDS_NOTIFY_CLOUD_ERR)
         return
 
-    # --------------------------------------------
-    # run as a different process for smoother GUI
-    # --------------------------------------------
+    # --------------------------------------------------------
+    # run AWS S3 sync as a different process for smoother GUI
+    # --------------------------------------------------------
     if dev:
         lg.a("debug: dev platform detected, AWS sync with --dryrun flag")
     p = Process(target=_aws_s3_sync_process)
@@ -297,7 +286,7 @@ def _aws_s3_cp_process(d):
 
     # prepare to run it
     _u(STATE_DDS_NOTIFY_CLOUD_BUSY)
-    _bin = _get_aws_bin_path()
+    _bin = _get_path_of_aws_binary()
     dr = "--dryrun" if dev else ""
 
     for f in d:
@@ -324,9 +313,7 @@ def _aws_s3_cp_process(d):
             f"{_bin} s3 cp {f} s3://{_n}/{um}/{f_bn} {dr}"
         )
 
-        # ---------------------------------------------------
-        # once formatted the proper AWS cp command, run it
-        # ---------------------------------------------------
+        # run AWS cp command
         rv = sp.run(c, shell=True, stdout=sp.PIPE, stderr=sp.PIPE)
         if rv.stdout:
             lg.a(rv.stdout)

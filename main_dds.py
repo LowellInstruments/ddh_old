@@ -25,19 +25,23 @@ from dds.gps import (
 )
 from dds.macs import dds_create_folder_macs_color, dds_macs_color_show_at_boot
 from dds.net import net_serve
-from dds.notifications import notify_boot, notify_error_sw_crash, notify_ddh_needs_sw_update, \
-    notify_ddh_alive, notify_error_gps_clock_sync
+from dds.notifications_v2 import (
+    notify_boot,
+    notify_error_sw_crash, notify_ddh_needs_sw_update,
+    notify_ddh_alive, notify_error_gps_clock_sync)
 from dds.sqs import (
     dds_create_folder_sqs,
     sqs_serve,
 )
-from dds.lef import dds_create_folder_lef
+from dds.lef import lef_create_folder
 from dds.ble_utils_dds import (
     ble_apply_debug_hooks_at_boot,
     ble_show_monitored_macs,
     ble_op_conditions_met,
     ble_tell_gui_antenna_type,
-    ble_check_antenna_up_n_running, dds_tell_software_was_just_updated, dds_check_bluez_version, dds_create_buttons_thread,
+    ble_check_antenna_up_n_running,
+    dds_tell_software_was_just_updated, dds_check_bluez_version,
+    dds_create_buttons_thread,
 )
 from dds.state import ddh_state
 from dds.timecache import is_it_time_to
@@ -56,7 +60,8 @@ from utils.ddh_shared import (
     dds_ensure_proper_working_folder,
     PID_FILE_DDS_CONTROLLER,
     NAME_EXE_DDS_CONTROLLER,
-    NAME_EXE_DDS, ael, dds_get_aws_has_something_to_do_via_gui_flag_file, dds_create_folder_gpq, NAME_EXE_BRT,
+    NAME_EXE_DDS, ael, dds_get_aws_has_something_to_do_via_gui_flag_file,
+    dds_create_folder_gpq, NAME_EXE_BRT,
 )
 from utils.logs import (
     lg_dds as lg,
@@ -81,7 +86,7 @@ def main_dds():
     dds_ensure_proper_working_folder()
     dds_create_folder_macs_color()
     dds_create_folder_sqs()
-    dds_create_folder_lef()
+    lef_create_folder()
     dds_create_folder_gpq()
     dds_create_folder_dl_files()
     dds_create_folder_logs()
@@ -106,7 +111,9 @@ def main_dds():
     gps_boot_wait_first()
     gps_know_hat_firmware_version()
 
-    # GPS first stage
+    # GPS clock synchronization stage
+    gps_banner_clock_sync_at_boot()
+    # todo ---> I think we can simplify the next 10 lines a bit
     g = gps_measure()
     if g:
         lat, lon, tg, speed = g
@@ -114,7 +121,6 @@ def main_dds():
         notify_boot(g)
 
     # do nothing if we never had a GPS clock sync
-    gps_banner_clock_sync_at_boot()
     while not gps_did_we_ever_clock_sync():
         g = gps_measure()
         if g:
@@ -127,11 +133,11 @@ def main_dds():
         #     notify_error_gps_clock_sync()
         #     sqs_serve()
 
-    # detecting and selecting Bluetooth antenna
-    # leave this here so BLE has time to get up
+    # auto-selecting Bluetooth antenna
+    # leave this here so BLE has time to get up from run_dds.sh
     h, h_d = ble_mat_get_antenna_type_v2()
 
-    # save which BLE interface are we using, API will read it
+    # save which BLE interface we use, API needs it
     try:
         with open(TMP_PATH_BLE_IFACE, "w") as f:
             json.dump({"ble_iface_used": h_d}, f)
@@ -230,11 +236,12 @@ def _alarm_dds_crash(n):
 
 def controller_main_dds():
 
-    # don't run if brt is running
+    # don't run DDS when BRT range tool is running
     if linux_is_process_running(NAME_EXE_BRT):
         print('brt running, ddh should not')
         return
 
+    # prepare to launch DDH child
     s = NAME_EXE_DDS_CONTROLLER
     p = PID_FILE_DDS_CONTROLLER
     setproctitle.setproctitle(s)
@@ -253,11 +260,6 @@ def controller_main_dds():
 
 
 if __name__ == "__main__":
-
-    # --------------------
-    # run DDS controller
-    # --------------------
-
     if not linux_is_process_running(NAME_EXE_DDS_CONTROLLER):
         controller_main_dds()
     else:

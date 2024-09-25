@@ -41,7 +41,7 @@ def _macs_get_them_by_color(s) -> list:
     valid = []
     now = int(time.time())
     fol = str(get_dds_folder_path_macs() / s)
-    wc = "{}/*".format(fol)
+    wc = f"{fol}/*"
 
     for f in glob.glob(wc):
         mac, t = f.split("@")

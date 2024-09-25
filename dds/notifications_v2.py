@@ -224,6 +224,8 @@ def notify_ddh_needs_sw_update(g):
     try:
         vl = get_ddh_local_sw_version()
 
+        # todo ---> update this with proper branch name
+
         # get github version
         s = '.ddh_version'
         c = f'wget https://raw.githubusercontent.com/LowellInstruments/ddh/master/{s}'
