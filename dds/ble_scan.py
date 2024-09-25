@@ -42,7 +42,7 @@ _g_ble_scan_early_leave = None
 _gbv = ble_mat_get_bluez_version()
 _g_ble_scan_mode = "passive" if (exp_get_use_ble_passive_scanning() == 1
                                  and _gbv >= '5.65') else "active"
-lg.a(f'bluez v.{_gbv} -> BLE scan mode {_g_ble_scan_mode}')
+lg.a(f'debug: bluez v.{_gbv} -> BLE scan mode {_g_ble_scan_mode}')
 
 
 def _ble_is_supported_logger(s):
@@ -58,14 +58,6 @@ def _ble_is_supported_logger(s):
     for t in logger_types:
         if t in s:
             return True
-
-
-def _ble_scan_banner(_h, _h_desc):
-    global _g_first_ble_scan_ever
-    if _g_first_ble_scan_ever:
-        _u(STATE_DDS_BLE_SCAN_FIRST_EVER)
-        _g_first_ble_scan_ever = False
-    _u(STATE_DDS_BLE_SCAN)
 
 
 async def ble_scan(macs_mon, g, _h: int, _h_desc, t=6.0):
@@ -90,7 +82,11 @@ async def ble_scan(macs_mon, g, _h: int, _h_desc, t=6.0):
             _g_ble_scan_early_leave = mac
 
     # real code function starts here
-    _ble_scan_banner(_h, _h_desc)
+    global _g_first_ble_scan_ever
+    if _g_first_ble_scan_ever:
+        _u(STATE_DDS_BLE_SCAN_FIRST_EVER)
+        _g_first_ble_scan_ever = False
+    _u(STATE_DDS_BLE_SCAN)
 
     # convert hci format integer to string
     ad = f"hci{_h}"

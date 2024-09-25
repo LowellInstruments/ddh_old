@@ -121,3 +121,7 @@
 
     improved code readability on DDH, not MAT
 
+4.0.26 - September 25, 2024
+
+    had to add _lock_icon(0) on utils_gui, STATE_DDS_BLE_HARDWARE_ERROR
+

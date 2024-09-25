@@ -611,7 +611,7 @@ def _gui_parse_udp(my_app, s, ip="127.0.0.1"):
     # -------------------
     if f in (STATE_DDS_BLE_SCAN, STATE_DDS_BLE_SCAN_FIRST_EVER):
         ct = _x(STR_SEARCHING_FOR_LOGGERS)
-        ci = "blue{}.png".format(i)
+        ci = f"blue{i}.png"
 
     elif f == STATE_DDS_SOFTWARE_UPDATED:
         ct = _x(STR_DDH_UPDATED)
@@ -673,6 +673,7 @@ def _gui_parse_udp(my_app, s, ip="127.0.0.1"):
         ci = "error.png"
 
     elif f == STATE_DDS_BLE_HARDWARE_ERROR:
+        _lock_icon(0)
         ct = _x(STR_LOGGER_ERROR_RADIO)
         ci = "blue_err.png"
 
@@ -793,8 +794,7 @@ def _gui_parse_udp(my_app, s, ip="127.0.0.1"):
         ci = "gps_clock.png"
 
     elif f == STATE_DDS_NOTIFY_GPS_NUM_SAT:
-        _ = "{} GPS satellites".format(v)
-        a.lbl_gps_sat.setText(_)
+        a.lbl_gps_sat.setText(f"{v} GPS satellites")
 
     elif f == STATE_DDS_NOTIFY_HISTORY:
         if v.startswith("add"):
@@ -894,9 +894,9 @@ def gui_timer_fxn(my_app):
 
     # animate BLE icon
     if a.lbl_ble.text() == _x("searching for loggers"):
-        ci = "blue{}.png".format(i)
+        ci = f"blue{i}.png"
         fol_res = str(ddh_get_folder_path_res())
-        ci = "{}/{}".format(fol_res, ci)
+        ci = f"{fol_res}/{ci}"
         a.lbl_ble_img.setPixmap(QPixmap(ci))
 
 
