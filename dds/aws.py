@@ -229,7 +229,7 @@ def aws_serve():
 
     # tell why we do AWS
     if os.path.exists(flag_gui):
-        lg.a("GUI requested a AWS S3 sync")
+        lg.a("GUI requested an AWS S3 sync")
         os.unlink(flag_gui)
     else:
         lg.a("periodic AWS S3 sync")

@@ -57,7 +57,7 @@ def gui_populate_maps_tab(my_app):
             lg.a(f'error: DTM maps request -> {err}')
     else:
         got_dtm = True
-        lg.a(f"debug: re-using today's DTM file {fg_dtm}")
+        lg.a(f"re-using today's DTM forecast map file {fg_dtm}")
 
     # get GOM map from DDN
     if not os.path.exists(fg_gom):
@@ -75,7 +75,7 @@ def gui_populate_maps_tab(my_app):
             lg.a(f'error: GOM maps request -> {err}')
     else:
         got_gom = True
-        lg.a(f"debug: re-using today's gom file {fg_gom}")
+        lg.a(f"re-using today's GOM forecast map file {fg_gom}")
 
     # get MAB map from DDN
     if not os.path.exists(fg_mab):
@@ -90,10 +90,10 @@ def gui_populate_maps_tab(my_app):
                 got_mab = True
                 lg.a('OK: got MAB map file')
         except (Exception,) as err:
-            lg.a(f'error: GOM maps request -> {err}')
+            lg.a(f'error: MAB maps request -> {err}')
     else:
         got_mab = True
-        lg.a(f"debug: re-using today's gom file {fg_mab}")
+        lg.a(f"re-using today's MAB forecast map file {fg_mab}")
 
     # calculate how many good maps we have
     my_app.n_good_maps = int(got_dtm) + int(got_gom) + int(got_mab)

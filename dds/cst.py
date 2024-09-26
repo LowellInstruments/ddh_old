@@ -71,14 +71,18 @@ def _create_cst_files():
         if i_lid in g_lid_already_processed:
             continue
 
+        # avoid test files
+        _bn = os.path.basename(i_lid)
+        if TESTMODE_FILENAMEPREFIX in _bn:
+            g_lid_already_processed.append(i_lid)
+            lg.a(f'warning: no CST process for test files like {_bn}')
+            continue
+
         # be sure we have CSV for this LID file
         f_csv_mask = f'{i_lid[:-4]}*.csv'
         f_csv = glob(f_csv_mask)
         if not f_csv:
-            _bn = os.path.basename(i_lid)
-            lg.a(f'warning: CST, no CSV file for {_bn}')
-            if TESTMODE_FILENAMEPREFIX in _bn:
-                g_lid_already_processed.append(i_lid)
+            lg.a(f'warning: doing CST but seen no CSV file for {_bn}')
             continue
         f_csv = f_csv[0]
 

@@ -403,15 +403,15 @@ class DDH(QMainWindow, d_m.Ui_MainWindow):
         if s == STR_NOTE_PURGE_BLACKLIST:
             try:
                 p = get_ddh_folder_path_macs_black()
-                mask = "{}/*".format(p)
+                mask = f"{p}/*"
                 ff = glob.glob(mask)
                 for f in ff:
                     os.unlink(f)
-                    s = "warning: debug lock-out all for {}"
-                    lg.a(s.format(f))
+                    bn = os.path.basename(f)
+                    lg.a(f"warning: clicked purge lock-out for {bn}")
 
             except (OSError, Exception) as ex:
-                lg.a("error: {}".format(ex))
+                lg.a(f"error click_btn_note_yes -> {ex}")
                 return
 
         lg.a("pressed note button specific 'OK'")
