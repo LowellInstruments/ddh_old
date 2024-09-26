@@ -218,17 +218,9 @@ def main_dds():
 
         # recovery situations
         if rvi:
-            lg.a("warning: force disconnect of all BLE devices due to error")
+            lg.a("warning: disconnect all BLE devices due to error, set ble_reset_req")
             ble_mat_disconnect_all_devices_ll()
             ddh_state.state_set_ble_reset_req()
-
-
-def _alarm_dds_crash(n):
-    if n == 0:
-        return
-    lg.a(f'error: _alarm_dds_crash, n = {n}')
-    if is_it_time_to('tell_dds_child_crash', 300):
-        notify_error_sw_crash()
 
 
 def dds_tell_software_was_just_updated():
@@ -247,6 +239,14 @@ def dds_check_bluez_version():
         lg.a("warning: --------------------------")
         lg.a(f"warning: bluez version {v} != 5.66")
         lg.a("warning: --------------------------")
+
+
+def _alarm_dds_crash(n):
+    if n == 0:
+        return
+    lg.a(f'error: _alarm_dds_crash, n = {n}')
+    if is_it_time_to('tell_dds_child_crash', 300):
+        notify_error_sw_crash()
 
 
 def controller_main_dds():

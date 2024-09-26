@@ -485,16 +485,19 @@ def ble_check_antenna_up_n_running(g, h: int):
     if rv.returncode == 0:
         return True
 
-    # not UP and running, tell so
+    # not UP and running, tell to GUI
     e = f"error: ble_check_antenna_up_n_running #{h}"
     _u(STATE_DDS_BLE_HARDWARE_ERROR)
     time.sleep(5)
+
+    # not UP and running, tell via e-mail
     if is_it_time_to(e, 600):
         lg.a(e.format(e))
         notify_ddh_error_hw_ble(g)
 
-    # cannot do sudo <command> on laptop
+    # cannot do sudo <command> on laptop for next instruction
     if not linux_is_rpi():
         return
 
+    lg.a('error: restarting BLE service')
     ble_mat_systemctl_restart_bluetooth()
