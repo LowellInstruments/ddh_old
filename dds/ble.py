@@ -327,8 +327,8 @@ async def _ble_interact_one_logger(mac, info: str, h, g):
     # -----------------------------------------------------------------
     _, antenna_type_str = ble_mat_get_antenna_type_v2()
     if antenna_type_str == 'external' and linux_is_rpi():
-        lg.a('warning: external antenna requires reset tweak')
-        ble_mat_systemctl_restart_bluetooth()
+        lg.a('debug: some BLE dongles need a reset after download')
+        ddh_state.state_set_ble_reset_req()
 
     # on GUI, all times are local, we don't use UTC on GUI
     tz_ddh = get_localzone()
@@ -384,7 +384,7 @@ async def ble_interact_all_loggers(macs_det, macs_mon, g, _h: int, _h_desc):
         # show the position of the logger we will download
         gps_log_position_logger(g)
 
-        # work with logger
+        # work with ONE logger of the scanned ones
         return await _ble_interact_one_logger(mac, model, _h, g)
 
 
@@ -469,15 +469,14 @@ def ble_check_antenna_up_n_running(g, h: int):
 
     # maybe we were asked to reset the interfaces
     if ddh_state.state_get_ble_reset_req():
-        lg.a('warning: detected state_set_ble_reset_req = 1, clearing it')
         ddh_state.state_clr_ble_reset_req()
         for i in range(2):
             if linux_is_rpi():
-                lg.a(f"warning: hciconfig reset on hci{h}")
+                lg.a(f"warning: hciconfig reset on hci{h} upon set_ble_reset_req")
                 cr = f"sudo hciconfig hci{h} reset"
                 sp.run(cr, shell=True, stdout=sp.PIPE, stderr=sp.PIPE)
             else:
-                lg.a(f"warning: non-rpi CANNOT hciconfig reset on hci{h}")
+                lg.a(f"non-rpi CANNOT hciconfig reset on hci{h}")
         time.sleep(2)
 
     # read the interfaces state

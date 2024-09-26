@@ -133,6 +133,7 @@ def main_dds():
     # select BLE antenna, do here to have time to get up from run_dds.sh
     # -------------------------------------------------------------------
     h, h_d = ble_mat_get_antenna_type_v2()
+    antenna_type_str = h_d
 
     # save which BLE interface we use, API needs it
     try:
@@ -184,7 +185,6 @@ def main_dds():
 
         # check we do Bluetooth or not
         ble_show_antenna_type(h, h_d)
-
         if not ble_check_antenna_up_n_running(g, h):
             # note: ensure 'hciconfig' command is installed
             continue
@@ -218,9 +218,9 @@ def main_dds():
 
         # recovery situations
         if rvi:
-            lg.a("warning: resetting Bluetooth interface due to error")
+            lg.a("warning: force disconnect of all BLE devices due to error")
             ble_mat_disconnect_all_devices_ll()
-            ble_mat_systemctl_restart_bluetooth()
+            ddh_state.state_set_ble_reset_req()
 
 
 def _alarm_dds_crash(n):
