@@ -14,7 +14,7 @@ from mat.ble.ble_mat_utils import (
 from mat.ble.bleak.cc26x2r import BleCC26X2
 from mat.utils import linux_is_rpi
 from utils.ddh_config import (ddh_get_cfg_gear_type, dds_get_cfg_logger_sn_from_mac,
-                              dds_get_cfg_flag_download_test_mode)
+                              dds_get_cfg_flag_download_test_mode, exp_get_ble_do_crc)
 from utils.ddh_shared import (
     send_ddh_udp_gui as _u,
     STATE_DDS_BLE_ERROR_RUN,
@@ -245,15 +245,18 @@ class BleTDODownload:
             file_data = lc.ans
 
             # calculate crc
-            path = "/tmp/ddh_crc_file"
-            with open(path, "wb") as f:
-                f.write(lc.ans)
-            rv, r_crc = await lc.cmd_crc(name)
-            _rae(rv, "crc")
-            rv, l_crc = ble_mat_crc_local_vs_remote(path, r_crc)
-            if (not rv) and os.path.exists(path):
-                lg.a(f"error: bad CRC so removing local file {path}")
-                os.unlink(path)
+            if exp_get_ble_do_crc() == 1:
+                path = "/tmp/ddh_crc_file"
+                with open(path, "wb") as f:
+                    f.write(lc.ans)
+                rv, r_crc = await lc.cmd_crc(name)
+                _rae(rv, "crc")
+                rv, l_crc = ble_mat_crc_local_vs_remote(path, r_crc)
+                if (not rv) and os.path.exists(path):
+                    lg.a(f"error: bad CRC so removing local file {path}")
+                    os.unlink(path)
+            else:
+                lg.a('warning: dl_tdo skips file CRC calculation')
 
             # save file in our local disk
             del_name = name

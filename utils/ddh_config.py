@@ -265,10 +265,11 @@ def ddh_get_cfg_maps_en():
 
 def _get_exp_key_from_cfg(k):
     try:
+        # either 0 or 1
         return cfg['experimental'][k]
     except (Exception, ) as ex:
         # print(f'error: _get_exp_key_from_cfg -> {ex}')
-        # not value, but indicates error
+        # no value in [experimental] section
         return -1
 
 
@@ -286,6 +287,10 @@ def exp_get_use_aws_cp():
 
 def exp_get_use_ble_passive_scanning():
     return _get_exp_key_from_cfg('use_ble_passive_scanning')
+
+
+def exp_get_ble_do_crc():
+    return _get_exp_key_from_cfg('ble_do_crc')
 
 
 if __name__ == '__main__':

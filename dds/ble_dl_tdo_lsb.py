@@ -6,10 +6,11 @@ from lsb.cmd import *
 from lsb.connect import *
 from lsb.li import UUID_S, UUID_T
 from lsb.utils import DDH_GUI_UDP_PORT
+from mat.ble.ble_mat_utils import ble_mat_crc_local_vs_remote
 from utils.ddh_config import (
     dds_get_cfg_logger_sn_from_mac,
     dds_get_cfg_flag_download_test_mode,
-    ddh_get_cfg_gear_type
+    ddh_get_cfg_gear_type, exp_get_ble_do_crc
 )
 from utils.ddh_shared import (
     BLEAppException, create_folder_logger_by_mac,
@@ -170,21 +171,24 @@ def _dl_logger_tdo_lsb(mac, g, notes: dict, u, hs):
         lg.a(f"downloaded file {name}")
 
         # calculate crc
-        # path = "/tmp/ddh_crc_file"
-        # with open(path, "wb") as f:
-        #     f.write(file_data)
-        # r_crc = cmd_crc(p, name)
-        # _rae("crc")
-        # # r_crc: b'CRC 08ea96f561'
-        # r_crc = r_crc.decode()[-8:]
-        # rv, l_crc = ble_mat_crc_local_vs_remote(path, r_crc)
-        # if (not rv) and os.path.exists(path):
-        #     lg.a(f"error: bad CRC so removing local file {path}")
-        #     os.unlink(path)
-        # if l_crc != r_crc:
-        #     e = f'error: remote crc {r_crc} != local {l_crc}'
-        #     lg.a(e)
-        #     _rae(e)
+        if exp_get_ble_do_crc() == 1:
+            path = "/tmp/ddh_crc_file"
+            with open(path, "wb") as f:
+                f.write(file_data)
+            r_crc = cmd_crc(p, name)
+            _rae("crc")
+            # r_crc: b'CRC 08ea96f561'
+            r_crc = r_crc.decode()[-8:]
+            rv, l_crc = ble_mat_crc_local_vs_remote(path, r_crc)
+            if (not rv) and os.path.exists(path):
+                lg.a(f"error: bad CRC so removing local file {path}")
+                os.unlink(path)
+            if l_crc != r_crc:
+                e = f'error: remote crc {r_crc} != local {l_crc}'
+                lg.a(e)
+                _rae(e)
+        else:
+            lg.a('warning: dl_tdo_lsb skips file CRC calculation')
 
         # add to the output list
         notes['dl_files'].append(path)

@@ -44,12 +44,14 @@ hook_ble_purge_black_macs_on_boot = 0
 hook_ble_purge_this_mac_dl_files_folder = 0
 
 
+# keep as = 0 when not sure
 [experimental]
-# already implemented, KEEP as = 0 when not sure
 use_lsb_for_tdo_loggers = 0
 use_lsb_for_dox_loggers = 0
-del_ble_cache = 0
 use_aws_cp = 0
 use_ble_passive_scanning = 0
+# affects download speed in LI loggers, default disabled!
+ble_do_crc = 0
+# used in run_dds.sh
+ble_del_cache = 0
 
-# not implemented yet, some ideas
