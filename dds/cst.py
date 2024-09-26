@@ -74,8 +74,9 @@ def _create_cst_files():
         # avoid test files
         _bn = os.path.basename(i_lid)
         if TESTMODE_FILENAMEPREFIX in _bn:
+            # would appear always because CST process spawn every time
+            # lg.a(f'warning: no CST process for test file {_bn}')
             g_lid_already_processed.append(i_lid)
-            lg.a(f'warning: no CST process for test files like {_bn}')
             continue
 
         # be sure we have CSV for this LID file
@@ -169,7 +170,7 @@ def cst_serve():
         lg.a(f"error: seems last {_P_} took a long time")
     else:
         s = f'launching {_P_}'
-        if is_it_time_to(s, 600):
+        if is_it_time_to(s, 10):
             # lg.a(s)
             p = Process(target=_cst_serve)
             p.start()
