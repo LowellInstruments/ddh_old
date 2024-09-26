@@ -1,6 +1,4 @@
 import asyncio
-import os.path
-
 from math import ceil
 
 from bleak.assigned_numbers import AdvertisementDataType
@@ -8,6 +6,7 @@ from bleak.backends.bluezdbus.advertisement_monitor import OrPattern
 
 from dds.macs import macs_black, macs_orange
 from dds.notifications_v2 import notify_ddh_error_hw_ble
+from dds.state import ddh_state
 from dds.timecache import is_it_time_to
 from mat.ble.ble_mat_utils import ble_mat_get_bluez_version
 from utils.ddh_config import dds_get_cfg_monitored_macs, exp_get_use_ble_passive_scanning
@@ -132,11 +131,7 @@ async def ble_scan(macs_mon, g, _h: int, _h_desc, t=6.0):
         return _our
 
     except (asyncio.TimeoutError, BleakError, OSError) as ex:
-        e = "hardware error during scan! {}"
-        if is_it_time_to(e, 600):
-            lg.a(e.format(ex))
-            notify_ddh_error_hw_ble(g)
-        _u(STATE_DDS_BLE_HARDWARE_ERROR)
-        # wait some time so any GUI can display this
-        await asyncio.sleep(5)
+        lg.a(f"ble_scan() hardware error on {ad} -> {ex}")
+        lg.a('warning: setting state_set_ble_reset_req = 1')
+        ddh_state.state_set_ble_reset_req()
         return {}

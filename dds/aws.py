@@ -207,7 +207,7 @@ def _aws_s3_sync_process():
 
 def aws_serve():
 
-    if ddh_state.get_downloading_ble():
+    if ddh_state.state_get_downloading_ble():
         lg.a('warning: not doing AWS sync while downloading BLE')
         return
 

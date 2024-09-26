@@ -155,7 +155,7 @@ class DDH(QMainWindow, d_m.Ui_MainWindow):
         self.lst_mac_org.clear()
         pp = get_ddh_toml_all_macs_content()
         for m, n in pp.items():
-            s = "{}  {}".format(m, n)
+            s = f"{m}  {n}"
             self.lst_mac_org.addItem(s)
 
     def click_btn_see_monitored_macs(self):
@@ -164,7 +164,7 @@ class DDH(QMainWindow, d_m.Ui_MainWindow):
         self.lst_mac_org.clear()
         pp = dds_get_cfg_monitored_pairs()
         for m, n in pp.items():
-            s = "{}  {}".format(m, n)
+            s = f"{m}  {n}"
             self.lst_mac_org.addItem(s)
 
     def click_btn_arrow_move_entries(self):
@@ -188,7 +188,7 @@ class DDH(QMainWindow, d_m.Ui_MainWindow):
                 s = f'MAC {m} is wrong'
                 gui_confirm_by_user(s)
                 continue
-            s = "{}  {}".format(m, n)
+            s = f"{m}  {n}"
             self.lst_mac_dst.addItem(s)
 
     def click_btn_edit_tab_close_wo_save(self):

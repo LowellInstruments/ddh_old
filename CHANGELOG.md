@@ -125,3 +125,6 @@
 
     had to add _lock_icon(0) on utils_gui, STATE_DDS_BLE_HARDWARE_ERROR
 
+4.0.27 - September 26, 2024
+
+    new strategy to not send so many BLE hardware errors via e-mail

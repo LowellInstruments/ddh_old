@@ -7,7 +7,8 @@ import time
 
 from ddh.draw_graph import gfm_serve
 from dds.aws import aws_serve
-from dds.ble import ble_interact_all_loggers
+from dds.ble import ble_interact_all_loggers, ble_show_antenna_type, ble_check_antenna_up_n_running, \
+    ble_op_conditions_met, ble_show_monitored_macs
 from dds.ble_scan import ble_scan
 from dds.cnv import cnv_serve
 from dds.cst import cst_serve
@@ -23,24 +24,19 @@ from dds.gps import (
     gps_power_cycle_if_so,
     gps_know_hat_firmware_version,
 )
+from dds.hooks import apply_debug_hooks
 from dds.macs import dds_create_folder_macs_color, dds_macs_color_show_at_boot
 from dds.net import net_serve
 from dds.notifications_v2 import (
     notify_boot,
     notify_error_sw_crash, notify_ddh_needs_sw_update,
-    notify_ddh_alive, notify_error_gps_clock_sync)
+    notify_ddh_alive)
 from dds.sqs import (
     dds_create_folder_sqs,
     sqs_serve,
 )
 from dds.lef import lef_create_folder
-from dds.ble_utils_dds import (
-    ble_apply_debug_hooks_at_boot,
-    ble_show_monitored_macs,
-    ble_op_conditions_met,
-    ble_tell_gui_antenna_type,
-    ble_check_antenna_up_n_running,
-    dds_tell_software_was_just_updated, dds_check_bluez_version,
+from dds.buttons import (
     dds_create_buttons_thread,
 )
 from dds.state import ddh_state
@@ -48,7 +44,7 @@ from dds.timecache import is_it_time_to
 from mat.linux import linux_app_write_pid_to_tmp, linux_is_process_running
 from mat.ble.ble_mat_utils import (
     ble_mat_disconnect_all_devices_ll,
-    ble_mat_get_antenna_type_v2, ble_mat_systemctl_restart_bluetooth
+    ble_mat_get_antenna_type_v2, ble_mat_systemctl_restart_bluetooth, ble_mat_get_bluez_version
 )
 from mat.utils import linux_is_rpi
 from utils.ddh_config import dds_check_cfg_has_box_info, \
@@ -61,7 +57,7 @@ from utils.ddh_shared import (
     PID_FILE_DDS_CONTROLLER,
     NAME_EXE_DDS_CONTROLLER,
     NAME_EXE_DDS, ael, dds_get_aws_has_something_to_do_via_gui_flag_file,
-    dds_create_folder_gpq, NAME_EXE_BRT,
+    dds_create_folder_gpq, NAME_EXE_BRT, dds_get_ddh_got_an_update_flag_file, STATE_DDS_SOFTWARE_UPDATED,
 )
 from utils.logs import (
     lg_dds as lg,
@@ -96,7 +92,7 @@ def main_dds():
     dds_check_bluez_version()
 
     ble_show_monitored_macs()
-    ble_apply_debug_hooks_at_boot()
+    apply_debug_hooks()
     ble_mat_disconnect_all_devices_ll()
 
     # seems boot process is going well
@@ -133,8 +129,9 @@ def main_dds():
         #     notify_error_gps_clock_sync()
         #     sqs_serve()
 
-    # auto-selecting Bluetooth antenna
-    # leave this here so BLE has time to get up from run_dds.sh
+    # -------------------------------------------------------------------
+    # select BLE antenna, do here to have time to get up from run_dds.sh
+    # -------------------------------------------------------------------
     h, h_d = ble_mat_get_antenna_type_v2()
 
     # save which BLE interface we use, API needs it
@@ -186,7 +183,7 @@ def main_dds():
         notify_ddh_alive(g)
 
         # check we do Bluetooth or not
-        ble_tell_gui_antenna_type(h, h_d)
+        ble_show_antenna_type(h, h_d)
 
         if not ble_check_antenna_up_n_running(g, h):
             # note: ensure 'hciconfig' command is installed
@@ -197,7 +194,7 @@ def main_dds():
             continue
 
         # poor semaphore
-        ddh_state.set_downloading_ble(1)
+        ddh_state.state_set_downloading_ble()
 
         # BLE scan stage
         args = [m_j, g, h, h_d]
@@ -208,7 +205,7 @@ def main_dds():
         rvi = ael.run_until_complete(ble_interact_all_loggers(*args))
 
         # poor semaphore
-        ddh_state.set_downloading_ble(0)
+        ddh_state.state_clr_downloading_ble()
 
         # tell AWS has stuff to do
         try:
@@ -232,6 +229,24 @@ def _alarm_dds_crash(n):
     lg.a(f'error: _alarm_dds_crash, n = {n}')
     if is_it_time_to('tell_dds_child_crash', 300):
         notify_error_sw_crash()
+
+
+def dds_tell_software_was_just_updated():
+    f = dds_get_ddh_got_an_update_flag_file()
+    if os.path.exists(f):
+        os.unlink(f)
+        lg.a("told software updated")
+        # give GUI time and chances to show this
+        _u(STATE_DDS_SOFTWARE_UPDATED)
+        time.sleep(5)
+
+
+def dds_check_bluez_version():
+    v = ble_mat_get_bluez_version()
+    if v != '5.66':
+        lg.a("warning: --------------------------")
+        lg.a(f"warning: bluez version {v} != 5.66")
+        lg.a("warning: --------------------------")
 
 
 def controller_main_dds():

@@ -72,7 +72,7 @@ from utils.ddh_shared import (
     STATE_DDS_REQUEST_GRAPH,
     STATE_DDS_BLE_DOWNLOAD_ERROR_TP_SENSOR,
     ddh_get_db_history_file,
-    STATE_DDS_BLE_NO_ASSIGNED_LOGGERS, get_ddh_commit,
+    STATE_DDS_BLE_NO_ASSIGNED_LOGGERS,
     get_ddh_do_not_rerun_flag_li, ddh_get_root_folder_path, STATE_DDS_BLE_CONNECTING, STATE_DDS_PRESSED_BUTTON_2,
     get_ddh_local_sw_version, STATE_DDS_GPS_IN_PORT, STATE_DDS_BAD_CONF, STATE_DDS_BLE_DOWNLOAD_STATISTICS,
     STATE_DDS_PRESSED_BUTTON_1,
@@ -572,13 +572,12 @@ def _gui_update_icon_timer():
         g_lock_icon_timer -= 1
 
 
-def _gui_update_icon(my_app, ci, ct, cf):
+def _gui_did_icon_change(my_app, ci, ct, cf):
 
-    # cases we don't update
     if cf == STATE_DDS_BLE_SCAN and g_lock_icon_timer:
+        # cases we don't update
         return False
 
-    # update icon an text
     if ci:
         img = f"{str(ddh_get_folder_path_res())}/{ci}"
         my_app.lbl_ble_img.setPixmap(QPixmap(img))
@@ -609,7 +608,10 @@ def _gui_parse_udp(my_app, s, ip="127.0.0.1"):
     # -------------------
     # BLE service states
     # -------------------
-    if f in (STATE_DDS_BLE_SCAN, STATE_DDS_BLE_SCAN_FIRST_EVER):
+    if f in (
+            STATE_DDS_BLE_SCAN,
+            STATE_DDS_BLE_SCAN_FIRST_EVER
+    ):
         ct = _x(STR_SEARCHING_FOR_LOGGERS)
         ci = f"blue{i}.png"
 
@@ -656,6 +658,7 @@ def _gui_parse_udp(my_app, s, ip="127.0.0.1"):
         ci = "sand_clock.png"
 
     elif f == STATE_DDS_BLE_DOWNLOAD_ERROR:
+        # when a logger totally fails
         _lock_icon(PERIOD_SHOW_LOGGER_DL_ERROR_SECS)
         ct = f'{v} {_x(STR_LOGGER_FAILURE)}'
         ci = "error.png"
@@ -673,6 +676,7 @@ def _gui_parse_udp(my_app, s, ip="127.0.0.1"):
         ci = "error.png"
 
     elif f == STATE_DDS_BLE_HARDWARE_ERROR:
+        # 0 because we might send it after a dl_OK, which displays long
         _lock_icon(0)
         ct = _x(STR_LOGGER_ERROR_RADIO)
         ci = "blue_err.png"
@@ -684,6 +688,7 @@ def _gui_parse_udp(my_app, s, ip="127.0.0.1"):
         a.keyPressEvent(ButtonPressEvent(Qt.Key_2))
 
     elif f == STATE_DDS_BLE_DISABLED:
+        _lock_icon(1)
         ct = _x(STR_RADIO_IS_DISABLED)
         ci = "blue_dis.png"
 
@@ -698,6 +703,7 @@ def _gui_parse_udp(my_app, s, ip="127.0.0.1"):
         ci = f"blue{i}.png"
 
     elif f == STATE_DDS_NOTIFY_GPS_BOOT:
+        # shows the progress of boot GPS boot
         v = int(v)
         ct = f'{_x(STR_WAITING_GPS_SECONDS)} {v}'
         ci = f"gps_boot{i}.png"
@@ -765,8 +771,6 @@ def _gui_parse_udp(my_app, s, ip="127.0.0.1"):
         if ip != "127.0.0.1":
             lg.a("not graphing remote downloads")
             return
-
-        # GRAPH PROCESS
         process_n_graph(a, r='BLE')
 
     # ----------------------------------
@@ -789,7 +793,6 @@ def _gui_parse_udp(my_app, s, ip="127.0.0.1"):
         ci = "gps_power_cycle.png"
 
     elif f == STATE_DDS_NOTIFY_GPS_CLOCK:
-        # time controlled via function calling this state
         ct = _x(STR_SYNCING_GPS_TIME)
         ci = "gps_clock.png"
 
@@ -815,20 +818,25 @@ def _gui_parse_udp(my_app, s, ip="127.0.0.1"):
     else:
         lg.a(f"UDP | unknown state: {f}")
 
-    # -----------------------
-    # update big icon in GUI
-    # -----------------------
-    _icon_updated = _gui_update_icon(a, ci, ct, cf)
+    # -----------------------------------------------------------------
+    # update big icon
+    #      - sleep() after sending a signal, blocks the icon
+    #      - lock_icon() prevents BLE_SCAN from appearing for a while
+    # -----------------------------------------------------------------
+    _icon_updated = _gui_did_icon_change(a, ci, ct, cf)
 
+    # stats box left visible or not
     if not ci:
-        # this helps keeping the stats box visible
         return
 
     # progress bar visible or not
-    if f not in (STATE_DDS_BLE_DOWNLOAD, STATE_DDS_BLE_DOWNLOAD_PROGRESS):
+    if f not in (
+            STATE_DDS_BLE_DOWNLOAD,
+            STATE_DDS_BLE_DOWNLOAD_PROGRESS
+    ):
         a.bar_dl.setVisible(False)
 
-    # stats box
+    # stats box visible on green (dl_OK) orange (dl_OK not rerun) ticks
     if _icon_updated and ci not in ("ok.png", "attention.png"):
         my_app.lbl_summary_dl.setVisible(False)
 

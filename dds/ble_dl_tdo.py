@@ -6,12 +6,12 @@ from dds.lef import lef_create_file
 from dds.notifications_v2 import (notify_logger_error_sensor_pressure,
                                   notify_logger_error_low_battery,
                                   LoggerNotification)
+from dds.state import state_ble_init_rv_notes, state_ble_logger_ccx26x2r_needs_a_reset
 from mat.ble.ble_mat_utils import (
     ble_mat_crc_local_vs_remote,
     DDH_GUI_UDP_PORT, ble_mat_disconnect_all_devices_ll,
 )
 from mat.ble.bleak.cc26x2r import BleCC26X2
-from dds.ble_utils_dds import ble_logger_ccx26x2r_needs_a_reset, dds_ble_init_rv_notes
 from mat.utils import linux_is_rpi
 from utils.ddh_config import (ddh_get_cfg_gear_type, dds_get_cfg_logger_sn_from_mac,
                               dds_get_cfg_flag_download_test_mode)
@@ -144,7 +144,7 @@ class BleTDODownload:
     @staticmethod
     async def download_recipe(lc, mac, g, notes: dict, u):
 
-        dds_ble_init_rv_notes(notes)
+        state_ble_init_rv_notes(notes)
         create_folder_logger_by_mac(mac)
         sn = dds_get_cfg_logger_sn_from_mac(mac)
 
@@ -153,7 +153,7 @@ class BleTDODownload:
         _rae(rv, "connecting")
         lg.a(f"connected to {mac}")
 
-        if ble_logger_ccx26x2r_needs_a_reset(mac):
+        if state_ble_logger_ccx26x2r_needs_a_reset(mac):
             await lc.cmd_rst()
             # out of here for sure
             raise BLEAppException("TDO interact logger reset file")

@@ -27,7 +27,7 @@ from utils.ddh_shared import (get_dl_folder_path_from_mac,
                               get_number_of_hauls, STATE_DDS_BLE_DOWNLOAD_STATISTICS,
                               send_ddh_udp_gui as _u, get_ddh_folder_path_dl_files)
 from utils.logs import lg_gra as lg
-from utils.mavg import get_interesting_idx_ma
+
 
 # to be able to zoom in RPi
 pg.setConfigOption('leftButtonPan', False)

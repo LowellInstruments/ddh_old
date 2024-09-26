@@ -94,6 +94,7 @@ lg_api = DDSLogs("api")
 lg_gra = DDSLogs("gra")
 lg_cst = DDSLogs("cst")
 lg_gpq = DDSLogs("gpq")
+lg_sta = DDSLogs("sta")
 
 
 # these NORMAL logs are local

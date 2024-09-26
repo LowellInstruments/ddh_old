@@ -2,8 +2,6 @@
 
 
 import asyncio
-import time
-
 import sys
 import subprocess as sp
 import os

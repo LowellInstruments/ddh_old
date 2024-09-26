@@ -23,17 +23,3 @@ def is_it_time_to(k, t):
         return True
     # not enough time has passed since last occurrence of this
     return False
-
-
-def main():
-    v = is_it_time_to("test", 0)
-    print(v)
-    v = is_it_time_to("test", 0)
-    print(v)
-    time.sleep(3)
-    v = is_it_time_to("test", 0)
-    print(v)
-
-
-if __name__ == "__main__":
-    main()

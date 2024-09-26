@@ -188,6 +188,6 @@ def cnv_serve():
 if __name__ == '__main__':
     ff = glob.glob("/tmp/my_bkt_waf/**/*.lid", recursive=True)
     parameters = default_parameters()
-    for i, f in enumerate(ff):
-        print(f'doing file {i} / {len(ff)} {f}')
-        DataConverter(f, parameters).convert()
+    for i, _f in enumerate(ff):
+        print(f'doing file {i} / {len(ff)} {_f}')
+        DataConverter(_f, parameters).convert()

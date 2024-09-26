@@ -2,15 +2,22 @@ import datetime
 import os
 import pathlib
 import shutil
-import time
+import subprocess as sp
 import uuid
+
+import time
 from tzlocal import get_localzone
 
 from ddh.utils_graph import utils_graph_set_fol_req_file
 from dds.aws import aws_cp
+from dds.ble_dl_dox import ble_interact_do1_or_do2
 from dds.ble_dl_dox_lsb import ble_interact_dox_lsb
+from dds.ble_dl_moana import ble_interact_moana
+from dds.ble_dl_rn4020 import ble_interact_rn4020
 from dds.ble_dl_tdo import ble_interact_tdo
 from dds.ble_dl_tdo_lsb import ble_interact_tdo_lsb
+from dds.gps import gps_log_position_logger, gps_simulate_boat_speed
+from dds.in_ports_geo import dds_ask_in_port_to_ddn
 from dds.macs import (
     rm_mac_black,
     add_mac_black,
@@ -19,25 +26,35 @@ from dds.macs import (
     is_mac_in_orange,
     add_mac_orange,
 )
-from dds.notifications_v2 import notify_logger_download, \
-    notify_logger_error_retries, LoggerNotification, notify_logger_dox_hypoxia
+from dds.notifications_v2 import (
+    notify_logger_download,
+    notify_logger_error_retries,
+    LoggerNotification,
+    notify_logger_dox_hypoxia,
+    notify_ddh_error_hw_ble
+)
 from dds.state import ddh_state
 from dds.timecache import is_it_time_to
-from mat.ble.ble_mat_utils import ble_mat_systemctl_restart_bluetooth, ble_mat_get_antenna_type_v2
-from dds.ble_dl_rn4020 import ble_interact_rn4020
-from dds.ble_dl_dox import ble_interact_do1_or_do2
-from dds.gps import gps_log_position_logger
+from mat.ble.ble_mat_utils import (
+    ble_mat_systemctl_restart_bluetooth,
+    ble_mat_get_antenna_type_v2
+)
 from mat.data_converter import default_parameters, DataConverter
 from mat.lix import id_lid_file_flavor, LID_FILE_V2, LID_FILE_V1
 from mat.lix_dox import is_a_do2_file
 from mat.lix_pr import convert_lix_file
 from mat.utils import linux_is_rpi
-from utils.ddh_config import (dds_get_cfg_flag_purge_this_mac_dl_files_folder,
-                              dds_get_cfg_logger_sn_from_mac,
-                              dds_get_cfg_logger_mac_from_sn,
-                              exp_get_use_lsb_for_tdo_loggers,
-                              exp_get_use_lsb_for_dox_loggers, exp_get_use_aws_cp
-                              )
+from utils.ddh_config import (
+    dds_get_cfg_flag_purge_this_mac_dl_files_folder,
+    dds_get_cfg_logger_sn_from_mac,
+    dds_get_cfg_logger_mac_from_sn,
+    exp_get_use_lsb_for_tdo_loggers,
+    exp_get_use_lsb_for_dox_loggers,
+    exp_get_use_aws_cp,
+    dds_get_cfg_monitored_macs,
+    ddh_get_cfg_gear_type,
+    dds_get_cfg_moving_speed
+)
 from utils.ddh_shared import (
     send_ddh_udp_gui as _u,
     STATE_DDS_BLE_DOWNLOAD_OK,
@@ -45,18 +62,29 @@ from utils.ddh_shared import (
     STATE_DDS_BLE_DOWNLOAD_WARNING,
     get_dl_folder_path_from_mac,
     STATE_DDS_BLE_DOWNLOAD,
-    STATE_DDS_NOTIFY_HISTORY, STATE_DDS_BLE_ERROR_MOANA_PLUGIN,
+    STATE_DDS_NOTIFY_HISTORY,
+    STATE_DDS_BLE_ERROR_MOANA_PLUGIN,
     STATE_DDS_BLE_CONNECTING,
-    STATE_DDS_REQUEST_GRAPH, get_ddh_do_not_rerun_flag_li, STATE_DDS_BLE_RUN_STATUS,
+    STATE_DDS_REQUEST_GRAPH,
+    get_ddh_do_not_rerun_flag_li,
+    STATE_DDS_BLE_RUN_STATUS,
+    STATE_DDS_BLE_HARDWARE_ERROR,
+    ddh_get_disabled_ble_flag_file,
+    STATE_DDS_BLE_DISABLED,
+    ddh_get_app_override_flag_file,
+    STATE_DDS_GPS_IN_PORT,
+    STATE_DDS_BLE_SCAN,
+    STATE_DDS_BLE_NO_ASSIGNED_LOGGERS,
+    STATE_DDS_BLE_APP_GPS_ERROR_SPEED,
+    STATE_DDS_BLE_ANTENNA,
 )
 from utils.logs import lg_dds as lg
-from dds.ble_dl_moana import ble_interact_moana
 
 
 _g_logger_errors = {}
 
 
-def _ble_tell_logger_seen(mac, _b, _o):
+def _ble_show_logger_spotted(mac, _b, _o):
     if is_it_time_to(f'tell_saw_mac_{mac}', 1800):
         sn = dds_get_cfg_logger_sn_from_mac(mac)
         lg.a(f"logger {sn} / mac {mac} nearby")
@@ -348,7 +376,7 @@ async def ble_interact_all_loggers(macs_det, macs_mon, g, _h: int, _h_desc):
         _o = is_mac_in_orange(mac)
 
         # small helps in distance-detection issues
-        _ble_tell_logger_seen(mac, _b, _o)
+        _ble_show_logger_spotted(mac, _b, _o)
 
         if _b or _o:
             continue
@@ -358,3 +386,116 @@ async def ble_interact_all_loggers(macs_det, macs_mon, g, _h: int, _h_desc):
 
         # work with logger
         return await _ble_interact_one_logger(mac, model, _h, g)
+
+
+def ble_show_monitored_macs():
+    mm = dds_get_cfg_monitored_macs()
+    if mm:
+        lg.a('monitored macs list: ')
+    for i in mm:
+        lg.a(f"    - {i}")
+
+
+def ble_op_conditions_met(g) -> bool:
+
+    lat, lon, tg, knots = g
+
+    # when Bluetooth is disabled
+    if os.path.isfile(ddh_get_disabled_ble_flag_file()):
+        _u(STATE_DDS_BLE_DISABLED)
+        return False
+
+    # we are forced to BLE work, ex: button 2 is pressed
+    flag = ddh_get_app_override_flag_file()
+
+    # are we in port
+    are_we_in_port = dds_ask_in_port_to_ddn(g)
+    if are_we_in_port and not os.path.isfile(flag):
+        _u(STATE_DDS_GPS_IN_PORT)
+        return False
+
+    # seems we are allowed to start working, let's scan
+    _u(STATE_DDS_BLE_SCAN)
+
+    # when it is forced to work
+    if os.path.isfile(flag):
+        lg.a("debug: application override set")
+        os.unlink(flag)
+        return True
+
+    # case: forgot to assign loggers
+    if not dds_get_cfg_monitored_macs():
+        _u(STATE_DDS_BLE_NO_ASSIGNED_LOGGERS)
+        time.sleep(5)
+        return False
+
+    # boat speed matters depending on haul type
+    l_h = ddh_get_cfg_gear_type()
+    if not l_h:
+        # fixed gear case
+        return True
+
+    # CASE: trawling, we know for sure l_h is set here
+    speed_range = dds_get_cfg_moving_speed()
+    s_lo, s_hi = speed_range
+    s_lo = float(s_lo)
+    knots = float(knots)
+    s_hi = float(s_hi)
+
+    # simulation of boat speed
+    s_lo, knots, s_hi = gps_simulate_boat_speed(s_lo, knots, s_hi)
+
+    # check we are on valid boat moving range
+    if s_lo <= knots <= s_hi:
+        return True
+
+    _u(f"{STATE_DDS_BLE_APP_GPS_ERROR_SPEED}/{knots}")
+    time.sleep(2)
+
+
+def ble_show_antenna_type(_h, desc):
+    _ad = f"hci{_h}"
+    s = f"using {desc} antenna, adapter {_ad}"
+    if is_it_time_to(s, 60):
+        # update GUI field
+        _u(f"{STATE_DDS_BLE_ANTENNA}/{desc} radio")
+
+    # run this once a day at most
+    if is_it_time_to('tell_gui_antenna_type', 86400):
+        lg.a(s)
+
+
+def ble_check_antenna_up_n_running(g, h: int):
+
+    # maybe we were asked to reset the interfaces
+    if ddh_state.state_get_ble_reset_req():
+        lg.a('warning: detected state_set_ble_reset_req = 1, clearing it')
+        ddh_state.state_clr_ble_reset_req()
+        for i in range(2):
+            if linux_is_rpi():
+                lg.a(f"warning: hciconfig reset on hci{h}")
+                cr = f"sudo hciconfig hci{h} reset"
+                sp.run(cr, shell=True, stdout=sp.PIPE, stderr=sp.PIPE)
+            else:
+                lg.a(f"warning: non-rpi CANNOT hciconfig reset on hci{h}")
+        time.sleep(2)
+
+    # read the interfaces state
+    cr = f"hciconfig hci{h} | grep 'UP RUNNING'"
+    rv = sp.run(cr, shell=True, stdout=sp.PIPE, stderr=sp.PIPE)
+    if rv.returncode == 0:
+        return True
+
+    # not UP and running, tell so
+    e = f"error: ble_check_antenna_up_n_running #{h}"
+    _u(STATE_DDS_BLE_HARDWARE_ERROR)
+    time.sleep(5)
+    if is_it_time_to(e, 600):
+        lg.a(e.format(e))
+        notify_ddh_error_hw_ble(g)
+
+    # cannot do sudo <command> on laptop
+    if not linux_is_rpi():
+        return
+
+    ble_mat_systemctl_restart_bluetooth()

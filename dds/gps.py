@@ -453,7 +453,7 @@ def gps_did_we_ever_clock_sync() -> bool:
 
 
 def _gps_power_cycle():
-    _u("{}".format(STATE_DDS_GPS_POWER_CYCLE))
+    _u(STATE_DDS_GPS_POWER_CYCLE)
     t = 75
     lg.a("=== warning: power-cycling hat, wait ~{} seconds ===".format(t))
 

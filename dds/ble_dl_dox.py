@@ -5,17 +5,17 @@ import os
 from dds.gpq import gpq_create_fixed_mode_file
 from dds.lef import lef_create_file
 from dds.notifications_v2 import notify_logger_error_sensor_oxygen, notify_logger_error_low_battery, LoggerNotification
+from dds.state import state_ble_init_rv_notes, state_ble_logger_ccx26x2r_needs_a_reset
 from mat.ble.ble_mat_utils import (
     ble_mat_crc_local_vs_remote,
     DDH_GUI_UDP_PORT, ble_mat_disconnect_all_devices_ll,
 )
 from mat.ble.bleak.cc26x2r import BleCC26X2
-from dds.ble_utils_dds import ble_logger_ccx26x2r_needs_a_reset, dds_ble_init_rv_notes
 from utils.ddh_config import dds_get_cfg_logger_sn_from_mac, dds_get_cfg_flag_download_test_mode, ddh_get_cfg_gear_type
 from utils.ddh_shared import (
     send_ddh_udp_gui as _u,
     STATE_DDS_BLE_LOW_BATTERY,
-    STATE_DDS_BLE_RUN_STATUS, STATE_DDS_BLE_DOWNLOAD_ERROR_GDO,
+    STATE_DDS_BLE_DOWNLOAD_ERROR_GDO,
     STATE_DDS_BLE_ERROR_RUN, BLEAppException, ael, get_ddh_do_not_rerun_flag_li, TESTMODE_FILENAMEPREFIX,
 )
 from utils.logs import lg_dds as lg
@@ -47,7 +47,7 @@ class BleCC26X2Download:
     @staticmethod
     async def download_recipe(lc, mac, g, notes: dict, u):
 
-        dds_ble_init_rv_notes(notes)
+        state_ble_init_rv_notes(notes)
         do_we_rerun = not get_ddh_do_not_rerun_flag_li()
         create_folder_logger_by_mac(mac)
         _is_a_lid_v2_logger = False
@@ -58,7 +58,7 @@ class BleCC26X2Download:
         _rae(rv, "connecting")
         lg.a(f"connected to {mac}")
 
-        if ble_logger_ccx26x2r_needs_a_reset(mac):
+        if state_ble_logger_ccx26x2r_needs_a_reset(mac):
             await lc.cmd_rst()
             # out of here for sure
             raise BLEAppException("cc26x2 interact logger reset file")
