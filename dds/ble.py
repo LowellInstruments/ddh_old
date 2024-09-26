@@ -472,11 +472,11 @@ def ble_check_antenna_up_n_running(g, h: int):
         ddh_state.state_clr_ble_reset_req()
         for i in range(2):
             if linux_is_rpi():
-                lg.a(f"warning: hciconfig reset on hci{h} upon set_ble_reset_req")
-                cr = f"sudo hciconfig hci{h} reset"
+                lg.a(f"warning: hciconfig reset on hci{i} upon set_ble_reset_req")
+                cr = f"sudo hciconfig hci{i} reset"
                 sp.run(cr, shell=True, stdout=sp.PIPE, stderr=sp.PIPE)
             else:
-                lg.a(f"non-rpi CANNOT hciconfig reset on hci{h}")
+                lg.a(f"non-rpi CANNOT hciconfig reset on hci{i}")
         time.sleep(2)
 
     # read the interfaces state

@@ -623,7 +623,7 @@ def _process_n_graph(a, r=''):
                         ls_t.append(dt[i])
                 lg.a(f'debug: detected TDO data, percentile 80 is {p80}')
                 s = 'haul summary\n'
-                s += f'{t1} to {t2}'
+                s += f'{t1} to {t2}\n'
                 s += '{:5.2f} fathoms\n'.format(np.nanmean(ls_p))
                 s += '{:5.2f} °F'.format(np.nanmean(ls_t))
                 _u(f"{STATE_DDS_BLE_DOWNLOAD_STATISTICS}/{s}")
