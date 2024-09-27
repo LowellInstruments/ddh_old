@@ -129,3 +129,8 @@
 
     new strategy to not send so many BLE hardware errors via e-mail
     disabled CRC on TDO logger downloads per default
+
+4.0.28 - September 27, 2024
+
+    done better CST, less logs
+
