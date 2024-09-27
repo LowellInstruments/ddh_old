@@ -101,7 +101,7 @@ def _dl_logger_dox_lsb(mac, g, notes: dict, u, hs):
     _rae("bat")
     adc_b = b
     b /= BAT_FACTOR_DOT
-    lg.a(f"BAT | ADC {adc_b} mV -> {b} mV")
+    lg.a(f"BAT | ADC {adc_b} mV -> battery {int(b)} mV")
     notes["battery_level"] = b
     if adc_b < 1500:
         ln = LoggerNotification(mac, sn, 'DOX', adc_b)

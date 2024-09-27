@@ -95,9 +95,13 @@ def _aws_s3_sync_process():
     # useful on RPi3 to prevent BLE and AWS (wi-fi) collisions
     global g_fresh_boot
     if g_fresh_boot:
-        lg.a("AWS politely waiting upon boot")
+        lg.a("upon boot, AWS politely waits")
         g_fresh_boot = 0
         time.sleep(30)
+        # here it can mess with a very early BLE download but, meh
+        if ddh_state.state_get_downloading_ble():
+            lg.a('warning: upon boot, BLE download in progress, not interrupting AWS')
+            time.sleep(30)
         lg.a("AWS politely resuming after boot")
 
     # sys.exit() instead of return prevents zombie processes
@@ -255,8 +259,7 @@ def aws_serve():
 
     # don't run when already doing so (bad, because means is taking too long)
     if linux_is_process_running(AWS_S3_SYNC_PROC_NAME):
-        s = "warning: seems last {} took a long time"
-        lg.a(s.format(AWS_S3_SYNC_PROC_NAME))
+        lg.a(f"warning: seems last {AWS_S3_SYNC_PROC_NAME} took a long time")
         _u(STATE_DDS_NOTIFY_CLOUD_ERR)
         return
 

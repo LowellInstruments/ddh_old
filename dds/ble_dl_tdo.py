@@ -191,7 +191,7 @@ class BleTDODownload:
         _rae(rv, "bat")
         adc_b = b
         b /= BAT_FACTOR_TDO
-        lg.a(f"BAT | ADC {adc_b} mV -> {b} mV")
+        lg.a(f"BAT | ADC {adc_b} mV -> battery {int(b)} mV")
         notes["battery_level"] = b
         if adc_b < 982:
             ln = LoggerNotification(mac, sn, 'TDO', adc_b)

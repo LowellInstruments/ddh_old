@@ -82,7 +82,7 @@ class BleCC26X2Download:
         _rae(rv, "bat")
         adc_b = b
         b /= BAT_FACTOR_DOT
-        lg.a(f"BAT | ADC {adc_b} mV -> {b} mV")
+        lg.a(f"BAT | ADC {adc_b} mV -> battery {int(b)} mV")
         notes["battery_level"] = b
         if adc_b < 1500:
             ln = LoggerNotification(mac, sn, 'DOX', adc_b)
