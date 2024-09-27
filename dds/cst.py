@@ -84,8 +84,8 @@ def _create_cst_files():
         # avoid test files
         _bn = os.path.basename(i_lid)
         if TESTMODE_FILENAMEPREFIX in _bn:
-            # appear once in its lifetime because we load the 'already processed' file
-            lg.a(f'warning: no CST process for test file {_bn}, adding to already processed')
+            # we don't CST process testfiles_
+            lg.a(f'warning: skipped and added {_bn} to already processed')
             ls_lid_already_processed.append(i_lid)
             continue
 
@@ -156,6 +156,7 @@ def _create_cst_files():
             ft.close()
 
         # we do not process input files over and over
+        lg.a(f'added {i_lid} to CST already processed')
         ls_lid_already_processed.append(i_lid)
 
     # update this file which saves us time
