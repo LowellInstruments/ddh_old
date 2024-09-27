@@ -51,8 +51,8 @@ fi
 
 _pb "DDS set BLE connection supervision timeout"
 touch /tmp/200
-sudo cp /tmp/200 /sys/kernel/debug/bluetooth/hci0/supervision_timeout 2> /dev/null
-sudo cp /tmp/200 /sys/kernel/debug/bluetooth/hci1/supervision_timeout 2> /dev/null
+echo '200' | sudo tee /sys/kernel/debug/bluetooth/hci0/supervision_timeout 2> /dev/null
+echo '200' | sudo tee /sys/kernel/debug/bluetooth/hci1/supervision_timeout 2> /dev/null
 
 
 

@@ -162,9 +162,11 @@ class BleTDODownload:
         _rae(rv, "gfv")
         lg.a(f"GFV | {v}")
         notes['gfv'] = v
+
         # --------------------------------------
         # for newer loggers with super commands
         # --------------------------------------
+        lg.x()
         if v >= "4.0.04":
             lg.a("---------------------------")
             lg.a("running DL TDO fast version")
@@ -174,6 +176,7 @@ class BleTDODownload:
             lg.a("-----------------------------")
             lg.a("running DL TDO normal version")
             lg.a("-----------------------------")
+        lg.x()
 
         rv, state = await lc.cmd_sts()
         _rae(rv, "sts")

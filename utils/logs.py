@@ -79,6 +79,14 @@ class DDSLogs:
             self._pf(s)
             f.write(s + "\n")
 
+    def x(self):
+        if not self.enabled:
+            return
+
+        with open(self.f_name, "a") as f:
+            PC.N("\n")
+            f.write("\n")
+
 
 lg_dds = DDSLogs("ble")
 lg_aws = DDSLogs("aws")
