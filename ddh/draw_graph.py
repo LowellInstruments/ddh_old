@@ -645,7 +645,7 @@ def _process_n_graph(a, r=''):
                     ls_do = _do
                     ls_dt = dt
                 s = 'haul summary\n'
-                s += f'{t1} to {t2}'
+                s += f'{t1}\n{t2}\n'
                 s += '{:5.2f} mg_l\n'.format(np.nanmean(ls_do))
                 s += '{:5.2f} °F'.format(np.nanmean(ls_dt))
                 _u(f"{STATE_DDS_BLE_DOWNLOAD_STATISTICS}/{s}")
