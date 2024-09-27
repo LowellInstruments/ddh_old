@@ -2,6 +2,8 @@ import datetime
 import json
 import multiprocessing
 import os
+import time
+
 import sys
 from glob import glob
 from multiprocessing import Process
@@ -19,7 +21,7 @@ from utils.logs import lg_cst as lg
 
 
 MAX_TIME_DIFF_GPS_TRACK_VS_LOGGER_SAMPLE = 30
-g_lid_already_processed = []
+PATH_LID_CST_ALREADY_PROCESSED = '/tmp/cst_ls_lid_already_processed'
 
 
 _gr = GpqR()
@@ -61,22 +63,30 @@ def _create_cst_files():
     fol = get_ddh_folder_path_dl_files()
     ls_lid = glob(f'{fol}/**/*.lid', recursive=True)
 
+    # save us some work
+    ls_lid_already_processed = []
+    try:
+        with open(PATH_LID_CST_ALREADY_PROCESSED) as f:
+            ls_lid_already_processed = f.read().splitlines()
+            print('loaded')
+    except (Exception, ) as ex:
+        pass
+
     # ---------------------------------------------------
     # input: GPQ files (JSON) + timestamp from CSV files
     # output: CST files
     # ---------------------------------------------------
-    global g_lid_already_processed
     for i_lid in ls_lid:
 
-        if i_lid in g_lid_already_processed:
+        if i_lid in ls_lid_already_processed:
             continue
 
         # avoid test files
         _bn = os.path.basename(i_lid)
         if TESTMODE_FILENAMEPREFIX in _bn:
-            # would appear always because CST process spawn every time
-            # lg.a(f'warning: no CST process for test file {_bn}')
-            g_lid_already_processed.append(i_lid)
+            # appear once in its lifetime because we load the 'already processed' file
+            lg.a(f'warning: no CST process for test file {_bn}, adding to already processed')
+            ls_lid_already_processed.append(i_lid)
             continue
 
         # be sure we have CSV for this LID file
@@ -146,7 +156,12 @@ def _create_cst_files():
             ft.close()
 
         # we do not process input files over and over
-        g_lid_already_processed.append(i_lid)
+        ls_lid_already_processed.append(i_lid)
+
+    # update this file which saves us time
+    with open(PATH_LID_CST_ALREADY_PROCESSED, 'w') as f:
+        for i in ls_lid_already_processed:
+            f.write(i + '\n')
 
 
 def cst_serve():
@@ -177,4 +192,6 @@ def cst_serve():
 
 
 if __name__ == '__main__':
-    cst_serve()
+    while 1:
+        cst_serve()
+        time.sleep(5)
