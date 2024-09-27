@@ -170,7 +170,7 @@ def cst_serve():
         lg.a(f"error: seems last {_P_} took a long time")
     else:
         s = f'launching {_P_}'
-        if is_it_time_to(s, 10):
+        if is_it_time_to(s, 600):
             # lg.a(s)
             p = Process(target=_cst_serve)
             p.start()
