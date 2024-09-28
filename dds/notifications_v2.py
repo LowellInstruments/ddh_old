@@ -145,7 +145,8 @@ class _DDHNotification:
         path = f"{fol}/{now}.sqs"
         with open(path, "w") as f:
             json.dump(vars(self), f, indent=4)
-        lg.a(f"generated SQS file {path}, details next")
+        _bn = os.path.basename(path)
+        lg.a(f"generated SQS file {_bn}, details next")
         self.display_details()
 
 

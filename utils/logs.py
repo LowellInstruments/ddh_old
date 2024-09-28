@@ -155,7 +155,8 @@ def dds_log_tracking_add(lat, lon, tg):
         if g_last_file_out:
             lg_dds.a("closing current tracking file due to rotation")
         file_out = f'{d}{str_iso_tg_tz_utc}#{v}_track.txt'
-        lg_dds.a(f"started new tracking file {file_out}")
+        _bn = os.path.basename(file_out)
+        lg_dds.a(f"started new tracking file {_bn}")
         g_last_file_out = file_out
     if dds_get_cfg_flag_download_test_mode():
         file_out = os.path.dirname(file_out) + '/' + \
@@ -181,5 +182,6 @@ def dds_log_tracking_add(lat, lon, tg):
                 fo.write(f"{str_iso_tg_tz_utc},{lat},{lon}***{j}\n")
 
         # delete the LEF file
-        lg_log.a("deleting LEF file {}".format(f_lef))
+        _bn = os.path.basename(f_lef)
+        lg_log.a(f"deleting LEF file {_bn}")
         os.unlink(f_lef)

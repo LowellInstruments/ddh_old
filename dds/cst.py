@@ -68,7 +68,6 @@ def _create_cst_files():
     try:
         with open(PATH_LID_CST_ALREADY_PROCESSED) as f:
             ls_lid_already_processed = f.read().splitlines()
-            print('loaded')
     except (Exception, ) as ex:
         pass
 
@@ -106,7 +105,8 @@ def _create_cst_files():
         # read lines of CSV file
         with open(f_csv, 'r') as fv:
             ll_fv = fv.readlines()
-            lg.a(f'generating CST, file {f_csv} has {len(ll_fv)} lines')
+            _bn = os.path.basename(f_csv)
+            lg.a(f'generating CST, file {_bn} has {len(ll_fv)} lines')
 
         # ------------------------------------------------------------------------
         # fixed mode: CST file created with 1 location from fixed_*.json GPQ file
@@ -114,8 +114,9 @@ def _create_cst_files():
         if _gear_type == 0:
             f_gpq = f'{get_ddh_folder_path_gpq_files()}/'\
                     f'fixed_{os.path.basename(i_lid[:-4])}.json'
+            _bn = os.path.basename(f_gpq)
             if os.path.exists(f_gpq):
-                lg.a(f'using fixed GPQ file {f_gpq}')
+                lg.a(f'using fixed GPQ file {_bn}')
                 with open(f_gpq, 'r') as f:
                     d = json.load(f)
 
@@ -125,7 +126,7 @@ def _create_cst_files():
                     for s in ll_fv[1:]:
                         ft.write(f'{d["dl_lat"]},{d["dl_lon"]},' + s)
             else:
-                lg.a(f'warning: no fixed GPQ file {f_gpq}')
+                lg.a(f'warning: no fixed GPQ file {_bn}')
 
         # --------------------------------------------------------------------
         # mobile mode: CST file uses N locations from mobile_*.json GPQ files
@@ -156,7 +157,8 @@ def _create_cst_files():
             ft.close()
 
         # we do not process input files over and over
-        lg.a(f'added {i_lid} to CST already processed')
+        _bn = os.path.basename(i_lid)
+        lg.a(f'added {_bn} to CST already processed')
         ls_lid_already_processed.append(i_lid)
 
     # update this file which saves us time

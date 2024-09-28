@@ -55,7 +55,8 @@ def utils_graph_gfm_classify_file_wc_mode(p):
             return
 
     if _is_tdo:
-        lg.a(f'processing TDO file {p} for graph water column mode')
+        _bn = os.path.basename(p)
+        lg.a(f'processing TDO file {_bn} for graph water column mode')
         # headers: ISO 8601 Time,Temperature (C),Pressure (dbar),Ax,Ay,Az
         # ll[3]: 2024-09-13T14:52:49.000Z,19.120,10.462,-176,19,-162
         i_pc = ll[0].split(',').index('Pressure (dbar)')

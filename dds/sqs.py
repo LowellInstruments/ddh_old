@@ -84,7 +84,8 @@ def sqs_serve():
         # reads local SQS file as JSON
         f = open(i_f, "r")
         j = json.load(f)
-        lg.a(f"serving file {i_f}")
+        _bn = os.path.basename(i_f)
+        lg.a(f"serving file {_bn}")
 
         try:
             # ENQUEUES the JSON as string to SQS service
