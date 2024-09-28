@@ -130,7 +130,7 @@ def _ble_convert_lid_after_download(d):
         # f: absolute file path ending in .lid
         _bn = os.path.basename(f)
         n = id_lid_file_flavor(f)
-        lg.a(f"after download started converting LID v{n} file {_bn}")
+        lg.a(f"post-download start converting LID v{n} file {_bn}")
 
         # ----------------------------
         # convert DOX and TDO v2 files
@@ -143,7 +143,7 @@ def _ble_convert_lid_after_download(d):
             # do the old MAT library conversion
             parameters = default_parameters()
             DataConverter(f, parameters).convert()
-        lg.a(f"OK: after download ended conversion LID v{n} file {f}")
+        lg.a(f"OK: post-download end conversion LID v{n} file {_bn}")
 
 
 def _ble_analyze_and_graph_logger_result(rv,

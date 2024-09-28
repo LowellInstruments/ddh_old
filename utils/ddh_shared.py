@@ -336,7 +336,7 @@ def get_number_of_hauls(path):
     # example, when no .LID or .BIN files downloaded
     n = len(glob.glob(mask))
     bn = os.path.basename(path)
-    print(f"debug: get_number_of_hauls = {n} for {bn}, mask {os.path.basename(mask)}")
+    # print(f"debug: get_number_of_hauls = {n} for {bn}, mask {os.path.basename(mask)}")
     return n
 
 

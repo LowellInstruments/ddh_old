@@ -252,7 +252,7 @@ def _process_n_graph(a, r=''):
         if not utils_graph_does_exist_fol_req_file():
             raise GraphException('error: no BLE requested folder to graph')
         fol = utils_graph_read_fol_req_file()
-        lg.a('graph: selected last BLE download {}'.format(fol))
+        lg.a(f'graph: last BLE download {fol}')
         utils_graph_delete_fol_req_file()
     else:
         # people pressing GUI graph buttons
