@@ -128,13 +128,13 @@ class _DDHNotification:
 
     def display_details(self):
         if self.logger_mac:
-            s = "notification details: {} for logger {} ({}) at {}"
+            s = "details: {} for logger {} ({}) at {}"
             lg.a(s.format(self.reason,
                           self.logger_sn,
                           self.logger_mac,
                           self.ddh_gps_position))
         else:
-            s = "notification details: {} at {}"
+            s = "details: {} at {}"
             lg.a(s.format(self.reason,
                           self.ddh_gps_position))
 

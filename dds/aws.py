@@ -133,7 +133,7 @@ def _aws_s3_sync_process():
         y = datetime.datetime.utcnow().year
         sy = str(y)[2:]
         if this_box_has_grouped_s3_uplink():
-            lg.a(f'AWS upload-sync as grouped mode for mac {um}')
+            lg.a(f'AWS upload-sync GROUPed for folder {um}')
             v = dds_get_cfg_vessel_name()
             # v: "bailey's" --> BAYLEYS
             v = v.replace("'", "")
@@ -142,7 +142,7 @@ def _aws_s3_sync_process():
             # um: prepend grouped structure year and boat
             um = f"{str(y)}/{v}/{um}"
         else:
-            lg.a(f'AWS upload-sync as NON-grouped mode for mac {um}')
+            lg.a(f'AWS upload-sync NON-GROUPed mode for folder {um}')
 
         # format the AWS sync command
         c = (
@@ -299,7 +299,7 @@ def _aws_s3_cp_process(d):
         f_bn = os.path.basename(f)
         y = datetime.datetime.utcnow().year
         if this_box_has_grouped_s3_uplink():
-            lg.a(f'AWS upload-cp as grouped mode for mac {um}')
+            lg.a(f'AWS upload-cp GROUPed for folder {um}')
             v = dds_get_cfg_vessel_name()
             # v: "bailey's" --> BAYLEYS
             v = v.replace("'", "")
@@ -308,7 +308,7 @@ def _aws_s3_cp_process(d):
             # um: we prepend grouped structure year and boat
             um = f"{str(y)}/{v}/{um}"
         else:
-            lg.a(f'AWS upload-cp as NON-grouped mode for mac {um}')
+            lg.a(f'AWS upload-cp NON-GROUPed for folder {um}')
 
         # build the AWS command
         c = (
