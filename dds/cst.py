@@ -106,7 +106,7 @@ def _create_cst_files():
         with open(f_csv, 'r') as fv:
             ll_fv = fv.readlines()
             _bn = os.path.basename(f_csv)
-            lg.a(f'generating CST, file {_bn} has {len(ll_fv)} lines')
+            lg.a(f'generating CST from file {_bn}, {len(ll_fv)} lines')
 
         # ------------------------------------------------------------------------
         # fixed mode: CST file created with 1 location from fixed_*.json GPQ file
@@ -116,7 +116,7 @@ def _create_cst_files():
                     f'fixed_{os.path.basename(i_lid[:-4])}.json'
             _bn = os.path.basename(f_gpq)
             if os.path.exists(f_gpq):
-                lg.a(f'using fixed GPQ file {_bn}')
+                lg.a(f'querying fixed GPQ file {_bn}')
                 with open(f_gpq, 'r') as f:
                     d = json.load(f)
 

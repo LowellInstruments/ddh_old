@@ -147,24 +147,17 @@ def _cnv_serve():
     if not is_it_time_to("do_some_conversions", PERIOD_CNV_SECS) and not forced:
         return
 
-    # general banner
-    lg.a('----------------------------')
-    lg.a('cnv_serve sequence started')
-    lg.a('----------------------------')
-
     # iterate mac folders
     fol = str(get_ddh_folder_path_dl_files())
     mac_folders = [f.path for f in os.scandir(fol) if f.is_dir()]
     mac_folders = [f for f in mac_folders if '#' not in f]
+    lg.a('warning: cnv_serve sequence started')
     for f in mac_folders:
         # only converts LID files, not BIN or anything
         for m in ("_DissolvedOxygen", "_Temperature", "_Pressure", "_TDO"):
             # same file processed for multiple metrics
             _cnv_fol_lid(f, m)
-
-    lg.a('----------------------------')
-    lg.a('cnv_serve sequence finished')
-    lg.a('----------------------------')
+    lg.a('warning: cnv_serve sequence finished')
 
     # GUI update
     if _g_files_we_cannot_convert:

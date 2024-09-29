@@ -56,42 +56,43 @@ def utils_graph_gfm_classify_file_wc_mode(p):
 
     if _is_tdo:
         _bn = os.path.basename(p)
-        lg.a(f'processing TDO file {_bn} for graph water column mode')
+        lg.a(f'graph water column mode: processing TDO file {_bn}')
         # headers: ISO 8601 Time,Temperature (C),Pressure (dbar),Ax,Ay,Az
         # ll[3]: 2024-09-13T14:52:49.000Z,19.120,10.462,-176,19,-162
         i_pc = ll[0].split(',').index('Pressure (dbar)')
         for i in ll[3:]:
             vp = float(i.split(',')[i_pc])
             if vp > 15:
-                lg.a(f'OK: set ON graph water column mode for TDO file {bn}')
+                lg.a(f'graph water column mode = ON for TDO file {bn}')
                 pathlib.Path(f_wc).touch()
                 return
 
         pathlib.Path(f_nowc).touch()
-        lg.a(f'OK: set OFF graph water column mode for TDO file {bn}')
+        lg.a(f'graph water column mode = OFF for TDO file {bn}')
         return
 
     _is_do2 = 'Water' in ll[0]
     if not _is_do2:
         # this way, we force them to appear on graphs
-        lg.a(f'OK: set ON graph water column mode for DO-1 file {bn}')
+        lg.a(f'graph water column mode = ON for DO-1 file {bn}')
         pathlib.Path(f_wc).touch()
         return
 
     if _is_do2:
-        lg.a(f'processing DO-2 file {p} for graph water column mode')
+        _bn = os.path.basename(p)
+        lg.a(f'graph water column mode: processing DO-2 file {_bn}')
         lg.a(f'{ll[3]}')
         # headers: ts,mg/l,%,C,W%
         # ll[3]: 2024-06-29T10:49:51.000Z,10.14,98.27,13.93,94.00
         for i in ll[3:]:
             w_cur = float(i.split(',')[-1])
             if w_cur > 50:
-                lg.a(f'OK: set ON graph water column mode for DO-2 file {bn}')
+                lg.a(f'graph water column mode = ON for DO-2 file {bn}')
                 pathlib.Path(f_wc).touch()
                 return
 
         pathlib.Path(f_nowc).touch()
-        lg.a(f'OK: set OFF graph water column mode for DO-2 file {bn}')
+        lg.a(f'graph water column mode = OFF for DO-2 file {bn}')
         return
 
     lg.a(f'error: _utils_graph_classify_file_wc_mode for unknown file {p}')
