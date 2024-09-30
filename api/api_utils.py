@@ -75,9 +75,15 @@ def api_get_ddh_folder_path_macs_black():
 
 
 def _get_remote_commit(s):
-    assert s in ('mat', 'ddh', 'ddt', 'liu')
+    assert s in ('mat', 'ddh', 'ddt')
+    d = {
+        'mat': 'master',
+        'ddh': 'toml',
+        'ddt': 'toml'
+    }
+    branch_name = d[s]
     url = f'https://github.com/lowellinstruments/{s}.git'
-    c = f'git ls-remote {url} refs/heads/toml'
+    c = f'git ls-remote {url} refs/heads/{branch_name}'
     rv = _sh(c)
     if rv.returncode == 0:
         a = rv.stdout.decode().split()
@@ -120,20 +126,12 @@ def api_get_git_commit_mat_local():
     return _get_git_commit_mat_local_from_file('mat')
 
 
-def api_get_git_commit_liu_local():
-    return _get_git_commit_mat_local_from_file('liu')
-
-
 def api_get_git_commit_ddt_local():
     return _get_local_commit('ddt')
 
 
 def api_get_git_commit_ddt_remote():
     return _get_remote_commit('ddt')
-
-
-def api_get_git_commit_liu_remote():
-    return _get_remote_commit('liu')
 
 
 def _get_iface_ip(iface):
