@@ -77,7 +77,7 @@ def api_get_ddh_folder_path_macs_black():
 def _get_remote_commit(s):
     assert s in ('mat', 'ddh', 'ddt', 'liu')
     url = f'https://github.com/lowellinstruments/{s}.git'
-    c = f'git ls-remote {url} refs/heads/master'
+    c = f'git ls-remote {url} refs/heads/toml'
     rv = _sh(c)
     if rv.returncode == 0:
         a = rv.stdout.decode().split()
