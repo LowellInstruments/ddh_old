@@ -138,7 +138,7 @@ def _get_iface_ip(iface):
     # src: stackoverflow 8529181
     if iface not in ('wg0', 'wlan0', 'ppp0'):
         return ''
-    c = "ip -4 addr show {} | grep inet ".format(iface)
+    c = f"ip -4 addr show {iface} | grep inet "
     rv = _sh(c)
     ip = ''
     if rv.returncode == 0:
@@ -254,7 +254,7 @@ def api_set_crontab(on_flag):
     assert on_flag in (0, 1)
     s = api_get_crontab_ddh()
     c = ''
-    print('s {} on_flag {}'.format(s, on_flag))
+    print(f's {s} on_flag {on_flag}')
     if s == -1 and on_flag:
         # crontab empty, create it
         c = 'echo "* * * * * pi /home/pi/li/ddt/_dt_files/crontab_ddh.sh" | sudo tee -a /etc/crontab'
@@ -308,9 +308,9 @@ def api_get_internet_via():
 
 
 def api_get_ble_state():
-    h = '/usr/bin/hciconfig'
-    rv_0 = _sh('{} -a | grep hci0'.format(h))
-    rv_1 = _sh('{} -a | grep hci1'.format(h))
+    _p = '/usr/bin/hciconfig'
+    rv_0 = _sh(f'{_p} -a | grep hci0')
+    rv_1 = _sh(f'{_p} -a | grep hci1')
     d = dict()
     d['hci0_present'] = False
     d['hci1_present'] = False
@@ -318,11 +318,11 @@ def api_get_ble_state():
     d['hci1_running'] = False
     if rv_0.returncode == 0:
         d['hci0_present'] = True
-        rv = _sh('{} hci0'.format(h))
+        rv = _sh(f'{_p} hci0')
         d['hci0_running'] = 'UP RUNNING' in rv.stdout.decode()
     if rv_1.returncode == 0:
         d['hci1_present'] = True
-        rv = _sh('{} hci1'.format(h))
+        rv = _sh(f'{_p} hci1')
         d['hci1_running'] = 'UP RUNNING' in rv.stdout.decode()
     return d
 
