@@ -7,3 +7,4 @@ toml~=0.10.2
 GitPython~=3.1.42
 strip.pysondb~=1.5.1
 requests~=2.32.3
+boto3~=1.35.30

@@ -454,9 +454,11 @@ def api_send_email_crash():
     # test
     rsp = cli.publish(
         TopicArn='arn:aws:sns:us-east-2:727249356285:top_ddh_sys',
-        Message=s
+        Message=s,
+        Subject=s
     )
 
+    # detect errors
     if rsp['ResponseMetadata']['HTTPStatusCode'] != 200:
         print(f'error: api_send_email_crash() -> {rsp}')
 
