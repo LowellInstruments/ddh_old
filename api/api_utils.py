@@ -442,7 +442,7 @@ def api_send_email_crash():
     v = dds_get_cfg_vessel_name()
     _k = dds_get_cfg_aws_credential("cred_aws_key_id")
     _s = dds_get_cfg_aws_credential("cred_aws_secret")
-    s = f'API process on DDH {sn} {v} ({p}) just crashed'
+    s = f'crashed API on DDH SN: {sn}, name: {v}, organization: {p}'
 
     cli = boto3.client(
         "sns",
