@@ -23,7 +23,7 @@ from api.api_utils import (api_get_ip_vpn, api_get_ip_wlan, api_get_ip_cell,
                            api_get_utc_epoch, api_get_api_version, api_get_ble_iface,
                            get_files_from_server, api_get_gps_iface,
                            api_get_fw_cell_version, api_get_wlan_mbps,
-                           api_get_internet_via, api_get_kernel,
+                           api_get_internet_via, api_get_kernel, api_send_sqs,
                            )
 from ddh.db.db_his import DbHis
 from utils.ddh_config import (dds_get_cfg_vessel_name,
@@ -429,7 +429,7 @@ def _alarm_api_crash(n):
     if n == 0:
         return
     print(f'error: _alarm_api_crash, n = {n}')
-    # todo ---> notify this via e-mail?
+    api_send_sqs()
 
 
 def main_api():
