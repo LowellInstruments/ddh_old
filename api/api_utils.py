@@ -443,4 +443,4 @@ def api_send_email_crash():
     c = f'echo "" > mail -s {s} {dst}'
     rv = sp.run(c, shell=True, stdout=sp.PIPE, stderr=sp.PIPE)
     if rv.returncode:
-        print(f'error sending api_send_email_crash -> {rv.stdout}')
+        print(f'error sending api_send_email_crash -> {rv.stderr}')
