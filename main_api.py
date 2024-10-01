@@ -26,15 +26,13 @@ from api.api_utils import (api_get_ip_vpn, api_get_ip_wlan, api_get_ip_cell,
 from ddh.db.db_his import DbHis
 from utils.ddh_config import (dds_get_cfg_vessel_name,
                               dds_get_cfg_box_sn, dds_get_cfg_box_project,
-                              dds_get_cfg_monitored_pairs, dds_get_cfg_flag_gps_external)
+                              dds_get_cfg_monitored_pairs)
 import uvicorn
 from fastapi import FastAPI, UploadFile, File, HTTPException
 import os
 from fastapi.responses import FileResponse
 import concurrent.futures
 import subprocess as sp
-
-from utils.ddh_shared import NAME_EXE_API_CONTROLLER, PID_FILE_API_CONTROLLER
 from utils.flag_paths import LI_FILE_ICCID, TMP_PATH_DDH_APP_OVERRIDE, TMP_PATH_DDH_GOT_UPDATE
 
 # instead, the DDN port is 9000 & 9001
@@ -435,8 +433,7 @@ def main_api():
 
 
 def controller_main_api():
-    s = NAME_EXE_API_CONTROLLER
-    p = PID_FILE_API_CONTROLLER
+    s = f"{NAME_EXE_API}_controller"
     setproctitle.setproctitle(s)
     print(f"=== {s} started ===")
 
