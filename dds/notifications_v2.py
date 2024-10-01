@@ -190,7 +190,7 @@ def notify_error_sw_crash():
 
 
 def notify_error_api_crash():
-    return _n(DDH_NOTIFICATION_ERROR_API_CRASH)
+    print('todo: not based on SQS')
 
 
 def notify_ddh_alive(g):
