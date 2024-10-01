@@ -27,7 +27,6 @@ from api.api_utils import (api_get_ip_vpn, api_get_ip_wlan, api_get_ip_cell,
                            api_get_internet_via, api_get_kernel,
                            )
 from ddh.db.db_his import DbHis
-from dds.timecache import is_it_time_to
 from mat.linux import linux_is_process_running, linux_app_write_pid_to_tmp
 from utils.ddh_config import (dds_get_cfg_vessel_name,
                               dds_get_cfg_box_sn, dds_get_cfg_box_project,
@@ -430,8 +429,7 @@ def _alarm_api_crash(n):
     if n == 0:
         return
     print(f'error: _alarm_api_crash, n = {n}')
-    if is_it_time_to('tell_api_child_crash', 300):
-        notify_error_api_crash()
+    # todo ---> notify this via e-mail?
 
 
 def main_api():
