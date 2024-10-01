@@ -134,3 +134,9 @@
 
     done better CST, less logs
 
+4.0.29 - October 1, 2024
+
+    reduced printed logs a lot
+    added some direct SNS alarm notifications (no SQS) to API if this crashes
+    added API controller process to API
+
