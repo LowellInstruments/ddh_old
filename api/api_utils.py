@@ -12,6 +12,7 @@ from utils.ddh_config import (
     dds_get_cfg_box_project, dds_get_cfg_box_sn,
     dds_get_cfg_vessel_name
 )
+import os
 from utils.flag_paths import (LI_PATH_DDH_VERSION,
                               TMP_PATH_GPS_LAST_JSON,
                               TMP_PATH_BLE_IFACE,
