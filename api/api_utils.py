@@ -12,13 +12,15 @@ import re
 from utils.ddh_config import (
     dds_get_cfg_flag_gps_external,
     dds_get_cfg_box_project, dds_get_cfg_box_sn,
-    dds_get_cfg_vessel_name
+    dds_get_cfg_vessel_name, dds_get_cfg_aws_credential
 )
 import os
 from utils.flag_paths import (LI_PATH_DDH_VERSION,
                               TMP_PATH_GPS_LAST_JSON,
                               TMP_PATH_BLE_IFACE,
                               LI_PATH_CELL_FW, TMP_PATH_INET_VIA)
+import boto3
+
 
 CTT_API_OK = 'ok'
 CTT_API_ER = 'error'
@@ -438,9 +440,25 @@ def api_send_email_crash():
     p = dds_get_cfg_box_project()
     sn = dds_get_cfg_box_sn()
     v = dds_get_cfg_vessel_name()
+    _k = dds_get_cfg_aws_credential("cred_aws_key_id")
+    _s = dds_get_cfg_aws_credential("cred_aws_secret")
     s = f'API process on DDH {sn} {v} ({p}) just crashed'
-    dst = 'ddh@lowellinstruments.com'
-    c = f'whereis dma && echo "" | mail -s "{s}" {dst}'
-    rv = sp.run(c, shell=True, stdout=sp.PIPE, stderr=sp.PIPE)
-    if rv.returncode:
-        print(f'error sending api_send_email_crash -> {rv.stderr}')
+
+    cli = boto3.client(
+        "sns",
+        aws_access_key_id=_k,
+        aws_secret_access_key=_s,
+        region_name="us-east-2"
+    )
+
+    # test
+    rsp = cli.publish(
+        TopicArn='arn:aws:sns:us-east-2:727249356285:top_ddh_sys',
+        Message=s
+    )
+
+    print(f'response from api_send_email_crash() -> {rsp}')
+
+
+if __name__ == '__main__':
+    api_send_email_crash()
