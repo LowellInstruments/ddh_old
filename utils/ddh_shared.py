@@ -79,12 +79,14 @@ NAME_EXE_DDH = "main_ddh"
 NAME_EXE_DDS = "main_dds"
 NAME_EXE_API = "main_api"
 NAME_EXE_BRT = "main_brt"
-PID_FILE_DDH = "/tmp/{}.pid".format(NAME_EXE_DDH)
-PID_FILE_DDS = "/tmp/{}.pid".format(NAME_EXE_DDS)
+PID_FILE_DDH = f"/tmp/{NAME_EXE_DDH}.pid"
+PID_FILE_DDS = f"/tmp/{NAME_EXE_DDS}.pid"
 NAME_EXE_DDH_CONTROLLER = NAME_EXE_DDH + "_controller"
 NAME_EXE_DDS_CONTROLLER = NAME_EXE_DDS + "_controller"
-PID_FILE_DDH_CONTROLLER = "/tmp/{}.pid".format(NAME_EXE_DDH_CONTROLLER)
-PID_FILE_DDS_CONTROLLER = "/tmp/{}.pid".format(NAME_EXE_DDS_CONTROLLER)
+NAME_EXE_API_CONTROLLER = NAME_EXE_API + "_controller"
+PID_FILE_DDH_CONTROLLER = f"/tmp/{NAME_EXE_DDH_CONTROLLER}.pid"
+PID_FILE_DDS_CONTROLLER = f"/tmp/{NAME_EXE_DDS_CONTROLLER}.pid"
+PID_FILE_API_CONTROLLER = f"/tmp/{NAME_EXE_API_CONTROLLER}.pid"
 
 
 _sk = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -118,29 +120,29 @@ def send_ddh_udp_gui(s, ip="127.0.0.1", port=DDH_GUI_UDP_PORT):
 # used by GUI on upper-X, 'q', clicking uptime and ctrl+c
 def dds_kill_by_pid_file(only_child=False):
     print("[ KILL ] killing DDS child process")
-    c = "pkill -F {}".format(PID_FILE_DDS)
+    c = f"pkill -F {PID_FILE_DDS}"
     sp.run(c, shell=True)
     if only_child:
         return
     print("[ KILL ] killing DDS controller process")
-    c = "pkill -F {}".format(PID_FILE_DDS_CONTROLLER)
+    c = f"pkill -F {PID_FILE_DDS_CONTROLLER}"
     sp.run(c, shell=True)
 
 
 def ddh_kill_by_pid_file(only_child=False):
     print("[ KILL ] killing DDH child process")
-    c = "pkill -F {}".format(PID_FILE_DDH)
+    c = f"pkill -F {PID_FILE_DDH}"
     sp.run(c, shell=True)
     if only_child:
         return
     print("[ KILL ] killing DDH controller process")
-    c = "pkill -F {}".format(PID_FILE_DDH_CONTROLLER)
+    c = f"pkill -F {PID_FILE_DDH_CONTROLLER}"
     sp.run(c, shell=True)
 
 
 def dds_ensure_proper_working_folder():
     if not os.path.exists("main_dds.py"):
-        print("{} = BAD working directory".format(os.getcwd()))
+        print(f"{os.getcwd()} = BAD working directory")
         os.exit(1)
 
 
@@ -280,14 +282,14 @@ def get_mac_from_folder_path(fol):
 def get_dl_folder_path_from_mac(mac):
     """returns 'dl_files/11-22-33' from '11:22:33'"""
     fol = get_ddh_folder_path_dl_files()
-    fol = fol / "{}/".format(mac.replace(":", "-").lower())
+    fol = fol / f'{mac.replace(":", "-").lower()}/'
     return fol
 
 
 def create_folder_logger_by_mac(mac):
     """mkdir folder based on MAC address, replaces ':' with '-'"""
     fol = get_ddh_folder_path_dl_files()
-    fol = fol / "{}/".format(mac.replace(":", "-").lower())
+    fol = fol / f'{mac.replace(":", "-").lower()}/'
     os.makedirs(fol, exist_ok=True)
     return fol
 
@@ -312,9 +314,9 @@ def get_utc_offset():
 
 def get_number_of_hauls(path):
     # path: /home/kaz/PycharmProjects/ddh/dl_files/<mac>
-    ls_lid = len(glob.glob('{}/*.lid'.format(path)))
-    ls_bin = (len(glob.glob('{}/moana*.bin'.format(path))) +
-              len(glob.glob('{}/MOANA*.bin'.format(path))))
+    ls_lid = len(glob.glob(f'{path}/*.lid'))
+    ls_bin = (len(glob.glob(f'{path}/moana*.bin')) +
+              len(glob.glob(f'{path}/MOANA*.bin')))
     mask = '__what__'
     if ls_lid:
         # for DO & TP & TDO loggers

@@ -92,7 +92,7 @@ def _get_remote_commit(s):
 
 
 def _get_local_commit(s):
-    # main_api.py runs in ddh root
+    # main_api.py runs in DDH base folder
     assert s in ('ddh', 'ddt')
     c = f'cd ../{s} && git log -1 | grep commit | cut -f 2 -d " "'
     rv = _sh(c)

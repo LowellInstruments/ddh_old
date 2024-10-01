@@ -115,7 +115,10 @@ def dds_log_core_start_at_boot():
     lg_dds.a(f"started DDS logs on {ts}")
 
 
+# --------------------------------------
 # these TRACKING logs get uploaded
+# they are based on UTC, not local time
+# --------------------------------------
 def dds_log_tracking_add(lat, lon, tg):
 
     if not is_it_time_to("track_boat_gps", t=10):
@@ -131,8 +134,7 @@ def dds_log_tracking_add(lat, lon, tg):
     tg = tg.replace(microsecond=0)
     iso_tg = tg.isoformat()
 
-    # how often filename rotates
-    # when testing, change %d (day) to %M (minutes)
+    # how often filename rotates, compare between runs
     global g_last_tk_ts_unit
     flag_new_file = g_last_tk_ts_unit != tg.strftime("%d")
     g_last_tk_ts_unit = tg.strftime("%d")
@@ -140,7 +142,7 @@ def dds_log_tracking_add(lat, lon, tg):
     # --------------------------------------------------
     # get current GPS time in our string format, as UTC
     # --------------------------------------------------
-    str_iso_tg_tz_utc = '{}Z'.format(iso_tg)
+    str_iso_tg_tz_utc = f'{iso_tg}Z'
 
     # create TRACKING log folder if it does not exist
     v = dds_get_cfg_vessel_name().replace(" ", "_")
@@ -173,7 +175,6 @@ def dds_log_tracking_add(lat, lon, tg):
     # ------------------------------
     # add info from LEF files, if so
     # ------------------------------
-
     ff_lef = glob.glob(f"{get_ddh_folder_path_lef()}/*.lef")
     for f_lef in ff_lef:
         with open(f_lef, 'r') as fl:

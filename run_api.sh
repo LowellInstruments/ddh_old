@@ -5,7 +5,7 @@ source /home/pi/li/ddh/scripts/utils.sh
 clear
 
 # for crontab to detect already running
-check_already_running "main_api"
+check_already_running "main_api_controller"
 
 
 echo && echo

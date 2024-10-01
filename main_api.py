@@ -4,6 +4,11 @@ import datetime
 import glob
 import pathlib
 import shutil
+import time
+from multiprocessing import Process
+
+import sys
+
 import setproctitle
 from api.api_utils import (api_get_ip_vpn, api_get_ip_wlan, api_get_ip_cell,
                            api_get_running_ddh_dds, api_get_crontab_ddh, _sh,
@@ -22,6 +27,9 @@ from api.api_utils import (api_get_ip_vpn, api_get_ip_wlan, api_get_ip_cell,
                            api_get_internet_via, api_get_kernel,
                            )
 from ddh.db.db_his import DbHis
+from dds.notifications_v2 import notify_error_api_crash
+from dds.timecache import is_it_time_to
+from mat.linux import linux_is_process_running, linux_app_write_pid_to_tmp
 from utils.ddh_config import (dds_get_cfg_vessel_name,
                               dds_get_cfg_box_sn, dds_get_cfg_box_project,
                               dds_get_cfg_monitored_pairs, dds_get_cfg_flag_gps_external)
@@ -32,6 +40,7 @@ from fastapi.responses import FileResponse
 import concurrent.futures
 import subprocess as sp
 
+from utils.ddh_shared import NAME_EXE_API_CONTROLLER, PID_FILE_API_CONTROLLER
 from utils.flag_paths import LI_FILE_ICCID, TMP_PATH_DDH_APP_OVERRIDE, TMP_PATH_DDH_GOT_UPDATE
 
 # instead, the DDN port is 9000 & 9001
@@ -412,11 +421,51 @@ async def ep_provision():
     return {'provision': CTT_API_OK}
 
 
+@app.get("/api_test_crash")
+async def ep_api_test_crash():
+    # just lose it
+    os._exit(-1)
+
+
+def _alarm_api_crash(n):
+    if n == 0:
+        return
+    print(f'error: _alarm_api_crash, n = {n}')
+    if is_it_time_to('tell_api_child_crash', 300):
+        notify_error_api_crash()
+
+
 def main_api():
     # docs at http://0.0.0.0:port/docs
     setproctitle.setproctitle(NAME_EXE_API)
     uvicorn.run(app, host="0.0.0.0", port=DDH_PORT_API)
 
 
+def controller_main_api():
+    s = NAME_EXE_API_CONTROLLER
+    p = PID_FILE_API_CONTROLLER
+    setproctitle.setproctitle(s)
+    linux_app_write_pid_to_tmp(p)
+    print(f"=== {s} started ===")
+
+    while 1:
+        print(f"=== {s} launching child ===")
+        p = Process(target=main_api)
+        p.start()
+        p.join()
+        _alarm_api_crash(p.exitcode)
+        print(f"=== {s} waits child, exitcode {p.exitcode} ===")
+        time.sleep(5)
+
+
 if __name__ == "__main__":
-    main_api()
+
+    # only main
+    # main_api()
+    # sys.exit(0)
+
+    # main + controller
+    if not linux_is_process_running(NAME_EXE_API_CONTROLLER):
+        controller_main_api()
+    else:
+        print(f"not launching {NAME_EXE_API_CONTROLLER}, already running at python level")
