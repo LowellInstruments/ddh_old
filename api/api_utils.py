@@ -24,7 +24,7 @@ import boto3
 
 CTT_API_OK = 'ok'
 CTT_API_ER = 'error'
-DDH_API_VERSION = "1.0.02"
+DDH_API_VERSION = "1.0.03"
 
 
 def api_get_api_version():
