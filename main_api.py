@@ -6,9 +6,6 @@ import pathlib
 import shutil
 import time
 from multiprocessing import Process
-
-import sys
-
 import setproctitle
 from api.api_utils import (api_get_ip_vpn, api_get_ip_wlan, api_get_ip_cell,
                            api_get_running_ddh_dds, api_get_crontab_ddh, _sh,
@@ -27,7 +24,6 @@ from api.api_utils import (api_get_ip_vpn, api_get_ip_wlan, api_get_ip_cell,
                            api_get_internet_via, api_get_kernel,
                            )
 from ddh.db.db_his import DbHis
-from mat.linux import linux_is_process_running, linux_app_write_pid_to_tmp
 from utils.ddh_config import (dds_get_cfg_vessel_name,
                               dds_get_cfg_box_sn, dds_get_cfg_box_project,
                               dds_get_cfg_monitored_pairs, dds_get_cfg_flag_gps_external)
@@ -442,7 +438,6 @@ def controller_main_api():
     s = NAME_EXE_API_CONTROLLER
     p = PID_FILE_API_CONTROLLER
     setproctitle.setproctitle(s)
-    linux_app_write_pid_to_tmp(p)
     print(f"=== {s} started ===")
 
     while 1:
@@ -462,7 +457,4 @@ if __name__ == "__main__":
     # sys.exit(0)
 
     # main + controller
-    if not linux_is_process_running(NAME_EXE_API_CONTROLLER):
-        controller_main_api()
-    else:
-        print(f"not launching {NAME_EXE_API_CONTROLLER}, already running at python level")
+    controller_main_api()
