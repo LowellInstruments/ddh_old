@@ -1,7 +1,4 @@
 import datetime
-import glob
-import json
-import os
 import pathlib
 import platform
 import subprocess as sp
@@ -10,12 +7,15 @@ import time
 from requests.exceptions import HTTPError
 import requests
 import re
-
-from dds.notifications_v2 import DDH_NOTIFICATION_ERROR_API_CRASH
-from utils.ddh_config import dds_get_cfg_flag_gps_external, dds_get_cfg_box_project, dds_get_cfg_box_sn, \
+from utils.ddh_config import (
+    dds_get_cfg_flag_gps_external,
+    dds_get_cfg_box_project, dds_get_cfg_box_sn,
     dds_get_cfg_vessel_name
+)
 from utils.flag_paths import (LI_PATH_DDH_VERSION,
-                              TMP_PATH_GPS_LAST_JSON, TMP_PATH_BLE_IFACE, LI_PATH_CELL_FW, TMP_PATH_INET_VIA)
+                              TMP_PATH_GPS_LAST_JSON,
+                              TMP_PATH_BLE_IFACE,
+                              LI_PATH_CELL_FW, TMP_PATH_INET_VIA)
 
 CTT_API_OK = 'ok'
 CTT_API_ER = 'error'
@@ -468,7 +468,7 @@ def api_send_sqs():
 
     d = {
         "msg_ver": 2,
-        "reason": DDH_NOTIFICATION_ERROR_API_CRASH,
+        "reason": 'API just crashed',
         "time_local_str": str(datetime.datetime.now()).split('.')[0],
         "ddh_box_name": dds_get_cfg_vessel_name(),
         "ddh_box_sn": dds_get_cfg_box_sn(),
