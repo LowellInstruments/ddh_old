@@ -1,4 +1,6 @@
 import datetime
+import glob
+import json
 import pathlib
 import platform
 import subprocess as sp
@@ -432,66 +434,13 @@ def get_files_from_server(pr, sn, ip, addr, port):
         return dst
 
 
-import glob
-import os
-import uuid
-import boto3
-import json
-
-from dds.aws import ddh_write_timestamp_aws_sqs
-from dds.net import ddh_get_internet_via
-from dds.timecache import is_it_time_to
-from utils.ddh_config import (
-    dds_get_cfg_flag_sqs_en, dds_get_cfg_aws_credential)
-from utils.logs import lg_sqs as lg
-from utils.ddh_shared import (
-    get_ddh_folder_path_sqs,
-)
-import warnings
-
-warnings.filterwarnings("ignore",
-                        category=FutureWarning,
-                        module="botocore.client")
-
-
-# SQS for API purposes
-sqs_key_id = dds_get_cfg_aws_credential("cred_aws_key_id")
-sqs_access_key = dds_get_cfg_aws_credential("cred_aws_secret")
-sqs = boto3.client(
-    "sqs",
-    region_name="us-east-2",
-    aws_access_key_id=sqs_key_id,
-    aws_secret_access_key=sqs_access_key,
-)
-
-
-def api_send_sqs():
-
-    d = {
-        "msg_ver": 2,
-        "reason": 'API just crashed',
-        "time_local_str": str(datetime.datetime.now()).split('.')[0],
-        "ddh_box_name": dds_get_cfg_vessel_name(),
-        "ddh_box_sn": dds_get_cfg_box_sn(),
-        "ddh_box_project": dds_get_cfg_box_project(),
-    }
-
-    try:
-        m = json.dumps(d)
-        rsp = sqs.send_message(
-            QueueUrl=dds_get_cfg_aws_credential("cred_aws_sqs_queue_name"),
-            MessageGroupId=str(uuid.uuid4()),
-            MessageDeduplicationId=str(uuid.uuid4()),
-            MessageBody=m,
-        )
-
-        md = rsp["ResponseMetadata"]
-        if md and int(md["HTTPStatusCode"]) != 200:
-            print(f'error on api_send_sqs() -> {int(md["HTTPStatusCode"])}')
-
-    except (Exception,) as ex:
-        print(f'error on api_send_sqs() -> {ex}')
-
-
-if __name__ == '__main__':
-    api_send_sqs()
+def api_send_email_crash():
+    p = dds_get_cfg_box_project()
+    sn = dds_get_cfg_box_sn()
+    v = dds_get_cfg_vessel_name()
+    s = f'API process on DDH {sn} {v} ({p}) just crashed'
+    dst = 'ddh@lowellinstruments.com'
+    c = f'echo "" > mail -s {s} {dst}'
+    rv = sp.run(c, shell=True, stdout=sp.PIPE, stderr=sp.PIPE)
+    if rv.returncode:
+        print(f'error sending api_send_email_crash -> {rv.stdout}')
