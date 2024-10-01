@@ -10,7 +10,8 @@ import setproctitle
 from api.api_utils import (api_get_ip_vpn, api_get_ip_wlan, api_get_ip_cell,
                            api_get_running_ddh_dds, api_get_crontab_ddh, _sh,
                            api_set_crontab,
-                           api_get_ble_state, api_get_gps, api_get_logger_mac_reset_files,
+                           api_get_ble_state, api_get_gps,
+                           api_get_logger_mac_reset_files,
                            api_get_commits,
                            api_get_full_ddh_config_file_path,
                            api_linux_is_rpi,
@@ -20,7 +21,8 @@ from api.api_utils import (api_get_ip_vpn, api_get_ip_wlan, api_get_ip_cell,
                            CTT_API_ER, api_get_uptime_secs, api_ddh_get_folder_dl_files,
                            api_get_ddh_folder_path_macs_black, api_get_ddh_sw_version,
                            api_get_utc_epoch, api_get_api_version, api_get_ble_iface,
-                           get_files_from_server, api_get_gps_iface, api_get_fw_cell_version, api_get_wlan_mbps,
+                           get_files_from_server, api_get_gps_iface,
+                           api_get_fw_cell_version, api_get_wlan_mbps,
                            api_get_internet_via, api_get_kernel,
                            )
 from ddh.db.db_his import DbHis
@@ -33,7 +35,11 @@ import os
 from fastapi.responses import FileResponse
 import concurrent.futures
 import subprocess as sp
-from utils.flag_paths import LI_FILE_ICCID, TMP_PATH_DDH_APP_OVERRIDE, TMP_PATH_DDH_GOT_UPDATE
+from utils.flag_paths import (
+    LI_FILE_ICCID,
+    TMP_PATH_DDH_APP_OVERRIDE,
+    TMP_PATH_DDH_GOT_UPDATE
+)
 
 # instead, the DDN port is 9000 & 9001
 DDH_PORT_API = 8000
