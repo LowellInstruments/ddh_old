@@ -440,7 +440,7 @@ def api_send_email_crash():
     v = dds_get_cfg_vessel_name()
     s = f'API process on DDH {sn} {v} ({p}) just crashed'
     dst = 'ddh@lowellinstruments.com'
-    c = f'echo "" > mail -s "{s}" {dst}'
+    c = f'whereis dma && echo "" | mail -s "{s}" {dst}'
     rv = sp.run(c, shell=True, stdout=sp.PIPE, stderr=sp.PIPE)
     if rv.returncode:
         print(f'error sending api_send_email_crash -> {rv.stderr}')
