@@ -51,6 +51,8 @@ NAME_EXE_API = "main_api"
 
 app = FastAPI()
 
+g_ts_last_email_api_crash = 0
+
 
 def _p(s):
     print(s)
@@ -429,7 +431,12 @@ def _alarm_api_crash(n):
     if n == 0:
         return
     print(f'error: _alarm_api_crash, n = {n}')
-    api_send_email_crash()
+    global g_ts_last_email_api_crash
+    now = time.perf_counter()
+    if g_ts_last_email_api_crash == 0 or \
+       now > g_ts_last_email_api_crash + 300:
+        g_ts_last_email_api_crash = now
+        api_send_email_crash()
 
 
 def main_api():
