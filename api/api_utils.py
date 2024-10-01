@@ -457,7 +457,8 @@ def api_send_email_crash():
         Message=s
     )
 
-    print(f'response from api_send_email_crash() -> {rsp}')
+    if rsp['ResponseMetadata']['HTTPStatusCode'] != 200:
+        print(f'error: api_send_email_crash() -> {rsp}')
 
 
 if __name__ == '__main__':
