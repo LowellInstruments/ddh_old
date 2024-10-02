@@ -83,16 +83,24 @@ async def _main_nadv(sm=''):
     print('\n')
 
 
-def main_nadv():
-    try:
-        with open(PATH_CFG, 'r') as f:
-            cfg = toml.load(f)
-            _sm = cfg['cfg_nadv']['mac']
-    except (Exception, ) as ex:
-        print(ex)
-        print('see file example in settings folder')
-        time.sleep(2)
-        sys.exit(1)
+def main_nadv(hc_mac=''):
+    if not hc_mac:
+        try:
+            with open(PATH_CFG, 'r') as f:
+                cfg = toml.load(f)
+                _sm = cfg['cfg_nadv']['mac']
+        except (Exception, ) as ex:
+            print(ex)
+            print('see file example in settings folder')
+            time.sleep(2)
+            sys.exit(1)
+    else:
+        _sm = hc_mac
 
     while 1:
         asyncio.run(_main_nadv(sm=_sm))
+
+
+if __name__ == '__main__':
+    m = 'D0:2E:AB:D9:29:48'
+    main_nadv(m)
