@@ -6,7 +6,7 @@ clear
 
 # for crontab to detect already running
 check_already_running "main_api_controller"
-check_already_running "requirements_api"
+# check_already_running "requirements_api"
 
 
 echo && echo
