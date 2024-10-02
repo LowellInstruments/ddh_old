@@ -1482,7 +1482,7 @@ font: 19pt &quot;DejaVu Sans&quot;;</string>
           <item row="3" column="1">
            <widget class="QCheckBox" name="chk_plt_outside_water">
             <property name="text">
-             <string> Plots include data out-of-water</string>
+             <string> Only plot data in-water</string>
             </property>
            </widget>
           </item>

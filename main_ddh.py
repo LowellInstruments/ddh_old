@@ -74,6 +74,7 @@ if __name__ == "__main__":
     # debug: run without controller
     # main_ddh()
     # sys.exit(0)
+
     if not linux_is_process_running(NAME_EXE_DDH_CONTROLLER):
         controller_main_ddh()
     else:
