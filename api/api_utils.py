@@ -437,6 +437,7 @@ def get_files_from_server(pr, sn, ip, addr, port):
 
 def api_send_email_crash():
     # todo --> fix this
+    print('todo -> fix this')
     # p = dds_get_cfg_box_project()
     # sn = dds_get_cfg_box_sn()
     # v = dds_get_cfg_vessel_name()
