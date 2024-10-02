@@ -19,7 +19,6 @@ from utils.flag_paths import (LI_PATH_DDH_VERSION,
                               TMP_PATH_GPS_LAST_JSON,
                               TMP_PATH_BLE_IFACE,
                               LI_PATH_CELL_FW, TMP_PATH_INET_VIA)
-import boto3
 
 
 CTT_API_OK = 'ok'
@@ -437,30 +436,31 @@ def get_files_from_server(pr, sn, ip, addr, port):
 
 
 def api_send_email_crash():
-    p = dds_get_cfg_box_project()
-    sn = dds_get_cfg_box_sn()
-    v = dds_get_cfg_vessel_name()
-    _k = dds_get_cfg_aws_credential("cred_aws_key_id")
-    _s = dds_get_cfg_aws_credential("cred_aws_secret")
-    s = f'crashed API on DDH SN: {sn}, name: {v}, organization: {p}'
-
-    cli = boto3.client(
-        "sns",
-        aws_access_key_id=_k,
-        aws_secret_access_key=_s,
-        region_name="us-east-2"
-    )
-
-    # test
-    rsp = cli.publish(
-        TopicArn='arn:aws:sns:us-east-2:727249356285:top_ddh_sys',
-        Message=s,
-        Subject=s
-    )
-
-    # detect errors
-    if rsp['ResponseMetadata']['HTTPStatusCode'] != 200:
-        print(f'error: api_send_email_crash() -> {rsp}')
+    # todo --> fix this
+    # p = dds_get_cfg_box_project()
+    # sn = dds_get_cfg_box_sn()
+    # v = dds_get_cfg_vessel_name()
+    # _k = dds_get_cfg_aws_credential("cred_aws_key_id")
+    # _s = dds_get_cfg_aws_credential("cred_aws_secret")
+    # s = f'crashed API on DDH SN: {sn}, name: {v}, organization: {p}'
+    #
+    # cli = boto3.client(
+    #     "sns",
+    #     aws_access_key_id=_k,
+    #     aws_secret_access_key=_s,
+    #     region_name="us-east-2"
+    # )
+    #
+    # # test
+    # rsp = cli.publish(
+    #     TopicArn='arn:aws:sns:us-east-2:727249356285:top_ddh_sys',
+    #     Message=s,
+    #     Subject=s
+    # )
+    #
+    # # detect errors
+    # if rsp['ResponseMetadata']['HTTPStatusCode'] != 200:
+    #     print(f'error: api_send_email_crash() -> {rsp}')
 
 
 if __name__ == '__main__':
