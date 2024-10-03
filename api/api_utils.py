@@ -4,6 +4,8 @@ import json
 import pathlib
 import platform
 import subprocess as sp
+
+import boto3
 import sys
 import time
 from requests.exceptions import HTTPError
@@ -436,32 +438,30 @@ def get_files_from_server(pr, sn, ip, addr, port):
 
 
 def api_send_email_crash():
-    # todo --> fix this
-    print('todo -> fix this')
-    # p = dds_get_cfg_box_project()
-    # sn = dds_get_cfg_box_sn()
-    # v = dds_get_cfg_vessel_name()
-    # _k = dds_get_cfg_aws_credential("cred_aws_key_id")
-    # _s = dds_get_cfg_aws_credential("cred_aws_secret")
-    # s = f'crashed API on DDH SN: {sn}, name: {v}, organization: {p}'
-    #
-    # cli = boto3.client(
-    #     "sns",
-    #     aws_access_key_id=_k,
-    #     aws_secret_access_key=_s,
-    #     region_name="us-east-2"
-    # )
-    #
-    # # test
-    # rsp = cli.publish(
-    #     TopicArn='arn:aws:sns:us-east-2:727249356285:top_ddh_sys',
-    #     Message=s,
-    #     Subject=s
-    # )
-    #
-    # # detect errors
-    # if rsp['ResponseMetadata']['HTTPStatusCode'] != 200:
-    #     print(f'error: api_send_email_crash() -> {rsp}')
+    p = dds_get_cfg_box_project()
+    sn = dds_get_cfg_box_sn()
+    v = dds_get_cfg_vessel_name()
+    _k = dds_get_cfg_aws_credential("cred_aws_key_id")
+    _s = dds_get_cfg_aws_credential("cred_aws_secret")
+    s = f'crashed API on DDH SN: {sn}, name: {v}, organization: {p}'
+
+    cli = boto3.client(
+        "sns",
+        aws_access_key_id=_k,
+        aws_secret_access_key=_s,
+        region_name="us-east-2"
+    )
+
+    # test
+    rsp = cli.publish(
+        TopicArn='arn:aws:sns:us-east-2:727249356285:top_ddh_sys',
+        Message=s,
+        Subject=s
+    )
+
+    # detect errors
+    if rsp['ResponseMetadata']['HTTPStatusCode'] != 200:
+        print(f'error: api_send_email_crash() -> {rsp}')
 
 
 if __name__ == '__main__':
