@@ -140,3 +140,6 @@
     added some direct SNS alarm notifications (no SQS) to API if this crashes
     added API controller process to API
 
+4.0.30 - October 3, 2024
+
+    graphing ALL data is the new default, before it was only IN-WATER data

@@ -131,8 +131,7 @@ def utils_graph_read_fol_req_file():
     with open(TMP_PATH_GRAPH_REQ_JSON) as f:
         fol = f.read().strip()
     if not os.path.exists(fol):
-        e = 'error: {} contains a non-existent graph folder {}'
-        lg.a(e.format(TMP_PATH_GRAPH_REQ_JSON, fol))
+        lg.a(f'error: {fol} indicated in {TMP_PATH_GRAPH_REQ_JSON} does not exist')
         return
 
     return fol
@@ -150,7 +149,7 @@ def utils_graph_delete_fol_req_file():
     try:
         os.unlink(TMP_PATH_GRAPH_REQ_JSON)
     except (Exception, ) as ex:
-        lg.a("error: graph_delete_fol_req_file() {}".format(ex))
+        lg.a(f"error: graph_delete_fol_req_file() {ex}")
 
 
 def utils_graph_set_fol_req_file(mac):
@@ -162,7 +161,7 @@ def utils_graph_set_fol_req_file(mac):
             content = str(get_dl_folder_path_from_mac(mac))
             f.write(content)
     except (Exception, ) as ex:
-        lg.a("error: graph_set_fol_req_file() {}".format(ex))
+        lg.a(f"error: graph_set_fol_req_file() {ex}")
 
 
 def _data_get_prune_period(x, met):
@@ -273,23 +272,23 @@ def process_graph_csv_data(fol, h, hi) -> dict:
 
     if met == 'TP':
         for f in _g_ff_t:
-            lg.a('reading T file {}'.format(basename(f)))
+            lg.a(f'reading T file {basename(f)}')
             df = cached_read_csv(f)
             x += list(df['ISO 8601 Time'])
             t += list(df['Temperature (C)'])
         for f in _g_ff_p:
-            lg.a('reading P file {}'.format(basename(f)))
+            lg.a(f'reading P file {basename(f)}')
             df = cached_read_csv(f)
             p += list(df['Pressure (dbar)'])
             is_moana = 'MOANA' in f or 'moana' in f
 
     elif met == 'DO':
-        plt_all = ddh_get_file_flag_plot_wc()
-        plt_wc = not plt_all
+        plt_wc = ddh_get_file_flag_plot_wc()
+        plt_all = not plt_wc
         if plt_all:
-            lg.a(f'debug: plotting DOX, all files, no filtering by water column')
+            lg.a(f'debug: plot ALL DOX files')
         else:
-            lg.a(f'debug: plotting DOX filtering by water column')
+            lg.a(f'debug: plot only IN-WATER DOX files')
         for f in _g_ff_dot:
             bn = os.path.basename(f)
             lg.a(f'reading DO file {bn}')
@@ -314,12 +313,12 @@ def process_graph_csv_data(fol, h, hi) -> dict:
                 dot += [np.nan] * _m
 
     elif met == 'TDO':
-        plt_all = ddh_get_file_flag_plot_wc()
-        plt_wc = not plt_all
+        plt_wc = ddh_get_file_flag_plot_wc()
+        plt_all = not plt_wc
         if plt_all:
-            lg.a(f'debug: plotting TDO, all files, no filtering by water column')
+            lg.a(f'debug: plot ALL TDO files')
         else:
-            lg.a(f'debug: plotting TDO filtering by water column')
+            lg.a(f'debug: plot only IN-WATER TDO files')
         for f in _g_ff_tdo:
             bn = os.path.basename(f)
             lg.a(f'reading {met} file {bn}')

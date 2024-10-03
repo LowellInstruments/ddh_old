@@ -24,7 +24,7 @@ ddh/gui/res/*gom.gif
 dds/ble_dl_moana.py
 
 # volatile settings
-.ddh_plt_outside_water
+.ddh_plt_only_inside_water
 
 # just in case there are more dl_files here
 dds/dl_files/

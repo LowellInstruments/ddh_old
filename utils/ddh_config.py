@@ -5,9 +5,11 @@ import time
 import toml
 import os
 import subprocess as sp
-from utils.flag_paths import (TMP_PATH_GRAPH_TEST_MODE_JSON,
-                              LI_PATH_DDH_GPS_EXTERNAL, LI_PATH_TEST_MODE,
-                              LI_PATH_PLOT_DATA_EVEN_OUT_WATER)
+from utils.flag_paths import (
+    TMP_PATH_GRAPH_TEST_MODE_JSON,
+    LI_PATH_DDH_GPS_EXTERNAL,
+    LI_PATH_TEST_MODE,
+    LI_PATH_PLOT_ONLY_DATA_IN_WATER)
 
 
 def sh(c):
@@ -93,7 +95,7 @@ def dds_get_cfg_flag_download_test_mode():
 
 
 def ddh_get_file_flag_plot_wc():
-    return os.path.exists(LI_PATH_PLOT_DATA_EVEN_OUT_WATER)
+    return os.path.exists(LI_PATH_PLOT_ONLY_DATA_IN_WATER)
 
 
 def dds_get_cfg_flag_gps_external():

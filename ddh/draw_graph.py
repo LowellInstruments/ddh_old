@@ -261,10 +261,13 @@ def _process_n_graph(a, r=''):
             raise GraphException('no one asked for a graph?')
         if sn.startswith('SN'):
             sn = sn[2:]
-        mac = dds_get_cfg_logger_mac_from_sn(sn).replace(':', '-')
+        mac = dds_get_cfg_logger_mac_from_sn(sn)
+        if not mac:
+            raise GraphException(f'error: chosen SN not in config.toml')
+        mac = mac.replace(':', '-')
         if not _graph_check_mac_has_dl_files(mac, fol_ls):
-            raise GraphException(f'error: no files for sn {sn} mac {mac}')
-        lg.a(f'selected dropdown sn {sn} / mac {mac}')
+            raise GraphException(f'error: no files for SN {sn} mac {mac}')
+        lg.a(f'selected dropdown SN {sn} / mac {mac}')
         fol = str(get_dl_folder_path_from_mac(mac))
 
     # get number of hauls
@@ -621,7 +624,7 @@ def _process_n_graph(a, r=''):
                     if p >= p80:
                         ls_p.append(dp[i])
                         ls_t.append(dt[i])
-                lg.a(f'debug: detected TDO data, percentile 80 is {p80}')
+                lg.a(f'debug: percentile 80 for TDO data is {p80}')
                 s = 'haul summary\n'
                 s += f'{t1}\n{t2}\n'
                 s += '{:5.2f} fathoms\n'.format(np.nanmean(ls_p))
@@ -635,13 +638,13 @@ def _process_n_graph(a, r=''):
                 wat = data['Water Detect (%) DO']
                 ls_do, ls_dt = [], []
                 if len(wat):
-                    lg.a('debug: detected DO-2 data, filtering values by water %')
+                    lg.a('debug: filtering DO-2 data values by water %')
                     for i, w in enumerate(wat):
                         if w >= 50:
                             ls_do.append(_do[i])
                             ls_dt.append(dt[i])
                 else:
-                    lg.a('debug: detected DO-1 data, adding all values')
+                    lg.a('debug: adding all values for DO-1 data')
                     ls_do = _do
                     ls_dt = dt
                 s = 'haul summary\n'

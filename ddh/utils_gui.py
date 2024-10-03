@@ -214,8 +214,8 @@ def gui_setup_view(my_win):
     a.chk_b_maps.setChecked(me)
 
     # plot data outside the water
-    plot_out_water = ddh_get_file_flag_plot_wc()
-    a.chk_plt_outside_water.setChecked(not plot_out_water)
+    plot_only_in_water = ddh_get_file_flag_plot_wc()
+    a.chk_plt_only_inside_water.setChecked(plot_only_in_water)
 
     # test mode
     a.lbl_testmode.setVisible(False)
@@ -360,12 +360,10 @@ def gui_ddh_populate_graph_dropdown_sn(my_app):
         a.cb_g_sn.addItem('SNtest333')
         return
 
-    # get the history database and order by most recent first
+    # from HISTORY database, grab serial numbers, most recent first
     db = DbHis(ddh_get_db_history_file())
     r = db.get_all().values()
     r = sorted(r, key=lambda x: x["ep_loc"], reverse=True)
-
-    # grab serial numbers from history records
     h_sn = []
     for h in r:
         if not h['SN']:
@@ -373,11 +371,11 @@ def gui_ddh_populate_graph_dropdown_sn(my_app):
         if h['SN'] not in h_sn:
             h_sn.append(h['SN'].lower())
 
-    # grab serial numbers from configuration file
+    # from CONFIGURATION file, grab serial numbers
     c_sn = dds_get_cfg_monitored_serial_numbers()
     c_sn = [i.lower() for i in c_sn]
 
-    # add history first then remaining configuration ones
+    # add fist HISTORY ones, next CONFIGURATION ones
     for i in h_sn:
         a.cb_g_sn.addItem(i)
     for i in c_sn:
@@ -430,7 +428,7 @@ def gui_setup_buttons(my_app):
     a.btn_note_yes_specific.clicked.connect(a.click_btn_note_yes_specific)
     a.chk_rerun.toggled.connect(a.click_chk_rerun)
     a.chk_b_maps.toggled.connect(a.click_chk_b_maps)
-    a.chk_plt_outside_water.toggled.connect(a.click_chk_plt_outside_water)
+    a.chk_plt_only_inside_water.toggled.connect(a.click_chk_plt_only_inside_water)
     a.cb_s3_uplink_type.activated.connect(a.click_cb_s3_uplink_type)
     a.btn_sms.clicked.connect(a.click_btn_sms)
     a.btn_map_next.clicked.connect(a.click_btn_map_next)

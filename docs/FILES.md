@@ -63,9 +63,9 @@ Daily forecast maps downloaded from DDN / Lightsail.
 
 Contains the version number of the DDH software.
 
-### .ddh_plt_outside_water
+### .ddh_plt_only_inside_water
 
-When present, the DDH graph tab plots all logger data, not only the one inside the water.
+When present, the DDH graph tab only plots data inside the water.
 
 ### dl_files/<mac>
 

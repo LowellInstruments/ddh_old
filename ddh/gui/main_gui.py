@@ -34,16 +34,26 @@ from ddh.utils_gui import (
     gui_hide_advanced_tab,
     gui_show_advanced_tab,
     gui_hide_graph_tab,
-    gui_show_graph_tab, gui_ddh_populate_graph_dropdown_sn,
-    gui_hide_map_tab, gui_hide_maps_next_btn, gui_create_variables, gui_setup_graph_tab, gui_setup_timers
+    gui_show_graph_tab,
+    gui_ddh_populate_graph_dropdown_sn,
+    gui_hide_map_tab,
+    gui_hide_maps_next_btn,
+    gui_create_variables,
+    gui_setup_graph_tab,
+    gui_setup_timers
 )
 from dds.notifications_v2 import notify_via_sms
 from dds.timecache import is_it_time_to
 from mat.linux import linux_is_process_running
-from utils.ddh_config import (dds_get_cfg_vessel_name, dds_get_cfg_logger_mac_from_sn,
-                              ddh_get_cfg_gear_type, cfg_load_from_file, dds_get_cfg_flag_ble_en,
-                              cfg_save_to_file, dds_get_cfg_monitored_pairs, ddh_get_cfg_maps_en,
-                              ddh_get_file_flag_plot_wc)
+from utils.ddh_config import (
+    dds_get_cfg_vessel_name,
+    dds_get_cfg_logger_mac_from_sn,
+    ddh_get_cfg_gear_type,
+    cfg_load_from_file,
+    dds_get_cfg_flag_ble_en,
+    cfg_save_to_file,
+    dds_get_cfg_monitored_pairs,
+    ddh_get_cfg_maps_en)
 from utils.ddh_shared import (
     get_ddh_folder_path_dl_files,
     ddh_get_gui_closed_flag_file,
@@ -57,14 +67,23 @@ from utils.ddh_shared import (
     STATE_DDS_BLE_SERVICE_INACTIVE,
     dds_get_ddh_got_an_update_flag_file,
     STATE_DDS_SOFTWARE_UPDATED,
-    ddh_get_db_history_file, ddh_kill_by_pid_file, get_ddh_toml_all_macs_content, set_ddh_do_not_rerun_flag_li,
-    clr_ddh_do_not_rerun_flag_li, dds_get_cnv_requested_via_gui_flag_file, NAME_EXE_API, ddh_get_folder_path_res
+    ddh_get_db_history_file,
+    ddh_kill_by_pid_file,
+    get_ddh_toml_all_macs_content,
+    set_ddh_do_not_rerun_flag_li,
+    clr_ddh_do_not_rerun_flag_li,
+    dds_get_cnv_requested_via_gui_flag_file,
+    NAME_EXE_API,
+    ddh_get_folder_path_res
 )
 
 from utils.logs import lg_gui as lg  # noqa: E402
 import subprocess as sp  # noqa: E402
 
-from utils.flag_paths import LI_PATH_GROUPED_S3_FILE_FLAG, LI_PATH_PLOT_DATA_EVEN_OUT_WATER
+from utils.flag_paths import (
+    LI_PATH_GROUPED_S3_FILE_FLAG,
+    LI_PATH_PLOT_ONLY_DATA_IN_WATER
+)
 from utils.wdog import gui_dog_clear
 
 _g_flag_ble_en = dds_get_cfg_flag_ble_en()
@@ -608,17 +627,16 @@ class DDH(QMainWindow, d_m.Ui_MainWindow):
         self.gif_map.start()
         self.map_filename = m
 
-    def click_chk_plt_outside_water(self, _):
+    def click_chk_plt_only_inside_water(self, _):
         from ddh.utils_graph import cached_read_csv
         # from ddh.utils_graph import process_graph_csv_data
         cached_read_csv.cache_clear()
         # process_graph_csv_data.cache_clear()
-        p = LI_PATH_PLOT_DATA_EVEN_OUT_WATER
-        if self.chk_plt_outside_water.isChecked():
-            os.unlink(p)
-        else:
+        p = LI_PATH_PLOT_ONLY_DATA_IN_WATER
+        if self.chk_plt_only_inside_water.isChecked():
             pathlib.Path(p).touch()
-
+        else:
+            os.unlink(p)
 
     def click_graph_btn_reset(self):
         self.g.getPlotItem().enableAutoRange()
