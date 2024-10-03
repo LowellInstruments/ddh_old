@@ -379,7 +379,7 @@ def gui_ddh_populate_graph_dropdown_sn(my_app):
     c_sn = dds_get_cfg_monitored_serial_numbers()
     c_sn = [i.lower() for i in c_sn]
 
-    # add fist HISTORY ones, next CONFIGURATION ones
+    # add first HISTORY ones, next CONFIGURATION ones
     for i in h_sn:
         a.cb_g_sn.addItem(i)
     for i in c_sn:
