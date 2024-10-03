@@ -2,6 +2,7 @@ STR_SEARCHING_FOR_LOGGERS = 'searching for loggers'
 STR_CONNECTING_LOGGER = 'connecting'
 STR_SYNCING_GPS_TIME = 'syncing GPS time'
 STR_DDH_UPDATED = "DDH updated!"
+STR_DDH_BOOTING = 'DDH starting'
 STR_DOWNLOADING_LOGGER = 'downloading'
 STR_DOWNLOADING_LOGGER_DONE = 'done'
 STR_STOPPED_AUTOWAKE_OFF = "stopped & auto-wake OFF"

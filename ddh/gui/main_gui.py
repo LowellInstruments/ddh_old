@@ -40,7 +40,7 @@ from ddh.utils_gui import (
     gui_hide_maps_next_btn,
     gui_create_variables,
     gui_setup_graph_tab,
-    gui_setup_timers
+    gui_setup_timers, gui_show_boot_icon
 )
 from dds.notifications_v2 import notify_via_sms
 from dds.timecache import is_it_time_to
@@ -94,6 +94,7 @@ class DDH(QMainWindow, d_m.Ui_MainWindow):
 
         super(DDH, self).__init__()
         gui_setup_view(self)
+        gui_show_boot_icon(self)
         gui_setup_buttons(self)
         gui_center_window(self)
         lg.are_enabled(True)

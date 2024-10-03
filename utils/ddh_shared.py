@@ -27,6 +27,7 @@ STATE_DDS_NOTIFY_HISTORY = "history"
 STATE_DDS_GPS_IN_PORT = 'gps_in_port'
 
 STATE_DDS_BAD_CONF = 'bad_conf'
+STATE_DDS_BOOT_GUI = 'boot_gui'
 
 
 STATE_DDS_BLE_SCAN = "state_dds_ble_scan"

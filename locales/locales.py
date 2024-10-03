@@ -30,6 +30,11 @@ lang_msg_db = {
         'fr': "DDH actualisé!",
         'ca': '--'
     },
+    STR_DDH_BOOTING: {
+        'pt': '--',
+        'fr': "--",
+        'ca': '--'
+    },
     STR_DOWNLOADING_LOGGER: {
         'pt': '--',
         'fr': "téléchargement en cours",

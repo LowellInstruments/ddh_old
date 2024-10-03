@@ -75,7 +75,7 @@ from utils.ddh_shared import (
     STATE_DDS_BLE_NO_ASSIGNED_LOGGERS,
     get_ddh_do_not_rerun_flag_li, ddh_get_root_folder_path, STATE_DDS_BLE_CONNECTING, STATE_DDS_PRESSED_BUTTON_2,
     get_ddh_local_sw_version, STATE_DDS_GPS_IN_PORT, STATE_DDS_BAD_CONF, STATE_DDS_BLE_DOWNLOAD_STATISTICS,
-    STATE_DDS_PRESSED_BUTTON_1,
+    STATE_DDS_PRESSED_BUTTON_1, send_ddh_udp_gui, STATE_DDS_BOOT_GUI,
 )
 from utils.logs import lg_gui as lg
 from utils.wdog import gui_dog_touch
@@ -239,6 +239,10 @@ def gui_setup_view(my_win):
         a.cb_skip_in_port.setCurrentIndex(1)
 
     return a
+
+
+def gui_show_boot_icon(_):
+    send_ddh_udp_gui(STATE_DDS_BOOT_GUI)
 
 
 def gui_center_window(my_app):
@@ -616,6 +620,10 @@ def _gui_parse_udp(my_app, s, ip="127.0.0.1"):
     elif f == STATE_DDS_SOFTWARE_UPDATED:
         ct = _x(STR_DDH_UPDATED)
         ci = "update.png"
+
+    elif f == STATE_DDS_BOOT_GUI:
+        ct = _x(STR_DDH_BOOTING)
+        ci = "booting.png"
 
     elif f == STATE_DDS_BLE_CONNECTING:
         ct = f'{_x(STR_CONNECTING_LOGGER)} {v}'
