@@ -130,7 +130,7 @@ def _ble_convert_lid_after_download(d):
         # f: absolute file path ending in .lid
         _bn = os.path.basename(f)
         n = id_lid_file_flavor(f)
-        lg.a(f"post-download start converting LID v{n} file {_bn}")
+        lg.a(f"post-download conversion of LID v{n} file {_bn} started")
 
         # ----------------------------
         # convert DOX and TDO v2 files
@@ -143,7 +143,7 @@ def _ble_convert_lid_after_download(d):
             # do the old MAT library conversion
             parameters = default_parameters()
             DataConverter(f, parameters).convert()
-        lg.a(f"OK: post-download end conversion LID v{n} file {_bn}")
+        lg.a(f"OK: post-download conversion of LID v{n} file {_bn} ended")
 
 
 def _ble_analyze_and_graph_logger_result(rv,
@@ -163,7 +163,7 @@ def _ble_analyze_and_graph_logger_result(rv,
         notify_logger_download(g, ln)
         if mac in _g_logger_errors.keys():
             del _g_logger_errors[mac]
-        lg.a(f"OK! logger {mac}/{sn}")
+        lg.a(f"OK! done logger {mac}/{sn}")
         if get_ddh_do_not_rerun_flag_li():
             _u(f"{STATE_DDS_BLE_RUN_STATUS}/off")
         else:
@@ -173,7 +173,7 @@ def _ble_analyze_and_graph_logger_result(rv,
         # graph loggers just downloaded
         # ------------------------------
         utils_graph_set_fol_req_file(mac)
-        lg.a(f"requesting auto-graph for {mac}")
+        lg.a(f"triggering post-download graph for logger {sn}, mac {mac}")
         _u(STATE_DDS_REQUEST_GRAPH)
         return
 
@@ -242,7 +242,7 @@ async def _ble_interact_one_logger(mac, info: str, h, g):
     # get logger serial number
     sn = dds_get_cfg_logger_sn_from_mac(mac)
     _u(f"{STATE_DDS_BLE_DOWNLOAD}/{sn}")
-    lg.a(f"processing sensor {sn} / mac {mac}")
+    lg.a(f"processing logger {sn} / mac {mac}")
 
     # bleak wants a string, not an integer
     hs = f"hci{h}"
@@ -457,7 +457,7 @@ def ble_op_conditions_met(g) -> bool:
 
 def ble_show_antenna_type(_h, desc):
     _ad = f"hci{_h}"
-    s = f"debug: using {desc} antenna, adapter {_ad}"
+    s = f"debug: using {desc} bluetooth antenna, adapter {_ad}"
     if is_it_time_to(s, 60):
         # update GUI field
         _u(f"{STATE_DDS_BLE_ANTENNA}/{desc} radio")

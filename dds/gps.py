@@ -305,7 +305,7 @@ def _gps_measure():
     # failed, and it's the first time ever
     # this mostly happens when DDH is booting
     if _g_ts_cached_gps_valid_for == 0:
-        lg.a("failed, and no cache ever yet")
+        # lg.a("failed, and no cache ever yet")
         return
 
     # failed, but we have GPS cache and it's STILL VALID
@@ -398,7 +398,7 @@ def gps_boot_wait_first():
         if g:
             lg.a(f"gps_boot_wait_first g = {str(g)}")
             return g
-        lg.a(f"{t_left} seconds remaining GPS at boot")
+        lg.a(f"{t_left} seconds left to wait for GPS at boot")
         time.sleep(1)
 
     lg.a("warning: gps_boot_wait_first did not get GPS lock")
@@ -442,7 +442,7 @@ def gps_check_for_errors(g) -> int:
 
 def gps_banner_clock_sync_at_boot():
     if not check_gps_dummy_mode():
-        lg.a("trying clock sync via GPS at boot")
+        lg.a("attempting local clock sync via GPS at boot")
         return
     lg.a("warning: dummy GPS, not syncing clock via GPS at boot")
 

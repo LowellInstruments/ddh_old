@@ -32,7 +32,6 @@ def dds_ask_in_port_to_ddn(_g, notify=True, tc=TIMEOUT_CACHE_IN_PORT_SECS):
     port_ddn_api = 9000
     ep = 'gps_in_port'
     url = f'http://{addr_ddn_api}:{port_ddn_api}/{ep}?lat={lat}&lon={lon}'
-    lg.a(f'querying DDN API about lat {lat} lon {lon}')
 
     # send the query
     try:
@@ -47,7 +46,7 @@ def dds_ask_in_port_to_ddn(_g, notify=True, tc=TIMEOUT_CACHE_IN_PORT_SECS):
         return g_last_in_port
 
     except (Exception,) as err:
-        lg.a(f'error: dds_ask_in_port_to_ddn request -> {err}')
+        lg.a(f'error: querying DDN API about lat {lat}, lon {lon} -> {err}')
         lg.a('warning: no API response, consider NOT in port')
 
 

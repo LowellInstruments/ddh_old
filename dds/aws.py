@@ -28,7 +28,6 @@ from utils.ddh_shared import (
 )
 from utils.logs import lg_aws as lg
 
-g_fresh_boot = 1
 PERIOD_AWS_S3_SECS = 3600 * 6
 PERIOD_ALARM_AWS_S3 = 86400 * 7
 AWS_S3_SYNC_PROC_NAME = "dds_aws_sync"
@@ -92,18 +91,6 @@ def _ddh_get_timestamp_aws_sqs(k):
 
 def _aws_s3_sync_process():
 
-    # useful on RPi3 to prevent BLE and AWS (wi-fi) collisions
-    global g_fresh_boot
-    if g_fresh_boot:
-        lg.a("upon boot, AWS politely waits")
-        g_fresh_boot = 0
-        time.sleep(30)
-        # here it can mess with a very early BLE download but, meh
-        if ddh_state.state_get_downloading_ble():
-            lg.a('warning: upon boot, BLE download in progress, not interrupting AWS')
-            time.sleep(30)
-        lg.a("AWS politely resuming after boot")
-
     # sys.exit() instead of return prevents zombie processes
     setproctitle.setproctitle(AWS_S3_SYNC_PROC_NAME)
     fol_dl_files = get_ddh_folder_path_dl_files()
@@ -133,7 +120,7 @@ def _aws_s3_sync_process():
         y = datetime.datetime.utcnow().year
         sy = str(y)[2:]
         if this_box_has_grouped_s3_uplink():
-            lg.a(f'AWS upload-sync GROUPed for folder {um}')
+            lg.a(f'S3 upload-sync GROUPed for folder {um}')
             v = dds_get_cfg_vessel_name()
             # v: "bailey's" --> BAYLEYS
             v = v.replace("'", "")
@@ -142,7 +129,7 @@ def _aws_s3_sync_process():
             # um: prepend grouped structure year and boat
             um = f"{str(y)}/{v}/{um}"
         else:
-            lg.a(f'AWS upload-sync NON-GROUPed mode for folder {um}')
+            lg.a(f'S3 upload-sync NON-GROUPed mode for folder {um}')
 
         # format the AWS sync command
         c = (
@@ -200,7 +187,7 @@ def _aws_s3_sync_process():
             lg.a('error: negative S3 delta, fixing')
     else:
         # file does not even exist, probably first time ever
-        lg.a('warning: bad AWS S3 sync, monitoring next ones')
+        lg.a('warning: bad S3 sync, monitoring next ones')
 
     # notify something went wrong
     _u(STATE_DDS_NOTIFY_CLOUD_ERR)
@@ -212,7 +199,7 @@ def _aws_s3_sync_process():
 def aws_serve():
 
     if ddh_state.state_get_downloading_ble():
-        lg.a('warning: not doing AWS sync while downloading BLE')
+        lg.a('warning: skipping S3 sync because downloading BLE')
         return
 
     # nothing to do, no one asked AWS S3 sync and not long since last one
@@ -233,10 +220,10 @@ def aws_serve():
 
     # tell why we do AWS
     if os.path.exists(flag_gui):
-        lg.a("GUI requested an AWS S3 sync")
+        lg.a("GUI requested an S3 sync")
         os.unlink(flag_gui)
     else:
-        lg.a("periodic AWS S3 sync")
+        lg.a("periodic S3 sync")
 
     # nothing to do, number of files did not change
     mon_ls = []
@@ -247,10 +234,10 @@ def aws_serve():
     past_n_files = len(mon_ls)
     if len(mon_ls) == 0:
         _u(STATE_DDS_NOTIFY_CLOUD_OK)
-        lg.a('number of files is 0, not AWS S3 syncing')
+        lg.a('number of files is 0, not S3 syncing')
         return
     if ff_ctt:
-        lg.a('number of files did not change, not AWS S3 syncing')
+        lg.a('number of files did not change, not S3 syncing')
         return
     lg.a(f'folder "dl_files" currently has {len(mon_ls)} files')
 
@@ -299,7 +286,7 @@ def _aws_s3_cp_process(d):
         f_bn = os.path.basename(f)
         y = datetime.datetime.utcnow().year
         if this_box_has_grouped_s3_uplink():
-            lg.a(f'AWS upload-cp GROUPed for folder {um}')
+            lg.a(f'S3 upload-cp GROUPed for folder {um}')
             v = dds_get_cfg_vessel_name()
             # v: "bailey's" --> BAYLEYS
             v = v.replace("'", "")
@@ -308,7 +295,7 @@ def _aws_s3_cp_process(d):
             # um: we prepend grouped structure year and boat
             um = f"{str(y)}/{v}/{um}"
         else:
-            lg.a(f'AWS upload-cp NON-GROUPed for folder {um}')
+            lg.a(f'S3 upload-cp NON-GROUPed for folder {um}')
 
         # build the AWS command
         c = (
@@ -347,7 +334,7 @@ def aws_cp(d):
         lg.a('error: no AWS cp attempt because no internet access')
         return
 
-    lg.a("it seems we can attempt an AWS S3 copying")
+    lg.a("it seems we can attempt an S3 copying")
 
     # gets rid of zombie processes
     multiprocessing.active_children()

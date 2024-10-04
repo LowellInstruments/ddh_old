@@ -41,7 +41,8 @@ _g_ble_scan_early_leave = None
 _gbv = ble_mat_get_bluez_version()
 _g_ble_scan_mode = "passive" if (exp_get_use_ble_passive_scanning() == 1
                                  and _gbv >= '5.65') else "active"
-lg.a(f'debug: bluez v.{_gbv} -> BLE scan mode {_g_ble_scan_mode}')
+lg.a(f'debug: bluez v.{_gbv}')
+lg.a(f'debug: BLE scan mode {_g_ble_scan_mode}')
 
 
 def _ble_is_supported_logger(s):
