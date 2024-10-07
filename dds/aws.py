@@ -230,12 +230,10 @@ def aws_serve():
     for i in ('lid', 'lix', 'csv', 'cst', 'gps', 'bin'):
         mon_ls += glob.glob(f'{get_ddh_folder_path_dl_files()}/**/*.{i}')
     global past_n_files
-    ff_ctt = (not exists_flag_gui) and len(mon_ls) == past_n_files
+    ff_ctt = (not exists_flag_gui) and len(mon_ls) == past_n_files and len(mon_ls) > 0
     past_n_files = len(mon_ls)
     if len(mon_ls) == 0:
-        _u(STATE_DDS_NOTIFY_CLOUD_OK)
-        lg.a('number of files is 0, not S3 syncing')
-        return
+        lg.a('number of files is 0, but let\'s S3 sync anyway to check credentials')
     if ff_ctt:
         lg.a('number of files did not change, not S3 syncing')
         return
