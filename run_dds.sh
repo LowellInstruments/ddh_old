@@ -87,7 +87,7 @@ if [ "${QUECTEL_USB_CTL}" ]; then
     sleep 0.1 && timeout 1 cat -v < "$QUECTEL_USB_CTL" | grep QCCID > "$LI_FILE_ICCID"
     # when file is empty, try again
     if [ ! -s "$LI_FILE_ICCID" ]; then
-        _pb "trying again, DDS query Quectel cell shield for SIM ID on $QUECTEL_USB_CTL"
+        _pb "re-try, DDS query Quectel cell shield for SIM ID on $QUECTEL_USB_CTL"
         echo -ne "AT+QCCID\r" > "$QUECTEL_USB_CTL" && \
         sleep 0.1 && timeout 1 cat -v < "$QUECTEL_USB_CTL" | grep QCCID > "$LI_FILE_ICCID"
     fi

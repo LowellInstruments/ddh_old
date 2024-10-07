@@ -233,7 +233,7 @@ def aws_serve():
     ff_ctt = (not exists_flag_gui) and len(mon_ls) == past_n_files and len(mon_ls) > 0
     past_n_files = len(mon_ls)
     if len(mon_ls) == 0:
-        lg.a('number of files is 0, but let\'s S3 sync anyway to check credentials')
+        lg.a('warning: number of files = 0, but let\'s S3 sync anyway to check credentials')
     if ff_ctt:
         lg.a('number of files did not change, not S3 syncing')
         return

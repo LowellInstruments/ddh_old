@@ -143,3 +143,9 @@
 4.0.30 - October 3, 2024
 
     graphing ALL data is the new default, before it was only IN-WATER data
+
+4.0.31 - October 7, 2024
+
+    forcing AWS sync even if number of files = 0 so API is refreshed
+    better obtaining ICCID when executing run_dds.sh
+
