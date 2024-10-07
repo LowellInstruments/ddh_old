@@ -148,7 +148,7 @@ class BleCC26X2Download:
             path = str(get_dl_folder_path_from_mac(mac) / name)
             with open(path, "wb") as f:
                 f.write(file_data)
-            lg.a(f"OK: downloaded file {name}")
+            lg.a(f"OK downloaded file {name}")
 
             # no-deleting the logger configuration file
             if name == MC_FILE:

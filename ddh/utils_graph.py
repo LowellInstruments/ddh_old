@@ -63,36 +63,35 @@ def utils_graph_gfm_classify_file_wc_mode(p):
         for i in ll[3:]:
             vp = float(i.split(',')[i_pc])
             if vp > 15:
-                lg.a(f'graph water column mode = ON for TDO file {bn}')
+                lg.a(f'graph water column mode: ON for TDO file {bn}')
                 pathlib.Path(f_wc).touch()
                 return
 
         pathlib.Path(f_nowc).touch()
-        lg.a(f'graph water column mode = OFF for TDO file {bn}')
+        lg.a(f'graph water column mode: OFF for TDO file {bn}')
         return
 
     _is_do2 = 'Water' in ll[0]
     if not _is_do2:
         # this way, we force them to appear on graphs
-        lg.a(f'graph water column mode = ON for DO-1 file {bn}')
+        lg.a(f'graph water column mode: ON for DO-1 file {bn}')
         pathlib.Path(f_wc).touch()
         return
 
     if _is_do2:
         _bn = os.path.basename(p)
         lg.a(f'graph water column mode: processing DO-2 file {_bn}')
-        lg.a(f'{ll[3]}')
         # headers: ts,mg/l,%,C,W%
         # ll[3]: 2024-06-29T10:49:51.000Z,10.14,98.27,13.93,94.00
         for i in ll[3:]:
             w_cur = float(i.split(',')[-1])
             if w_cur > 50:
-                lg.a(f'graph water column mode = ON for DO-2 file {bn}')
+                lg.a(f'graph water column mode: ON for DO-2 file {bn}')
                 pathlib.Path(f_wc).touch()
                 return
 
         pathlib.Path(f_nowc).touch()
-        lg.a(f'graph water column mode = OFF for DO-2 file {bn}')
+        lg.a(f'graph water column mode: OFF for DO-2 file {bn}')
         return
 
     lg.a(f'error: _utils_graph_classify_file_wc_mode for unknown file {p}')
@@ -166,9 +165,7 @@ def utils_graph_set_fol_req_file(mac):
 
 def _data_get_prune_period(x, met):
     if len(x) > 8000:
-        lg.a('--------------------------------------')
-        lg.a(f'data pruning -> faster graph for {met}')
-        lg.a('--------------------------------------')
+        lg.a(f'data pruning: faster graph for {met}')
         return int(len(x) / 600)
     return 1
 
@@ -255,7 +252,7 @@ def process_graph_csv_data(fol, h, hi) -> dict:
 
     # summary
     rv: dict
-    s = "graph:\n\tmetric {}\n\tfolder {}\n\thauls {}\n\thi {}"
+    s = "graph parameters:\n\tmetric {}\n\tfolder {}\n\thauls {}\n\thi {}"
     lg.a(s.format(met, basename(fol), h, hi))
 
     # calculate time performance of data-grabbing procedure
