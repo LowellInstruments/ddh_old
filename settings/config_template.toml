@@ -59,4 +59,4 @@ ble_del_cache = 0
 # conf_tdo can be 'none', 'slow', 'mid', 'fast'
 # conf_tdo = 'slow'
 # conf_dox can be 60, 300, 900
-# conf_dox = 90
+# conf_dox = 900

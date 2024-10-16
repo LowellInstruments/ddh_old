@@ -2,6 +2,7 @@
 import json
 import os
 import pathlib
+import sys
 from multiprocessing import Process
 import time
 
@@ -275,6 +276,12 @@ def controller_main_dds():
 
 
 if __name__ == "__main__":
+
+    if not linux_is_rpi():
+        # debug: run without DDS controller
+        main_dds()
+        sys.exit(0)
+
     if not linux_is_process_running(NAME_EXE_DDS_CONTROLLER):
         controller_main_dds()
     else:

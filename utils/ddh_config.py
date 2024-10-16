@@ -314,7 +314,9 @@ def exp_get_conf_tdo():
         return
     try:
         with open(path_prf_file, 'r') as f:
-            return toml.load(f)['profiling']
+            d = toml.load(f)['profiling']
+            d['mode'] = rv
+            return d
     except (Exception, ) as ex:
         print(f'error exp_get_conf_tdo() -> {ex}')
 

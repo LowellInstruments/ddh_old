@@ -54,10 +54,10 @@ class BleTDODownload:
         if ver <= '4.0.20':
             lg.a('warning: not reconfiguring TDO profiling on loggers <= v4.0.20')
             return
-        lg.a(f'debug: v{ver} is enough to consider TDO profiling reconfiguration')
+        lg.a(f'debug: v{ver} is enough for TDO profiling reconfiguration')
 
-        d_prf = exp_get_conf_tdo()
-        if not d_prf:
+        d_prf_file = exp_get_conf_tdo()
+        if not d_prf_file:
             lg.a('no SCF dictionary from file, not configuring TDO on-the-fly')
             return
 
@@ -66,13 +66,18 @@ class BleTDODownload:
             lg.a('GCF failed, not configuring TDO on-the-fly')
             return
 
+        # banner
+        lg.a(f'debug: TDO profiling reconfiguration to {d_prf_file["mode"]}')
+
         # str_gcf: 'GCF 2d000040000100001000600000200003000010719900030'
         str_gcf = str_gcf[6:]
         i_prf = 0
-        for tag, v in d_prf.items():
+        for tag, v in d_prf_file.items():
             if len(tag) != 3:
                 lg.a(f'error: bad SCF tag {tag}')
                 break
+            if tag == 'mode':
+                continue
             if tag == 'MAC':
                 continue
             if len(v) != 5:
@@ -81,7 +86,7 @@ class BleTDODownload:
             v_prf = str_gcf[i_prf:i_prf+5]
             i_prf += 5
             if v_prf != v:
-                lg.a(f'sending SCF {tag} {v}')
+                lg.a(f'sending SCF {tag} {v}, existing value was {v_prf}')
                 rv = await lc.cmd_scf(tag, v)
                 bad_rv = rv == 1
                 _rae(bad_rv, f"scf {tag}")

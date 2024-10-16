@@ -6,6 +6,7 @@ from multiprocessing import Process
 from PyQt5.QtWidgets import QApplication
 from ddh.gui.main_gui import DDH, on_ctrl_c
 from mat.linux import linux_app_write_pid_to_tmp, linux_is_process_running
+from mat.utils import linux_is_rpi
 from utils.ddh_shared import (
     PID_FILE_DDH,
     NAME_EXE_DDH_CONTROLLER,
@@ -71,9 +72,11 @@ def controller_main_ddh():
 
 
 if __name__ == "__main__":
-    # debug: run without controller
-    # main_ddh()
-    # sys.exit(0)
+
+    if not linux_is_rpi():
+        # debug: run without DDH controller
+        main_ddh()
+        sys.exit(0)
 
     if not linux_is_process_running(NAME_EXE_DDH_CONTROLLER):
         controller_main_ddh()
