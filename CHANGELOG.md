@@ -149,3 +149,6 @@
     forcing AWS sync even if number of files = 0 so API is refreshed
     better obtaining ICCID when executing run_dds.sh
 
+4.0.32 - October 16, 2024
+
+    dynamic reconfiguration TDO / DOX on config.toml experimental conf_tdo and conf_dox
