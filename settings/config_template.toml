@@ -57,6 +57,6 @@ ble_do_crc = 0
 # used in run_dds.sh
 ble_del_cache = 0
 # conf_tdo can be 'none', 'slow', 'mid', 'fast'
-# conf_tdo = 'mid'
+# conf_tdo = 'slow'
 # conf_dox can be 60, 300, 900
-# conf_dox = 60
+# conf_dox = 90
