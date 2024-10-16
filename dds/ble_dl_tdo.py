@@ -14,7 +14,7 @@ from mat.ble.ble_mat_utils import (
 from mat.ble.bleak.cc26x2r import BleCC26X2
 from mat.utils import linux_is_rpi
 from utils.ddh_config import (ddh_get_cfg_gear_type, dds_get_cfg_logger_sn_from_mac,
-                              dds_get_cfg_flag_download_test_mode, exp_get_ble_do_crc)
+                              dds_get_cfg_flag_download_test_mode, exp_get_ble_do_crc, exp_get_conf_tdo)
 from utils.ddh_shared import (
     send_ddh_udp_gui as _u,
     STATE_DDS_BLE_ERROR_RUN,
@@ -49,9 +49,48 @@ def _rae(rv, s):
 
 class BleTDODownload:
 
-    # ---------------------
-    # download fast method
-    # ---------------------
+    @staticmethod
+    async def reconfigure_tdo_profiling(ver, lc):
+        if ver <= '4.0.20':
+            lg.a('warning: not reconfiguring TDO profiling on loggers <= v4.0.20')
+            return
+        lg.a(f'debug: v{ver} is enough to consider TDO profiling reconfiguration')
+
+        d_prf = exp_get_conf_tdo()
+        if not d_prf:
+            lg.a('no SCF dictionary from file, not configuring TDO on-the-fly')
+            return
+
+        rv, str_gcf = await lc.cmd_gcf()
+        if rv:
+            lg.a('GCF failed, not configuring TDO on-the-fly')
+            return
+
+        # str_gcf: 'GCF 2d000040000100001000600000200003000010719900030'
+        str_gcf = str_gcf[6:]
+        i_prf = 0
+        for tag, v in d_prf.items():
+            if len(tag) != 3:
+                lg.a(f'error: bad SCF tag {tag}')
+                break
+            if tag == 'MAC':
+                continue
+            if len(v) != 5:
+                lg.a(f'error: bad SCF value {v} for tag {tag}')
+                break
+            v_prf = str_gcf[i_prf:i_prf+5]
+            i_prf += 5
+            if v_prf != v:
+                lg.a(f'sending SCF {tag} {v}')
+                rv = await lc.cmd_scf(tag, v)
+                bad_rv = rv == 1
+                _rae(bad_rv, f"scf {tag}")
+            else:
+                lg.a(f'not sent SCF {tag} {v}, it\'s the same')
+
+    # ----------------------------------------
+    # download fast method, commands DDA, DDB
+    # ----------------------------------------
 
     @staticmethod
     async def dl_fast(lc, mac, g, notes: dict, u):
@@ -111,6 +150,11 @@ class BleTDODownload:
             if _gear_type == 0:
                 gpq_create_fixed_mode_file(g, name)
 
+        # -------------------------------------------------
+        # TDO profiling reconfiguration here for fast mode
+        # -------------------------------------------------
+        await BleTDODownload.reconfigure_tdo_profiling(notes['gfv'], lc)
+
         # DDH "B" command includes STM, BAT, FRM, RWS
         do_we_rerun = not get_ddh_do_not_rerun_flag_li()
         rv, v = await lc.cmd_ddh_b(rerun=do_we_rerun)
@@ -168,14 +212,14 @@ class BleTDODownload:
         # --------------------------------------
         lg.x()
         if v >= "4.0.04":
-            lg.a("---------------------------")
-            lg.a("running DL TDO fast version")
-            lg.a("---------------------------")
+            lg.a("debug: ---------------------------")
+            lg.a("debug: running DL TDO fast version")
+            lg.a("debug: ---------------------------")
             return await BleTDODownload.dl_fast(lc, mac, g, notes, u)
         else:
-            lg.a("-----------------------------")
-            lg.a("running DL TDO normal version")
-            lg.a("-----------------------------")
+            lg.a("debug: -----------------------------")
+            lg.a("debug: running DL TDO normal version")
+            lg.a("debug: -----------------------------")
         lg.x()
 
         rv, state = await lc.cmd_sts()
@@ -321,6 +365,11 @@ class BleTDODownload:
         # get the rerun flag
         rerun_flag = not get_ddh_do_not_rerun_flag_li()
 
+        # ------------------------------------------------------------------
+        # TDO profiling configuration for normal mode, no DDA, DDB commands
+        # ------------------------------------------------------------------
+        await BleTDODownload.reconfigure_tdo_profiling(notes['gfv'], lc)
+
         # wake mode
         w = "on" if rerun_flag else "off"
         rv = await lc.cmd_wak(w)
@@ -353,7 +402,7 @@ async def ble_interact_tdo(mac, info, g, h, u):
     lc = BleCC26X2(h)
 
     try:
-        lg.a(f"interacting {info} logger")
+        lg.a(f"debug: interacting {info} logger")
         rv = await BleTDODownload.download_recipe(lc, mac, g, notes, u)
 
     except Exception as ex:

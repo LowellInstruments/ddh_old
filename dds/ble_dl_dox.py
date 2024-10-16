@@ -1,22 +1,37 @@
 import asyncio
 import datetime
 import os
-
 from dds.gpq import gpq_create_fixed_mode_file
 from dds.lef import lef_create_file
-from dds.notifications_v2 import notify_logger_error_sensor_oxygen, notify_logger_error_low_battery, LoggerNotification
-from dds.state import state_ble_init_rv_notes, state_ble_logger_ccx26x2r_needs_a_reset
+from dds.notifications_v2 import (
+    notify_logger_error_sensor_oxygen,
+    notify_logger_error_low_battery,
+    LoggerNotification
+)
+from dds.state import (
+    state_ble_init_rv_notes,
+    state_ble_logger_ccx26x2r_needs_a_reset
+)
 from mat.ble.ble_mat_utils import (
     ble_mat_crc_local_vs_remote,
     DDH_GUI_UDP_PORT, ble_mat_disconnect_all_devices_ll,
 )
 from mat.ble.bleak.cc26x2r import BleCC26X2
-from utils.ddh_config import dds_get_cfg_logger_sn_from_mac, dds_get_cfg_flag_download_test_mode, ddh_get_cfg_gear_type
+from utils.ddh_config import (
+    dds_get_cfg_logger_sn_from_mac,
+    dds_get_cfg_flag_download_test_mode,
+    ddh_get_cfg_gear_type,
+    exp_get_conf_dox
+)
 from utils.ddh_shared import (
     send_ddh_udp_gui as _u,
     STATE_DDS_BLE_LOW_BATTERY,
     STATE_DDS_BLE_DOWNLOAD_ERROR_GDO,
-    STATE_DDS_BLE_ERROR_RUN, BLEAppException, ael, get_ddh_do_not_rerun_flag_li, TESTMODE_FILENAMEPREFIX,
+    STATE_DDS_BLE_ERROR_RUN,
+    BLEAppException,
+    ael,
+    get_ddh_do_not_rerun_flag_li,
+    TESTMODE_FILENAMEPREFIX,
 )
 from utils.logs import lg_dds as lg
 from utils.ddh_shared import (
@@ -94,12 +109,12 @@ class BleCC26X2Download:
 
         rv, v = await lc.cmd_gfv()
         _rae(rv, "gfv")
-        lg.a("GFV | {}".format(v))
+        lg.a(f"GFV | {v}")
         notes['gfv'] = v
 
         rv, v = await lc.cmd_gtm()
         _rae(rv, "gtm")
-        lg.a("GTM | {}".format(v))
+        lg.a(f"GTM | {v}")
 
         rv = await lc.cmd_stm()
         _rae(rv, "stm")
@@ -107,7 +122,7 @@ class BleCC26X2Download:
 
         rv, ls = await lc.cmd_dir()
         _rae(rv, "dir error " + str(rv))
-        lg.a("DIR | {}".format(ls))
+        lg.a(f"DIR | {ls}")
         if MC_FILE not in ls.keys():
             _rae(rv, "fex error: no configuration file in logger")
 
@@ -121,7 +136,7 @@ class BleCC26X2Download:
                 continue
 
             # download file
-            lg.a("downloading file {}".format(name))
+            lg.a(f"downloading file {name}")
             rv = await lc.cmd_dwg(name)
             _rae(rv, "dwg")
             up = DDH_GUI_UDP_PORT
@@ -137,8 +152,7 @@ class BleCC26X2Download:
             _rae(rv, "crc")
             rv, l_crc = ble_mat_crc_local_vs_remote(path, r_crc)
             if (not rv) and os.path.exists(path):
-                e = "error: bad CRC so removing local file {}"
-                lg.a(e.format(path))
+                lg.a(f"error: bad CRC so removing local file {path}")
                 os.unlink(path)
 
             # save file in our local disk
@@ -160,10 +174,10 @@ class BleCC26X2Download:
             # delete file in logger
             rv = await lc.cmd_del(del_name)
             _rae(rv, "del")
-            lg.a("deleted file {}".format(del_name))
+            lg.a(f"deleted file {del_name}")
 
             # create LEF file with download info
-            lg.a("creating file LEF for {}".format(name))
+            lg.a(f"creating file LEF for {name}")
             lef_create_file(g, name)
             _gear_type = ddh_get_cfg_gear_type()
             if _gear_type == 0:
@@ -179,6 +193,17 @@ class BleCC26X2Download:
         path = str(get_dl_folder_path_from_mac(mac) / MC_FILE)
         with open(path) as f:
             j = json.load(f)
+            # reconfigure DOX measuring interval parameter here
+            lg.a('debug: analyzing need for DOX interval reconfiguration')
+            i_dro = exp_get_conf_dox()
+            if i_dro:
+                if i_dro == int(j["DRI"]):
+                    lg.a('not changing DRI because it\'s the same')
+                else:
+                    lg.a(f'changing DRI for DOX logger from {j["DRI"]} to {i_dro}')
+                    j["DRI"] = i_dro
+            else:
+                lg.a('error, so not changing DRI for DOX logger')
             rv = await lc.cmd_cfg(j)
             _rae(rv, "cfg")
             lg.a("CFG | OK")
@@ -189,7 +214,7 @@ class BleCC26X2Download:
             bad_rv = not rv or (rv and rv[0] == "0000")
             if not bad_rv:
                 # good!
-                lg.a("GDO | {}".format(rv))
+                lg.a(f"GDO | {rv}")
                 break
             # GDO went south, check number of retries remaining
             lg.a(f"GDO | error {rv}")
@@ -246,7 +271,7 @@ async def ble_interact_do1_or_do2(mac, info, g, h, u):
         # -------------------------
         # BLE connection done here
         # -------------------------
-        lg.a(f"interacting with DO logger: {info}")
+        lg.a(f"debug: interacting {info} logger")
         rv = await BleCC26X2Download.download_recipe(lc,
                                                      mac,
                                                      g,

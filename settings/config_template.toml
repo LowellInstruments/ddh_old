@@ -44,7 +44,9 @@ hook_ble_purge_black_macs_on_boot = 0
 hook_ble_purge_this_mac_dl_files_folder = 0
 
 
-# keep as = 0 when not sure
+
+# EXPERIMENTAL SETTINGS
+# keep these default values when not sure
 [experimental]
 use_lsb_for_tdo_loggers = 0
 use_lsb_for_dox_loggers = 0
@@ -54,4 +56,7 @@ use_ble_passive_scanning = 0
 ble_do_crc = 0
 # used in run_dds.sh
 ble_del_cache = 0
-
+# conf_tdo can be 'none', 'slow', 'mid', 'fast'
+# conf_tdo = 'mid'
+# conf_dox can be 60, 300, 900
+# conf_dox = 60

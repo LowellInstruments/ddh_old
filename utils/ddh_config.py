@@ -5,6 +5,8 @@ import time
 import toml
 import os
 import subprocess as sp
+
+from utils.ddh_shared import ddh_get_folder_path_scripts
 from utils.flag_paths import (
     TMP_PATH_GRAPH_TEST_MODE_JSON,
     LI_PATH_DDH_GPS_EXTERNAL,
@@ -267,7 +269,6 @@ def ddh_get_cfg_maps_en():
 
 def _get_exp_key_from_cfg(k):
     try:
-        # either 0 or 1
         return cfg['experimental'][k]
     except (Exception, ) as ex:
         # print(f'error: _get_exp_key_from_cfg -> {ex}')
@@ -295,6 +296,40 @@ def exp_get_ble_do_crc():
     return _get_exp_key_from_cfg('ble_do_crc')
 
 
+def exp_get_conf_tdo():
+    rv = _get_exp_key_from_cfg('conf_tdo')
+    if rv == -1:
+        # no such key in config.toml
+        return
+    if rv == 'none':
+        # empty dictionary, DDH client will just send nothing
+        return {}
+    if rv not in ('slow', 'mid', 'fast'):
+        print('rv NOT in expt_get_conf_tdo() possible keys')
+        return
+    fol = ddh_get_folder_path_scripts()
+    filename = f'script_logger_tdo_deploy_cfg_{rv}.toml'
+    path_prf_file = f'{fol}/{filename}'
+    if not os.path.exists(path_prf_file):
+        return
+    try:
+        with open(path_prf_file, 'r') as f:
+            return toml.load(f)['profiling']
+    except (Exception, ) as ex:
+        print(f'error exp_get_conf_tdo() -> {ex}')
+
+
+def exp_get_conf_dox():
+    rv = _get_exp_key_from_cfg('conf_dox')
+    if rv == -1:
+        # no such key in config.toml
+        return
+    if rv not in (60, 300, 900, "60", "300", "900"):
+        print('rv NOT in expt_get_conf_dox() possible keys')
+        return
+    return int(rv)
+
+
 if __name__ == '__main__':
     print('vessel_name', dds_get_cfg_vessel_name())
     print('aws_en', dds_get_cfg_aws_en())
@@ -313,3 +348,5 @@ if __name__ == '__main__':
     print('get_moving_speed', dds_get_cfg_moving_speed())
     print('dds_get_flag_sqs_en', dds_get_cfg_flag_sqs_en())
     print('ddh_flag_maps_en', ddh_get_cfg_maps_en())
+    print('conf_tdo', exp_get_conf_tdo())
+    print('conf_dox', exp_get_conf_dox())
