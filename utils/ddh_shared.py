@@ -150,11 +150,6 @@ def ddh_get_folder_path_res() -> Path:
     return Path(f"{p}/ddh/gui/res")
 
 
-def ddh_get_folder_path_scripts() -> Path:
-    p = str(ddh_get_root_folder_path())
-    return Path(f"{p}/scripts")
-
-
 def ddh_get_folder_path_in_port_db() -> Path:
     p = str(ddh_get_root_folder_path())
     return Path(f"{p}/inp_data/emolt_ports")
