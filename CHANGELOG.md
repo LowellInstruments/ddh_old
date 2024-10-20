@@ -152,3 +152,7 @@
 4.0.32 - October 16, 2024
 
     dynamic reconfiguration TDO / DOX on config.toml experimental conf_tdo and conf_dox
+
+4.0.33 - October 20, 2024
+
+    slightly better main_controller_api
