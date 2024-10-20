@@ -475,4 +475,4 @@ if __name__ == "__main__":
     if not linux_is_process_running(NAME_EXE_API_CONTROLLER):
         controller_main_api()
     else:
-        print(f"not launching {NAME_EXE_DDS_CONTROLLER}, already running at python level")
+        print(f"not launching {NAME_EXE_API_CONTROLLER}, already running at python level")
