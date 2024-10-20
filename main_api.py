@@ -36,8 +36,6 @@ import os
 from fastapi.responses import FileResponse
 import concurrent.futures
 import subprocess as sp
-
-from utils.ddh_shared import NAME_EXE_API_CONTROLLER, NAME_EXE_DDS_CONTROLLER
 from utils.flag_paths import (
     LI_FILE_ICCID,
     TMP_PATH_DDH_APP_OVERRIDE,
@@ -50,6 +48,8 @@ DDN_API_PROVISIONING_PORT = 9001
 DDN_API_PROVISIONING_IP = '10.5.0.1'
 # do NOT remove this from here
 NAME_EXE_API = "main_api"
+NAME_EXE_API_CONTROLLER = NAME_EXE_API + "_controller"
+
 
 
 app = FastAPI()
