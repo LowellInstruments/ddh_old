@@ -78,6 +78,7 @@ STATE_DDS_GPS_POWER_CYCLE = "gps_power_cycle"
 
 NAME_EXE_DDH = "main_ddh"
 NAME_EXE_DDS = "main_dds"
+NAME_EXE_API = "main_api"
 NAME_EXE_BRT = "main_brt"
 PID_FILE_DDH = f"/tmp/{NAME_EXE_DDH}.pid"
 PID_FILE_DDS = f"/tmp/{NAME_EXE_DDS}.pid"
