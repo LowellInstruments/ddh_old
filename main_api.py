@@ -24,11 +24,9 @@ from api.api_utils import (api_get_ip_vpn, api_get_ip_wlan, api_get_ip_cell,
                            api_get_utc_epoch, api_get_api_version, api_get_ble_iface,
                            get_files_from_server, api_get_gps_iface,
                            api_get_fw_cell_version, api_get_wlan_mbps,
-                           api_get_internet_via, api_get_kernel, api_send_email_crash,
+                           api_get_internet_via, api_get_kernel, api_send_email_crash, api_linux_is_process_running,
                            )
 from ddh.db.db_his import DbHis
-from mat.linux import linux_is_process_running
-from mat.utils import linux_is_rpi
 from utils.ddh_config import (dds_get_cfg_vessel_name,
                               dds_get_cfg_box_sn, dds_get_cfg_box_project,
                               dds_get_cfg_monitored_pairs)
@@ -467,12 +465,12 @@ def controller_main_api():
 
 if __name__ == "__main__":
 
-    if not linux_is_rpi():
+    if not api_linux_is_rpi():
         # debug: run without DDS controller
         main_api()
         sys.exit(0)
 
-    if not linux_is_process_running(NAME_EXE_API_CONTROLLER):
+    if not api_linux_is_process_running(NAME_EXE_API_CONTROLLER):
         controller_main_api()
     else:
         print(f"not launching {NAME_EXE_API_CONTROLLER}, already running at python level")
