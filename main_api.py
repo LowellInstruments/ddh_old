@@ -4,6 +4,7 @@ import datetime
 import glob
 import pathlib
 import shutil
+import sys
 import time
 from multiprocessing import Process
 import setproctitle
@@ -26,6 +27,8 @@ from api.api_utils import (api_get_ip_vpn, api_get_ip_wlan, api_get_ip_cell,
                            api_get_internet_via, api_get_kernel, api_send_email_crash,
                            )
 from ddh.db.db_his import DbHis
+from mat.linux import linux_is_process_running
+from mat.utils import linux_is_rpi
 from utils.ddh_config import (dds_get_cfg_vessel_name,
                               dds_get_cfg_box_sn, dds_get_cfg_box_project,
                               dds_get_cfg_monitored_pairs)
@@ -35,6 +38,8 @@ import os
 from fastapi.responses import FileResponse
 import concurrent.futures
 import subprocess as sp
+
+from utils.ddh_shared import NAME_EXE_API_CONTROLLER, NAME_EXE_DDS_CONTROLLER
 from utils.flag_paths import (
     LI_FILE_ICCID,
     TMP_PATH_DDH_APP_OVERRIDE,
@@ -462,9 +467,12 @@ def controller_main_api():
 
 if __name__ == "__main__":
 
-    # only main
-    # main_api()
-    # sys.exit(0)
+    if not linux_is_rpi():
+        # debug: run without DDS controller
+        main_api()
+        sys.exit(0)
 
-    # main + controller
-    controller_main_api()
+    if not linux_is_process_running(NAME_EXE_API_CONTROLLER):
+        controller_main_api()
+    else:
+        print(f"not launching {NAME_EXE_DDS_CONTROLLER}, already running at python level")
