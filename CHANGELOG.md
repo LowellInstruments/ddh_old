@@ -153,6 +153,10 @@
 
     dynamic reconfiguration TDO / DOX on config.toml experimental conf_tdo and conf_dox
 
-4.0.33 - October 22, 2024
+4.0.33 - October 20, 2024
+
+    slightly better main_controller_api
+
+4.0.34 - October 22, 2024
 
     added error when no plotting because only testfiles_ are present

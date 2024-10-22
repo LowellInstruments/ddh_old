@@ -6,7 +6,6 @@ import toml
 import os
 import subprocess as sp
 
-from utils.ddh_shared import ddh_get_folder_path_scripts
 from utils.flag_paths import (
     TMP_PATH_GRAPH_TEST_MODE_JSON,
     LI_PATH_DDH_GPS_EXTERNAL,
@@ -17,6 +16,13 @@ from utils.flag_paths import (
 def sh(c):
     rv = sp.run(c, shell=True, stdout=sp.PIPE, stderr=sp.PIPE)
     return rv.returncode
+
+
+def ddh_get_folder_path_scripts() -> pathlib.Path:
+    p = pathlib.Path.home()
+    if is_rpi():
+        return pathlib.Path(str(p) + '/li/ddh/scripts')
+    return pathlib.Path(str(p) + '/PycharmProjects/ddh/scripts')
 
 
 def is_rpi():

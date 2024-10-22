@@ -84,10 +84,8 @@ PID_FILE_DDH = f"/tmp/{NAME_EXE_DDH}.pid"
 PID_FILE_DDS = f"/tmp/{NAME_EXE_DDS}.pid"
 NAME_EXE_DDH_CONTROLLER = NAME_EXE_DDH + "_controller"
 NAME_EXE_DDS_CONTROLLER = NAME_EXE_DDS + "_controller"
-NAME_EXE_API_CONTROLLER = NAME_EXE_API + "_controller"
 PID_FILE_DDH_CONTROLLER = f"/tmp/{NAME_EXE_DDH_CONTROLLER}.pid"
 PID_FILE_DDS_CONTROLLER = f"/tmp/{NAME_EXE_DDS_CONTROLLER}.pid"
-PID_FILE_API_CONTROLLER = f"/tmp/{NAME_EXE_API_CONTROLLER}.pid"
 
 
 _sk = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -150,11 +148,6 @@ def dds_ensure_proper_working_folder():
 def ddh_get_folder_path_res() -> Path:
     p = str(ddh_get_root_folder_path())
     return Path(f"{p}/ddh/gui/res")
-
-
-def ddh_get_folder_path_scripts() -> Path:
-    p = str(ddh_get_root_folder_path())
-    return Path(f"{p}/scripts")
 
 
 def ddh_get_folder_path_in_port_db() -> Path:

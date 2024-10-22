@@ -58,6 +58,12 @@ def api_linux_is_rpi():
     return os.uname().nodename in ('raspberrypi', 'rpi')
 
 
+def api_linux_is_process_running(name) -> bool:
+    cmd = 'ps -aux | grep {} | grep -v grep'.format(name)
+    rv = sp.run(cmd, shell=True, stdout=sp.PIPE, stderr=sp.PIPE)
+    return rv.returncode == 0
+
+
 _r = str(pathlib.Path.home())
 _r += '/li' if api_linux_is_rpi() else '/PycharmProjects'
 
