@@ -184,12 +184,19 @@ def process_graph_csv_data(fol, h, hi) -> dict:
     _g_ff_p = sorted(glob(f"{fol}/*_Pressure.csv"))
     _g_ff_dot = sorted(glob(f"{fol}/*_DissolvedOxygen.csv"))
     _g_ff_tdo = sorted(glob(f"{fol}/*_TDO.csv"))
+    n_tdo_pre_test = len(_g_ff_tdo)
 
     # we don't plot files starting with testfile_
     _g_ff_t = [i for i in _g_ff_t if TESTMODE_FILENAMEPREFIX not in i]
     _g_ff_p = [i for i in _g_ff_p if TESTMODE_FILENAMEPREFIX not in i]
     _g_ff_dot = [i for i in _g_ff_dot if TESTMODE_FILENAMEPREFIX not in i]
     _g_ff_tdo = [i for i in _g_ff_tdo if TESTMODE_FILENAMEPREFIX not in i]
+
+    # fast leaving case for TDO loggers
+    if n_tdo_pre_test and not _g_ff_tdo:
+        e = f'error: no real data yet, disable test mode with DDC'
+        lg.a(e)
+        return {'error': e}
 
     # files NOT_NO_WC = YES_WC + ones still not processed
     _g_ff_tdo_wc = [i for i in _g_ff_tdo
