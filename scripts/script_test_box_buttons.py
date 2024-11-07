@@ -30,14 +30,18 @@ def button3_pressed_cb():
     _cb('bottom')
 
 
-os.system('clear')
-print('\nDDH hardware side buttons test v2')
-print('press Ctrl+C to quit')
-b1 = Button(16, pull_up=True, bounce_time=TIME_DB_S)
-b2 = Button(20, pull_up=True, bounce_time=TIME_DB_S)
-b3 = Button(21, pull_up=True, bounce_time=TIME_DB_S)
-b1.when_pressed = button1_pressed_cb
-b2.when_pressed = button2_pressed_cb
-b3.when_pressed = button3_pressed_cb
+def main_test_box_buttons():
+    os.system('clear')
+    print('\nDDH hardware side buttons test v2')
+    print('press Ctrl+C to quit')
+    b1 = Button(16, pull_up=True, bounce_time=TIME_DB_S)
+    b2 = Button(20, pull_up=True, bounce_time=TIME_DB_S)
+    b3 = Button(21, pull_up=True, bounce_time=TIME_DB_S)
+    b1.when_pressed = button1_pressed_cb
+    b2.when_pressed = button2_pressed_cb
+    b3.when_pressed = button3_pressed_cb
+    pause()
 
-pause()
+
+if __name__ == '__main__':
+    main_test_box_buttons()
