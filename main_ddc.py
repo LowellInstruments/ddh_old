@@ -172,7 +172,7 @@ def cb_test_buttons():
         if not is_rpi():
             p_e('no Rpi for buttons test')
             return
-        from scripts.script_test_box_buttons import main_test_box_buttons
+        from scripts.script_test_box_buttons_v0 import main_test_box_buttons
         main_test_box_buttons()
     except (Exception,) as ex:
         p_e(str(ex))
