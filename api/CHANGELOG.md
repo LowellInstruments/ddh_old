@@ -11,3 +11,7 @@
 1.0.04 - October 23, 2024
 
     fixed function api_get_fw_cell_version() readlines index
+
+1.0.05 - November 7, 2024
+
+    fixed function api_read_aws_sqs_ts()

@@ -13,8 +13,10 @@ import requests
 import re
 from utils.ddh_config import (
     dds_get_cfg_flag_gps_external,
-    dds_get_cfg_box_project, dds_get_cfg_box_sn,
-    dds_get_cfg_vessel_name, dds_get_cfg_aws_credential
+    dds_get_cfg_box_project,
+    dds_get_cfg_box_sn,
+    dds_get_cfg_vessel_name,
+    dds_get_cfg_aws_credential
 )
 import os
 from utils.flag_paths import (LI_PATH_DDH_VERSION,
@@ -25,7 +27,7 @@ from utils.flag_paths import (LI_PATH_DDH_VERSION,
 
 CTT_API_OK = 'ok'
 CTT_API_ER = 'error'
-DDH_API_VERSION = "1.0.03"
+DDH_API_VERSION = "1.0.05"
 
 
 def api_get_api_version():
@@ -392,14 +394,14 @@ def api_get_logger_mac_reset_files():
 def api_read_aws_sqs_ts():
     # path relative to main_api.py
     p = "ddh/db/db_status.json"
-    now = str(datetime.datetime.now(tz=datetime.timezone.utc))
+    t = int(time.time())
     try:
         with open(p, 'r') as f:
             j = json.load(f)
     except (Exception, ):
         j = {
-            'aws': ('unknown', now),
-            'sqs': ('unknown', now)
+            'aws': ('unknown', t),
+            'sqs': ('unknown', t)
         }
     return j
 

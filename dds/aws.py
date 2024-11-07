@@ -56,6 +56,7 @@ def ddh_write_timestamp_aws_sqs(k, v):
         with open(p, 'r') as f:
             j = json.load(f)
     except (Exception, ):
+        # first time ever
         j = {
             'aws': ('unknown', t),
             'sqs': ('unknown', t)
