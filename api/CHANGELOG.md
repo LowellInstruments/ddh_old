@@ -15,3 +15,9 @@
 1.0.05 - November 7, 2024
 
     fixed function api_read_aws_sqs_ts()
+
+
+1.0.06 - November 12, 2024
+
+    api_get_api_version() based on .api_version file
+    /info endpoint now returns free disk space
