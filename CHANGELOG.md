@@ -160,3 +160,7 @@
 4.0.34 - October 22, 2024
 
     added error when no plotting because only testfiles_ are present
+
+4.0.35 - November 12, 2024
+
+    new buttons strategy in file dds/buttons.py
