@@ -3,6 +3,7 @@ import glob
 import json
 import pathlib
 import platform
+import shutil
 import subprocess as sp
 
 import boto3
@@ -16,22 +17,29 @@ from utils.ddh_config import (
     dds_get_cfg_box_project,
     dds_get_cfg_box_sn,
     dds_get_cfg_vessel_name,
-    dds_get_cfg_aws_credential
+    dds_get_cfg_aws_credential, is_rpi
 )
 import os
-from utils.flag_paths import (LI_PATH_DDH_VERSION,
-                              TMP_PATH_GPS_LAST_JSON,
-                              TMP_PATH_BLE_IFACE,
-                              LI_PATH_CELL_FW, TMP_PATH_INET_VIA)
+from utils.flag_paths import (
+    LI_PATH_DDH_VERSION,
+    LI_PATH_API_VERSION,
+    TMP_PATH_GPS_LAST_JSON,
+    TMP_PATH_BLE_IFACE,
+    LI_PATH_CELL_FW,
+    TMP_PATH_INET_VIA
+)
 
 
 CTT_API_OK = 'ok'
 CTT_API_ER = 'error'
-DDH_API_VERSION = "1.0.05"
 
 
 def api_get_api_version():
-    return DDH_API_VERSION
+    try:
+        with open(LI_PATH_API_VERSION, 'r') as f:
+            return f.readline().replace('\n', '')
+    except (Exception, ) as ex:
+        return 'error_get_api_version'
 
 
 def _sh(c):
@@ -312,6 +320,23 @@ def api_get_wlan_mbps():
     # only keep numbers
     s = re.sub("[^0-9]", "", s)
     return int(s)
+
+
+def api_get_disk_capacity():
+    p = pathlib.Path.home()
+    if is_rpi():
+        p = pathlib.Path(str(p) + '/li/ddh')
+    else:
+        p = pathlib.Path(str(p) + '/PycharmProjects/ddh')
+    du = shutil.disk_usage(p)
+    if not du:
+        return
+    return {
+        'disk_total': int(du[0]),
+        'disk_used': int(du[1]),
+        'disk_free': int(du[2]),
+        'disk_free_mb': int(int(du[2]) / (1024 * 1024))
+    }
 
 
 def api_get_internet_via():
