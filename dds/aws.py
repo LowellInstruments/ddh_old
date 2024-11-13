@@ -258,7 +258,7 @@ def aws_serve():
     p.start()
 
 
-def _aws_s3_cp_process(d):
+def _aws_s3_cp_process(ls):
 
     # sys.exit() instead of return prevents zombie processes
     setproctitle.setproctitle(AWS_S3_CP_PROC_NAME)
@@ -278,7 +278,7 @@ def _aws_s3_cp_process(d):
     _bin = _get_path_of_aws_binary()
     dr = "--dryrun" if dev else ""
 
-    for f in d:
+    for f in ls:
         # _n: bkt-kaz
         # f: '/home/kaz/PycharmProjects/ddh/dl_files/d0-2e-ab-d9-30-66/2222222_TST_20240904_143008.gps
         um = f.split('/')[-2]
@@ -317,10 +317,10 @@ def _aws_s3_cp_process(d):
     sys.exit(0)
 
 
-def aws_cp(d):
+def aws_cp(ls):
 
-    # d: aws_cp_d ['/home/.../dl_files/<mac>/2222222_TST_20240904_143008.gps', ...]
-    if not d:
+    # ls: ['/home/.../dl_files/<mac>/2222222_TST_20240904_143008.gps', ...]
+    if not ls:
         lg.a("error: called aws_cp with empty list")
         return
 
@@ -335,10 +335,10 @@ def aws_cp(d):
 
     lg.a("it seems we can attempt an S3 copying")
 
-    # gets rid of zombie processes
+    # gets rid of previous zombie processes
     multiprocessing.active_children()
 
-    # don't run if already doing so
+    # don't run if already doing another sync or cp
     if linux_is_process_running(AWS_S3_SYNC_PROC_NAME):
         lg.a('warning: not running AWS cp, because AWS sync in progress')
         return
@@ -349,7 +349,7 @@ def aws_cp(d):
     # run as a different process for smoother GUI
     if dev:
         lg.a("debug: dev platform detected, AWS cp with --dryrun flag")
-    p = Process(target=_aws_s3_cp_process, args=(d, ))
+    p = Process(target=_aws_s3_cp_process, args=(ls,))
     p.start()
 
 
