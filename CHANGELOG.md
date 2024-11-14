@@ -164,3 +164,8 @@
 4.0.35 - November 12, 2024
 
     new buttons strategy in file dds/buttons.py
+
+4.0.36 - November 14, 2024
+
+    improved buttons strategy in file dds/buttons.py
+    improved AWS cp vs sync

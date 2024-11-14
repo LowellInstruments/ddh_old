@@ -310,8 +310,8 @@ def _aws_s3_cp_process(ls):
             lg.a(f"error: {rv.stderr}")
             sys.exit(2)
         else:
-            _t = datetime.datetime.now()
-            lg.a(f"success: cloud cp on {_t}, file {f}")
+            _t = datetime.datetime.now().strftime('%Y/%m/%d %H:%M:%S')
+            lg.a(f"success: cloud cp on {_t}, file {os.path.basename(f)}")
 
     # this AWS cp is a separate process, we can exit here
     sys.exit(0)
@@ -321,7 +321,6 @@ def aws_cp(ls):
 
     # ls: ['/home/.../dl_files/<mac>/2222222_TST_20240904_143008.gps', ...]
     if not ls:
-        lg.a("error: called aws_cp with empty list")
         return
 
     # nothing to do, in fact, disabled
@@ -333,7 +332,7 @@ def aws_cp(ls):
         lg.a('error: no AWS cp attempt because no internet access')
         return
 
-    lg.a("it seems we can attempt an S3 copying")
+    lg.a("attempting S3 copy")
 
     # gets rid of previous zombie processes
     multiprocessing.active_children()

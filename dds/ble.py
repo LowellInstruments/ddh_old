@@ -163,7 +163,7 @@ def _ble_analyze_and_graph_logger_result(rv,
         notify_logger_download(g, ln)
         if mac in _g_logger_errors.keys():
             del _g_logger_errors[mac]
-        lg.a(f"OK! done logger {mac}/{sn}")
+        lg.a(f"OK! all done for logger {mac}/{sn}")
         if get_ddh_do_not_rerun_flag_li():
             _u(f"{STATE_DDS_BLE_RUN_STATUS}/off")
         else:

@@ -49,7 +49,7 @@ from mat.ble.ble_mat_utils import (
 )
 from mat.utils import linux_is_rpi
 from utils.ddh_config import dds_check_cfg_has_box_info, \
-    dds_get_cfg_monitored_macs, dds_check_config_file, dds_get_cfg_flag_download_test_mode
+    dds_get_cfg_monitored_macs, dds_check_config_file, dds_get_cfg_flag_download_test_mode, exp_get_use_aws_cp
 from utils.ddh_shared import (
     PID_FILE_DDS,
     dds_create_folder_dl_files,
@@ -208,14 +208,14 @@ def main_dds():
         # poor semaphore
         ddh_state.state_clr_downloading_ble()
 
-        # tell AWS has stuff to do
+        # tell AWS has a sync to do, because we probably downloaded a logger
         try:
-            if det and linux_is_rpi():
+            if det and linux_is_rpi() and exp_get_use_aws_cp() != 1:
                 flag = dds_get_aws_has_something_to_do_via_gui_flag_file()
                 pathlib.Path(flag).touch()
-                lg.a("created AWS flag file after BLE interaction")
+                lg.a("created AWS sync flag file after BLE interaction")
         except (Exception,):
-            lg.a('error: creating AWS flag file')
+            lg.a('error: creating AWS sync flag file')
 
         # recovery situations
         if rvi:

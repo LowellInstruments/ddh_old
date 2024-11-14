@@ -38,18 +38,23 @@ g_last_t = 0
 
 
 def _th_gpio_box_buttons():
-    def _cb(s):
+    if not linux_is_rpi():
+        return
+
+    def _cb():
         t = time.perf_counter()
         global g_last_t
         if t > g_last_t + TIME_LO_S:
-            print(s)
             g_last_t = t
+            return True
 
     def button1_pressed_cb():
-        _u(STATE_DDS_PRESSED_BUTTON_1)
+        if _cb():
+            _u(STATE_DDS_PRESSED_BUTTON_1)
 
     def button2_pressed_cb():
-        _u(STATE_DDS_PRESSED_BUTTON_2)
+        if _cb():
+            _u(STATE_DDS_PRESSED_BUTTON_2)
 
     def button3_pressed_cb():
         pass
