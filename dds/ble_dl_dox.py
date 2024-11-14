@@ -124,7 +124,6 @@ class BleCC26X2Download:
         _rae(rv, "dir error " + str(rv))
         lg.a(f"DIR | {ls}")
         if MC_FILE not in ls.keys():
-            _une(rv, notes, "no MAT.cfg")
             _rae(rv, "fex error: no configuration file in logger")
 
         # iterate files present in logger
@@ -203,11 +202,12 @@ class BleCC26X2Download:
                 else:
                     lg.a(f'changing DRI for DOX logger from {j["DRI"]} to {i_dro}')
                     j["DRI"] = i_dro
+                    # send the configuration command to update configuration
+                    rv = await lc.cmd_cfg(j)
+                    _rae(rv, "cfg")
+                    lg.a("CFG | OK")
             else:
                 lg.a('no experimental conf_dox, keep DRI in DOX logger')
-            rv = await lc.cmd_cfg(j)
-            _rae(rv, "cfg")
-            lg.a("CFG | OK")
 
         # see if the DO sensor works
         for i_do in range(3):
