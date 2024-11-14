@@ -169,3 +169,4 @@
 
     improved buttons strategy in file dds/buttons.py
     improved AWS cp vs sync
+    added better condition on DO2 when changing DRI
