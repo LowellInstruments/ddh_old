@@ -170,3 +170,7 @@
     improved buttons strategy in file dds/buttons.py
     improved AWS cp vs sync
     added better condition on DO2 when changing DRI
+
+4.0.37 - November 14, 2024
+
+    removed the e) edit BLE range tool option from DDC

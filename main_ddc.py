@@ -332,7 +332,7 @@ def main_ddc():
             '7': (f"7) test GPS shield", cb_test_gps_quectel),
             '8': (f"8) test side buttons", cb_test_buttons),
             'r': (f"r) run BLE range tool", cb_run_brt),
-            'e': (f"e) edit BLE range tool", cb_edit_brt_cfg_file),
+            # 'e': (f"e) edit BLE range tool", cb_edit_brt_cfg_file),
             'o': (f"o) deploy logger DOX", cb_run_deploy_dox),
             't': (f"t) deploy logger TDO", cb_run_deploy_tdo),
             'u': (f"u) list Quectel USB ports", cb_list_quectel_usb_ports),
