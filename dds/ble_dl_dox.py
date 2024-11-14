@@ -203,7 +203,7 @@ class BleCC26X2Download:
                     lg.a(f'changing DRI for DOX logger from {j["DRI"]} to {i_dro}')
                     j["DRI"] = i_dro
             else:
-                lg.a('error, so not changing DRI for DOX logger')
+                lg.a('no experimental conf_dox, keep DRI in DOX logger')
             rv = await lc.cmd_cfg(j)
             _rae(rv, "cfg")
             lg.a("CFG | OK")

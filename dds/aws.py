@@ -310,8 +310,7 @@ def _aws_s3_cp_process(ls):
             lg.a(f"error: {rv.stderr}")
             sys.exit(2)
         else:
-            _t = datetime.datetime.now().strftime('%Y/%m/%d %H:%M:%S')
-            lg.a(f"success: cloud cp on {_t}, file {os.path.basename(f)}")
+            lg.a(f"success: cloud cp {os.path.basename(f)}")
 
     # this AWS cp is a separate process, we can exit here
     sys.exit(0)
