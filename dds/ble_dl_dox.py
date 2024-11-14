@@ -124,6 +124,7 @@ class BleCC26X2Download:
         _rae(rv, "dir error " + str(rv))
         lg.a(f"DIR | {ls}")
         if MC_FILE not in ls.keys():
+            _une(rv, notes, "no MAT.cfg")
             _rae(rv, "fex error: no configuration file in logger")
 
         # iterate files present in logger
