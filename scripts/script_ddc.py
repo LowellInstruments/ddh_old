@@ -281,7 +281,7 @@ def ddh_run_check():
         m = os.path.exists(f'{get_ddh_folder_path_settings()}/all_macs.toml')
 
         if not w:
-            _w('missing wireguard conf file')
+            _w('missing wireguard VPN conf file')
         if not a:
             _i('missing SSH authorized keys file')
         if not m:

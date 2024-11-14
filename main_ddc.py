@@ -249,7 +249,7 @@ def cb_print_check_all_keys(verbose=True):
         return rv
 
     if verbose and not w:
-        p_e('missing wireguard conf file')
+        p_e('missing wireguard VPN conf file')
     if verbose and not a:
         p_i('missing SSH authorized keys file')
     if verbose and not c:
