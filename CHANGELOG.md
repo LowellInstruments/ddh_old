@@ -174,3 +174,7 @@
 4.0.37 - November 14, 2024
 
     removed the e) edit BLE range tool option from DDC
+
+4.0.38 - November 15, 2024
+
+    moved GPQ file generation to generate smaller files

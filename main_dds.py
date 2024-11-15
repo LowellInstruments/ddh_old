@@ -13,6 +13,7 @@ from dds.ble import ble_interact_all_loggers, ble_show_antenna_type, ble_check_a
 from dds.ble_scan import ble_scan
 from dds.cnv import cnv_serve
 from dds.cst import cst_serve
+from dds.gpq import GpqW
 from dds.gps import (
     gps_boot_wait_first,
     gps_measure,
@@ -68,6 +69,7 @@ from utils.logs import (
 import setproctitle
 from utils.ddh_shared import send_ddh_udp_gui as _u
 from utils.flag_paths import TMP_PATH_BLE_IFACE
+_g_gpw = GpqW()
 
 
 def main_dds():
@@ -193,6 +195,9 @@ def main_dds():
         # check operation conditions are met
         if not ble_op_conditions_met(g):
             continue
+
+        # moving this here allows for way lighter GPQ files
+        _g_gpw.add(tg, lat, lon)
 
         # poor semaphore
         ddh_state.state_set_downloading_ble()

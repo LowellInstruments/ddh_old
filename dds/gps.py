@@ -39,7 +39,6 @@ _g_ts_cached_gps_valid_for = 0
 _g_cached_gps = None
 _g_banner_cache_too_old = 0
 _g_ever_gps_clock_sync = False
-_g_gpw = GpqW()
 
 
 PERIOD_GPS_CACHE_VALID_SECS = 30
@@ -335,7 +334,6 @@ def gps_measure():
             # add to GpqW
             if dds_get_cfg_gpq_en():
                 lat, lon, tg, speed = g
-                _g_gpw.add(tg, lat, lon)
             return g
 
         # at this point, cache may be valid or just empty
