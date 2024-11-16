@@ -167,7 +167,7 @@ def main_dds():
         gps_configure_shield()
 
         # other stages
-        cst_serve()
+        # cst_serve()
         gfm_serve()
         cnv_serve()
         aws_serve()

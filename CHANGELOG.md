@@ -178,3 +178,7 @@
 4.0.38 - November 15, 2024
 
     moved GPQ file generation to generate smaller files
+
+4.0.39 - November 16, 2024
+
+    disabled CST_serve in main_dds.py
