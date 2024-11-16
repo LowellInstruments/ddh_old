@@ -189,25 +189,28 @@ class BleCC26X2Download:
         _rae(rv, "frm")
         lg.a("FRM | OK")
 
-        # restore the logger config file
+        # read the local logger configuration file
         path = str(get_dl_folder_path_from_mac(mac) / MC_FILE)
         with open(path) as f:
             j = json.load(f)
-            # reconfigure DOX measuring interval parameter here
-            lg.a('debug: analyzing need for DOX interval reconfiguration')
-            i_dro = exp_get_conf_dox()
-            if i_dro:
-                if i_dro == int(j["DRI"]):
-                    lg.a('not changing DRI because it\'s the same')
-                else:
-                    lg.a(f'changing DRI for DOX logger from {j["DRI"]} to {i_dro}')
-                    j["DRI"] = i_dro
-                    # send the configuration command to update configuration
-                    rv = await lc.cmd_cfg(j)
-                    _rae(rv, "cfg")
-                    lg.a("CFG | OK")
+
+        # check need to modify the DO interval in the logger config file
+        lg.a('debug: analyzing need for DOX interval reconfiguration')
+        i_dro = exp_get_conf_dox()
+        if i_dro:
+            # yes, we were asked to
+            if i_dro == int(j["DRI"]):
+                lg.a('not changing DRI because it\'s the same')
             else:
-                lg.a('no experimental conf_dox, keep DRI in DOX logger')
+                lg.a(f'changing DRI for DOX logger from {j["DRI"]} to {i_dro}')
+                j["DRI"] = i_dro
+        else:
+            lg.a('no experimental conf_dox, keep DRI in DOX logger')
+
+        # all cases, modified or not, send configuration command
+        rv = await lc.cmd_cfg(j)
+        _rae(rv, "cfg")
+        lg.a("CFG | OK")
 
         # see if the DO sensor works
         for i_do in range(3):

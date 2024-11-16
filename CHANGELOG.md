@@ -182,3 +182,8 @@
 4.0.39 - November 16, 2024
 
     disabled CST_serve in main_dds.py
+
+4.0.40 - November 16, 2024
+
+    DOX loggers, better logic for "need for DOX interval reconfiguration"
+
