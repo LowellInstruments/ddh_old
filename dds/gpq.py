@@ -49,6 +49,9 @@ class GpqW:
         dt_s = dt.strftime(FMT_GPQ_TS_RECORD_DB)
         if os.path.exists(p):
             _p(f'GPQ_W: already exists {f}')
+        else:
+            # don't carry the ones from previous file
+            self.db.delete_all()
         self.db.load(p)
         self.db.add({'t': dt_s, 'lat': lat, 'lon': lon})
         self.db.commit(p)
