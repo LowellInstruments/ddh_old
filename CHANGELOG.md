@@ -187,3 +187,6 @@
 
     DOX loggers, better logic for "need for DOX interval reconfiguration"
 
+4.0.41 - November 16, 2024
+
+    improved GPQ file generation to remove warning

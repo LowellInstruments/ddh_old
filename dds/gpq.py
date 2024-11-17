@@ -47,13 +47,16 @@ class GpqW:
         p = f'{get_ddh_folder_path_gpq_files()}/{f}'
         os.makedirs(os.path.dirname(p), exist_ok=True)
         dt_s = dt.strftime(FMT_GPQ_TS_RECORD_DB)
+        # write to existing GPQ file or to new one
         if os.path.exists(p):
             _p(f'GPQ_W: already exists {f}')
+            self.db.load(p)
+            self.db.add({'t': dt_s, 'lat': lat, 'lon': lon})
         else:
             # don't carry the ones from previous file
             self.db.delete_all()
-        self.db.load(p)
-        self.db.add({'t': dt_s, 'lat': lat, 'lon': lon})
+            # self.db.load(p)
+            self.db.add({'t': dt_s, 'lat': lat, 'lon': lon})
         self.db.commit(p)
         _p(f'GPQ_W: add {dt_s} -> {f}')
 
