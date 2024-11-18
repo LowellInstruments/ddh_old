@@ -36,11 +36,13 @@ function _e {
 
 function check_already_running {
     # $1: main_dds_controller, main_api
-    pgrep -f "$1"
+    # pgrep -f "$1"
+    ps -aux | grep "$1" | grep -v grep
     rv=$?
     if [ "$rv" -eq 0 ]; then
         _s="$1 is already running"
         _py "$_s"
+        # makes the script calling this function to exit
         exit 0;
     fi
 }

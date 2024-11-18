@@ -17,6 +17,7 @@ from utils.ddh_shared import (
 import setproctitle
 from utils.logs import lg_gui as lg
 from utils.wdog import gui_dog_get
+import subprocess as sp
 
 
 def main_ddh():
@@ -46,6 +47,12 @@ def controller_main_ddh():
     lg.a(f"=== {s} launches child ===")
     p = Process(target=main_ddh)
     p.start()
+
+    # kill any old son
+    ne = NAME_EXE_DDH
+    c = (f'(ps -aux | grep -w {ne} | grep -v grep) '
+         f'&& echo "kill loose API" && killall {ne} && sleep 3')
+    sp.run(c, shell=True)
 
     # maybe left from before
     f = ddh_get_gui_closed_flag_file()

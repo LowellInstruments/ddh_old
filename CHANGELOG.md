@@ -195,3 +195,7 @@
 
     DDC new checks it can connect to AWS
     bug: AWS_CP better cloud icon update, it stayed just "busy"
+
+4.0.43 - November 18, 2024
+
+    better ways to detect process running

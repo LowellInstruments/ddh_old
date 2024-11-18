@@ -5,7 +5,7 @@ import pathlib
 import sys
 from multiprocessing import Process
 import time
-
+import subprocess as sp
 from ddh.draw_graph import gfm_serve
 from dds.aws import aws_serve
 from dds.ble import ble_interact_all_loggers, ble_show_antenna_type, ble_check_antenna_up_n_running, \
@@ -268,6 +268,12 @@ def controller_main_dds():
     setproctitle.setproctitle(s)
     linux_app_write_pid_to_tmp(p)
     lg.a(f"=== {s} started ===")
+
+    # kill any old son
+    ne = NAME_EXE_DDS
+    c = (f'(ps -aux | grep -w {ne} | grep -v grep) '
+         f'&& echo "kill loose API" && killall {ne} && sleep 3')
+    sp.run(c, shell=True)
 
     while 1:
         # GUI KILLs this process when desired
