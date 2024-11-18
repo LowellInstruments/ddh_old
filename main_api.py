@@ -456,7 +456,8 @@ def controller_main_api():
 
     # kill any old son
     ne = NAME_EXE_API
-    c = f'(ps -aux | grep -w {ne} | grep -v grep) && killall {ne}'
+    c = (f'(ps -aux | grep -w {ne} | grep -v grep) '
+         f'&& echo "kill loose API" && killall {ne} && sleep 3')
     sp.run(c, shell=True)
 
     while 1:
