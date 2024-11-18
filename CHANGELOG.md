@@ -194,3 +194,4 @@
 4.0.42 - November 18, 2024
 
     DDC new checks it can connect to AWS
+    bug: AWS_CP better cloud icon update, it stayed just "busy"
