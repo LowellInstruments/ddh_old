@@ -454,6 +454,10 @@ def controller_main_api():
     setproctitle.setproctitle(s)
     print(f"=== {s} started ===")
 
+    # kill any old son
+    ne = NAME_EXE_API
+    sp.run(f'(ps -aux | grep -w {ne} | grep -v grep) && killall {ne}')
+
     while 1:
         print(f"=== {s} launching child ===")
         p = Process(target=main_api)
