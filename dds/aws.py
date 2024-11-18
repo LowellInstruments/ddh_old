@@ -307,12 +307,15 @@ def _aws_s3_cp_process(ls):
         if rv.stdout:
             lg.a(rv.stdout)
         if rv.returncode:
+            _u(STATE_DDS_NOTIFY_CLOUD_ERR)
             lg.a(f"error: {rv.stderr}")
             sys.exit(2)
         else:
+            _u(STATE_DDS_NOTIFY_CLOUD_OK)
             lg.a(f"success: cloud cp {os.path.basename(f)}")
 
     # this AWS cp is a separate process, we can exit here
+    _u(STATE_DDS_NOTIFY_CLOUD_OK)
     sys.exit(0)
 
 
