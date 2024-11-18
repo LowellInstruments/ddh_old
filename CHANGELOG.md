@@ -190,3 +190,7 @@
 4.0.41 - November 16, 2024
 
     improved GPQ file generation to remove warning
+
+4.0.42 - November 18, 2024
+
+    DDC new checks it can connect to AWS

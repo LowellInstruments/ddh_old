@@ -11,6 +11,7 @@ from scripts.script_ddc import (
     cb_graph_demo, cb_provision_ddh,
     cb_kill_ddh, ddh_run_check, cb_calibrate_display, sh,
     cb_test_mode, is_rpi, VP_QUECTEL, p_w, p_e, c_e, p_i,
+    check_aws_run
 )
 from scripts.script_nadv import main_nadv
 from utils.ddh_config import _get_config_file_path, cfg_load_from_file
@@ -225,10 +226,9 @@ def _check_aws_credentials():
     for k, v in f.items():
         if not v:
             if 'custom' not in k:
+                # 0 is bad
                 return 0
-            else:
-                return 1
-    return 1
+    return check_aws_run(f)
 
 
 def cb_print_check_all_keys(verbose=True):

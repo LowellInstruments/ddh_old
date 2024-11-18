@@ -31,6 +31,37 @@ MD5_MOD_BTUART = '95da1d6d0bea327aa5426b7f90303778'
 TMP_DDC_ERR = '/tmp/ddc_err'
 
 
+def check_aws_run(f):
+    # f: {'cred_aws_bucket': '',
+    #     'cred_aws_key_id': '',
+    #     'cred_aws_secret': '',
+    #     'cred_aws_sqs_queue_name': '',
+    _k = f['cred_aws_key_id']
+    _s = f["cred_aws_secret"]
+    _n = f["cred_aws_bucket"]
+
+    # 0 is bad
+    if _k is None or _s is None or _n is None:
+        return 0
+
+    # build the AWS command
+    c = (
+        f'AWS_ACCESS_KEY_ID={_k} AWS_SECRET_ACCESS_KEY={_s} '
+        f'aws s3 ls s3://{_n}'
+    )
+
+    # run test AWS ls command
+    try:
+        rv = sp.run(c, shell=True, stdout=sp.PIPE, stderr=sp.PIPE, timeout=10)
+        if rv.returncode:
+            print(f'error: listing buckets {rv.stderr}')
+            return 0
+    except (Exception, ) as ex:
+        print(f'error: check_aws_run -> {ex}')
+        return 0
+    return 1
+
+
 def sh(c):
     rv = sp.run(c, shell=True, stdout=sp.PIPE, stderr=sp.PIPE)
     return rv.returncode
@@ -258,16 +289,18 @@ def ddh_run_check():
     def _check_aws_credentials():
         c = cfg_load_from_file()
         f = c['credentials']
-        _rv = 1
         for k, v in f.items():
             if not v:
                 if 'custom' not in k:
                     _e(f'config.toml no credential {k}')
-                    _rv = 0
-                    break
+                    # 0 is bad
+                    return 0
                 else:
                     _w(f'config.toml no custom credential {k}')
-        return _rv
+        if not check_aws_run(f):
+            _e(f'config.toml AWS credentials cannot connect')
+            return 0
+        return 1
 
     def _check_files():
         path_w = '/etc/wireguard/wg0.conf'
