@@ -121,6 +121,10 @@ def _get_color_by_label(lbl):
         return 'blue'
     if 'Ax' in lbl:
         return 'limegreen'
+    if 'pH_temperature' in lbl:
+        return 'orange'
+    if 'pH' in lbl:
+        return 'blue'
     return 'green'
 
 
@@ -399,6 +403,9 @@ def _process_n_graph(a, r=''):
         y3 = data['Ax TDO']
         y4 = data['Ay TDO']
         y5 = data['Az TDO']
+    elif met == 'pH':
+        lbl1 = 'pH'
+        lbl2 = 'pH_temperature'
     y1 = data[lbl1]
     y2 = data[lbl2]
 
@@ -601,6 +608,20 @@ def _process_n_graph(a, r=''):
 
             # or we could set the x-axis label on top
             # a.g.setTitle(e, color="red", size="15pt")
+
+    if met == 'pH':
+        print('ph time', x)
+        print('ph values', y1)
+        # draw T and D lines
+        p1.setLabel("left", lbl1, **_sty(clr_1))
+        p1.getAxis('right').setLabel(lbl2, **_sty(clr_2))
+        p1.plot(x, y1, pen=pen1, hoverable=True)
+        p2.addItem(pg.PlotCurveItem(x, y2, pen=pen2, hoverable=True))
+
+        # y-axis ranges, bottom-axis label
+        p1.setYRange(0, max(y1) + _axis_room(y1), padding=0)
+        p2.setYRange(min(y2), max(y2), padding=0)
+        p1.getAxis('bottom').setLabel(title, **_sty('black'))
 
     # statistics: benchmark and number of points
     end_ts = time.perf_counter()

@@ -184,6 +184,7 @@ def process_graph_csv_data(fol, h, hi) -> dict:
     _g_ff_p = sorted(glob(f"{fol}/*_Pressure.csv"))
     _g_ff_dot = sorted(glob(f"{fol}/*_DissolvedOxygen.csv"))
     _g_ff_tdo = sorted(glob(f"{fol}/*_TDO.csv"))
+    _g_ff_pH = sorted(glob(f"{fol}/*_pH.csv"))
     n_tdo_pre_test = len(_g_ff_tdo)
 
     # we don't plot files starting with testfile_
@@ -191,6 +192,7 @@ def process_graph_csv_data(fol, h, hi) -> dict:
     _g_ff_p = [i for i in _g_ff_p if TESTMODE_FILENAMEPREFIX not in i]
     _g_ff_dot = [i for i in _g_ff_dot if TESTMODE_FILENAMEPREFIX not in i]
     _g_ff_tdo = [i for i in _g_ff_tdo if TESTMODE_FILENAMEPREFIX not in i]
+    _g_ff_pH = [i for i in _g_ff_pH if TESTMODE_FILENAMEPREFIX not in i]
 
     # fast leaving case for TDO loggers
     if n_tdo_pre_test and not _g_ff_tdo:
@@ -251,6 +253,14 @@ def process_graph_csv_data(fol, h, hi) -> dict:
             _g_ff_tdo = _g_ff_tdo[-1:]
         else:
             _g_ff_tdo = [_g_ff_tdo[hi]]
+    if _g_ff_pH:
+        met = 'pH'
+        if h == 'all':
+            _g_ff_pH = _g_ff_pH
+        elif h == 'last':
+            _g_ff_pH = _g_ff_pH[-1:]
+        else:
+            _g_ff_pH = [_g_ff_pH[hi]]
 
     # check
     if not met:
@@ -269,10 +279,11 @@ def process_graph_csv_data(fol, h, hi) -> dict:
     # read CSV
     # ---------
     x = []
-    t, p, pftm, mpf = [], [], [], []
+    t, p, pftm, mpf, = [], [], [], []
     doc, dot, wat = [], [], []
     tdo_t, tdo_p, tdo_ax, tdo_ay, tdo_az = [], [], [], [], []
     is_moana = False
+    pH, pH_temperature = [], []
 
     if met == 'TP':
         for f in _g_ff_t:
@@ -346,6 +357,15 @@ def process_graph_csv_data(fol, h, hi) -> dict:
                 tdo_t += [np.nan] * _m
                 tdo_p += [np.nan] * _m
 
+    elif met == 'pH':
+        for f in _g_ff_pH:
+            bn = os.path.basename(f)
+            lg.a(f'reading {met} file {bn}')
+            df = cached_read_csv(f)
+            x += list(df['Timestamp'])
+            pH += list(df['pH'])
+            pH_temperature += list(df['Inline_Water_Temperature'])
+
     # simplify stuff
     if not met:
         lg.a(f'error: graph_get_all_csv() unknown metric {met}')
@@ -373,6 +393,8 @@ def process_graph_csv_data(fol, h, hi) -> dict:
     tdo_ax = tdo_ax[::n]
     tdo_ay = tdo_ay[::n]
     tdo_az = tdo_az[::n]
+    pH = pH[::n]
+    pH_temperature = pH_temperature[::n]
 
     # Celsius to Fahrenheit
     tf = [(c * 9 / 5) + 32 for c in t]
@@ -434,5 +456,7 @@ def process_graph_csv_data(fol, h, hi) -> dict:
         'Ay TDO': tdo_ay,
         'Az TDO': tdo_az,
         'pruned': n != 1,
-        'logger_type': lg_t
+        'logger_type': lg_t,
+        'pH': pH,
+        'pH_temperature': pH_temperature
     }
