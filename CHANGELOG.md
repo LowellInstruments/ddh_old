@@ -199,3 +199,7 @@
 4.0.43 - November 18, 2024
 
     better ways to detect process running
+
+4.0.44 - November 22, 2024
+
+    hardcoded DHU="00050" in TDO deploy script

@@ -98,6 +98,11 @@ async def deploy_logger_tdo(mac, sn, cfg_from_menu):
             with open(prf_file) as f:
                 d = json.load(f)
 
+        # send the hardcoded DHU
+        rv = await lc.cmd_scc('DHU', '00050')
+        _e(rv, "scc_dhu")
+        await asyncio.sleep(.1)
+
         # send the SCF commands
         print(f'SCF: loaded {prf_file}')
         for tag, v in d.items():
