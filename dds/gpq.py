@@ -51,12 +51,10 @@ class GpqW:
         if os.path.exists(p):
             _p(f'GPQ_W: already exists {f}')
             self.db.load(p)
-            self.db.add({'t': dt_s, 'lat': lat, 'lon': lon})
         else:
             # don't carry the ones from previous file
             self.db.delete_all()
-            # self.db.load(p)
-            self.db.add({'t': dt_s, 'lat': lat, 'lon': lon})
+        self.db.add({'t': dt_s, 'lat': lat, 'lon': lon})
         self.db.commit(p)
         _p(f'GPQ_W: add {dt_s} -> {f}')
 

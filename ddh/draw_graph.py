@@ -16,7 +16,7 @@ from pyqtgraph import LinearRegionItem
 from pyqtgraph.Qt import QtGui
 
 from ddh.utils_graph import (utils_graph_read_fol_req_file,
-                             utils_graph_get_abs_fol_list, process_graph_csv_data,
+                             utils_graph_get_abs_fol_list, utils_graph_fetch_csv_data,
                              utils_graph_does_exist_fol_req_file,
                              utils_graph_delete_fol_req_file, utils_graph_gfm_classify_file_wc_mode)
 from dds.timecache import is_it_time_to
@@ -24,7 +24,7 @@ from mat.linux import linux_is_process_running
 from mat.utils import linux_is_rpi
 from utils.ddh_config import dds_get_cfg_logger_mac_from_sn
 from utils.ddh_shared import (get_dl_folder_path_from_mac,
-                              get_number_of_hauls, STATE_DDS_BLE_DOWNLOAD_STATISTICS,
+                              get_total_number_of_hauls, STATE_DDS_BLE_DOWNLOAD_STATISTICS,
                               send_ddh_udp_gui as _u, get_ddh_folder_path_dl_files)
 from utils.logs import lg_gra as lg
 
@@ -225,7 +225,7 @@ def _graph_busy_sign_hide(a):
     a.lbl_graph_busy.setVisible(False)
 
 
-def _process_n_graph(a, r=''):
+def _graph_process_n_draw(a, r=''):
 
     # get graph from passed app
     g = a.g
@@ -238,14 +238,10 @@ def _process_n_graph(a, r=''):
     fol: str
 
     # get current haul type
-    _ht = a.cb_g_cycle_haul.currentText()
+    _haul_time_view = a.cb_g_cycle_haul.currentText()
 
     # get zones on / off
     _zt = a.cb_g_paint_zones.currentText()
-
-    # get haul idx
-    if a.g_haul_idx is None:
-        a.g_haul_idx = -1
 
     # get reason passed for graph
     if r == 'BLE':
@@ -271,19 +267,21 @@ def _process_n_graph(a, r=''):
         fol = str(get_dl_folder_path_from_mac(mac))
 
     # get number of hauls
-    nh = get_number_of_hauls(fol)
-    lg.a(f'found {nh} hauls in folder {fol}')
+    nh = get_total_number_of_hauls(fol)
+    lg.a(f'found {nh} total hauls in folder {fol}')
+    if nh == 0:
+        raise GraphException(f'error: no hauls for {fol}')
+
+    # reason for graphing is user changed the single file to plot
     if r == 'hauls_next':
-        # remember this button only active on haul_text == 'single'
-        if nh == 0:
-            raise GraphException(f'error: no hauls for {fol}')
-        a.g_haul_idx = (a.g_haul_idx - 1) % nh
-        lg.a(f'button haul index = {a.g_haul_idx} / {nh}')
+        # we manage this when fetching CSV data
+        pass
+
+    # reason for graphing is user changed the type of time in plot
     if r == 'hauls_labels':
-        if _ht == 'single':
+        if _haul_time_view == 'single':
             a.btn_g_next_haul.setEnabled(True)
             a.btn_g_next_haul.setVisible(True)
-            a.g_haul_idx = -1
         else:
             a.btn_g_next_haul.setEnabled(False)
             a.btn_g_next_haul.setVisible(False)
@@ -355,7 +353,12 @@ def _process_n_graph(a, r=''):
     # ==========================
     # PROCESS folder's CSV data
     # ==========================
-    data = process_graph_csv_data(fol, _ht, a.g_haul_idx)
+    pressed_haul_next = r == 'hauls_next'
+    data = utils_graph_fetch_csv_data(
+        fol,
+        _haul_time_view,
+        pressed_haul_next
+    )
     if not data:
         lg.a(f'warning: no data to plot in folder {fol}')
         raise GraphException(f'no data to plot')
@@ -656,10 +659,10 @@ def _process_n_graph(a, r=''):
         lg.a(f'warning: exception {ex} while doing summary box')
 
 
-def process_n_graph(a, r=''):
+def graph_process_n_draw(a, r=''):
     try:
         _graph_busy_sign_show(a)
-        _process_n_graph(a, r)
+        _graph_process_n_draw(a, r)
         # remove any past error
         a.g.setTitle('')
 

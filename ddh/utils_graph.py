@@ -16,6 +16,10 @@ from utils.units import dbar_to_fathoms
 
 CTT_ATM_PRESSURE_DBAR = 10.1325
 
+d_last_haul_index = {
+    # fol: haul_index
+}
+
 
 def _gfm_build_filename_wc(path):
     # wc: water column, legacy versions called fast (profiling) mode graph (fmg)
@@ -171,26 +175,63 @@ def _data_get_prune_period(x, met):
 
 
 @lru_cache(maxsize=512)
-def cached_read_csv(f):
+def _utils_graph_cached_read_csv(f):
     df = pd.read_csv(f)
     if df.empty:
         lg.a(f'warning: no data for file {f}')
     return df
 
 
-def process_graph_csv_data(fol, h, hi) -> dict:
+@lru_cache(maxsize=512)
+def _utils_graph_tdo_been_in_water(f):
+    # calculate filenames which tell us in-water or not for this file
+    f_wc = _gfm_build_filename_wc(f)
+    f_nowc = _gfm_build_filename_no_wc(f)
+    if os.path.exists(f_wc):
+        return True
+    if os.path.exists(f_nowc):
+        return False
 
+    # there is no such file, let's calculate it
+    df = _utils_graph_cached_read_csv(f)
+    # df_iw: dataframe of values in water
+    df_iw = df[df['Pressure (dbar)'] > 12]
+    bn = os.path.basename(f)
+    been_in_water = len(df_iw) > 0
+    print(f'has {bn} been in water? {been_in_water}')
+    if been_in_water:
+        pathlib.Path(f_wc).touch()
+    else:
+        pathlib.Path(f_nowc).touch()
+    return been_in_water
+
+
+def utils_graph_fetch_csv_data(
+        fol,
+        htv,    # htt: haul time view, 'all', 'last', 'single'
+        pressed_haul_next
+) -> dict:
+
+    # grab all CSV files for all metrics for this folder
     _g_ff_t = sorted(glob(f"{fol}/*_Temperature.csv"))
     _g_ff_p = sorted(glob(f"{fol}/*_Pressure.csv"))
     _g_ff_dot = sorted(glob(f"{fol}/*_DissolvedOxygen.csv"))
     _g_ff_tdo = sorted(glob(f"{fol}/*_TDO.csv"))
     n_tdo_pre_test = len(_g_ff_tdo)
 
-    # we don't plot files starting with testfile_
+    # don't plot files starting with testfile_
     _g_ff_t = [i for i in _g_ff_t if TESTMODE_FILENAMEPREFIX not in i]
     _g_ff_p = [i for i in _g_ff_p if TESTMODE_FILENAMEPREFIX not in i]
     _g_ff_dot = [i for i in _g_ff_dot if TESTMODE_FILENAMEPREFIX not in i]
     _g_ff_tdo = [i for i in _g_ff_tdo if TESTMODE_FILENAMEPREFIX not in i]
+
+    # don't plot TDO files which are too small (~50 bytes per line)
+    _g_ff_tdo = [i for i in _g_ff_tdo if os.path.getsize(i) > 1024]
+    _g_ff_tdo = [i for i in _g_ff_tdo if _utils_graph_tdo_been_in_water(i)]
+
+    # debug: show them
+    # for i in _g_ff_tdo:
+    #     print(os.path.basename(i), os.path.getsize(i))
 
     # fast leaving case for TDO loggers
     if n_tdo_pre_test and not _g_ff_tdo:
@@ -217,37 +258,49 @@ def process_graph_csv_data(fol, h, hi) -> dict:
         _g_ff_t = sorted(_g_ff_t, key=lambda x: os.path.basename(x).split('_')[3])
         _g_ff_p = sorted(_g_ff_p, key=lambda x: os.path.basename(x).split('_')[3])
 
+    # get number of hauls
+    nh = max(len(_g_ff_t), len(_g_ff_p), len(_g_ff_dot), len(_g_ff_tdo))
+
+    # calculate haul index
+    hi = -1
+    if fol not in d_last_haul_index.keys():
+        d_last_haul_index[fol] = -1
+    if pressed_haul_next:
+        d_last_haul_index[fol] = (d_last_haul_index[fol] - 1) % nh
+        hi = d_last_haul_index[fol]
+        lg.a(f'asked haul #{hi} / {nh} for folder {fol}')
+
     # type of haul to graph
     met = ''
     if _g_ff_t:
         met = 'TP'
-        if h == 'all':
+        if htv == 'all':
             _g_ff_t = _g_ff_t
-        elif h == 'last':
+        elif htv == 'last':
             _g_ff_t = _g_ff_t[-1:]
         else:
             _g_ff_t = [_g_ff_t[hi]]
     if _g_ff_p:
         met = 'TP'
-        if h == 'all':
+        if htv == 'all':
             _g_ff_p = _g_ff_p
-        elif h == 'last':
+        elif htv == 'last':
             _g_ff_p = _g_ff_p[-1:]
         else:
             _g_ff_p = [_g_ff_p[hi]]
     if _g_ff_dot:
         met = 'DO'
-        if h == 'all':
+        if htv == 'all':
             _g_ff_dot = _g_ff_dot
-        elif h == 'last':
+        elif htv == 'last':
             _g_ff_dot = _g_ff_dot[-1:]
         else:
             _g_ff_dot = [_g_ff_dot[hi]]
     if _g_ff_tdo:
         met = 'TDO'
-        if h == 'all':
+        if htv == 'all':
             _g_ff_tdo = _g_ff_tdo
-        elif h == 'last':
+        elif htv == 'last':
             _g_ff_tdo = _g_ff_tdo[-1:]
         else:
             _g_ff_tdo = [_g_ff_tdo[hi]]
@@ -260,14 +313,14 @@ def process_graph_csv_data(fol, h, hi) -> dict:
     # summary
     rv: dict
     s = "graph parameters:\n\tmetric {}\n\tfolder {}\n\thauls {}\n\thi {}"
-    lg.a(s.format(met, basename(fol), h, hi))
+    lg.a(s.format(met, basename(fol), htv, hi))
 
     # calculate time performance of data-grabbing procedure
     start_ts = time.perf_counter()
 
-    # ---------
-    # read CSV
-    # ---------
+    # ================
+    # read cached CSV
+    # ================
     x = []
     t, p, pftm, mpf = [], [], [], []
     doc, dot, wat = [], [], []
@@ -277,12 +330,12 @@ def process_graph_csv_data(fol, h, hi) -> dict:
     if met == 'TP':
         for f in _g_ff_t:
             lg.a(f'reading T file {basename(f)}')
-            df = cached_read_csv(f)
+            df = _utils_graph_cached_read_csv(f)
             x += list(df['ISO 8601 Time'])
             t += list(df['Temperature (C)'])
         for f in _g_ff_p:
             lg.a(f'reading P file {basename(f)}')
-            df = cached_read_csv(f)
+            df = _utils_graph_cached_read_csv(f)
             p += list(df['Pressure (dbar)'])
             is_moana = 'MOANA' in f or 'moana' in f
 
@@ -296,7 +349,7 @@ def process_graph_csv_data(fol, h, hi) -> dict:
         for f in _g_ff_dot:
             bn = os.path.basename(f)
             lg.a(f'reading DO file {bn}')
-            df = cached_read_csv(f)
+            df = _utils_graph_cached_read_csv(f)
             x += list(df['ISO 8601 Time'])
             _m = len(list(df['ISO 8601 Time']))
 
@@ -326,7 +379,7 @@ def process_graph_csv_data(fol, h, hi) -> dict:
         for f in _g_ff_tdo:
             bn = os.path.basename(f)
             lg.a(f'reading {met} file {bn}')
-            df = cached_read_csv(f)
+            df = _utils_graph_cached_read_csv(f)
             x += list(df['ISO 8601 Time'])
             _m = len(list(df['ISO 8601 Time']))
 

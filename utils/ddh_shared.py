@@ -311,7 +311,7 @@ def get_utc_offset():
     return utc_offset
 
 
-def get_number_of_hauls(path):
+def get_total_number_of_hauls(path):
     # path: /home/kaz/PycharmProjects/ddh/dl_files/<mac>
     ls_lid = len(glob.glob(f'{path}/*.lid'))
     ls_bin = (len(glob.glob(f'{path}/moana*.bin')) +

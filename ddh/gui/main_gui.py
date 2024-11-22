@@ -14,7 +14,7 @@ from PyQt5.QtGui import QMovie
 from PyQt5.QtWidgets import QMainWindow, QMessageBox
 import ddh.gui.designer_main as d_m
 from ddh.db.db_his import DbHis
-from ddh.draw_graph import process_n_graph
+from ddh.draw_graph import graph_process_n_draw
 from ddh.utils_gui import (
     gui_hide_edit_tab,
     gui_hide_note_tab,
@@ -629,9 +629,9 @@ class DDH(QMainWindow, d_m.Ui_MainWindow):
         self.map_filename = m
 
     def click_chk_plt_only_inside_water(self, _):
-        from ddh.utils_graph import cached_read_csv
+        from ddh.utils_graph import _utils_graph_cached_read_csv
         # from ddh.utils_graph import process_graph_csv_data
-        cached_read_csv.cache_clear()
+        _utils_graph_cached_read_csv.cache_clear()
         # process_graph_csv_data.cache_clear()
         p = LI_PATH_PLOT_ONLY_DATA_IN_WATER
         if self.chk_plt_only_inside_water.isChecked():
@@ -641,22 +641,22 @@ class DDH(QMainWindow, d_m.Ui_MainWindow):
 
     def click_graph_btn_reset(self):
         self.g.getPlotItem().enableAutoRange()
-        process_n_graph(self)
+        graph_process_n_draw(self)
 
     def click_graph_listview_logger_sn(self, _):
-        process_n_graph(self)
+        graph_process_n_draw(self)
 
     def click_graph_btn_next_haul(self):
-        process_n_graph(self, r='hauls_next')
+        graph_process_n_draw(self, r='hauls_next')
 
     def click_graph_lbl_haul_types(self, _):
-        process_n_graph(self, r='hauls_labels')
+        graph_process_n_draw(self, r='hauls_labels')
 
     def click_graph_btn_paint_zones(self, _):
-        process_n_graph(self)
+        graph_process_n_draw(self)
 
     def click_graph_cb_switch_tp(self, _):
-        process_n_graph(self)
+        graph_process_n_draw(self)
 
 
 def on_ctrl_c(signal_num, _):

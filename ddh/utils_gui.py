@@ -16,7 +16,7 @@ from PyQt5.QtWidgets import (
     QHeaderView, QTableWidget,
 )
 from ddh.db.db_his import DbHis
-from ddh.draw_graph import process_n_graph
+from ddh.draw_graph import graph_process_n_draw
 from ddh.utils_maps import gui_populate_maps_tab
 from dds.emolt import this_box_has_grouped_s3_uplink
 from dds.timecache import is_it_time_to
@@ -131,7 +131,6 @@ def gui_setup_timers(a):
 
 def gui_setup_graph_tab(a):
     a.g = pg.PlotWidget(axisItems={'bottom': pg.DateAxisItem()})
-    a.g_haul_idx = None
     a.lay_g_h2.addWidget(a.g)
     a.g.setBackground('w')
     a.btn_g_next_haul.setEnabled(False)
@@ -777,7 +776,7 @@ def _gui_parse_udp(my_app, s, ip="127.0.0.1"):
         if ip != "127.0.0.1":
             lg.a("not graphing remote downloads")
             return
-        process_n_graph(a, r='BLE')
+        graph_process_n_draw(a, r='BLE')
 
     # ----------------------------------
     # other fields that are not states
