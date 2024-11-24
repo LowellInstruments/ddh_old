@@ -60,6 +60,7 @@ async def ep_del(mac):
     if use != 1:
         return
     global g_d
+
     if mac in g_d.keys():
         _p(f'del {mac}')
         del g_d[mac]
@@ -69,8 +70,9 @@ async def ep_del(mac):
 async def ep_del_all():
     if use != 1:
         return
-    _p('del_all')
     global g_d
+
+    _p('del_all')
     g_d = {}
 
 
@@ -103,13 +105,13 @@ async def ep_get(mac):
 async def ep_list():
     if use != 1:
         return
+    global g_d
 
     # use this method only when debugging
     if not DEBUG:
         _p('list method NOT to be used on production')
         return
 
-    global g_d
     if not g_d:
         _p('list is empty')
         return {}
