@@ -203,3 +203,8 @@
 4.0.44 - November 22, 2024
 
     hardcoded DHU="00050" in TDO deploy script
+
+4.0.45 - November 24, 2024
+
+    new LOCAL API main_dda for features such as smart lock out time
+
