@@ -57,6 +57,9 @@ async def ep_add(mac, forced):
 
 @app.get('/del')
 async def ep_del(mac):
+    # use cases:
+    #    - done automatically by get()
+    #    - button clear specific lock-out time
     if use != 1:
         return
     global g_d
@@ -68,6 +71,8 @@ async def ep_del(mac):
 
 @app.get('/del_all')
 async def ep_del_all():
+    # use cases:
+    #    - button clear all lock-out time
     if use != 1:
         return
     global g_d
@@ -78,6 +83,8 @@ async def ep_del_all():
 
 @app.get('/get')
 async def ep_get(mac):
+    # use cases:
+    #     - extra condition when mac_is_not_in_Black
     if use != 1:
         return
     global g_d
