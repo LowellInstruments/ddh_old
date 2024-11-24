@@ -12,7 +12,7 @@ from utils.ddh_config import exp_get_use_smart_lock_out_time
 # instead, DDN port is 9000 & 9001, other API port is 8000 & 80001
 DDA_PORT = 8050
 NAME_EXE_DDA = "main_dda"
-MAX_TIME_ELAPSED = 5 * 60
+MAX_TIME_DIFF = 5 * 60
 app = FastAPI()
 use = exp_get_use_smart_lock_out_time()
 # g_d: global dictionary loggers last seen
@@ -23,47 +23,35 @@ g_d = {}
 DEBUG = True
 if DEBUG:
     use = 1
-    MAX_TIME_ELAPSED = 3
+    MAX_TIME_DIFF = 3
+
+
+def _get_now():
+    return int(time.perf_counter())
 
 
 
 def _p(s):
-    print(s)
+    print(f'    {s}')
 
 
 @app.get('/add')
-async def ep_add(mac, forced):
-    # use cases:
-    #    - just download a logger, forced is 1
-    #    - seen a logger
+async def ep_add(mac):
+    # used when just download a logger
     if use != 1:
         return
     global g_d
-    t_now = time.perf_counter()
-
-    # fresh new
-    if forced:
-        g_d[mac] = t_now
-        print(f'add {mac}')
-        return
-
-    # not expired, update
-    t_old = g_d[mac]
-    if mac in g_d.keys():
-        if t_now <= t_old + MAX_TIME_ELAPSED:
-            g_d[mac] = t_now
-            _p(f'update {mac}')
+    t_n = _get_now()
+    _p(f'add {mac} | {t_n}')
+    g_d[mac] = t_n
 
 
 @app.get('/del')
 async def ep_del(mac):
-    # use cases:
-    #    - done automatically by get()
-    #    - button clear specific lock-out time
+    # used on button clear specific lock-out time
     if use != 1:
         return
     global g_d
-
     if mac in g_d.keys():
         _p(f'del {mac}')
         del g_d[mac]
@@ -71,41 +59,50 @@ async def ep_del(mac):
 
 @app.get('/del_all')
 async def ep_del_all():
-    # use cases:
-    #    - button clear all lock-out time
+    # used on button clear all lock-out time
     if use != 1:
         return
     global g_d
-
     _p('del_all')
     g_d = {}
 
 
-@app.get('/get')
-async def ep_get(mac):
-    # use cases:
-    #     - extra condition when mac_is_not_in_Black
+@app.get('/update')
+async def ep_update(mac):
+    # used when seen a logger in conjunction with get
     if use != 1:
         return
     global g_d
-    t_now = time.perf_counter()
+    if mac not in g_d.keys():
+        return
+    t_n = _get_now()
+    _p(f'update {mac} | {t_n}')
+    g_d[mac] = t_n
 
-    # not even in dictionary
+
+@app.get('/get')
+async def ep_get(mac):
+    # used when querying after mac_is_not_in_Black
+    # used in conjunction with update
+    if use != 1:
+        return 0
+    global g_d
+    t_n = _get_now()
     if mac not in g_d.keys():
         _p(f'get {mac} not present')
         return 0
 
-    # not expired
-    t_old = g_d[mac]
-    if t_now <= t_old + MAX_TIME_ELAPSED:
-        g_d[mac] = t_now
-        _p(f'get {mac} present')
-        return 1
+    t_o = g_d[mac]
+    if t_n > t_o + MAX_TIME_DIFF:
+        # present but expired
+        s = (f'get {mac} | {t_o} -> expired because '
+             f'{t_o} differs > {MAX_TIME_DIFF} from now {t_n}')
+        _p(s)
+        return 0
 
-    # expired
-    del g_d[mac]
-    _p(f'get {mac} present but expired, delete')
-    return 0
+    # present and not expired
+    _p(f'get {mac} | {t_o}')
+    return 1
 
 
 @app.get('/list')
@@ -114,20 +111,19 @@ async def ep_list():
         return
     global g_d
 
-    # use this method only when debugging
+    # enable this method only when debugging
     if not DEBUG:
         _p('list method NOT to be used on production')
         return
 
-    if not g_d:
-        _p('list is empty')
-        return {}
-
-    _p('list:')
-    t_now = time.perf_counter()
-    for mac, t_old in g_d.items():
-        s = 'v' if t_now <= t_old + MAX_TIME_ELAPSED else 'x'
-        _p(f'  [ {s} ] {mac}')
+    t_n = _get_now()
+    if g_d:
+        _p(f'now {int(t_n)}, list:')
+    else:
+        _p(f'now {int(t_n)}, list: EMPTY')
+    for mac, t_o in g_d.items():
+        s = 'v' if t_n <= t_o + MAX_TIME_DIFF else 'x'
+        _p(f'    [ {s} ] {mac} | {t_o}')
     return g_d
 
 
@@ -151,13 +147,34 @@ if __name__ == "__main__":
     else:
         _p('calling main_dda_as_thread')
         main_dda_as_th()
-        # test
+        _m = "11"
         time.sleep(1)
         u = f'http://0.0.0.0:{DDA_PORT}'
+
+        # add value
+        requests.get(f'{u}/add?mac={_m}')
+        _p('sleep 1')
+        time.sleep(1)
+        _p(f'now is {_get_now()}')
+
+        # query, it is there, and update
+        rv = requests.get(f'{u}/get?mac={_m}')
+        if rv:
+            requests.get(f'{u}/update?mac={_m}')
+        else:
+            requests.get(f'{u}/del?mac={_m}')
+        _p('sleep 1')
+        time.sleep(1)
+        _p(f'now is {_get_now()}')
         rv = requests.get(f'{u}/list')
-        requests.get(f'{u}/add?mac=11&forced=1')
+
+        # query after too much time, will not update
+        _p(f'sleep {MAX_TIME_DIFF + 1}')
+        time.sleep(MAX_TIME_DIFF + 1)
+        _p(f'now is {_get_now()}')
+        rv = requests.get(f'{u}/get?mac={_m}')
+        if int(rv.text):
+            requests.get(f'{u}/update?mac={_m}')
+        else:
+            requests.get(f'{u}/del?mac={_m}')
         rv = requests.get(f'{u}/list')
-        print('rv list', rv.text)
-        time.sleep(MAX_TIME_ELAPSED + 1)
-        rv = requests.get(f'{u}/list')
-        print('rv list', rv.text)
