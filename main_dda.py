@@ -3,6 +3,7 @@ import multiprocessing
 import threading
 import time
 import setproctitle
+import subprocess as sp
 import uvicorn
 from fastapi import FastAPI
 import requests
@@ -133,11 +134,18 @@ def main_dda_as_th():
 
 
 def main_dda():
+    # remove any failed previous runs
+    killall_main_dda()
     def _main_dda():
         setproctitle.setproctitle(NAME_EXE_DDA)
         uvicorn.run(app, host="0.0.0.0", port=DDA_PORT)
     p = multiprocessing.Process(target=_main_dda)
     p.start()
+
+
+def killall_main_dda():
+    c = f'killall {NAME_EXE_DDA}'
+    sp.run(c, shell=True)
 
 
 if __name__ == "__main__":
