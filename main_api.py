@@ -8,31 +8,58 @@ import sys
 import time
 from multiprocessing import Process
 import setproctitle
-from api.api_utils import (api_get_ip_vpn, api_get_ip_wlan, api_get_ip_cell,
-                           api_get_running_ddh_dds, api_get_crontab_ddh, _sh,
-                           api_set_crontab,
-                           api_get_ble_state, api_get_gps,
-                           api_get_logger_mac_reset_files,
-                           api_get_commits,
-                           api_get_full_ddh_config_file_path,
-                           api_linux_is_rpi,
-                           api_get_folder_path_root, api_ddt_get_folder_path_root,
-                           api_get_uptime, api_get_crontab_api, api_read_aws_sqs_ts,
-                           api_get_timezone, CTT_API_OK,
-                           CTT_API_ER, api_get_uptime_secs, api_ddh_get_folder_dl_files,
-                           api_get_ddh_folder_path_macs_black, api_get_ddh_sw_version,
-                           api_get_utc_epoch, api_get_api_version, api_get_ble_iface,
-                           get_files_from_server, api_get_gps_iface,
-                           api_get_fw_cell_version, api_get_wlan_mbps,
-                           api_get_internet_via, api_get_kernel, api_send_email_crash, api_linux_is_process_running,
-                           api_get_disk_capacity,
-                           )
+from api.api_utils import (
+    api_get_ip_vpn,
+    api_get_ip_wlan,
+    api_get_ip_cell,
+    api_get_running_ddh_dds,
+    api_get_crontab_ddh,
+    _sh,
+    api_set_crontab,
+    api_get_ble_state, api_get_gps,
+    api_get_logger_mac_reset_files,
+    api_get_commits,
+    api_get_full_ddh_config_file_path,
+    api_linux_is_rpi,
+    api_get_folder_path_root,
+    api_ddt_get_folder_path_root,
+    api_get_uptime,
+    api_get_crontab_api,
+    api_read_aws_sqs_ts,
+    api_get_timezone,
+    CTT_API_OK,
+    CTT_API_ER,
+    api_get_uptime_secs,
+    api_ddh_get_folder_dl_files,
+    api_get_ddh_folder_path_macs_black,
+    api_get_ddh_sw_version,
+    api_get_utc_epoch,
+    api_get_api_version,
+    api_get_ble_iface,
+    get_files_from_server,
+    api_get_gps_iface,
+    api_get_fw_cell_version,
+    api_get_wlan_mbps,
+    api_get_internet_via,
+    api_get_kernel,
+    api_send_email_crash,
+    api_linux_is_process_running,
+    api_get_disk_capacity, api_ddh_side_button_2
+)
 from ddh.db.db_his import DbHis
-from utils.ddh_config import (dds_get_cfg_vessel_name,
-                              dds_get_cfg_box_sn, dds_get_cfg_box_project,
-                              dds_get_cfg_monitored_pairs)
+from utils.ddh_config import (
+    dds_get_cfg_vessel_name,
+    dds_get_cfg_box_sn,
+    dds_get_cfg_box_project,
+    dds_get_cfg_monitored_pairs
+)
 import uvicorn
-from fastapi import FastAPI, UploadFile, File, HTTPException
+from fastapi import (
+    FastAPI,
+    UploadFile,
+    File,
+    HTTPException
+)
 import os
 from fastapi.responses import FileResponse
 import concurrent.futures
@@ -42,6 +69,7 @@ from utils.flag_paths import (
     TMP_PATH_DDH_APP_OVERRIDE,
     TMP_PATH_DDH_GOT_UPDATE
 )
+
 
 # instead, the DDN port is 9000 & 9001
 DDH_PORT_API = 8000
@@ -425,10 +453,16 @@ async def ep_provision():
     return {'provision': CTT_API_OK}
 
 
-@app.get("/api_test_crash")
+@app.get("/test_crash")
 async def ep_api_test_crash():
     # just lose it
     os._exit(-1)
+
+
+@app.get("/ddh_side_button_2")
+async def ep_api_ddh_side_button_2():
+    api_ddh_side_button_2()
+    return {'ddh_side_button_2': CTT_API_OK}
 
 
 def _alarm_api_crash(n):

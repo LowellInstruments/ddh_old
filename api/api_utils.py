@@ -4,6 +4,7 @@ import json
 import pathlib
 import platform
 import shutil
+import socket
 import subprocess as sp
 
 import boto3
@@ -30,8 +31,10 @@ from utils.flag_paths import (
 )
 
 
+_sk = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 CTT_API_OK = 'ok'
 CTT_API_ER = 'error'
+DDH_GUI_UDP_PORT = 12349
 
 
 def api_get_api_version():
@@ -495,6 +498,23 @@ def api_send_email_crash():
     # detect errors
     if rsp['ResponseMetadata']['HTTPStatusCode'] != 200:
         print(f'error: api_send_email_crash() -> {rsp}')
+
+
+def _send_ddh_udp_gui(s, ip="127.0.0.1", port=DDH_GUI_UDP_PORT):
+    if "/" not in s:
+        s += "/"
+
+    _sk.sendto(s.encode(), (ip, port))
+    if ip == "127.0.0.1":
+        # only once on local cases
+        return
+
+    # on remote cases, both local and remote
+    _sk.sendto(s.encode(), (ip, port))
+
+
+def api_ddh_side_button_2():
+    _send_ddh_udp_gui('state_dds_pressed_button2')
 
 
 if __name__ == '__main__':
