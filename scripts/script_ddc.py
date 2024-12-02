@@ -46,11 +46,9 @@ def check_aws_run(f):
         return 0
 
     # build the AWS command
-    _flag = '/tmp/testfile_ddc.tst'
     c = (
-        f'touch {_flag} &&'
         f'AWS_ACCESS_KEY_ID={_k} AWS_SECRET_ACCESS_KEY={_s} '
-        f'aws s3 cp {_flag} s3://{_n}'
+        f'aws s3 ls s3://{_n}'
     )
 
     # run test AWS ls command
@@ -269,7 +267,7 @@ def ddh_run_check():
 
         version = ''
         for p in ls:
-            till = time.perf_counter() + 1
+            till = time.perf_counter() + .3
             b = bytes()
             ser = None
             try:
