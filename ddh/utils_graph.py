@@ -9,7 +9,7 @@ import dateutil.parser as dp
 import pandas as pd
 from utils.ddh_config import dds_get_cfg_flag_graph_test_mode, ddh_get_file_flag_plot_wc
 from utils.ddh_shared import (get_ddh_folder_path_dl_files,
-                              get_dl_folder_path_from_mac, TESTMODE_FILENAMEPREFIX)
+                              get_dl_folder_path_from_mac, TESTMODE_FILENAME_PREFIX)
 from utils.logs import lg_gra as lg
 from utils.flag_paths import TMP_PATH_GRAPH_REQ_JSON
 from utils.units import dbar_to_fathoms
@@ -220,10 +220,10 @@ def utils_graph_fetch_csv_data(
     n_tdo_pre_test = len(_g_ff_tdo)
 
     # don't plot files starting with testfile_
-    _g_ff_t = [i for i in _g_ff_t if TESTMODE_FILENAMEPREFIX not in i]
-    _g_ff_p = [i for i in _g_ff_p if TESTMODE_FILENAMEPREFIX not in i]
-    _g_ff_dot = [i for i in _g_ff_dot if TESTMODE_FILENAMEPREFIX not in i]
-    _g_ff_tdo = [i for i in _g_ff_tdo if TESTMODE_FILENAMEPREFIX not in i]
+    _g_ff_t = [i for i in _g_ff_t if TESTMODE_FILENAME_PREFIX not in i]
+    _g_ff_p = [i for i in _g_ff_p if TESTMODE_FILENAME_PREFIX not in i]
+    _g_ff_dot = [i for i in _g_ff_dot if TESTMODE_FILENAME_PREFIX not in i]
+    _g_ff_tdo = [i for i in _g_ff_tdo if TESTMODE_FILENAME_PREFIX not in i]
 
     # don't plot TDO files which are too small (~50 bytes per line)
     _g_ff_tdo = [i for i in _g_ff_tdo if os.path.getsize(i) > 1024]

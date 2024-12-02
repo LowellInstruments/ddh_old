@@ -15,7 +15,7 @@ from utils.ddh_shared import (
     send_ddh_udp_gui as _u,
     get_ddh_folder_path_dl_files,
     STATE_DDS_NOTIFY_CONVERSION_ERR,
-    STATE_DDS_NOTIFY_CONVERSION_OK
+    STATE_DDS_NOTIFY_CONVERSION_OK, TESTMODE_FILENAME_PREFIX
 )
 import pandas as pd
 
@@ -106,6 +106,8 @@ def _cnv_fol_lid(fol, suf) -> list:
     for f in linux_ls_by_ext(fol, "lid"):
         # IGNORE test_files
         if os.path.basename(f).startswith('test'):
+            continue
+        if TESTMODE_FILENAME_PREFIX in os.path.basename(f):
             continue
 
         # IGNORE when CSV files already exists

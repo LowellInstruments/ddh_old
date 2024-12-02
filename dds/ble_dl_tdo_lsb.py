@@ -16,7 +16,7 @@ from utils.ddh_shared import (
     BLEAppException, create_folder_logger_by_mac,
     get_dl_folder_path_from_mac,
     send_ddh_udp_gui as _u,
-    STATE_DDS_BLE_LOW_BATTERY, TESTMODE_FILENAMEPREFIX,
+    STATE_DDS_BLE_LOW_BATTERY, TESTMODE_FILENAME_PREFIX,
     STATE_DDS_BLE_DOWNLOAD_ERROR_TP_SENSOR,
     get_ddh_do_not_rerun_flag_li, STATE_DDS_BLE_ERROR_RUN,
 )
@@ -164,7 +164,7 @@ def _dl_logger_tdo_lsb(mac, g, notes: dict, u, hs):
         # save file in our local disk
         del_name = name
         if dds_get_cfg_flag_download_test_mode():
-            name = TESTMODE_FILENAMEPREFIX + name
+            name = TESTMODE_FILENAME_PREFIX + name
         path = str(get_dl_folder_path_from_mac(mac) / name)
         with open(path, "wb") as f:
             f.write(file_data)

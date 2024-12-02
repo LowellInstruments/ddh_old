@@ -31,7 +31,7 @@ from utils.ddh_shared import (
     BLEAppException,
     ael,
     get_ddh_do_not_rerun_flag_li,
-    TESTMODE_FILENAMEPREFIX,
+    TESTMODE_FILENAME_PREFIX,
 )
 from utils.logs import lg_dds as lg
 from utils.ddh_shared import (
@@ -158,7 +158,7 @@ class BleCC26X2Download:
             # save file in our local disk
             del_name = name
             if dds_get_cfg_flag_download_test_mode() and name != MC_FILE:
-                name = TESTMODE_FILENAMEPREFIX + name
+                name = TESTMODE_FILENAME_PREFIX + name
             path = str(get_dl_folder_path_from_mac(mac) / name)
             with open(path, "wb") as f:
                 f.write(file_data)

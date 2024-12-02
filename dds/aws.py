@@ -24,7 +24,7 @@ from utils.ddh_shared import (
     STATE_DDS_NOTIFY_CLOUD_BUSY,
     STATE_DDS_NOTIFY_CLOUD_ERR,
     STATE_DDS_NOTIFY_CLOUD_OK,
-    dds_get_aws_has_something_to_do_via_gui_flag_file, ddh_get_db_status_file
+    dds_get_aws_has_something_to_do_via_gui_flag_file, ddh_get_db_status_file, TESTMODE_FILENAME_PREFIX
 )
 from utils.logs import lg_aws as lg
 
@@ -148,9 +148,11 @@ def _aws_s3_sync_process():
             # 3333333_low_20240521_101541_DissolvedOxygen.csv
             f'--include "*_*_{y}????_*_*.csv" '
             f'--include "*_*_{y}????_*_*.cst" '
-            # do not upload these
+            # do not upload these for graph test mode
             '--exclude "test_*.csv" '
             '--exclude "test_*.lid" '
+            # do not upload these for download test mode
+            f'--exclude "{TESTMODE_FILENAME_PREFIX}_*.*" '
             # 2024-07-24T14:11:07Z#nameofboat_track
             f'--include "{y}-*.txt" '
             f'{dr}'

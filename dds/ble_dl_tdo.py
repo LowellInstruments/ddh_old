@@ -20,7 +20,7 @@ from utils.ddh_shared import (
     STATE_DDS_BLE_ERROR_RUN,
     STATE_DDS_BLE_DOWNLOAD_ERROR_TP_SENSOR,
     BLEAppException, ael, get_ddh_do_not_rerun_flag_li,
-    TESTMODE_FILENAMEPREFIX, STATE_DDS_BLE_DOWNLOAD_PROGRESS,
+    TESTMODE_FILENAME_PREFIX, STATE_DDS_BLE_DOWNLOAD_PROGRESS,
     STATE_DDS_BLE_LOW_BATTERY
 )
 from utils.logs import lg_dds as lg
@@ -128,7 +128,7 @@ class BleTDODownload:
 
             # save file in our local disk
             if dds_get_cfg_flag_download_test_mode():
-                name = TESTMODE_FILENAMEPREFIX + name
+                name = TESTMODE_FILENAME_PREFIX + name
             path = str(get_dl_folder_path_from_mac(mac) / name)
             with open(path, "wb") as f:
                 f.write(file_data)
@@ -313,7 +313,7 @@ class BleTDODownload:
             # save file in our local disk
             del_name = name
             if dds_get_cfg_flag_download_test_mode():
-                name = TESTMODE_FILENAMEPREFIX + name
+                name = TESTMODE_FILENAME_PREFIX + name
             path = str(get_dl_folder_path_from_mac(mac) / name)
             with open(path, "wb") as f:
                 f.write(file_data)

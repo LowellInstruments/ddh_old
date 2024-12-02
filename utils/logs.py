@@ -6,7 +6,7 @@ from dds.timecache import is_it_time_to
 from utils.ddh_config import dds_get_cfg_vessel_name, dds_get_cfg_flag_download_test_mode
 from utils.ddh_shared import (
     get_ddh_folder_path_logs,
-    get_ddh_folder_path_dl_files, get_ddh_folder_path_lef, TESTMODE_FILENAMEPREFIX,
+    get_ddh_folder_path_dl_files, get_ddh_folder_path_lef, TESTMODE_FILENAME_PREFIX,
 )
 from mat.utils import PrintColors as PC
 
@@ -162,7 +162,7 @@ def dds_log_tracking_add(lat, lon, tg):
         g_last_file_out = file_out
     if dds_get_cfg_flag_download_test_mode():
         file_out = os.path.dirname(file_out) + '/' + \
-                   TESTMODE_FILENAMEPREFIX + os.path.basename(file_out)
+                   TESTMODE_FILENAME_PREFIX + os.path.basename(file_out)
 
     # -----------------------------
     # write the tracking line alone
