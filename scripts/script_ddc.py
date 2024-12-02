@@ -29,6 +29,7 @@ VP_GPS_PUCK_1 = '067B:2303'
 VP_GPS_PUCK_2 = '067B:23A3'
 MD5_MOD_BTUART = '95da1d6d0bea327aa5426b7f90303778'
 TMP_DDC_ERR = '/tmp/ddc_err'
+DEBUG_TIME = False
 
 
 def check_aws_run(f):
@@ -328,7 +329,6 @@ def ddh_run_check():
     # grep exact (-w) for 'active' detection
     # dwservice
     # -----------------------------------------------------
-    _ts = time.perf_counter()
     ok_issue_20240315 = sh('cat /boot/issue.txt | grep 2024-03-15') == 0
     ok_issue_20230503 = sh('cat /boot/issue.txt | grep 2023-05-03') == 0
     ok_issue_20220922 = sh('cat /boot/issue.txt | grep 2022-09-22') == 0
@@ -341,18 +341,44 @@ def ddh_run_check():
     flag_mod_btuart = sh(f'md5sum /usr/bin/btuart | grep {MD5_MOD_BTUART}') == 0
     ok_ble_v = sh('bluetoothctl -v | grep 5.66') == 0
     _c = 'systemctl is-active unit_switch_net.service | grep -w active'
+
+    ts = time.perf_counter()
     ok_service_cell_sw = sh(_c) == 0
+    if DEBUG_TIME:
+        el_ts = time.perf_counter() - ts
+        print(f'ok_service_cell_sw took {int(el_ts)}')
+
+    ts = time.perf_counter()
     ok_fw_cell = _check_fw_cell()
+    if DEBUG_TIME:
+        el_ts = time.perf_counter() - ts
+        print(f'_check_fw_cell took {int(el_ts)}')
+
+    ts = time.perf_counter()
     ok_internet_via_cell = sh('timeout 1 ping -c 1 -I ppp0 www.google.com -4') == 0
+    if DEBUG_TIME:
+        el_ts = time.perf_counter() - ts
+        print(f'ok_internet_via_cell took {int(el_ts)}')
+
     ok_dwservice = sh('ps -aux | grep dwagent') == 0
+
+    ts = time.perf_counter()
     ok_aws_cred = _check_aws_credentials()
+    if DEBUG_TIME:
+        el_ts = time.perf_counter() - ts
+        print(f'ok_aws_cred took {int(el_ts)}')
+
     ok_crontab_ddh = get_crontab('ddh') == 1
     ok_crontab_api = get_crontab('api') == 1
     ok_crontab_lxp = get_crontab('lxp') == 1
     ok_shield_j4h = cb_get_flag_j4h() == 1
     ok_shield_sailor = cb_get_flag_sailor() == 1
+
+    ts = time.perf_counter()
     ok_keys = _check_files() == 0
-    _ts = time.perf_counter()
+    if DEBUG_TIME:
+        el_ts = time.perf_counter() - ts
+        print(f'ok_keys took {int(el_ts)}')
 
     # check conflicts
     rv = 0

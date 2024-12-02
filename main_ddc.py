@@ -364,7 +364,9 @@ def main_ddc():
             print(f'you selected:\n\t{d[c][0]}')
             time.sleep(1)
 
-            # secret options
+            # -----------------
+            # hidden options
+            # -----------------
             if c == 'p':
                 cb_provision_ddh()
             elif c == 'k':
