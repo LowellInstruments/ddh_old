@@ -10,6 +10,7 @@ from ddh.draw_graph import gfm_serve
 from dds.aws import aws_serve
 from dds.ble import ble_interact_all_loggers, ble_show_antenna_type, ble_check_antenna_up_n_running, \
     ble_op_conditions_met, ble_show_monitored_macs
+from dds.ble_dl_ph import ble_interact_ph_lsb
 from dds.ble_scan import ble_scan
 from dds.cnv import cnv_serve
 from dds.cst import cst_serve
@@ -50,7 +51,8 @@ from mat.ble.ble_mat_utils import (
 )
 from mat.utils import linux_is_rpi
 from utils.ddh_config import dds_check_cfg_has_box_info, \
-    dds_get_cfg_monitored_macs, dds_check_config_file, dds_get_cfg_flag_download_test_mode, exp_get_use_aws_cp
+    dds_get_cfg_monitored_macs, dds_check_config_file, dds_get_cfg_flag_download_test_mode, exp_get_use_aws_cp, \
+    exp_get_ddh_ph_logger
 from utils.ddh_shared import (
     PID_FILE_DDS,
     dds_create_folder_dl_files,
@@ -208,7 +210,12 @@ def main_dds():
 
         # BLE download stage
         args = [det, m_j, g, h, h_d]
-        rvi = ael.run_until_complete(ble_interact_all_loggers(*args))
+
+        # for now, pH are exclusive loggers
+        if exp_get_ddh_ph_logger() == 1:
+            rvi = ble_interact_ph_lsb(g)
+        else:
+            rvi = ael.run_until_complete(ble_interact_all_loggers(*args))
 
         # poor semaphore
         ddh_state.state_clr_downloading_ble()

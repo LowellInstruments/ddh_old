@@ -75,7 +75,7 @@ from utils.ddh_shared import (
     STATE_DDS_BLE_NO_ASSIGNED_LOGGERS,
     get_ddh_do_not_rerun_flag_li, ddh_get_root_folder_path, STATE_DDS_BLE_CONNECTING, STATE_DDS_PRESSED_BUTTON_2,
     get_ddh_local_sw_version, STATE_DDS_GPS_IN_PORT, STATE_DDS_BAD_CONF, STATE_DDS_BLE_DOWNLOAD_STATISTICS,
-    STATE_DDS_PRESSED_BUTTON_1, send_ddh_udp_gui, STATE_DDS_BOOT_GUI,
+    STATE_DDS_PRESSED_BUTTON_1, send_ddh_udp_gui, STATE_DDS_BOOT_GUI, STATE_DDS_BLE_PH_CONNECTED,
 )
 from utils.logs import lg_gui as lg
 from utils.wdog import gui_dog_touch
@@ -628,6 +628,11 @@ def _gui_parse_udp(my_app, s, ip="127.0.0.1"):
     elif f == STATE_DDS_BLE_CONNECTING:
         ct = f'{_x(STR_CONNECTING_LOGGER)} {v}'
         ci = f'ble_connecting.png'
+
+    elif f == STATE_DDS_BLE_PH_CONNECTED:
+        ct = f'connected pH {v}'
+        i = int(i / 2)
+        ci = f'dl_ph_{i}.png'
 
     elif f == STATE_DDS_BLE_DOWNLOAD:
         ct = f'{_x(STR_DOWNLOADING_LOGGER)} {v}'

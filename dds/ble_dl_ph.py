@@ -1,20 +1,22 @@
 import os.path
-import time
+import threading
+import uuid
 from queue import Queue
-from threading import Thread
 from uuid import uuid4
-import pandas as pd
 from dds.notifications_v2 import *
 from dds.state import state_ble_init_rv_notes
 from lsb.cmd import *
 from lsb.connect import *
 from utils.ddh_config import (
-    dds_get_cfg_logger_sn_from_mac
+    dds_get_cfg_monitored_pairs
 )
 from utils.ddh_shared import (
     create_folder_logger_by_mac,
     get_dl_folder_path_from_mac,
-    send_ddh_udp_gui as _u
+    send_ddh_udp_gui as _u,
+    STATE_DDS_BLE_CONNECTING,
+    STATE_DDS_BLE_PH_CONNECTED,
+    STATE_DDS_BLE_DOWNLOAD
 )
 from utils.logs import lg_dds as lg
 
@@ -23,7 +25,7 @@ UUID_S = '6e400001-b5a3-f393-e0a9-e50e24dcca9e'
 UUID_T = '6e400003-b5a3-f393-e0a9-e50e24dcca9e'
 _ph_rx = bytes()
 q = Queue()
-ts_next_put = time.perf_counter() + 5
+TIME_LENGTH_PH_DL_SECS = 60
 
 
 # une: update notes error
@@ -46,8 +48,11 @@ def _th_ph_data_saving_fxn(mac):
             continue
         # good string, remove the trailing
         v = bs.split(' $')[0]
-        # grab the date up to the hour
-        ts = v.split(',')[0]
+
+        # grab the date
+        # todo: choose this or grab logger first column
+        ts = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+
         # write to file
         dl_fol = get_dl_folder_path_from_mac(mac)
         file_path = f'{dl_fol}/{ts[:4]}{ts[5:7]}{ts[8:10]}{ts[11:13]}_pH.csv'
@@ -61,25 +66,43 @@ def _th_ph_data_saving_fxn(mac):
             f.close()
         with open(file_path, 'a') as f:
             v = v.replace(', ', ',')
-            # todo ---> fix Gautam bug date
-            now = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-            v = str(now) + v[19:]
+            v = ts + v[19:]
             f.write(v + '\n')
     print('thread killed')
 
 
 def _cb_rx_noti_ph(data):
+    # towards data saving thread
     q.put(data)
 
 
-def _dl_logger_ph_lsb(mac, g, notes: dict, u):
+def _dl_logger_ph_lsb(g):
 
+    d = dds_get_cfg_monitored_pairs()
+    found_ph = False
+    found_mac = ''
+    found_sn = ''
+    for mac, sn in d.items():
+        if sn.startswith('9'):
+            found_ph = True
+            found_mac = mac
+            found_sn = sn
+            break
+
+    if not found_ph:
+        return 0
+
+    mac = found_mac
+    sn = found_sn
+    notes = {}
     state_ble_init_rv_notes(notes)
     create_folder_logger_by_mac(mac)
+    uuid_interaction = str(uuid.uuid4())
+    notes['uuid_interaction'] = uuid_interaction
+    notes['gps'] = g
 
-    # todo ---> change this
-    # sn = dds_get_cfg_logger_sn_from_mac(mac)
-    sn = "0000001"
+    _u(f"{STATE_DDS_BLE_DOWNLOAD}/{sn}")
+    lg.a(f"processing pH logger {sn} / mac {mac}")
 
     # get internal / external adapters
     ads = get_adapters()
@@ -87,30 +110,38 @@ def _dl_logger_ph_lsb(mac, g, notes: dict, u):
     ad = ads[ad_i]
     lg.a(f'using LSB with antenna hci{ad_i}')
 
+    # update GUI with connection icon
+    _u(f"{STATE_DDS_BLE_CONNECTING}/{sn}")
+
     # scan
     ad.set_callback_on_scan_found(cb_scan)
     pp = scan_for_peripherals(ad, 10000, mac)
     found, p_i = is_mac_in_found_peripherals(pp, mac)
     if not found:
         _une(notes, "scan")
-        raise Exception("error: ph scanning")
+        raise Exception("error: pH scanning")
 
     # connect
     p = pp[p_i]
     if not connect_mac(p, mac):
         _une(notes, "comm.")
-        raise Exception("error: ph connecting")
+        raise Exception("error: pH connecting")
     lg.a(f"connected to {mac}")
+
+    # start separate data saving thread
+    lg.a(f'downloading pH logger {sn} for {TIME_LENGTH_PH_DL_SECS} seconds')
+    th = threading.Thread(
+        target=_th_ph_data_saving_fxn,
+        args=(mac, ))
+    th.start()
 
     # configure notification
     p.notify(UUID_S, UUID_T, _cb_rx_noti_ph)
 
-    # tell GUI we are connected
-    # todo ---> do this
-    # _u(f"{STATE_DDS_BLE_LOW_BATTERY}/{mac}")
-
     # collect pH measurements
-    time.sleep(30)
+    for j in range(TIME_LENGTH_PH_DL_SECS):
+        time.sleep(1)
+        _u(f"{STATE_DDS_BLE_PH_CONNECTED}/{sn}")
 
     # ---------------------
     # bye, bye to pH logger
@@ -119,27 +150,27 @@ def _dl_logger_ph_lsb(mac, g, notes: dict, u):
     return 0
 
 
-def ble_interact_ph_lsb(mac, info, g, u):
-
-    th = Thread(target=_th_ph_data_saving_fxn, args=(mac, ))
-    th.start()
+def ble_interact_ph_lsb(g):
 
     rv = 0
-    notes = {}
 
     try:
-        lg.a(f"debug: experimental interaction with {info}_LSB logger")
-        rv = _dl_logger_ph_lsb(mac, g, notes, u)
+        lg.a(f"debug: experimental interaction with ph_LSB logger")
+        # we operate for a certain amount of time
+        rv = _dl_logger_ph_lsb(g)
         # end the data saving thread
         q.put(b'quit')
-
     except Exception as ex:
-        force_disconnect(mac)
         lg.a(f"error dl_ph_lsb_exception {ex}")
         rv = 1
+        force_disconnect()
 
     finally:
-        return rv, notes
+        # todo: do this
+        #  STATE_DDS_NOTIFY_HISTORY
+        # todo: do this
+        # notify_logger_download_or_error
+        return rv
 
 
 if __name__ == "__main__":

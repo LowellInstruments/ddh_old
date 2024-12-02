@@ -52,6 +52,7 @@ STATE_DDS_BLE_NO_ASSIGNED_LOGGERS = "state_dds_ble_no_assigned_loggers"
 STATE_DDS_BLE_ERROR_MOANA_PLUGIN = "state_dds_ble_error_moana_plugin"
 STATE_DDS_BLE_ERROR_RUN = "state_dds_ble_error_run"
 STATE_DDS_BLE_CONNECTING = 'state_dds_ble_connecting'
+STATE_DDS_BLE_PH_CONNECTED = 'state_dds_ble_ph_connected'
 
 
 STATE_DDS_PRESSED_BUTTON_1 = 'state_dds_pressed_button1'

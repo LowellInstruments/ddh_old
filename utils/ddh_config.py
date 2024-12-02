@@ -286,6 +286,10 @@ def exp_get_use_lsb_for_tdo_loggers():
     return _get_exp_key_from_cfg('use_lsb_for_tdo_loggers')
 
 
+def exp_get_ddh_ph_logger():
+    return _get_exp_key_from_cfg('ddh_ph_logger')
+
+
 def exp_get_use_lsb_for_dox_loggers():
     return _get_exp_key_from_cfg('use_lsb_for_dox_loggers')
 

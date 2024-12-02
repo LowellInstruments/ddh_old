@@ -20,6 +20,8 @@ fake_gps_position = [ 0, -0,]
 [monitored_macs]
 # example
 # "aa:bb:cc:dd:ee:ff" = "1234556"
+"F9:7B:79:EF:9D:99" = "0000001"
+
 
 
 
@@ -60,3 +62,4 @@ ble_del_cache = 0
 # conf_tdo = 'slow'
 # conf_dox can be 60, 300, 900
 # conf_dox = 900
+ddh_ph_logger = 0
