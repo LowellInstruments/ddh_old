@@ -3,6 +3,7 @@ import multiprocessing
 import threading
 import time
 import setproctitle
+import subprocess as sp
 import uvicorn
 from fastapi import FastAPI
 import requests
@@ -95,7 +96,7 @@ async def ep_get(mac):
     t_o = g_d[mac]
     if t_n > t_o + MAX_TIME_DIFF:
         # present but expired
-        s = (f'get {mac} | {t_o} -> expired because '
+        s = (f'get {mac} | {t_o} -> expired, '
              f'{t_o} differs > {MAX_TIME_DIFF} from now {t_n}')
         _p(s)
         return 0
@@ -106,7 +107,7 @@ async def ep_get(mac):
 
 
 @app.get('/list')
-async def ep_list():
+async def ep_list(mac):
     if use != 1:
         return
     global g_d
@@ -133,6 +134,8 @@ def main_dda_as_th():
 
 
 def main_dda():
+    # remove any failed previous runs
+    killall_main_dda()
     def _main_dda():
         setproctitle.setproctitle(NAME_EXE_DDA)
         uvicorn.run(app, host="0.0.0.0", port=DDA_PORT)
@@ -140,7 +143,25 @@ def main_dda():
     p.start()
 
 
+def killall_main_dda():
+    c = f'killall {NAME_EXE_DDA}'
+    sp.run(c, shell=True)
+
+
+def dda_op(ep, mac):
+    assert ep in ('add', 'get', 'update', 'del', 'list')
+    u = f'http://0.0.0.0:{DDA_PORT}/{ep}?mac={mac}'
+    try:
+        return requests.get(u, timeout=1)
+    except (Exception, ) as ex:
+        _p(f'error: dda_op -> {ex}')
+
+
 if __name__ == "__main__":
+
+    # test, no api running
+    dda_op('del', '')
+
     if not DEBUG:
         # example, when called from DDH
         main_dda()
@@ -149,32 +170,35 @@ if __name__ == "__main__":
         main_dda_as_th()
         _m = "11"
         time.sleep(1)
-        u = f'http://0.0.0.0:{DDA_PORT}'
 
         # add value
-        requests.get(f'{u}/add?mac={_m}')
+        dda_op('add', _m)
         _p('sleep 1')
         time.sleep(1)
         _p(f'now is {_get_now()}')
 
         # query, it is there, and update
-        rv = requests.get(f'{u}/get?mac={_m}')
+        rv = dda_op('get', _m)
         if rv:
-            requests.get(f'{u}/update?mac={_m}')
+            dda_op('update', _m)
         else:
-            requests.get(f'{u}/del?mac={_m}')
+            dda_op('del', _m)
         _p('sleep 1')
         time.sleep(1)
         _p(f'now is {_get_now()}')
-        rv = requests.get(f'{u}/list')
+
+        # list present ones
+        rv = dda_op('list', '')
+        _p(f'list {rv.text}')
 
         # query after too much time, will not update
         _p(f'sleep {MAX_TIME_DIFF + 1}')
         time.sleep(MAX_TIME_DIFF + 1)
         _p(f'now is {_get_now()}')
-        rv = requests.get(f'{u}/get?mac={_m}')
+        rv = dda_op('get', _m)
         if int(rv.text):
-            requests.get(f'{u}/update?mac={_m}')
+            dda_op('update', _m)
         else:
-            requests.get(f'{u}/del?mac={_m}')
-        rv = requests.get(f'{u}/list')
+            dda_op('del', _m)
+        rv = dda_op('list', '')
+        _p(f'list {rv.text}')
