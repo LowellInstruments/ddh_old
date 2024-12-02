@@ -31,6 +31,8 @@ MD5_MOD_BTUART = '95da1d6d0bea327aa5426b7f90303778'
 TMP_DDC_ERR = '/tmp/ddc_err'
 DEBUG_TIME = False
 
+g_d_cache_aws_cred_check = {}
+
 
 def check_aws_run(f):
     # f: {'cred_aws_bucket': '',
@@ -45,6 +47,13 @@ def check_aws_run(f):
     if _k is None or _s is None or _n is None:
         return 0
 
+    # cache so this is not run over and over again
+    global g_d_cache_aws_cred_check
+    key_cache = f'{_k}_{_s}_{_n}'
+    if (key_cache in g_d_cache_aws_cred_check.keys() and
+            g_d_cache_aws_cred_check[key_cache] == 1):
+        return 1
+
     # build the AWS command
     c = (
         f'AWS_ACCESS_KEY_ID={_k} AWS_SECRET_ACCESS_KEY={_s} '
@@ -56,10 +65,15 @@ def check_aws_run(f):
         rv = sp.run(c, shell=True, stdout=sp.PIPE, stderr=sp.PIPE, timeout=10)
         if rv.returncode:
             print(f'error: listing buckets {rv.stderr}')
+            g_d_cache_aws_cred_check[key_cache] = 0
             return 0
     except (Exception, ) as ex:
         print(f'error: check_aws_run -> {ex}')
+        g_d_cache_aws_cred_check[key_cache] = 0
         return 0
+
+    # 1 is good
+    g_d_cache_aws_cred_check[key_cache] = 1
     return 1
 
 
