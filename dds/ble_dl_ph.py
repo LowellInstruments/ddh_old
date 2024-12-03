@@ -53,7 +53,7 @@ def _th_ph_data_saving_fxn(mac):
         # todo: choose this or grab logger first column
         ts = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 
-        # write to file
+        # write to file, start it in case we need
         dl_fol = get_dl_folder_path_from_mac(mac)
         file_path = f'{dl_fol}/{ts[:4]}{ts[5:7]}{ts[8:10]}{ts[11:13]}_pH.csv'
         if not os.path.exists(file_path):
@@ -64,12 +64,14 @@ def _th_ph_data_saving_fxn(mac):
                     'Ref Dark, Ref Blue, Ref Green, Ref Absorbance Blue, Ref Absorbance Green\n'
                     ''.replace(', ', ','))
             f.close()
+
+        # append pH values to file
         with open(file_path, 'a') as f:
             v = v.replace(', ', ',')
             v = ts + v[19:]
             f.write(v + '\n')
 
-            # send to GUI
+            # send pH measurement to GUI
             day = v.split(',')[0].split(' ')[0]
             secs = v.split(',')[0].split(' ')[1]
             v_wt = v.split(',')[8]
