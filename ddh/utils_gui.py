@@ -848,7 +848,12 @@ def _gui_parse_udp(my_app, s, ip="127.0.0.1"):
         a.bar_dl.setVisible(False)
 
     # stats box visible on green (dl_OK) orange (dl_OK not rerun) ticks
-    if _icon_updated and ci not in ("ok.png", "attention.png"):
+    if _icon_updated and ci not in (
+            "ok.png",
+            "attention.png",
+            "dl_ph_0.png",
+            "dl_ph_1.png"
+    ):
         my_app.lbl_summary_dl.setVisible(False)
 
 

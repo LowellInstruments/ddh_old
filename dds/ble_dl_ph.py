@@ -16,7 +16,7 @@ from utils.ddh_shared import (
     send_ddh_udp_gui as _u,
     STATE_DDS_BLE_CONNECTING,
     STATE_DDS_BLE_PH_CONNECTED,
-    STATE_DDS_BLE_DOWNLOAD
+    STATE_DDS_BLE_DOWNLOAD, STATE_DDS_BLE_DOWNLOAD_STATISTICS
 )
 from utils.logs import lg_dds as lg
 
@@ -68,6 +68,14 @@ def _th_ph_data_saving_fxn(mac):
             v = v.replace(', ', ',')
             v = ts + v[19:]
             f.write(v + '\n')
+
+            # send to GUI
+            day = v.split(',')[0].split(' ')[0]
+            secs = v.split(',')[0].split(' ')[1]
+            v_wt = v.split(',')[8]
+            v_ph = v.split(',')[10]
+            s = f'{day}\n{secs}\nT = {v_wt}\npH = {v_ph}\n'
+            _u(f"{STATE_DDS_BLE_DOWNLOAD_STATISTICS}/{s}")
     print('thread killed')
 
 
@@ -92,6 +100,8 @@ def _dl_logger_ph_lsb(g):
     if not found_ph:
         return 0
 
+    lg.a(f"debug: experimental interaction with ph_LSB logger")
+    _u(f"{STATE_DDS_BLE_DOWNLOAD_STATISTICS}/' '")
     mac = found_mac
     sn = found_sn
     notes = {}
@@ -155,7 +165,6 @@ def ble_interact_ph_lsb(g):
     rv = 0
 
     try:
-        lg.a(f"debug: experimental interaction with ph_LSB logger")
         # we operate for a certain amount of time
         rv = _dl_logger_ph_lsb(g)
         # end the data saving thread
