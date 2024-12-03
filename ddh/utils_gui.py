@@ -988,6 +988,8 @@ def gui_get_my_current_wlan_ssid() -> str:
     c = "iwgetid -r"
     rv = sp.run(c, shell=True, stdout=sp.PIPE)
     if rv.returncode == 0:
-        return rv.stdout.decode().rstrip("\n")
+        wifi_name = rv.stdout.decode().rstrip("\n")
+        wifi_name = wifi_name.replace('Auto ', '')
+        return wifi_name
 
     return ""
