@@ -23,6 +23,7 @@ from dds.timecache import is_it_time_to
 from locales.locales import _x
 from locales.strings import *
 from mat.ble.ble_mat_utils import DDH_GUI_UDP_PORT
+from mat.ddh import STATE_DDS_LID_CONVERT_PROGRESS
 from mat.utils import linux_is_rpi
 import subprocess as sp
 import pyqtgraph as pg
@@ -768,6 +769,8 @@ def _gui_parse_udp(my_app, s, ip="127.0.0.1"):
         a.lbl_cnv.setText("cnv_error")
     elif f == STATE_DDS_NOTIFY_CONVERSION_OK:
         a.lbl_cnv.setText("cnv_ok")
+    elif f == STATE_DDS_LID_CONVERT_PROGRESS:
+        a.lbl_cnv.setText(f'cnv_{v}%')
 
     # -----------
     # GRAPH fields
