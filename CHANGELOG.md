@@ -208,3 +208,7 @@
 
     new LOCAL API main_dda for features such as smart lock out time
 
+4.0.46 - December 8, 2024
+
+    moved SCC 00050 in script_deploy_logger_tdo_utils.py
+

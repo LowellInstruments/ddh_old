@@ -89,6 +89,13 @@ async def deploy_logger_tdo(mac, sn, cfg_from_menu):
             print('prf_file', prf_file)
             with open(prf_file, 'r') as f:
                 d = toml.load(f)['profiling']
+
+            # send the hardcoded DHU
+            rv = await lc.cmd_scc('DHU', '00050')
+            _e(rv, "scc_dhu")
+            await asyncio.sleep(.1)
+
+
         else:
             # not present in newer loggers
             rv = await lc.cmd_wli("MA1234ABC")
@@ -97,11 +104,6 @@ async def deploy_logger_tdo(mac, sn, cfg_from_menu):
             # send profiling configuration
             with open(prf_file) as f:
                 d = json.load(f)
-
-        # send the hardcoded DHU
-        rv = await lc.cmd_scc('DHU', '00050')
-        _e(rv, "scc_dhu")
-        await asyncio.sleep(.1)
 
         # send the SCF commands
         print(f'SCF: loaded {prf_file}')
