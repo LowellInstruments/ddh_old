@@ -34,8 +34,11 @@ from utils.ddh_config import (
     dds_get_cfg_flag_graph_test_mode,
     dds_get_cfg_logger_sn_from_mac,
     dds_get_cfg_forget_time_secs,
-    ddh_get_cfg_maps_en, dds_get_cfg_flag_download_test_mode, dds_get_cfg_box_sn, ddh_get_file_flag_plot_wc,
-    dds_get_cfg_skip_dl_in_port_en)
+    ddh_get_cfg_maps_en,
+    dds_get_cfg_flag_download_test_mode,
+    dds_get_cfg_box_sn,
+    dds_get_cfg_skip_dl_in_port_en
+)
 
 from utils.ddh_shared import (
     STATE_DDS_BLE_SCAN,
@@ -115,18 +118,18 @@ def _lock_icon(t):
 def gui_setup_timers(a):
     # timer to update GUI fields
     a.tg = QTimer()
-    a.tg.timeout.connect(a._tg_fxn)
+    a.tg.timeout.connect(a._timer_gui_callback)
     a.tg.start(1000)
 
     # timer to measure RPi temperature
     a.tt = QTimer()
-    a.tt.timeout.connect(a._tt_fxn)
+    a.tt.timeout.connect(a._timer_temperature_callback)
     if linux_is_rpi():
         a.tt.start(1000)
 
     # timer BLE service alive
     a.tb = QTimer()
-    a.tb.timeout.connect(a._tb_fxn)
+    a.tb.timeout.connect(a._timer_ble_alive_callback)
     a.tb.start(30000)
 
 
@@ -138,10 +141,10 @@ def gui_setup_graph_tab(a):
     a.btn_g_next_haul.setVisible(False)
     a.lbl_graph_busy.setVisible(False)
     a.cb_g_switch_tp.setVisible(False)
-    gui_manage_graph_test_files()
+    gui_setup_manage_graph_test_demo_files()
 
 
-def gui_create_variables(a):
+def gui_setup_create_variables(a):
     a.bright_idx = 2
     a.tab_edit_hide = True
     a.tab_advanced_hide = True
@@ -213,10 +216,6 @@ def gui_setup_view(my_win):
     me = ddh_get_cfg_maps_en()
     a.chk_b_maps.setChecked(me)
 
-    # plot data outside the water
-    plot_only_in_water = ddh_get_file_flag_plot_wc()
-    a.chk_plt_only_inside_water.setChecked(plot_only_in_water)
-
     # test mode
     a.lbl_testmode.setVisible(False)
     if dds_get_cfg_flag_download_test_mode():
@@ -241,11 +240,11 @@ def gui_setup_view(my_win):
     return a
 
 
-def gui_show_boot_icon(_):
+def gui_setup_bootsplash(_):
     send_ddh_udp_gui(STATE_DDS_BOOT_GUI)
 
 
-def gui_center_window(my_app):
+def gui_setup_center_window(my_app):
     """on RPi, DDH app uses full screen"""
     a = my_app
 
@@ -262,7 +261,7 @@ def gui_center_window(my_app):
     a.setFixedHeight(768)
 
 
-def gui_manage_graph_test_files():
+def gui_setup_manage_graph_test_demo_files():
     a = str(ddh_get_root_folder_path())
     d0 = a + '/dl_files/00-00-00-00-00-00'
     d1 = a + '/dl_files/11-22-33-44-55-66'
@@ -432,7 +431,6 @@ def gui_setup_buttons(my_app):
     a.btn_note_yes_specific.clicked.connect(a.click_btn_note_yes_specific)
     a.chk_rerun.toggled.connect(a.click_chk_rerun)
     a.chk_b_maps.toggled.connect(a.click_chk_b_maps)
-    a.chk_plt_only_inside_water.toggled.connect(a.click_chk_plt_only_inside_water)
     a.cb_s3_uplink_type.activated.connect(a.click_cb_s3_uplink_type)
     a.btn_sms.clicked.connect(a.click_btn_sms)
     a.btn_map_next.clicked.connect(a.click_btn_map_next)
@@ -916,7 +914,7 @@ def gui_timer_fxn(my_app):
         a.lbl_ble_img.setPixmap(QPixmap(ci))
 
 
-def gui_json_get_forget_time_secs():
+def gui_get_cfg_forget_time_secs():
     t = dds_get_cfg_forget_time_secs()
     assert t >= 600
     return t

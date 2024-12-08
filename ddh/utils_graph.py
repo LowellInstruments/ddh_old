@@ -7,9 +7,12 @@ from os.path import basename
 import numpy as np
 import dateutil.parser as dp
 import pandas as pd
-from utils.ddh_config import dds_get_cfg_flag_graph_test_mode, ddh_get_file_flag_plot_wc
-from utils.ddh_shared import (get_ddh_folder_path_dl_files,
-                              get_dl_folder_path_from_mac, TESTMODE_FILENAME_PREFIX)
+from utils.ddh_config import dds_get_cfg_flag_graph_test_mode
+from utils.ddh_shared import (
+    get_ddh_folder_path_dl_files,
+    get_dl_folder_path_from_mac,
+    TESTMODE_FILENAME_PREFIX
+)
 from utils.logs import lg_gra as lg
 from utils.flag_paths import TMP_PATH_GRAPH_REQ_JSON
 from utils.units import dbar_to_fathoms
@@ -340,62 +343,47 @@ def utils_graph_fetch_csv_data(
             is_moana = 'MOANA' in f or 'moana' in f
 
     elif met == 'DO':
-        plt_wc = ddh_get_file_flag_plot_wc()
-        plt_all = not plt_wc
-        if plt_all:
-            lg.a(f'debug: plot ALL DOX files')
-        else:
-            lg.a(f'debug: plot only IN-WATER DOX files')
         for f in _g_ff_dot:
             bn = os.path.basename(f)
             lg.a(f'reading DO file {bn}')
             df = _utils_graph_cached_read_csv(f)
             x += list(df['ISO 8601 Time'])
-            _m = len(list(df['ISO 8601 Time']))
 
-            # -----------------------------------------
-            # use water column filter for data or not
-            # -----------------------------------------
-            if plt_all or (plt_wc and f in _g_ff_dot_wc):
+            # plot water column files, nice gap others
+            if f in _g_ff_dot_wc:
                 doc += list(df['Dissolved Oxygen (mg/l)'])
                 dot += list(df['DO Temperature (C)'])
                 try:
                     wat += list(df['Water Detect (%)'])
                 except (Exception, ):
                     pass
-            elif plt_wc and f not in _g_ff_dot_wc:
+            else:
                 lg.a(f'warning: file {bn} no-show for water column mode')
                 # so when plotting with connect='finite' these don't appear
+                # although the space occupied by them is there
+                _m = len(list(df['ISO 8601 Time']))
                 doc += [np.nan] * _m
                 dot += [np.nan] * _m
 
     elif met == 'TDO':
-        plt_wc = ddh_get_file_flag_plot_wc()
-        plt_all = not plt_wc
-        if plt_all:
-            lg.a(f'debug: plot ALL TDO files')
-        else:
-            lg.a(f'debug: plot only IN-WATER TDO files')
         for f in _g_ff_tdo:
             bn = os.path.basename(f)
             lg.a(f'reading {met} file {bn}')
             df = _utils_graph_cached_read_csv(f)
             x += list(df['ISO 8601 Time'])
-            _m = len(list(df['ISO 8601 Time']))
 
-            # -----------------------------------------
-            # use water column filter for data or not
-            # -----------------------------------------
-            if plt_all or (plt_wc and f in _g_ff_tdo_wc):
+            # plot water column files, nice gap others
+            if f in _g_ff_tdo_wc:
                 tdo_t += list(df['Temperature (C)'])
                 tdo_p += list(df['Pressure (dbar)'])
                 tdo_ax += list(df['Ax'])
                 tdo_ay += list(df['Ay'])
                 tdo_az += list(df['Az'])
-            elif plt_wc and f not in _g_ff_tdo_wc:
+            else:
                 lg.a(f'warning: file {bn} no-show due to water column mode')
                 # so when plotting with connect='finite' these don't display
                 # although the space occupied by them is there
+                _m = len(list(df['ISO 8601 Time']))
                 tdo_t += [np.nan] * _m
                 tdo_p += [np.nan] * _m
 

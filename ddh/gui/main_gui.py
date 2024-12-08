@@ -22,10 +22,10 @@ from ddh.utils_gui import (
     gui_ddh_set_brightness,
     gui_setup_view,
     gui_setup_buttons,
-    gui_center_window,
+    gui_setup_center_window,
     gui_dict_from_list_view,
     gui_show_edit_tab,
-    gui_json_get_forget_time_secs,
+    gui_get_cfg_forget_time_secs,
     STR_NOTE_PURGE_BLACKLIST,
     gui_confirm_by_user,
     gui_show_note_tab_delete_black_macs,
@@ -38,9 +38,9 @@ from ddh.utils_gui import (
     gui_ddh_populate_graph_dropdown_sn,
     gui_hide_map_tab,
     gui_hide_maps_next_btn,
-    gui_create_variables,
+    gui_setup_create_variables,
     gui_setup_graph_tab,
-    gui_setup_timers, gui_show_boot_icon
+    gui_setup_timers, gui_setup_bootsplash
 )
 from dds.notifications_v2 import notify_via_sms
 from dds.timecache import is_it_time_to
@@ -82,7 +82,6 @@ import subprocess as sp  # noqa: E402
 
 from utils.flag_paths import (
     LI_PATH_GROUPED_S3_FILE_FLAG,
-    LI_PATH_PLOT_ONLY_DATA_IN_WATER
 )
 from utils.wdog import gui_dog_clear
 
@@ -94,11 +93,11 @@ class DDH(QMainWindow, d_m.Ui_MainWindow):
 
         super(DDH, self).__init__()
         gui_setup_view(self)
-        gui_show_boot_icon(self)
+        gui_setup_bootsplash(self)
         gui_setup_buttons(self)
-        gui_center_window(self)
+        gui_setup_center_window(self)
         lg.are_enabled(True)
-        gui_create_variables(self)
+        gui_setup_create_variables(self)
         gui_dog_clear()
         gui_ddh_set_brightness(self)
 
@@ -124,10 +123,10 @@ class DDH(QMainWindow, d_m.Ui_MainWindow):
 
         lg.a("OK: DDH GUI finished booting")
 
-    def _tg_fxn(self):
+    def _timer_gui_callback(self):
         gui_timer_fxn(self)
 
-    def _tt_fxn(self):
+    def _timer_temperature_callback(self):
 
         # measure RAM usage of DDH box
         m = psutil.virtual_memory()
@@ -159,7 +158,7 @@ class DDH(QMainWindow, d_m.Ui_MainWindow):
         self.tt.start(600000)
 
     @staticmethod
-    def _tb_fxn():
+    def _timer_ble_alive_callback():
         if not linux_is_process_running(NAME_EXE_DDS):
             if is_it_time_to('tell_BLE_dead', 1800):
                 lg.a("warning: BLE service seems dead")
@@ -372,7 +371,7 @@ class DDH(QMainWindow, d_m.Ui_MainWindow):
         """updates EDIT tab from current config file"""
 
         ves = dds_get_cfg_vessel_name()
-        f_t = gui_json_get_forget_time_secs()
+        f_t = gui_get_cfg_forget_time_secs()
         lhf = ddh_get_cfg_gear_type()
         self.lne_vessel.setText(ves)
         self.lne_forget.setText(str(f_t))
@@ -627,17 +626,6 @@ class DDH(QMainWindow, d_m.Ui_MainWindow):
         self.lbl_map.setMovie(self.gif_map)
         self.gif_map.start()
         self.map_filename = m
-
-    def click_chk_plt_only_inside_water(self, _):
-        from ddh.utils_graph import _utils_graph_cached_read_csv
-        # from ddh.utils_graph import process_graph_csv_data
-        _utils_graph_cached_read_csv.cache_clear()
-        # process_graph_csv_data.cache_clear()
-        p = LI_PATH_PLOT_ONLY_DATA_IN_WATER
-        if self.chk_plt_only_inside_water.isChecked():
-            pathlib.Path(p).touch()
-        else:
-            os.unlink(p)
 
     def click_graph_btn_reset(self):
         self.g.getPlotItem().enableAutoRange()

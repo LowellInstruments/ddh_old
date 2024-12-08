@@ -212,3 +212,6 @@
 
     moved SCC 00050 in script_deploy_logger_tdo_utils.py
 
+4.0.47 - December 9, 2024
+
+    removed checkbox plot only water and it is now the default

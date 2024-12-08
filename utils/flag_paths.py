@@ -65,5 +65,3 @@ h = str(pathlib.Path.home())
 h_ddh = f'{h}/li/ddh' if _is_rpi() else f'{h}/PycharmProjects/ddh'
 LI_PATH_DDH_VERSION = f'{h_ddh}/.ddh_version'
 LI_PATH_API_VERSION = f'{h_ddh}/.api_version'
-LI_PATH_PLOT_ONLY_DATA_IN_WATER = f'{h_ddh}/.ddh_plt_only_inside_water'
-
