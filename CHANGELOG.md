@@ -215,3 +215,7 @@
 4.0.47 - December 9, 2024
 
     removed checkbox plot only water and it is now the default
+
+4.0.48 - December 9, 2024
+
+    cleaned a bit the code for graphing
