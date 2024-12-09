@@ -36,70 +36,68 @@ def _gfm_build_filename_no_wc(path):
     return f'{os.path.dirname(path)}/{bn}'
 
 
-def utils_graph_gfm_classify_file_wc_mode(p):
+def utils_graph_classify_file_wc_mode(p):
     # p: full path
     p = str(p)
     bn = os.path.basename(p)
     _is_tdo = p.endswith('_TDO.csv')
     _is_dox = p.endswith('_DissolvedOxygen.csv')
     if not _is_tdo and not _is_dox:
-        lg.a('error: can only set water column mode on lowell CSV files')
-        return
+        lg.a('error: bad file to set water column mode')
+        return False
 
-    # leave when already exists water column mode file
+    # early leave when "cache" hit
     f_wc = _gfm_build_filename_wc(p)
     f_nowc = _gfm_build_filename_no_wc(p)
     if os.path.exists(f_wc):
-        return
+        return True
     if os.path.exists(f_nowc):
-        return
+        return False
 
-    # short files considered to have NO water column info
-    with open(p, 'r') as f:
-        ll = f.readlines()
-        if len(ll) <= 3:
-            pathlib.Path(f_nowc).touch()
-            return
+    # process new file, read header line
+    try:
+        with open(p) as f:
+            h = f.readline()
+    except (Exception, ) as ex:
+        lg.a(f'error: reading header in file {bn} -> {ex}')
 
-    if _is_tdo:
-        _bn = os.path.basename(p)
-        lg.a(f'graph water column mode: processing TDO file {_bn}')
-        # headers: ISO 8601 Time,Temperature (C),Pressure (dbar),Ax,Ay,Az
-        # ll[3]: 2024-09-13T14:52:49.000Z,19.120,10.462,-176,19,-162
-        i_pc = ll[0].split(',').index('Pressure (dbar)')
-        for i in ll[3:]:
-            vp = float(i.split(',')[i_pc])
-            if vp > 15:
-                lg.a(f'graph water column mode: ON for TDO file {bn}')
-                pathlib.Path(f_wc).touch()
-                return
-
-        pathlib.Path(f_nowc).touch()
-        lg.a(f'graph water column mode: OFF for TDO file {bn}')
-        return
-
-    _is_do2 = 'Water' in ll[0]
-    if not _is_do2:
-        # this way, we force them to appear on graphs
+    # decision for DO-1 loggers
+    if _is_dox and 'Water' not in h:
         lg.a(f'graph water column mode: ON for DO-1 file {bn}')
         pathlib.Path(f_wc).touch()
-        return
+        return True
 
-    if _is_do2:
-        _bn = os.path.basename(p)
-        lg.a(f'graph water column mode: processing DO-2 file {_bn}')
-        # headers: ts,mg/l,%,C,W%
-        # ll[3]: 2024-06-29T10:49:51.000Z,10.14,98.27,13.93,94.00
+    # decision for DO-2 loggers, water is last column
+    if _is_dox and 'Water' in h:
+        lg.a(f'debug: processing water column mode for DO-2 file {bn}')
+        with open(p) as f:
+            ll = f.readlines()
         for i in ll[3:]:
             w_cur = float(i.split(',')[-1])
             if w_cur > 50:
                 lg.a(f'graph water column mode: ON for DO-2 file {bn}')
                 pathlib.Path(f_wc).touch()
-                return
+                return True
 
-        pathlib.Path(f_nowc).touch()
         lg.a(f'graph water column mode: OFF for DO-2 file {bn}')
-        return
+        pathlib.Path(f_nowc).touch()
+        return False
+
+    # decision for TDO loggers, check pressure threshold
+    if _is_tdo:
+        lg.a(f'debug: processing water column mode for TDO file {bn}')
+        df = _utils_graph_cached_read_csv(p)
+        # df_iw: dataframe of values in water
+        df_iw = df[df['Pressure (dbar)'] > 12]
+        been_in_water = len(df_iw) > 0
+        if been_in_water:
+            lg.a(f'graph water column mode: ON for TDO file {bn}')
+            pathlib.Path(f_wc).touch()
+            return True
+
+        lg.a(f'graph water column mode: OFF for TDO file {bn}')
+        pathlib.Path(f_nowc).touch()
+        return False
 
     lg.a(f'error: _utils_graph_classify_file_wc_mode for unknown file {p}')
 
@@ -171,7 +169,7 @@ def utils_graph_set_fol_req_file(mac):
 
 
 def _data_get_prune_period(x, met):
-    if len(x) > 8000:
+    if len(x) > 6000:
         lg.a(f'data pruning: faster graph for {met}')
         return int(len(x) / 600)
     return 1
@@ -183,30 +181,6 @@ def _utils_graph_cached_read_csv(f):
     if df.empty:
         lg.a(f'warning: no data for file {f}')
     return df
-
-
-@lru_cache(maxsize=512)
-def _utils_graph_tdo_been_in_water(f):
-    # calculate filenames which tell us in-water or not for this file
-    f_wc = _gfm_build_filename_wc(f)
-    f_nowc = _gfm_build_filename_no_wc(f)
-    if os.path.exists(f_wc):
-        return True
-    if os.path.exists(f_nowc):
-        return False
-
-    # there is no such file, let's calculate it
-    df = _utils_graph_cached_read_csv(f)
-    # df_iw: dataframe of values in water
-    df_iw = df[df['Pressure (dbar)'] > 12]
-    bn = os.path.basename(f)
-    been_in_water = len(df_iw) > 0
-    print(f'has {bn} been in water? {been_in_water}')
-    if been_in_water:
-        pathlib.Path(f_wc).touch()
-    else:
-        pathlib.Path(f_nowc).touch()
-    return been_in_water
 
 
 def utils_graph_fetch_csv_data(
@@ -228,25 +202,24 @@ def utils_graph_fetch_csv_data(
     _g_ff_dot = [i for i in _g_ff_dot if TESTMODE_FILENAME_PREFIX not in i]
     _g_ff_tdo = [i for i in _g_ff_tdo if TESTMODE_FILENAME_PREFIX not in i]
 
-    # don't plot TDO files which are too small (~50 bytes per line)
+    # exclude TDO files which are too small (~50 bytes per line)
     _g_ff_tdo = [i for i in _g_ff_tdo if os.path.getsize(i) > 1024]
-    _g_ff_tdo = [i for i in _g_ff_tdo if _utils_graph_tdo_been_in_water(i)]
+
+    # include any file NOT having a NO_WC flag
+    _g_ff_tdo_wc = [i for i in _g_ff_tdo
+                    if not os.path.exists(_gfm_build_filename_no_wc(i))]
+    _g_ff_dot_wc = [i for i in _g_ff_dot
+                    if not os.path.exists(_gfm_build_filename_no_wc(i))]
 
     # debug: show them
     # for i in _g_ff_tdo:
-    #     print(os.path.basename(i), os.path.getsize(i))
+        # print(os.path.basename(i), os.path.getsize(i))
 
     # fast leaving case for TDO loggers
     if n_tdo_pre_test and not _g_ff_tdo:
         e = f'error: no real data yet, disable test mode with DDC'
         lg.a(e)
         return {'error': e}
-
-    # files NOT_NO_WC = YES_WC + ones still not processed
-    _g_ff_tdo_wc = [i for i in _g_ff_tdo
-                    if not os.path.exists(_gfm_build_filename_no_wc(i))]
-    _g_ff_dot_wc = [i for i in _g_ff_dot
-                    if not os.path.exists(_gfm_build_filename_no_wc(i))]
 
     # error moana
     # MOANA_0744_99_240221160010_Temperature.csv
@@ -262,7 +235,10 @@ def utils_graph_fetch_csv_data(
         _g_ff_p = sorted(_g_ff_p, key=lambda x: os.path.basename(x).split('_')[3])
 
     # get number of hauls
-    nh = max(len(_g_ff_t), len(_g_ff_p), len(_g_ff_dot), len(_g_ff_tdo))
+    nh = max(len(_g_ff_t),
+             len(_g_ff_p),
+             len(_g_ff_dot),
+             len(_g_ff_tdo))
 
     # calculate haul index
     hi = -1
@@ -394,7 +370,7 @@ def utils_graph_fetch_csv_data(
 
     # things we don't plot
     if len(x) == 1:
-        e = f'error: few data points in file {os.path.basename(f)}'
+        e = f'error: only one data row in file'
         lg.a(e)
         return {'error': e}
 

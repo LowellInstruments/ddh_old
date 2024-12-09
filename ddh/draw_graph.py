@@ -21,7 +21,7 @@ from ddh.utils_graph import (
     utils_graph_fetch_csv_data,
     utils_graph_does_exist_fol_req_file,
     utils_graph_delete_fol_req_file,
-    utils_graph_gfm_classify_file_wc_mode
+    utils_graph_classify_file_wc_mode
 )
 from dds.timecache import is_it_time_to
 from mat.linux import linux_is_process_running
@@ -57,23 +57,22 @@ def _percentile(data, perc: int):
 
 
 def gfm_serve():
-    # ------------------------------------------------------------------
-    # GFM: graph water column Mode only plots files with in-water data
-    # ------------------------------------------------------------------
+    # ---------------------------------------
+    # GFM: graph water column Mode helps in
+    # only plotting files with in-water data
+    # ---------------------------------------
     _P_ = "dds_gfm"
 
     def _gfm_serve():
         setproctitle.setproctitle(_P_)
         try:
-            # step 1, grab all CSV files
+            # grab all CSV files and classify them
             fol = get_ddh_folder_path_dl_files()
             ls_tdo = glob(f'{fol}/**/*_TDO.csv', recursive=True)
             ls_dox = glob(f'{fol}/**/*_DissolvedOxygen.csv', recursive=True)
             ls = ls_tdo + ls_dox
-
-            # step 2, classify them
             for i in ls:
-                utils_graph_gfm_classify_file_wc_mode(i)
+                utils_graph_classify_file_wc_mode(i)
 
         except (Exception, ) as ex:
             lg.a(f'error: gfm_serve -> ex {ex}')
@@ -85,12 +84,14 @@ def gfm_serve():
     multiprocessing.active_children()
     if linux_is_process_running(_P_):
         lg.a(f"error: seems last {_P_} took a long time")
-    else:
-        s = f'launching {_P_}'
-        if is_it_time_to(s, 600):
-            # lg.a(s)
-            p = Process(target=_gfm_serve)
-            p.start()
+        return
+
+    # launch the process so we are parallel
+    s = f'launching {_P_}'
+    if is_it_time_to(s, 600):
+        # lg.a(s)
+        p = Process(target=_gfm_serve)
+        p.start()
 
 
 class GraphException(Exception):
@@ -515,7 +516,8 @@ def _graph_process_n_draw(a, r=''):
             arr[arr < 0] = 0
             y1 = list(arr)
             p1.plot(x, y1, pen=pen1, hoverable=True)
-            p2.addItem(pg.PlotCurveItem(x, y2, pen=pen2, hoverable=True, connect='finite'))
+            p2.addItem(pg.PlotCurveItem(x, y2, pen=pen2,
+                                        hoverable=True, connect='finite'))
 
             # left y inverted: 1st parameter y-up, 2nd y-low
             # .1 prevents displaying negative pressure values
