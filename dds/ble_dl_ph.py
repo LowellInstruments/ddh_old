@@ -113,17 +113,11 @@ def _dl_logger_ph_lsb(g):
     notes['uuid_interaction'] = uuid_interaction
     notes['gps'] = g
 
-    _u(f"{STATE_DDS_BLE_DOWNLOAD}/{sn}")
-    lg.a(f"processing pH logger {sn} / mac {mac}")
-
     # get internal / external adapters
     ads = get_adapters()
     ad_i = 0
     ad = ads[ad_i]
     lg.a(f'using LSB with antenna hci{ad_i}')
-
-    # update GUI with connection icon
-    _u(f"{STATE_DDS_BLE_CONNECTING}/{sn}")
 
     # scan
     ad.set_callback_on_scan_found(cb_scan)
@@ -132,6 +126,9 @@ def _dl_logger_ph_lsb(g):
     if not found:
         _une(notes, "scan")
         raise Exception("error: pH scanning")
+
+    # update GUI with connection icon
+    _u(f"{STATE_DDS_BLE_CONNECTING}/{sn}")
 
     # connect
     p = pp[p_i]
