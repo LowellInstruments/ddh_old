@@ -13,7 +13,7 @@ from PyQt5.QtWidgets import (
     QWidget,
     QMessageBox,
     QTableWidgetItem,
-    QHeaderView, QTableWidget,
+    QHeaderView, QTableWidget, QApplication,
 )
 from ddh.db.db_his import DbHis
 from ddh.draw_graph import graph_process_n_draw
@@ -769,6 +769,7 @@ def _gui_parse_udp(my_app, s, ip="127.0.0.1"):
         a.lbl_cnv.setText("cnv_ok")
     elif f == STATE_DDS_LID_CONVERT_PROGRESS:
         a.lbl_cnv.setText(f'cnv_{v}%')
+        QApplication.processEvents()
 
     # -----------
     # GRAPH fields
