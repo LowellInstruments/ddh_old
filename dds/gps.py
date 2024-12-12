@@ -295,9 +295,9 @@ def _gps_measure():
         _g_cached_gps = lat, lon, g[2], float(g[3])
 
         # do the number of satellites notification
-        if dds_get_cfg_vessel_name() == "Maggie Sue":
-            if 0 < ns <= 5 and is_it_time_to('SQS_gps_num_satellites', PERIOD_GPS_NOTI_NUM_GPS_SAT):
-                notify_ddh_number_of_gps_satellites(ns)
+        if (0 < ns <= 6 and
+                is_it_time_to('SQS_gps_num_satellites', PERIOD_GPS_NOTI_NUM_GPS_SAT)):
+            notify_ddh_number_of_gps_satellites(ns)
 
         return g
 

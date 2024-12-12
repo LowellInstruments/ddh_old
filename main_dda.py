@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import multiprocessing
+import sys
 import threading
 import time
 import setproctitle
@@ -15,9 +16,17 @@ DDA_PORT = 8050
 NAME_EXE_DDA = "main_dda"
 MAX_TIME_DIFF = 5 * 60
 app = FastAPI()
-use = exp_get_use_smart_lock_out_time()
 # g_d: global dictionary loggers last seen
 g_d = {}
+
+
+# --------------------------------------
+# small RAM database where we annotate
+# the time when a logger has been added
+# --------------------------------------
+
+# activate it or not
+use = exp_get_use_smart_lock_out_time()
 
 
 # debug
@@ -31,14 +40,12 @@ def _get_now():
     return int(time.perf_counter())
 
 
-
 def _p(s):
     print(f'    {s}')
 
 
 @app.get('/add')
-async def ep_add(mac):
-    # used when just download a logger
+async def ep_slo_add(mac):
     if use != 1:
         return
     global g_d
@@ -48,8 +55,7 @@ async def ep_add(mac):
 
 
 @app.get('/del')
-async def ep_del(mac):
-    # used on button clear specific lock-out time
+async def ep_slo_del(mac):
     if use != 1:
         return
     global g_d
@@ -59,8 +65,7 @@ async def ep_del(mac):
 
 
 @app.get('/del_all')
-async def ep_del_all():
-    # used on button clear all lock-out time
+async def ep_slo_del_all():
     if use != 1:
         return
     global g_d
@@ -69,8 +74,7 @@ async def ep_del_all():
 
 
 @app.get('/update')
-async def ep_update(mac):
-    # used when seen a logger in conjunction with get
+async def ep_slo_update(mac):
     if use != 1:
         return
     global g_d
@@ -82,9 +86,7 @@ async def ep_update(mac):
 
 
 @app.get('/get')
-async def ep_get(mac):
-    # used when querying after mac_is_not_in_Black
-    # used in conjunction with update
+async def ep_slo_get(mac):
     if use != 1:
         return 0
     global g_d
@@ -107,7 +109,7 @@ async def ep_get(mac):
 
 
 @app.get('/list')
-async def ep_list(mac):
+async def ep_slo_list(mac=''):
     if use != 1:
         return
     global g_d
@@ -129,13 +131,14 @@ async def ep_list(mac):
 
 
 def main_dda_as_th():
-    th = threading.Thread(target=main_dda)
+    th = threading.Thread(target=main_dda_as_process)
     th.start()
 
 
-def main_dda():
+def main_dda_as_process():
     # remove any failed previous runs
     killall_main_dda()
+
     def _main_dda():
         setproctitle.setproctitle(NAME_EXE_DDA)
         uvicorn.run(app, host="0.0.0.0", port=DDA_PORT)
@@ -148,11 +151,12 @@ def killall_main_dda():
     sp.run(c, shell=True)
 
 
-def dda_op(ep, mac):
+def slo_req(ep, mac):
+    # SLO: smart lock-out
     assert ep in ('add', 'get', 'update', 'del', 'list')
     u = f'http://0.0.0.0:{DDA_PORT}/{ep}?mac={mac}'
     try:
-        return requests.get(u, timeout=1)
+        return requests.get(u, timeout=.1)
     except (Exception, ) as ex:
         _p(f'error: dda_op -> {ex}')
 
@@ -160,11 +164,12 @@ def dda_op(ep, mac):
 if __name__ == "__main__":
 
     # test, no api running
-    dda_op('del', '')
+    # slo_req('del', '')
+    # sys.exit(0)
 
     if not DEBUG:
         # example, when called from DDH
-        main_dda()
+        main_dda_as_process()
     else:
         _p('calling main_dda_as_thread')
         main_dda_as_th()
@@ -172,33 +177,33 @@ if __name__ == "__main__":
         time.sleep(1)
 
         # add value
-        dda_op('add', _m)
+        slo_req('add', _m)
         _p('sleep 1')
         time.sleep(1)
         _p(f'now is {_get_now()}')
 
         # query, it is there, and update
-        rv = dda_op('get', _m)
+        rv = slo_req('get', _m)
         if rv:
-            dda_op('update', _m)
+            slo_req('update', _m)
         else:
-            dda_op('del', _m)
+            slo_req('del', _m)
         _p('sleep 1')
         time.sleep(1)
         _p(f'now is {_get_now()}')
 
         # list present ones
-        rv = dda_op('list', '')
+        rv = slo_req('list', '')
         _p(f'list {rv.text}')
 
         # query after too much time, will not update
         _p(f'sleep {MAX_TIME_DIFF + 1}')
         time.sleep(MAX_TIME_DIFF + 1)
         _p(f'now is {_get_now()}')
-        rv = dda_op('get', _m)
+        rv = slo_req('get', _m)
         if int(rv.text):
-            dda_op('update', _m)
+            slo_req('update', _m)
         else:
-            dda_op('del', _m)
-        rv = dda_op('list', '')
+            slo_req('del', _m)
+        rv = slo_req('list', '')
         _p(f'list {rv.text}')
