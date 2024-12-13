@@ -180,6 +180,8 @@ def ddh_get_cfg_gear_type():
 def dds_check_config_file():
     b = copy.deepcopy(cfg)
     aux = None
+
+    # check for MISSING ones
     try:
         for i in [
             'aws_en',
@@ -200,6 +202,7 @@ def dds_check_config_file():
         print(f'error: missing flag {aux}')
         return aux
 
+    # check for EXTRA UNKNOWN ones
     aux = b['flags']
     if len(aux):
         print(f'error: dds_check_cfg_has_all_flags')

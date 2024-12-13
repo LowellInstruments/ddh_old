@@ -1,0 +1,2 @@
+lat,lon,ISO 8601 Time,elapsed time (s),agg. time(s),raw ADC Temp,raw ADC Pressure,Temperature (C),Pressure (dbar),Ax,Ay,Az
+,,2024-05-21T10:12:44.000,1,1,37173,884,10.254,10.211,-15,242,9
