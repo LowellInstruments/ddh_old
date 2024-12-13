@@ -1,1 +1,0 @@
-lat,lon,ISO 8601 Time,elapsed time (s),agg. time(s),raw ADC Temp,raw ADC Pressure,Temperature (C),Pressure (dbar),Compensated ADC Pressure, Compensated Pressure (dbar),Ax,Ay,Az
