@@ -203,7 +203,13 @@ def utils_graph_fetch_csv_data(
     _g_ff_tdo = [i for i in _g_ff_tdo if TESTMODE_FILENAME_PREFIX not in i]
 
     # exclude TDO files which are too small (~50 bytes per line)
-    _g_ff_tdo = [i for i in _g_ff_tdo if os.path.getsize(i) > 1024]
+    _filter_tdo_by_size = []
+    for i in _g_ff_tdo:
+        if os.path.getsize(i) > 1024:
+            _filter_tdo_by_size.append(i)
+        else:
+            lg.a(f'warning: discarded TDO file {os.path.basename(i)} < 1024 bytes')
+    _g_ff_tdo = _filter_tdo_by_size
 
     # include any file NOT having a NO_WC flag
     _g_ff_tdo_wc = [i for i in _g_ff_tdo
