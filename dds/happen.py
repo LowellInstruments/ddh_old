@@ -4,25 +4,23 @@ import time
 dh = {}
 
 
-def ev_happen_x_times_in_y_seconds(ev, x, y):
-    global dh
-    start = time.time() - y
-    ls = [i for i in dh[ev] if i >= start]
-    return len(ls) >= x
+def happen_n_times_in_last_t_seconds(ev, n, t):
+    start = time.time() - t
+    return len([i for i in dh[ev] if i >= start]) >= n
 
 
-def ev_clear(ev):
+def happen_clear(ev):
     global dh
     if ev in dh.keys():
         del dh[ev]
 
 
-def ev_clear_all():
+def happen_clear_all():
     global dh
     dh = {}
 
 
-def ev_add(ev):
+def happen_add(ev):
     global dh
     if ev not in dh.keys():
         dh[ev] = []
@@ -30,16 +28,16 @@ def ev_add(ev):
 
 
 if __name__ == '__main__':
-    ev_add('a')
+    happen_add('a')
     time.sleep(.1)
-    ev_add('a')
+    happen_add('a')
     time.sleep(1)
-    rv = ev_happen_x_times_in_y_seconds('a', x=2 , y=1)
+    rv = happen_n_times_in_last_t_seconds('a', n=2 , t=1)
     assert not rv
-    rv = ev_happen_x_times_in_y_seconds('a', x=2 , y=2)
+    rv = happen_n_times_in_last_t_seconds('a', n=2 , t=2)
     assert rv
     time.sleep(1)
-    rv = ev_happen_x_times_in_y_seconds('a', x=2, y=2)
+    rv = happen_n_times_in_last_t_seconds('a', n=2, t=2)
     assert not rv
     print('all ok')
 
