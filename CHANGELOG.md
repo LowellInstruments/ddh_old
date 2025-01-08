@@ -220,7 +220,8 @@
 
     cleaned a bit the code for graphing
 
-4.0.49- January 8, 2025
+4.0.49 January 8, 2025
 
     Bluetooth Range Tool (BRT) now orders dropdown by descending serial number
+    GPS label on table tab shows now less digits
 

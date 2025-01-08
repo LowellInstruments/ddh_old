@@ -1,5 +1,6 @@
 import datetime
 import os
+import re
 import shlex
 import socket
 import time
@@ -793,6 +794,13 @@ def _gui_parse_udp(my_app, s, ip="127.0.0.1"):
 
     elif f == STATE_DDS_NOTIFY_GPS:
         a.lbl_gps.setText(v)
+        regex_2f_n_slash = "[+-]?[0-9]+\.[0-9]+\n[[+-]?[0-9]+\.[0-9]+"
+        if re.search(regex_2f_n_slash, v):
+            # reduce GPS digits
+            _lat, _lon = v.split('\n')
+            _lat = '{:+6.4f}'.format(float(_lat))
+            _lon = '{:+6.4f}'.format(float(_lon))
+            a.lbl_gps.setText(f'{_lat}\n{_lon}')
 
     elif f == STATE_DDS_GPS_POWER_CYCLE:
         # time controlled via function calling this state
