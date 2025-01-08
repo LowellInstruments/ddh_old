@@ -223,5 +223,6 @@
 4.0.49 January 8, 2025
 
     Bluetooth Range Tool (BRT) now orders dropdown by descending serial number
-    GPS label on table tab shows now less digits
+    GPS label on history tab shows now less digits
+    Increased history table row size from 25 to 50
 
