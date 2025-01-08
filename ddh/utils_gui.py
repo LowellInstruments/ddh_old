@@ -297,7 +297,7 @@ def gui_populate_history_tab(my_app):
     a = my_app
     a.tbl_his.tableWidget = None
     a.tbl_his.tableWidget = QTableWidget()
-    a.tbl_his.tableWidget.setRowCount(20)
+    a.tbl_his.tableWidget.setRowCount(25)
     a.tbl_his.tableWidget.setColumnCount(3)
     a.tbl_his.tableWidget.setSortingEnabled(0)
 
@@ -337,6 +337,9 @@ def gui_populate_history_tab(my_app):
     # columns' title labels
     labels = ["logger", "result", "rerun"]
     a.tbl_his.setHorizontalHeaderLabels(labels)
+
+    # show row numbers
+    a.tbl_his.verticalHeader().setVisible(True)
 
 
 def gui_ddh_populate_note_tab_dropdown(my_app):

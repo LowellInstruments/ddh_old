@@ -586,7 +586,7 @@ class Ui_MainWindow(object):
         self.tbl_his.setSelectionMode(QtWidgets.QAbstractItemView.NoSelection)
         self.tbl_his.setSelectionBehavior(QtWidgets.QAbstractItemView.SelectRows)
         self.tbl_his.setWordWrap(False)
-        self.tbl_his.setRowCount(50)
+        self.tbl_his.setRowCount(25)
         self.tbl_his.setColumnCount(3)
         self.tbl_his.setObjectName("tbl_his")
         self.tbl_his.horizontalHeader().setHighlightSections(True)

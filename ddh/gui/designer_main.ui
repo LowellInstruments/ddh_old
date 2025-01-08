@@ -1347,7 +1347,7 @@ font: 19pt &quot;DejaVu Sans&quot;;</string>
              <bool>false</bool>
             </property>
             <property name="rowCount">
-             <number>50</number>
+             <number>25</number>
             </property>
             <property name="columnCount">
              <number>3</number>
@@ -1358,31 +1358,6 @@ font: 19pt &quot;DejaVu Sans&quot;;</string>
             <attribute name="verticalHeaderVisible">
              <bool>false</bool>
             </attribute>
-            <row/>
-            <row/>
-            <row/>
-            <row/>
-            <row/>
-            <row/>
-            <row/>
-            <row/>
-            <row/>
-            <row/>
-            <row/>
-            <row/>
-            <row/>
-            <row/>
-            <row/>
-            <row/>
-            <row/>
-            <row/>
-            <row/>
-            <row/>
-            <row/>
-            <row/>
-            <row/>
-            <row/>
-            <row/>
             <row/>
             <row/>
             <row/>

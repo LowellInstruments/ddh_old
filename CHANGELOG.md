@@ -224,5 +224,5 @@
 
     Bluetooth Range Tool (BRT) now orders dropdown by descending serial number
     GPS label on history tab shows now less digits
-    Increased history table row size from 25 to 50
+    Added numbers of the rows in history table
 
