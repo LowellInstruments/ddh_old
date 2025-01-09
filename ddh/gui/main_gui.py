@@ -373,10 +373,14 @@ class DDH(QMainWindow, d_m.Ui_MainWindow):
         ves = dds_get_cfg_vessel_name()
         f_t = gui_get_cfg_forget_time_secs()
         lhf = ddh_get_cfg_gear_type()
+        # scf_option =
         self.lne_vessel.setText(ves)
         self.lne_forget.setText(str(f_t))
         # set index of the JSON dropdown list
         self.cbox_gear_type.setCurrentIndex(lhf)
+        # set index of TDO SCF profiling
+
+        # self.cbox_scf.setCurrentIndex(scf_option)
 
     def click_btn_note_yes_specific(self):
         s = self.lbl_note.text()

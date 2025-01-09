@@ -487,6 +487,12 @@ def ble_check_antenna_up_n_running(g, h: int):
     if rv.returncode == 0:
         return True
 
+    # know the error so re-run this
+    cr = f"hciconfig hci{h}"
+    rv = sp.run(cr, shell=True, stdout=sp.PIPE, stderr=sp.PIPE)
+    lg.a(f'debug: out stream BLE {rv.stdout}')
+    lg.a(f'debug: err stream BLE {rv.stderr}')
+
     # not UP and running, tell to GUI
     e = f"error: ble_check_antenna_up_n_running #{h}"
     _u(STATE_DDS_BLE_HARDWARE_ERROR)
