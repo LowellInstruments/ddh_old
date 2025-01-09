@@ -226,3 +226,7 @@
     GPS label on history tab shows now less digits
     Added numbers of the rows in history table
 
+4.0.50 January 9, 2025
+
+    added warning string on graphs 'all data is out-of-water'
+

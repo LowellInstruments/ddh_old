@@ -519,6 +519,11 @@ def _graph_process_n_draw(a, r=''):
             p2.addItem(pg.PlotCurveItem(x, y2, pen=pen2,
                                         hoverable=True, connect='finite'))
 
+            # fast check
+            if np.isnan(y1).all() and np.isnan(y2).all():
+                s = f'all data from {t1} to {t2} is out-of-water'
+                raise GraphException(s)
+
             # left y inverted: 1st parameter y-up, 2nd y-low
             # .1 prevents displaying negative pressure values
             p1.setYRange(.01, np.nanmax(y1), padding=0)
