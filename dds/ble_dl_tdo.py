@@ -161,7 +161,8 @@ class BleTDODownload:
         await BleTDODownload.reconfigure_tdo_profiling(notes['gfv'], lc)
 
         # DDH "B" command includes STM, BAT, FRM, RWS
-        do_we_rerun = not get_ddh_do_not_rerun_flag_li()
+        do_not_rerun_flag = get_ddh_do_not_rerun_flag_li()
+        do_we_rerun = not do_not_rerun_flag
         rv, v = await lc.cmd_ddh_b(rerun=do_we_rerun)
         _rae(rv, "ddh_b")
         # a: b'__B 200020000000F072022/08/25 12:13:55'

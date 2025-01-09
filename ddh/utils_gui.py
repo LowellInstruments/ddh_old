@@ -73,14 +73,24 @@ from utils.ddh_shared import (
     STATE_DDS_BLE_RUN_STATUS,
     ddh_get_folder_path_res,
     STATE_DDS_BLE_SCAN_FIRST_EVER,
-    STATE_DDS_BLE_ERROR_MOANA_PLUGIN, STATE_DDS_BLE_DOWNLOAD_ERROR_GDO, STATE_DDS_BLE_ERROR_RUN,
+    STATE_DDS_BLE_ERROR_MOANA_PLUGIN,
+    STATE_DDS_BLE_DOWNLOAD_ERROR_GDO,
+    STATE_DDS_BLE_ERROR_RUN,
     STATE_DDS_REQUEST_GRAPH,
     STATE_DDS_BLE_DOWNLOAD_ERROR_TP_SENSOR,
     ddh_get_db_history_file,
     STATE_DDS_BLE_NO_ASSIGNED_LOGGERS,
-    get_ddh_do_not_rerun_flag_li, ddh_get_root_folder_path, STATE_DDS_BLE_CONNECTING, STATE_DDS_PRESSED_BUTTON_2,
-    get_ddh_local_sw_version, STATE_DDS_GPS_IN_PORT, STATE_DDS_BAD_CONF, STATE_DDS_BLE_DOWNLOAD_STATISTICS,
-    STATE_DDS_PRESSED_BUTTON_1, send_ddh_udp_gui, STATE_DDS_BOOT_GUI,
+    get_ddh_do_not_rerun_flag_li,
+    ddh_get_root_folder_path,
+    STATE_DDS_BLE_CONNECTING,
+    STATE_DDS_PRESSED_BUTTON_2,
+    get_ddh_local_sw_version,
+    STATE_DDS_GPS_IN_PORT,
+    STATE_DDS_BAD_CONF,
+    STATE_DDS_BLE_DOWNLOAD_STATISTICS,
+    STATE_DDS_PRESSED_BUTTON_1,
+    send_ddh_udp_gui,
+    STATE_DDS_BOOT_GUI,
 )
 from utils.logs import lg_gui as lg
 from utils.wdog import gui_dog_touch
@@ -210,8 +220,11 @@ def gui_setup_view(my_win):
     a.lbl_commit.setText(dc)
 
     # checkboxes rerun flag
-    rerun_flag = not get_ddh_do_not_rerun_flag_li()
-    a.chk_rerun.setChecked(rerun_flag)
+    do_not_rerun_flag = get_ddh_do_not_rerun_flag_li()
+    if do_not_rerun_flag:
+        a.chk_rerun.setChecked(False)
+    else:
+        a.chk_rerun.setChecked(True)
 
     # maps enable flag
     me = ddh_get_cfg_maps_en()

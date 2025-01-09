@@ -593,7 +593,7 @@ class DDH(QMainWindow, d_m.Ui_MainWindow):
 
     def click_chk_rerun(self, _):
         if self.chk_rerun.isChecked():
-            # checked, so don't created do not rerun flag
+            # checked = run -> clear "do_not_rerun" flag
             clr_ddh_do_not_rerun_flag_li()
         else:
             set_ddh_do_not_rerun_flag_li()
