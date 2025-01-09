@@ -1,6 +1,9 @@
 import asyncio
 import datetime
 import os
+
+import toml
+
 from dds.gpq import gpq_create_fixed_mode_file
 from dds.lef import lef_create_file
 from dds.notifications_v2 import (notify_logger_error_sensor_pressure,
@@ -9,12 +12,17 @@ from dds.notifications_v2 import (notify_logger_error_sensor_pressure,
 from dds.state import state_ble_init_rv_notes, state_ble_logger_ccx26x2r_needs_a_reset
 from mat.ble.ble_mat_utils import (
     ble_mat_crc_local_vs_remote,
-    DDH_GUI_UDP_PORT, ble_mat_disconnect_all_devices_ll,
+    DDH_GUI_UDP_PORT,
+    ble_mat_disconnect_all_devices_ll,
 )
 from mat.ble.bleak.cc26x2r import BleCC26X2
 from mat.utils import linux_is_rpi
-from utils.ddh_config import (ddh_get_cfg_gear_type, dds_get_cfg_logger_sn_from_mac,
-                              dds_get_cfg_flag_download_test_mode, exp_get_ble_do_crc, exp_get_conf_tdo)
+from utils.ddh_config import (
+    ddh_get_cfg_gear_type,
+    dds_get_cfg_logger_sn_from_mac,
+    dds_get_cfg_flag_download_test_mode,
+    exp_get_ble_do_crc, ddh_get_folder_path_scripts
+)
 from utils.ddh_shared import (
     send_ddh_udp_gui as _u,
     STATE_DDS_BLE_ERROR_RUN,
@@ -56,7 +64,17 @@ class BleTDODownload:
             return
         lg.a(f'debug: v{ver} is enough for TDO profiling reconfiguration')
 
-        d_prf_file = exp_get_conf_tdo()
+        # check we want to load a dynamic SCF file
+        d_prf_file = {}
+        fol_ddh = f'{ddh_get_folder_path_scripts()}/..'
+        for i in ('slow', 'mid', 'fast'):
+            pdf = f'{fol_ddh}/.decided_scf_{i}.toml'
+            if os.path.exists(pdf):
+                lg.a(f'loading SCF file {os.path.basename(pdf)}')
+                d_prf_file = toml.load(pdf)['profiling']
+                d_prf_file['mode'] = i
+                break
+
         if not d_prf_file:
             lg.a('no SCF dictionary from file, not configuring TDO on-the-fly')
             return
@@ -67,17 +85,17 @@ class BleTDODownload:
             return
 
         # banner
-        lg.a(f'debug: TDO profiling reconfiguration to {d_prf_file["mode"]}')
+        lg.a(f"debug: TDO profiling reconfiguration to {d_prf_file['mode']}")
 
         # str_gcf: 'GCF 2d000040000100001000600000200003000010719900030'
         str_gcf = str_gcf[6:]
         i_prf = 0
         for tag, v in d_prf_file.items():
+            if tag == 'mode':
+                continue
             if len(tag) != 3:
                 lg.a(f'error: bad SCF tag {tag}')
                 break
-            if tag == 'mode':
-                continue
             if tag == 'MAC':
                 continue
             if len(v) != 5:
@@ -86,12 +104,12 @@ class BleTDODownload:
             v_prf = str_gcf[i_prf:i_prf+5]
             i_prf += 5
             if v_prf != v:
-                lg.a(f'sending SCF {tag} {v}, existing value was {v_prf}')
+                lg.a(f'warning: sent SCF {tag} {v}, old value was {v_prf}')
                 rv = await lc.cmd_scf(tag, v)
                 bad_rv = rv == 1
                 _rae(bad_rv, f"scf {tag}")
             else:
-                lg.a(f'not sent SCF {tag} {v}, it\'s the same')
+                lg.a(f'debug: not sent SCF {tag} {v}, it\'s the same')
 
     # ----------------------------------------
     # download fast method, commands DDA, DDB

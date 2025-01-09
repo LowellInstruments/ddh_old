@@ -251,6 +251,9 @@ def gui_setup_view(my_win):
     if dds_get_cfg_skip_dl_in_port_en():
         a.cb_skip_in_port.setCurrentIndex(1)
 
+    # advanced tab SCF dropdown
+    a.cbox_scf.addItems(['none', 'slow', 'mid', 'fast'])
+
     return a
 
 
@@ -460,6 +463,9 @@ def gui_setup_buttons(my_app):
     a.cb_g_paint_zones.activated.connect(a.click_graph_btn_paint_zones)
     a.cb_g_switch_tp.activated.connect(a.click_graph_cb_switch_tp)
 
+    # advanced stuff
+    a.cbox_scf.activated.connect(a.click_cbox_scf)
+
 
 def gui_hide_edit_tab(ui):
     # find tab ID, index and keep ref
@@ -559,9 +565,10 @@ def gui_dict_from_list_view(l_v):
     return d
 
 
-def gui_add_to_history_database(mac, e, lat, lon, ep_loc, ep_utc, rerun, u):
+def gui_add_to_history_database(mac, e, lat, lon, ep_loc, ep_utc, rerun, u, info):
     sn = dds_get_cfg_logger_sn_from_mac(mac)
     db = DbHis(ddh_get_db_history_file())
+    e = e + ' ' + info
     db.add(mac, sn, e, lat, lon, ep_loc, ep_utc, rerun, u)
 
 
@@ -832,9 +839,10 @@ def _gui_parse_udp(my_app, s, ip="127.0.0.1"):
 
     elif f == STATE_DDS_NOTIFY_HISTORY:
         if v.startswith("add"):
-            # history/add&{mac}&{ok|error}&{lat}&{lon}&{ep_loc}&{ep_utc}&{rerun}&{uuid}
+            # history/add&{mac}&{ok|error}&{lat}&{lon}&{ep_loc}&{ep_utc}&{rerun}&{uuid}&{info}
             v = v.split("&")
-            gui_add_to_history_database(v[1], v[2], v[3], v[4], v[5], v[6], v[7], v[8])
+            gui_add_to_history_database(v[1], v[2], v[3], v[4], v[5],
+                                        v[6], v[7], v[8], v[9])
         gui_populate_history_tab(a)
         gui_ddh_populate_graph_dropdown_sn(a)
 

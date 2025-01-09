@@ -53,7 +53,8 @@ from utils.ddh_config import (
     dds_get_cfg_flag_ble_en,
     cfg_save_to_file,
     dds_get_cfg_monitored_pairs,
-    ddh_get_cfg_maps_en)
+    ddh_get_cfg_maps_en,
+    ddh_get_folder_path_scripts)
 from utils.ddh_shared import (
     get_ddh_folder_path_dl_files,
     ddh_get_gui_closed_flag_file,
@@ -373,14 +374,17 @@ class DDH(QMainWindow, d_m.Ui_MainWindow):
         ves = dds_get_cfg_vessel_name()
         f_t = gui_get_cfg_forget_time_secs()
         lhf = ddh_get_cfg_gear_type()
-        # scf_option =
         self.lne_vessel.setText(ves)
         self.lne_forget.setText(str(f_t))
         # set index of the JSON dropdown list
         self.cbox_gear_type.setCurrentIndex(lhf)
         # set index of TDO SCF profiling
-
-        # self.cbox_scf.setCurrentIndex(scf_option)
+        scf_index = 0
+        for i, v in enumerate(('slow', 'mid', 'fast', )):
+            pdf = f'{ddh_get_folder_path_scripts()}/../.decided_scf_{v}.toml'
+            if os.path.exists(pdf):
+                scf_index = i + 1
+        self.cbox_scf.setCurrentIndex(scf_index)
 
     def click_btn_note_yes_specific(self):
         s = self.lbl_note.text()
@@ -630,6 +634,35 @@ class DDH(QMainWindow, d_m.Ui_MainWindow):
         self.lbl_map.setMovie(self.gif_map)
         self.gif_map.start()
         self.map_filename = m
+
+    def click_cbox_scf(self):
+        v = self.cbox_scf.currentText()
+        fol = ddh_get_folder_path_scripts()
+        fol_ddh = f'{fol}/..'
+
+        # delete the decided file
+        if v == 'none':
+            for i in ('slow', 'mid', 'fast'):
+                pdf = f'{fol_ddh}/.decided_scf_{i}.toml'
+                if os.path.exists(pdf):
+                    lg.a(f'debug: deleting {pdf}')
+                    os.unlink(pdf)
+            return
+
+        # decide the origin file
+        org_scf_file = f'{fol}/script_logger_tdo_deploy_cfg_{v}.toml'
+        if not os.path.exists(org_scf_file):
+            lg.a(f'error: cannot find {org_scf_file}')
+            return
+
+        # copy the origin file as decided file
+        c = f'cp {org_scf_file} {fol_ddh}/.decided_scf_{v}.toml'
+        rv = sp.run(c, shell=True, stdout=sp.PIPE, stderr=sp.PIPE)
+        if rv.returncode:
+            lg.a(f'error: copying SCF files {rv.stderr}')
+            return
+
+        lg.a(f'set .decided_scf_{v}.toml as SCF file')
 
     def click_graph_btn_reset(self):
         self.g.getPlotItem().enableAutoRange()

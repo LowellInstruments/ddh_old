@@ -362,7 +362,7 @@ async def _ble_interact_one_logger(mac, info: str, h, g):
     # print('ep_loc', ep_loc)
     # print('ep_utc', ep_utc)
     _u(f"{STATE_DDS_NOTIFY_HISTORY}/add&"
-       f"{mac}&{e}&{lat}&{lon}&{ep_loc}&{ep_utc}&{rerun}&{uuid_interaction}")
+       f"{mac}&{e}&{lat}&{lon}&{ep_loc}&{ep_utc}&{rerun}&{uuid_interaction}&{info}")
 
     return rv
 

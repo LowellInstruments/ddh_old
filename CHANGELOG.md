@@ -230,3 +230,6 @@
 
     added warning string on graphs 'all data is out-of-water'
 
+4.0.51 January 9, 2025
+
+    selection of SCF file to deploy to loggers automatically by DDH on "Advanced" tab

@@ -32,6 +32,7 @@ dds/macs/black/
 dds/macs/orange/
 .ruff_cache/
 settings/config.toml
+.decided_scf_*.toml
 
 
 

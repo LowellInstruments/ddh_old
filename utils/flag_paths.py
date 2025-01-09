@@ -60,6 +60,7 @@ DDH_USES_SHIELD_SAILOR = f'{d}/.ddt_sailor_shield.flag'
 LI_FILE_ICCID=f'{d}/.iccid'
 LI_PATH_TEST_MODE = f'{d}/.ddh_test_mode.flag'
 
+
 # stored in "li/ddh" folder
 h = str(pathlib.Path.home())
 h_ddh = f'{h}/li/ddh' if _is_rpi() else f'{h}/PycharmProjects/ddh'
