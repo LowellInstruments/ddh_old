@@ -233,3 +233,7 @@
 4.0.51 January 9, 2025
 
     selection of SCF file to deploy to loggers automatically by DDH on "Advanced" tab
+
+4.0.52 January 10, 2025
+
+    added smart-lock-out feature
