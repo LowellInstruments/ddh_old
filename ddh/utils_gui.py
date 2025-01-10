@@ -129,18 +129,18 @@ def _lock_icon(t):
 def gui_setup_timers(a):
     # timer to update GUI fields
     a.tg = QTimer()
-    a.tg.timeout.connect(a._timer_gui_callback)
+    a.tg.timeout.connect(a._callback_timer_gui)
     a.tg.start(1000)
 
     # timer to measure RPi temperature
     a.tt = QTimer()
-    a.tt.timeout.connect(a._timer_temperature_callback)
+    a.tt.timeout.connect(a._callback_timer_cpu_temperature)
     if linux_is_rpi():
         a.tt.start(1000)
 
     # timer BLE service alive
     a.tb = QTimer()
-    a.tb.timeout.connect(a._timer_ble_alive_callback)
+    a.tb.timeout.connect(a._callback_timer_ble_alive)
     a.tb.start(30000)
 
 

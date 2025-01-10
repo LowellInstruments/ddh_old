@@ -9,7 +9,7 @@ import subprocess as sp
 from ddh.draw_graph import gfm_serve
 from dds.aws import aws_serve
 from dds.ble import ble_interact_all_loggers, ble_show_antenna_type, ble_check_antenna_up_n_running, \
-    ble_op_conditions_met, ble_show_monitored_macs
+    ble_op_conditions_met, ble_show_monitored_macs, BLE_PERIOD_SMART_LOCKOUT_PURGE_S
 from dds.ble_scan import ble_scan
 from dds.cnv import cnv_serve
 from dds.cst import cst_serve
@@ -26,6 +26,7 @@ from dds.gps import (
     gps_power_cycle_if_so,
     gps_know_hat_firmware_version,
 )
+from dds.happen import happen_purge
 from dds.hooks import apply_debug_hooks
 from dds.macs import dds_create_folder_macs_color, dds_macs_color_show_at_boot
 from dds.net import net_serve
@@ -93,7 +94,6 @@ def main_dds():
     dds_macs_color_show_at_boot()
     m_j = dds_get_cfg_monitored_macs()
     dds_check_bluez_version()
-
     ble_show_monitored_macs()
     apply_debug_hooks()
     ble_mat_disconnect_all_devices_ll()

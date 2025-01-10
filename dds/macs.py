@@ -23,8 +23,8 @@ PERIOD_MACS_ORANGE_SECS = 15
 def dds_macs_color_show_at_boot():
     b = macs_black()
     o = macs_orange()
-    lg.a("boot macs_black  = {}".format(b))
-    lg.a("boot macs_orange = {}".format(o))
+    lg.a(f"boot macs_black  = {b}")
+    lg.a(f"boot macs_orange = {o}")
 
 
 def dds_create_folder_macs_color():
@@ -38,13 +38,14 @@ def dds_create_folder_macs_color():
 
 def _macs_get_them_by_color(s) -> list:
     assert s in ("orange", "black")
-    valid = []
     now = int(time.time())
     fol = str(get_dds_folder_path_macs() / s)
-    wc = f"{fol}/*"
+    mask = f"{fol}/*"
+    valid = []
 
-    for f in glob.glob(wc):
+    for f in glob.glob(mask):
         mac, t = f.split("@")
+        # purge while searching
         if now > int(t):
             lg.a(f"macs {s} purge {f}")
             os.unlink(f)
@@ -69,20 +70,19 @@ def _add_mac(c, mac):
     t = int(time.time()) + ft
     fol = str(get_dds_folder_path_macs() / c)
     mac = mac.replace(":", "-")
-    f = "{}/{}@{}".format(fol, mac, t)
+    f = f"{fol}/{mac}@{t}"
     pathlib.Path(f).touch()
-    s = "{}'ed mac {}, value {}, now {}"
     now = int(time.time())
-    lg.a(s.format(c, mac, t, now))
+    lg.a(f"{c}'ed mac {mac}, value {t}, now {now}")
 
 
 def _rm_mac(c, m):
     assert c in ("orange", "black")
     m = m.replace(":", "-")
     fol = str(get_dds_folder_path_macs() / c)
-    wc = "{}/{}@*".format(fol, m)
-    for f in glob.glob(wc):
-        lg.a("MACS delete {}".format(f))
+    mask = f"{fol}/{m}@*"
+    for f in glob.glob(mask):
+        lg.a(f"MACS delete {f}")
         os.unlink(f)
 
 

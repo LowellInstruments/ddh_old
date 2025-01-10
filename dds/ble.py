@@ -17,6 +17,7 @@ from dds.ble_dl_rn4020 import ble_interact_rn4020
 from dds.ble_dl_tdo import ble_interact_tdo
 from dds.ble_dl_tdo_lsb import ble_interact_tdo_lsb
 from dds.gps import gps_log_position_logger, gps_simulate_boat_speed
+from dds.happen import happen_add_one_as_list, happen_clear_all, happen_purge, happen_contains
 from dds.in_ports_geo import dds_ask_in_port_to_ddn
 from dds.macs import (
     rm_mac_black,
@@ -53,7 +54,7 @@ from utils.ddh_config import (
     exp_get_use_aws_cp,
     dds_get_cfg_monitored_macs,
     ddh_get_cfg_gear_type,
-    dds_get_cfg_moving_speed
+    dds_get_cfg_moving_speed, exp_get_use_smart_lockout
 )
 from utils.ddh_shared import (
     send_ddh_udp_gui as _u,
@@ -81,6 +82,8 @@ from utils.ddh_shared import (
 from utils.logs import lg_dds as lg
 
 
+BLE_PERIOD_SMART_LOCKOUT_PURGE_S = 300
+BLE_PERIOD_TELL_LOGGER_UNDER_SLO_S = 600
 _g_logger_errors = {}
 
 
@@ -157,6 +160,7 @@ def _ble_analyze_and_graph_logger_result(rv,
 
     # success, update GUI with rerun
     if rv == 0:
+        happen_add_one_as_list(f'dl_{mac}')
         rm_mac_black(mac)
         rm_mac_orange(mac)
         add_mac_black(mac)
@@ -369,6 +373,9 @@ async def _ble_interact_one_logger(mac, info: str, h, g):
 
 async def ble_interact_all_loggers(macs_det, macs_mon, g, _h: int, _h_desc):
 
+    # purge BLE smart lock-out, if so
+    happen_purge(BLE_PERIOD_SMART_LOCKOUT_PURGE_S, 'dl_')
+
     for mac, model in macs_det.items():
         mac = mac.lower()
         if mac not in macs_mon:
@@ -382,6 +389,18 @@ async def ble_interact_all_loggers(macs_det, macs_mon, g, _h: int, _h_desc):
 
         if _b or _o:
             continue
+
+        # check smart lock-out
+        sn = dds_get_cfg_logger_sn_from_mac(mac)
+        ev = f'dl_{mac}'
+        if exp_get_use_smart_lockout == 1 and happen_contains(ev):
+            happen_add_one_as_list(ev)
+            if is_it_time_to(ev, BLE_PERIOD_TELL_LOGGER_UNDER_SLO_S):
+                lg.a(f'warning: ignoring logger {sn} because left on-deck')
+            continue
+
+        # indicate we are adding this logger mac to smart lock-out
+        lg.a(f'debug: adding logger {sn} to smart lock-out')
 
         # show the position of the logger we will download
         gps_log_position_logger(g)
@@ -423,6 +442,7 @@ def ble_op_conditions_met(g) -> bool:
     if os.path.isfile(flag):
         lg.a("debug: application override set")
         os.unlink(flag)
+        happen_clear_all('dl_')
         return True
 
     # case: forgot to assign loggers

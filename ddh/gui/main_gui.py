@@ -124,10 +124,10 @@ class DDH(QMainWindow, d_m.Ui_MainWindow):
 
         lg.a("OK: DDH GUI finished booting")
 
-    def _timer_gui_callback(self):
+    def _callback_timer_gui(self):
         gui_timer_fxn(self)
 
-    def _timer_temperature_callback(self):
+    def _callback_timer_cpu_temperature(self):
 
         # measure RAM usage of DDH box
         m = psutil.virtual_memory()
@@ -153,13 +153,13 @@ class DDH(QMainWindow, d_m.Ui_MainWindow):
                     lg.a(f"debug: box temperature {ans} degrees Celsius")
 
         except (Exception,) as ex:
-            lg.a("error: getting vcgencmd -> {}".format(ex))
+            lg.a(f"error: getting vcgencmd -> {ex}")
 
         # 600 seconds = 10 minutes
         self.tt.start(600000)
 
     @staticmethod
-    def _timer_ble_alive_callback():
+    def _callback_timer_ble_alive():
         if not linux_is_process_running(NAME_EXE_DDS):
             if is_it_time_to('tell_BLE_dead', 1800):
                 lg.a("warning: BLE service seems dead")
@@ -413,7 +413,7 @@ class DDH(QMainWindow, d_m.Ui_MainWindow):
                         lg.a("warning: could not clear lock-out selective")
 
             except (OSError, Exception) as ex:
-                lg.a("error: {}".format(ex))
+                lg.a(f"error: {ex}")
                 return
 
         lg.a("pressed note button 'OK'")
