@@ -160,7 +160,9 @@ def _ble_analyze_and_graph_logger_result(rv,
 
     # success, update GUI with rerun
     if rv == 0:
-        happen_add_one_as_list(f'dl_{mac}')
+        if exp_get_use_smart_lockout == 1:
+            lg.a(f'debug: adding logger {sn} to smart lock-out')
+            happen_add_one_as_list(f'dl_{mac}')
         rm_mac_black(mac)
         rm_mac_orange(mac)
         add_mac_black(mac)
