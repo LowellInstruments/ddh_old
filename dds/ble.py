@@ -160,7 +160,7 @@ def _ble_analyze_and_graph_logger_result(rv,
 
     # success, update GUI with rerun
     if rv == 0:
-        if exp_get_use_smart_lockout == 1:
+        if exp_get_use_smart_lockout() == 1:
             lg.a(f'debug: adding logger {sn} to smart lock-out')
             happen_add_one_as_list(f'dl_{mac}')
         rm_mac_black(mac)
@@ -395,7 +395,7 @@ async def ble_interact_all_loggers(macs_det, macs_mon, g, _h: int, _h_desc):
         # check smart lock-out
         sn = dds_get_cfg_logger_sn_from_mac(mac)
         ev = f'dl_{mac}'
-        if exp_get_use_smart_lockout == 1 and happen_contains(ev):
+        if exp_get_use_smart_lockout() == 1 and happen_contains(ev):
             happen_add_one_as_list(ev)
             if is_it_time_to(ev, BLE_PERIOD_TELL_LOGGER_UNDER_SLO_S):
                 lg.a(f'warning: ignoring logger {sn} because left on-deck')
