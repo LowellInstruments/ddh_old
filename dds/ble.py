@@ -82,8 +82,10 @@ from utils.ddh_shared import (
 from utils.logs import lg_dds as lg
 
 
-BLE_PERIOD_SMART_LOCKOUT_PURGE_S = 300
-BLE_PERIOD_TELL_LOGGER_UNDER_SLO_S = 600
+# time the logger is NOT detected by BLE scan
+BLE_PERIOD_SMART_LOCKOUT_PURGE_S = 120
+# how often we tell this logger is not downloaded because SLO
+BLE_PERIOD_TELL_LOGGER_UNDER_SLO_S = 300
 _g_logger_errors = {}
 
 
