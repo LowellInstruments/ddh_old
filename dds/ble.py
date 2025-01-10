@@ -500,19 +500,20 @@ def ble_check_antenna_up_n_running(g, h: int):
                 sp.run(cr, shell=True, stdout=sp.PIPE, stderr=sp.PIPE)
             else:
                 lg.a(f"non-rpi CANNOT hciconfig reset on hci{i}")
-        time.sleep(2)
 
     # read the interfaces state
-    cr = f"hciconfig hci{h} | grep 'UP RUNNING'"
-    rv = sp.run(cr, shell=True, stdout=sp.PIPE, stderr=sp.PIPE)
-    if rv.returncode == 0:
-        return True
+    for i in range(10):
+        cr = f"hciconfig hci{h} | grep 'UP RUNNING'"
+        rv = sp.run(cr, shell=True, stdout=sp.PIPE, stderr=sp.PIPE)
+        if rv.returncode == 0:
+            return True
+        time.sleep(1)
 
     # know the error so re-run this
-    cr = f"hciconfig hci{h}"
-    rv = sp.run(cr, shell=True, stdout=sp.PIPE, stderr=sp.PIPE)
-    lg.a(f'debug: out stream BLE {rv.stdout}')
-    lg.a(f'debug: err stream BLE {rv.stderr}')
+    # cr = f"hciconfig hci{h}"
+    # rv = sp.run(cr, shell=True, stdout=sp.PIPE, stderr=sp.PIPE)
+    # lg.a(f'debug: out stream BLE {rv.stdout}')
+    # lg.a(f'debug: err stream BLE {rv.stderr}')
 
     # not UP and running, tell to GUI
     e = f"error: ble_check_antenna_up_n_running #{h}"
