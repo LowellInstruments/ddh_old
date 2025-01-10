@@ -401,9 +401,6 @@ async def ble_interact_all_loggers(macs_det, macs_mon, g, _h: int, _h_desc):
                 lg.a(f'warning: ignoring logger {sn} because left on-deck')
             continue
 
-        # indicate we are adding this logger mac to smart lock-out
-        lg.a(f'debug: adding logger {sn} to smart lock-out')
-
         # show the position of the logger we will download
         gps_log_position_logger(g)
 
