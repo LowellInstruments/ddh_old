@@ -237,3 +237,7 @@
 4.0.52 January 10, 2025
 
     added smart-lock-out feature
+
+4.0.53 January 15, 2025
+
+    added map trawls feature
