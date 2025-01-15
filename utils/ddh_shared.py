@@ -88,6 +88,10 @@ PID_FILE_DDH_CONTROLLER = f"/tmp/{NAME_EXE_DDH_CONTROLLER}.pid"
 PID_FILE_DDS_CONTROLLER = f"/tmp/{NAME_EXE_DDS_CONTROLLER}.pid"
 
 
+DDN_API_IP = 'ddn.lowellinstruments.com'
+DDN_API_PORT = 9000
+
+
 _sk = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
 
@@ -143,6 +147,28 @@ def dds_ensure_proper_working_folder():
     if not os.path.exists("main_dds.py"):
         print(f"{os.getcwd()} = BAD working directory")
         os.exit(1)
+
+
+def get_html_file_no_trawl(req_html):
+    req_html = os.path.basename(req_html)
+    fol = str(ddh_get_folder_path_res())
+    p = f'{fol}/no_trawl.html'
+    if os.path.exists(p):
+        os.unlink(p)
+    s = """
+    <!DOCTYPE html>
+    <html>
+    <body>
+    <p style="padding-left: 40px;">&nbsp;</p>
+    <p style="padding-left: 40px;">&nbsp;</p>
+    <h2 style="text-align: center;"><span style="color: #3366ff;">trawl map not available for file</span></h2>
+    <h2 style="text-align: center;"><span style="color: #3366ff;">{}</span></h2>
+    </body>
+    </html>
+    """.format(req_html)
+    with open(p, 'w') as f:
+        f.write(s)
+    return p
 
 
 def ddh_get_folder_path_res() -> Path:

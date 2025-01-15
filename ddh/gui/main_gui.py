@@ -9,7 +9,7 @@ import os
 import pathlib
 import shutil
 import sys
-from PyQt5.QtCore import QTimer, Qt, QCoreApplication
+from PyQt5.QtCore import QTimer, Qt, QCoreApplication, QUrl
 from PyQt5.QtGui import QMovie
 from PyQt5.QtWidgets import QMainWindow, QMessageBox
 import ddh.gui.designer_main as d_m
@@ -40,8 +40,9 @@ from ddh.utils_gui import (
     gui_hide_maps_next_btn,
     gui_setup_create_variables,
     gui_setup_graph_tab,
-    gui_setup_timers, gui_setup_bootsplash
+    gui_setup_timers, gui_setup_bootsplash, gui_ddh_populate_dropdown_trawls_logger
 )
+from ddh.utils_trawls import get_prev_trawl_of_a_logger, try_get_map_of_trawl, get_last_trawl_of_a_logger
 from dds.notifications_v2 import notify_via_sms
 from dds.timecache import is_it_time_to
 from mat.linux import linux_is_process_running
@@ -75,7 +76,7 @@ from utils.ddh_shared import (
     clr_ddh_do_not_rerun_flag_li,
     dds_get_cnv_requested_via_gui_flag_file,
     NAME_EXE_API,
-    ddh_get_folder_path_res
+    ddh_get_folder_path_res, get_html_file_no_trawl
 )
 
 from utils.logs import lg_gui as lg  # noqa: E402
@@ -93,12 +94,12 @@ class DDH(QMainWindow, d_m.Ui_MainWindow):
     def __init__(self):
 
         super(DDH, self).__init__()
+        gui_setup_create_variables(self)
         gui_setup_view(self)
         gui_setup_bootsplash(self)
         gui_setup_buttons(self)
         gui_setup_center_window(self)
         lg.are_enabled(True)
-        gui_setup_create_variables(self)
         gui_dog_clear()
         gui_ddh_set_brightness(self)
 
@@ -121,6 +122,9 @@ class DDH(QMainWindow, d_m.Ui_MainWindow):
         file_flag = dds_get_ddh_got_an_update_flag_file()
         if os.path.exists(file_flag):
             send_ddh_udp_gui(STATE_DDS_SOFTWARE_UPDATED)
+
+        # trawls
+        gui_ddh_populate_dropdown_trawls_logger(self)
 
         lg.a("OK: DDH GUI finished booting")
 
@@ -615,6 +619,31 @@ class DDH(QMainWindow, d_m.Ui_MainWindow):
         else:
             lg.a('user selected graphs SKIP out-of-water data')
             pathlib.Path(p).touch()
+
+    def click_btn_trawls_last_file(self, _):
+        sn = self.cb_trawls_logger.currentText()
+        f_cst = get_last_trawl_of_a_logger(sn)
+        if not f_cst:
+            return
+        f_html = try_get_map_of_trawl(f_cst)
+        if not f_html:
+            f_html = get_html_file_no_trawl(f_cst)
+        f_html = 'file://' + f_html.replace('/', '//')
+        self.webView.setUrl(QUrl(f_html))
+
+    def click_btn_trawls_prev_file(self, _):
+        sn = self.cb_trawls_logger.currentText()
+        f_cst = get_prev_trawl_of_a_logger(sn)
+        if not f_cst:
+            return
+        f_html = try_get_map_of_trawl(f_cst)
+        if not f_html:
+            f_html = get_html_file_no_trawl(f_cst)
+        f_html = 'file://' + f_html.replace('/', '//')
+        self.webView.setUrl(QUrl(f_html))
+
+    def click_cb_trawls_logger(self, _):
+        self.click_btn_trawls_last_file(None)
 
     def click_chk_b_maps(self, _):
         c = cfg_load_from_file()

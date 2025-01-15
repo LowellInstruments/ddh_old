@@ -305,6 +305,10 @@ def exp_get_ble_do_crc():
     return _get_exp_key_from_cfg('ble_do_crc')
 
 
+def exp_get_enable_trawls_tab():
+    return _get_exp_key_from_cfg('use_trawls_tab')
+
+
 def exp_get_conf_dox():
     rv = _get_exp_key_from_cfg('conf_dox')
     if rv == -1:

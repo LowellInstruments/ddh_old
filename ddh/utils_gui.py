@@ -38,7 +38,7 @@ from utils.ddh_config import (
     ddh_get_cfg_maps_en,
     dds_get_cfg_flag_download_test_mode,
     dds_get_cfg_box_sn,
-    dds_get_cfg_skip_dl_in_port_en
+    dds_get_cfg_skip_dl_in_port_en, exp_get_enable_trawls_tab, dds_get_cfg_monitored_pairs
 )
 
 from utils.ddh_shared import (
@@ -164,6 +164,7 @@ def gui_setup_create_variables(a):
     a.tab_edit_wgt_ref = None
     a.tab_map_wgt_ref = None
     a.tab_note_wgt_ref = None
+    a.tab_trawls_wgt_ref = None
     a.tab_recipe_wgt_ref = None
     a.tab_graph_wgt_ref = None
     a.key_pressed = None
@@ -192,6 +193,7 @@ def gui_setup_view(my_win):
     a.tabs.setTabIcon(4, QIcon("ddh/gui/res/icon_tweak.png"))
     a.tabs.setTabIcon(5, QIcon("ddh/gui/res/icon_graph.ico"))
     a.tabs.setTabIcon(6, QIcon("ddh/gui/res/icon_waves.png"))
+    a.tabs.setTabIcon(7, QIcon("ddh/gui/res/icon_trawls.ico"))
     a.setWindowIcon(QIcon("ddh/gui/res/icon_lowell.ico"))
     a.lbl_brightness.setPixmap(QPixmap("ddh/gui/res/bright.png"))
     a.lbl_boat.setPixmap(QPixmap("ddh/gui/res/img_boat.png"))
@@ -260,6 +262,12 @@ def gui_setup_view(my_win):
         a.chk_ow.setChecked(False)
     else:
         a.chk_ow.setChecked(True)
+
+    # trawls tab
+    if exp_get_enable_trawls_tab() == 1:
+        gui_show_trawls_tab(a)
+    else:
+        gui_hide_trawls_tab(a)
 
     return a
 
@@ -438,6 +446,8 @@ def gui_setup_buttons(my_app):
     a.lbl_uptime.mousePressEvent = a.click_lbl_uptime_pressed
     a.lbl_uptime.mouseReleaseEvent = a.click_lbl_uptime_released
     a.lbl_map.mousePressEvent = a.click_lbl_map_pressed
+    a.btn_trawls_last_file.clicked.connect(a.click_btn_trawls_last_file)
+    a.btn_trawls_prev_file.clicked.connect(a.click_btn_trawls_prev_file)
 
     # buttons' connections
     a.btn_known_clear.clicked.connect(a.click_btn_clear_known_mac_list)
@@ -462,6 +472,7 @@ def gui_setup_buttons(my_app):
     a.btn_sms.clicked.connect(a.click_btn_sms)
     a.btn_map_next.clicked.connect(a.click_btn_map_next)
     a.chk_ow.toggled.connect(a.click_chk_ow)
+    a.cb_trawls_logger.activated.connect(a.click_cb_trawls_logger)
 
     # graph stuff
     a.btn_g_reset.clicked.connect(a.click_graph_btn_reset)
@@ -530,6 +541,14 @@ def gui_show_graph_tab(ui):
     ui.tabs.setCurrentIndex(i)
 
 
+def gui_show_trawls_tab(ui):
+    icon = QIcon("ddh/gui/res/icon_trawls.ico")
+    ui.tabs.addTab(ui.tab_trawls_wgt_ref, icon, " Trawls")
+    p = ui.tabs.findChild(QWidget, "tab_trawls")
+    i = ui.tabs.indexOf(p)
+    ui.tabs.setCurrentIndex(i)
+
+
 def gui_show_advanced_tab(ui):
     icon = QIcon("ddh/gui/res/icon_tweak.png")
     ui.tabs.addTab(ui.tab_recipe_wgt_ref, icon, " Advanced")
@@ -551,6 +570,20 @@ def gui_hide_note_tab(ui):
     i = ui.tabs.indexOf(p)
     ui.tab_note_wgt_ref = ui.tabs.widget(i)
     ui.tabs.removeTab(i)
+
+
+def gui_hide_trawls_tab(ui):
+    p = ui.tabs.findChild(QWidget, "tab_trawls")
+    i = ui.tabs.indexOf(p)
+    ui.tab_trawls_wgt_ref = ui.tabs.widget(i)
+    ui.tabs.removeTab(i)
+
+
+def gui_ddh_populate_dropdown_trawls_logger(my_app):
+    a = my_app
+    a.cb_trawls_logger.clear()
+    for mac, sn in dds_get_cfg_monitored_pairs().items():
+        a.cb_trawls_logger.addItem(sn)
 
 
 def gui_show_note_tab_delete_black_macs(ui):
@@ -1035,3 +1068,4 @@ def gui_get_my_current_wlan_ssid() -> str:
         return wifi_name
 
     return ""
+
