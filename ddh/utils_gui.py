@@ -92,6 +92,7 @@ from utils.ddh_shared import (
     send_ddh_udp_gui,
     STATE_DDS_BOOT_GUI,
 )
+from utils.flag_paths import LI_PATH_PLT_ONLY_INSIDE_WATER
 from utils.logs import lg_gui as lg
 from utils.wdog import gui_dog_touch
 
@@ -253,6 +254,12 @@ def gui_setup_view(my_win):
 
     # advanced tab SCF dropdown
     a.cbox_scf.addItems(['none', 'slow', 'mid', 'fast'])
+
+    # advanced tab graphs include out of water data
+    if os.path.exists(LI_PATH_PLT_ONLY_INSIDE_WATER):
+        a.chk_ow.setChecked(False)
+    else:
+        a.chk_ow.setChecked(True)
 
     return a
 
@@ -454,6 +461,7 @@ def gui_setup_buttons(my_app):
     a.cb_s3_uplink_type.activated.connect(a.click_cb_s3_uplink_type)
     a.btn_sms.clicked.connect(a.click_btn_sms)
     a.btn_map_next.clicked.connect(a.click_btn_map_next)
+    a.chk_ow.toggled.connect(a.click_chk_ow)
 
     # graph stuff
     a.btn_g_reset.clicked.connect(a.click_graph_btn_reset)

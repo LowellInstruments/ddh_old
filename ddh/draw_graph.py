@@ -57,10 +57,10 @@ def _percentile(data, perc: int):
 
 
 def gfm_serve():
-    # ---------------------------------------
-    # GFM: graph water column Mode helps in
-    # only plotting files with in-water data
-    # ---------------------------------------
+    # ------------------------------------------------
+    # GFM: graph water column Mode
+    # helps in plotting only files with in-water data
+    # ------------------------------------------------
     _P_ = "dds_gfm"
 
     def _gfm_serve():

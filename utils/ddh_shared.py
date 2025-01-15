@@ -14,7 +14,7 @@ import toml
 
 from utils.flag_paths import TMP_PATH_GUI_CLOSED_FLAG, TMP_PATH_DISABLE_BLE, TMP_PATH_AWS_HAS_WORK_VIA_GUI, \
     TMP_PATH_DDH_GOT_UPDATE, TMP_PATH_DDH_APP_OVERRIDE, TMP_PATH_GPS_DUMMY, \
-    TMP_PATH_CNV_REQUESTED_VIA_GUI, LI_PATH_DDH_VERSION
+    TMP_PATH_CNV_REQUESTED_VIA_GUI, LI_PATH_DDH_VERSION, LI_PATH_PLT_ONLY_INSIDE_WATER
 
 TESTMODE_FILENAME_PREFIX = 'testfile_'
 
@@ -153,6 +153,10 @@ def ddh_get_folder_path_res() -> Path:
 def ddh_get_folder_path_in_port_db() -> Path:
     p = str(ddh_get_root_folder_path())
     return Path(f"{p}/inp_data/emolt_ports")
+
+
+def ddh_do_we_graph_out_of_water_data():
+    return not os.path.exists(LI_PATH_PLT_ONLY_INSIDE_WATER)
 
 
 def ddh_get_gui_closed_flag_file() -> Path:

@@ -11,7 +11,7 @@ from utils.ddh_config import dds_get_cfg_flag_graph_test_mode
 from utils.ddh_shared import (
     get_ddh_folder_path_dl_files,
     get_dl_folder_path_from_mac,
-    TESTMODE_FILENAME_PREFIX
+    TESTMODE_FILENAME_PREFIX, ddh_do_we_graph_out_of_water_data
 )
 from utils.logs import lg_gra as lg
 from utils.flag_paths import TMP_PATH_GRAPH_REQ_JSON
@@ -87,8 +87,10 @@ def utils_graph_classify_file_wc_mode(p):
     if _is_tdo:
         lg.a(f'debug: processing water column mode for TDO file {bn}')
         df = _utils_graph_cached_read_csv(p)
+
         # df_iw: dataframe of values in water
         df_iw = df[df['Pressure (dbar)'] > 12]
+
         been_in_water = len(df_iw) > 0
         if been_in_water:
             lg.a(f'graph water column mode: ON for TDO file {bn}')
@@ -212,10 +214,20 @@ def utils_graph_fetch_csv_data(
     _g_ff_tdo = _filter_tdo_by_size
 
     # include any file NOT having a NO_WC flag
-    _g_ff_tdo_wc = [i for i in _g_ff_tdo
-                    if not os.path.exists(_gfm_build_filename_no_wc(i))]
-    _g_ff_dot_wc = [i for i in _g_ff_dot
-                    if not os.path.exists(_gfm_build_filename_no_wc(i))]
+    if ddh_do_we_graph_out_of_water_data():
+        lg.a('debug: graph INCLUDING out of water data')
+        _g_ff_tdo_wc = _g_ff_tdo
+        _g_ff_dot_wc = _g_ff_dot
+    else:
+        lg.a('debug: graph SKIPPING out of water data')
+        _g_ff_tdo_wc = [
+            i for i in _g_ff_tdo
+            if not os.path.exists(_gfm_build_filename_no_wc(i))
+        ]
+        _g_ff_dot_wc = [
+            i for i in _g_ff_dot
+            if not os.path.exists(_gfm_build_filename_no_wc(i))
+        ]
 
     # debug: show them
     # for i in _g_ff_tdo:

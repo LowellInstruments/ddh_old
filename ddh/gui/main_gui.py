@@ -82,7 +82,7 @@ from utils.logs import lg_gui as lg  # noqa: E402
 import subprocess as sp  # noqa: E402
 
 from utils.flag_paths import (
-    LI_PATH_GROUPED_S3_FILE_FLAG,
+    LI_PATH_GROUPED_S3_FILE_FLAG, LI_PATH_PLT_ONLY_INSIDE_WATER,
 )
 from utils.wdog import gui_dog_clear
 
@@ -605,6 +605,16 @@ class DDH(QMainWindow, d_m.Ui_MainWindow):
             clr_ddh_do_not_rerun_flag_li()
         else:
             set_ddh_do_not_rerun_flag_li()
+
+    def click_chk_ow(self, _):
+        p = LI_PATH_PLT_ONLY_INSIDE_WATER
+        if self.chk_ow.isChecked():
+            lg.a('user selected graphs INCLUDE out-of-water data')
+            if os.path.exists(p):
+                os.unlink(p)
+        else:
+            lg.a('user selected graphs SKIP out-of-water data')
+            pathlib.Path(p).touch()
 
     def click_chk_b_maps(self, _):
         c = cfg_load_from_file()
