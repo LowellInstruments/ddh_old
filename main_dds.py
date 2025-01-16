@@ -272,7 +272,7 @@ def controller_main_dds():
     # kill any old son
     ne = NAME_EXE_DDS
     c = (f'(ps -aux | grep -w {ne} | grep -v grep) '
-         f'&& echo "kill loose API" && killall {ne} && sleep 3')
+         f'&& echo "kill loose DDS" && killall {ne} && sleep 3')
     sp.run(c, shell=True)
 
     while 1:

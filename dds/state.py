@@ -1,6 +1,24 @@
 import os
 from utils.logs import lg_sta as lg
 from utils.ddh_shared import get_ddh_folder_path_tweak
+import toml
+
+FILE_SAVED_BRIGHTNESS = f'{get_ddh_folder_path_tweak()}/.saved_brightness.toml'
+
+
+def state_get_saved_brightness():
+    if not os.path.exists(FILE_SAVED_BRIGHTNESS):
+        state_save_brightness(100)
+    with open(FILE_SAVED_BRIGHTNESS, 'r') as f:
+        d = toml.load(f)
+        return d['saved_brightness']
+
+
+def state_save_brightness(v):
+    d = dict()
+    d['brightness'] = v
+    with open(FILE_SAVED_BRIGHTNESS, 'w') as f:
+        toml.dump(d, f)
 
 
 def state_ble_init_rv_notes(d: dict):
