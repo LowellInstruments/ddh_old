@@ -180,6 +180,17 @@ def cb_test_buttons():
         p_e(str(ex))
 
 
+def cb_test_buttons_new():
+    try:
+        if not is_rpi():
+            p_e('no Rpi for buttons test')
+            return
+        from scripts.script_test_box_buttons_new import main_test_box_buttons
+        main_test_box_buttons()
+    except (Exception,) as ex:
+        p_e(str(ex))
+
+
 def cb_run_brt():
     c = '/home/pi/li/ddh/run_brt.sh'
     rv = sp.run(c, shell=True, stderr=sp.PIPE, stdout=sp.PIPE)
@@ -332,6 +343,7 @@ def main_ddc():
             '6': (f"6) check all keys    [{fdk}]", cb_print_check_all_keys),
             '7': (f"7) test GPS shield", cb_test_gps_quectel),
             '8': (f"8) test side buttons", cb_test_buttons),
+            '9': (f"9) test side buttons -> new", cb_test_buttons_new),
             'r': (f"r) run BLE range tool", cb_run_brt),
             # 'e': (f"e) edit BLE range tool", cb_edit_brt_cfg_file),
             'o': (f"o) deploy logger DOX", cb_run_deploy_dox),
