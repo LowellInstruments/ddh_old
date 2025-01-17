@@ -766,7 +766,7 @@ class Ui_MainWindow(object):
         self.verticalLayout_8.addLayout(self.horizontalLayout_18)
         self.horizontalLayout_19 = QtWidgets.QHBoxLayout()
         self.horizontalLayout_19.setObjectName("horizontalLayout_19")
-        self.webView = QtWebEngineWidgets.QWebEngineView(self.tab_trawls)
+        self.webView = QtWebKitWidgets.QWebView(self.tab_trawls)
         self.webView.setUrl(QtCore.QUrl("about:blank"))
         self.webView.setObjectName("webView")
         self.horizontalLayout_19.addWidget(self.webView)
@@ -837,4 +837,4 @@ class Ui_MainWindow(object):
         self.btn_trawls_prev_file.setText(_translate("MainWindow", "prev."))
         self.btn_trawls_last_file.setText(_translate("MainWindow", "last"))
         self.tabs.setTabText(self.tabs.indexOf(self.tab_trawls), _translate("MainWindow", " Trawls"))
-from PyQt5 import QtWebEngineWidgets
+from PyQt5 import QtWebKitWidgets
