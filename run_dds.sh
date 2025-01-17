@@ -12,10 +12,6 @@ if [ -f "$LI_DDH_NEEDS_REBOOT_POST_INSTALL" ]; then
 fi
 
 
-# for crontab to detect already running
-check_already_running "main_dds_controller"
-
-
 
 # install APT things that we will need
 dpkg -s python3-pyqt5.qtwebkit | grep Status
@@ -23,6 +19,10 @@ rv=$?
 if [ $rv -ne 0 ]; then
     sudo apt install python3-pyqt5.qtwebkit
 fi
+
+
+# for crontab to detect already running
+check_already_running "main_dds_controller"
 
 
 
