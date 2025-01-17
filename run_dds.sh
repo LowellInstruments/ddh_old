@@ -23,6 +23,12 @@ if [ $rv -ne 0 ]; then
 fi
 
 
+# tweaking python files for PyQtWeb*Widgets
+echo 'tweaking designer_main.py depending on laptop vs. raspberry'
+sed -i 's/from PyQt5 import QtWebEngineWidgets/from PyQt5 import QtWebKitWidgets/g' designer_main.py
+sed -i 's/self.webView = QtWebEngineWidgets.QWebEngineView(self.tab_trawls)/self.webView = QtWebKitWidgets.QWebView(self.tab_trawls)/g' designer_main.py
+
+
 # for crontab to detect already running
 check_already_running "main_dds_controller"
 
