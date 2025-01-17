@@ -17,6 +17,16 @@ check_already_running "main_dds_controller"
 
 
 
+# install APT things that we will need
+dpkg -s python3-pyqt5.qtwebkit | grep Status
+rv=$?
+if [ $rv -ne 0 ]; then
+    sudo apt install python3-pyqt5.qtwebkit
+fi
+
+
+
+# start with a clean BLE sheet
 _pb "DDS delete BLE cache"
 grep 'ble_del_cache = 1' "$FOL_DDH"/settings/config.toml
 rv=$?
