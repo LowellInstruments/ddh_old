@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
+
 import json
 import os
-import pathlib
 import sys
 from multiprocessing import Process
 import time
@@ -17,21 +17,7 @@ from dds.ble import (
 )
 from dds.ble_scan import ble_scan
 from dds.cnv import cnv_serve
-from dds.cst import cst_serve
 from dds.gpq import GpqW
-from dds.gps import (
-    gps_boot_wait_first,
-    gps_measure,
-    gps_configure_shield,
-    gps_clock_sync_if_so,
-    gps_tell_vessel_name,
-    gps_check_for_errors,
-    gps_did_we_ever_clock_sync,
-    gps_banner_clock_sync_at_boot,
-    gps_power_cycle_if_so,
-    gps_know_hat_firmware_version,
-)
-from dds.happen import happen_purge
 from dds.hooks import apply_debug_hooks
 from dds.macs import (
     dds_create_folder_macs_color,
@@ -42,7 +28,7 @@ from dds.notifications_v2 import (
     notify_boot,
     notify_error_sw_crash,
     notify_ddh_needs_sw_update,
-    notify_ddh_alive)
+    notify_ddh_alive, notify_error_gps_clock_sync)
 from dds.sqs import (
     dds_create_folder_sqs,
     sqs_serve,
@@ -78,7 +64,6 @@ from utils.ddh_shared import (
     NAME_EXE_DDS_CONTROLLER,
     NAME_EXE_DDS,
     ael,
-    dds_get_aws_has_something_to_do_via_gui_flag_file,
     dds_create_folder_gpq,
     NAME_EXE_BRT,
     dds_get_ddh_got_an_update_flag_file,
@@ -92,6 +77,20 @@ from utils.logs import (
 import setproctitle
 from utils.ddh_shared import send_ddh_udp_gui as _u
 from utils.flag_paths import TMP_PATH_BLE_IFACE
+from dds.gps_measure import (
+    gps_utils_boot_wait_first,
+    gps_know_hat_firmware_version,
+    gps_measure
+)
+from dds.gps_utils import (
+    gps_utils_clock_sync_if_so,
+    gps_utils_banner_clock_sync_at_boot,
+    gps_utils_did_we_ever_clock_sync,
+    gps_utils_tell_vessel_name,
+    gps_utils_check_for_errors
+)
+
+# to write to temporary GPS database
 _g_gpw = GpqW()
 
 
@@ -126,40 +125,30 @@ def main_dds():
     linux_app_write_pid_to_tmp(PID_FILE_DDS)
 
     # GPS boot stage
-    rv = gps_configure_shield()
-    if not rv:
-        gps_power_cycle_if_so(forced=True)
-        gps_configure_shield()
-    gps_boot_wait_first()
     gps_know_hat_firmware_version()
+    gps_utils_boot_wait_first()
 
-    # GPS clock synchronization stage
-    gps_banner_clock_sync_at_boot()
-    # todo ---> I think we can simplify the next 10 lines a bit
-    g = gps_measure()
-    if g:
-        lat, lon, tg, speed = g
-        gps_clock_sync_if_so(tg)
-        notify_boot(g)
-
-    # do nothing if we never had a GPS clock sync
-    while not gps_did_we_ever_clock_sync():
+    # remain here as long as no GPS clock sync at boot
+    nge_b = 0
+    gps_utils_banner_clock_sync_at_boot()
+    while not gps_utils_did_we_ever_clock_sync():
         g = gps_measure()
         if g:
             lat, lon, tg, speed = g
-            if gps_clock_sync_if_so(tg):
+            if gps_utils_clock_sync_if_so(tg):
+                notify_boot(g)
                 break
-        time.sleep(1)
-        # todo ---> what the F is wrong with this
-        # if is_it_time_to('tell_not_able_to_gps_clock_sync', 1800):
-        #     notify_error_gps_clock_sync()
-        #     sqs_serve()
+        # nge_b: number gps errors at boot, approx 1 per second
+        if nge_b % 300 == 0:
+            lg.a('error: cannot GPS sync at boot, sending notification')
+            notify_error_gps_clock_sync()
+            sqs_serve()
+        nge_b += 1
 
     # -------------------------------------------------------------------
     # select BLE antenna, do here to have time to get up from run_dds.sh
     # -------------------------------------------------------------------
     h, h_d = ble_mat_get_antenna_type_v2()
-    antenna_type_str = h_d
 
     # save which BLE interface we use, API needs it
     try:
@@ -183,11 +172,7 @@ def main_dds():
     while 1:
 
         # tell GUI
-        gps_tell_vessel_name()
-
-        # old GPS hats may need power ON / OFF + GPS on
-        gps_power_cycle_if_so()
-        gps_configure_shield()
+        gps_utils_tell_vessel_name()
 
         # other stages
         # cst_serve()
@@ -199,12 +184,12 @@ def main_dds():
 
         # GPS stage
         g = gps_measure()
-        if gps_check_for_errors(g):
+        if gps_utils_check_for_errors(g):
             time.sleep(1)
             continue
         lat, lon, tg, speed = g
         dds_log_tracking_add(lat, lon, tg)
-        gps_clock_sync_if_so(tg)
+        gps_utils_clock_sync_if_so(tg)
 
         # send SQS ping
         notify_ddh_alive(g)

@@ -49,7 +49,6 @@ class BleRN4020Download(BleRN4020):
         _rae(rv, "dir error " + str(rv))
         lg.a("DIR | {}".format(ls))
 
-        any_dl = False
         for name, size in ls.items():
 
             # skip non-interesting files
@@ -98,7 +97,6 @@ class BleRN4020Download(BleRN4020):
             lg.a("deleting file {}".format(name))
             rv = await self.cmd_del(name)
             _rae(rv, "del")
-            any_dl = True
 
         # RN4020 has no RWS
         rv = await self.cmd_run()

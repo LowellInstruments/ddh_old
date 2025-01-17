@@ -13,10 +13,12 @@ import setproctitle
 from dds.gpq import GpqR, FMT_GPQ_TS_FILENAME
 from dds.timecache import is_it_time_to
 from mat.linux import linux_is_process_running
-from utils.ddh_config import ddh_get_cfg_gear_type, dds_get_cfg_gpq_en
-from utils.ddh_shared import (get_ddh_folder_path_dl_files,
-                              get_ddh_folder_path_gpq_files,
-                              TESTMODE_FILENAME_PREFIX)
+from utils.ddh_config import ddh_get_cfg_gear_type
+from utils.ddh_shared import (
+    get_ddh_folder_path_dl_files,
+    get_ddh_folder_path_gpq_files,
+    TESTMODE_FILENAME_PREFIX
+)
 from utils.logs import lg_cst as lg
 
 
@@ -54,10 +56,6 @@ def _purge_old_gpq_json_files():
 
 def _create_cst_files():
 
-    if not dds_get_cfg_gpq_en():
-        # instead of return prevents zombie processes
-        sys.exit(0)
-
     # 0 normal, 1 trawling
     _gear_type = ddh_get_cfg_gear_type()
     fol = get_ddh_folder_path_dl_files()
@@ -68,7 +66,7 @@ def _create_cst_files():
     try:
         with open(PATH_LID_CST_ALREADY_PROCESSED) as f:
             ls_lid_already_processed = f.read().splitlines()
-    except (Exception, ) as ex:
+    except (Exception, ):
         pass
 
     # ---------------------------------------------------

@@ -15,8 +15,16 @@ from dds.ble_dl_moana import ble_interact_moana
 from dds.ble_dl_rn4020 import ble_interact_rn4020
 from dds.ble_dl_tdo import ble_interact_tdo
 from dds.ble_dl_tdo_lsb import ble_interact_tdo_lsb
-from dds.gps import gps_log_position_logger, gps_simulate_boat_speed
-from dds.happen import happen_add_one_as_list, happen_clear_all, happen_purge, happen_contains
+from dds.gps_utils import (
+    gps_utils_tell_position_logger,
+    gps_simulate_boat_speed
+)
+from dds.happen import (
+    happen_add_one_as_list,
+    happen_clear_all,
+    happen_purge,
+    happen_contains
+)
 from dds.in_ports_geo import dds_ask_in_port_to_ddn
 from dds.macs import (
     rm_mac_black,
@@ -39,8 +47,15 @@ from mat.ble.ble_mat_utils import (
     ble_mat_systemctl_restart_bluetooth,
     ble_mat_get_antenna_type_v2
 )
-from mat.data_converter import default_parameters, DataConverter
-from mat.lix import id_lid_file_flavor, LID_FILE_V2, LID_FILE_V1
+from mat.data_converter import (
+    default_parameters,
+    DataConverter
+)
+from mat.lix import (
+    id_lid_file_flavor,
+    LID_FILE_V2,
+    LID_FILE_V1
+)
 from mat.lix_dox import is_a_do2_file
 from mat.lix_pr import convert_lix_file
 from mat.utils import linux_is_rpi
@@ -75,7 +90,8 @@ from utils.ddh_shared import (
     STATE_DDS_BLE_SCAN,
     STATE_DDS_BLE_NO_ASSIGNED_LOGGERS,
     STATE_DDS_BLE_APP_GPS_ERROR_SPEED,
-    STATE_DDS_BLE_ANTENNA, dds_get_flag_file_some_ble_dl,
+    STATE_DDS_BLE_ANTENNA,
+    dds_get_flag_file_some_ble_dl,
 )
 from utils.logs import lg_dds as lg
 
@@ -112,7 +128,7 @@ def _ble_detect_hypoxia_after_download(f_lid, bat, g, u=''):
         ln.uuid_interaction = u
         with open(f_csv, 'r') as f:
             ll = f.readlines()
-            # headers: 'ISO 8601 Time,elapsed time (s),agg. time(s),Dissolved Oxygen (mg/l)...
+            # headers: 'ISO 8601 Time,elapsed time (s),agg. time(s),Dissolved Oxygen (mg/l)...'
             for i in ll[1:]:
                 do_mg_l = float(i.split(',')[3])
                 if do_mg_l <= 0.0:
@@ -403,7 +419,7 @@ async def ble_interact_all_loggers(macs_det, macs_mon, g, _h: int, _h_desc):
             continue
 
         # show the position of the logger we will download
-        gps_log_position_logger(g)
+        gps_utils_tell_position_logger(g)
 
         # work with ONE logger of the scanned ones
         return await _ble_interact_one_logger(mac, model, _h, g)

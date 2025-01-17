@@ -106,6 +106,7 @@ def _p_e(param):
     pass
 
 
+# CSQ: cell signal quality
 def cb_get_csq():
     rv = detect_quectel_usb_ports()
     if not rv:

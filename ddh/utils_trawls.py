@@ -24,9 +24,9 @@ def _create_map_of_trawl(file_cst):
     file_html = file_cst.replace('.cst', '_trawl_map.html')
 
     # faster execution
-    # if os.path.exists(file_html):
-    #     print(f'reusing file_html {file_html}')
-    #     return file_html
+    if os.path.exists(file_html):
+        print(f'reusing file_html {file_html}')
+        return file_html
 
     # load all data from CST file
     df = pd.read_csv(file_cst)
@@ -66,8 +66,8 @@ def _create_map_of_trawl(file_cst):
          f'{n} samples'
     title_html = '''
          <head><style> html { overflow-y: hidden; } </style></head>
-         <h3 align="center" style="font-size:16px"><b>''' + bn + \
-         '''</b></h3>'''
+         <h3 align="center" style="font-size:16px"><b>''' + bn + '''</b></h3>'''
+
 
     # create the map
     origin_lat = ls_lat[0]

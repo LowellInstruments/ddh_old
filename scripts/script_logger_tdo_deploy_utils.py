@@ -95,7 +95,6 @@ async def deploy_logger_tdo(mac, sn, cfg_from_menu):
             _e(rv, "scc_dhu")
             await asyncio.sleep(.1)
 
-
         else:
             # not present in newer loggers
             rv = await lc.cmd_wli("MA1234ABC")

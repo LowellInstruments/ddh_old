@@ -245,3 +245,8 @@
 4.0.54 January 17, 2025
 
     added feature: AWS copy instead of AWS sync
+
+4.0.55 January 17, 2025
+
+    added feature: merged GPS3 branch
+

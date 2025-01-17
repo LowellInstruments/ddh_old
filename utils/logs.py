@@ -38,6 +38,7 @@ class DDSLogs:
         self.a(f"{self.label.upper()}_logs enabled = {self.enabled}")
 
     # stands for 'print format'
+    @staticmethod
     def _pf(self, s):
         if type(s) is bytes:
             s = s.decode()

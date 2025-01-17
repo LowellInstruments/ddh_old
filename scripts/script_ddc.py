@@ -8,7 +8,10 @@ from os import unlink
 from os.path import exists
 
 from mat.quectel import VP_QUECTEL
-from scripts.script_provision_get import get_provision_ddh, ping_provision_server
+from scripts.script_provision_get import (
+    get_provision_ddh,
+    ping_provision_server
+)
 from utils.ddh_config import cfg_load_from_file, cfg_save_to_file
 from utils.ddh_shared import get_ddh_folder_path_settings
 from utils.find_usb_port_auto import find_n_list_all_usb_port_automatically
@@ -22,7 +25,6 @@ from utils.flag_paths import (
 import pathlib
 import subprocess as sp
 from mat.utils import PrintColors as PC
-
 
 
 VP_GPS_PUCK_1 = '067B:2303'
@@ -293,7 +295,7 @@ def ddh_run_check():
                 if b'VERSION' in b:
                     version = b.decode()
                     break
-            except (Exception,) as ex:
+            except (Exception,):
                 if ser and ser.isOpen():
                     ser.close()
                 # print(f'error {p} -> {ex}')

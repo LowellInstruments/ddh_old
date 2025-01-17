@@ -5,7 +5,6 @@ from bleak.assigned_numbers import AdvertisementDataType
 from bleak.backends.bluezdbus.advertisement_monitor import OrPattern
 
 from dds.macs import macs_black, macs_orange
-from dds.notifications_v2 import notify_ddh_error_hw_ble
 from dds.state import ddh_state
 from dds.timecache import is_it_time_to
 from mat.ble.ble_mat_utils import ble_mat_get_bluez_version
@@ -13,7 +12,8 @@ from utils.ddh_config import dds_get_cfg_monitored_macs, exp_get_use_ble_passive
 from utils.ddh_shared import (
     send_ddh_udp_gui as _u,
     STATE_DDS_BLE_SCAN_FIRST_EVER,
-    STATE_DDS_BLE_SCAN, STATE_DDS_BLE_HARDWARE_ERROR, get_mac_from_folder_path,
+    STATE_DDS_BLE_SCAN,
+    get_mac_from_folder_path,
 )
 from bleak import BleakScanner, BleakError
 from bleak.backends.bluezdbus.scanner import BlueZScannerArgs

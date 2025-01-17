@@ -249,8 +249,8 @@ def utils_graph_fetch_csv_data(
         if 'moana' in os.path.basename(i).lower():
             is_moana = True
     if is_moana:
-        _g_ff_t = sorted(_g_ff_t, key=lambda x: os.path.basename(x).split('_')[3])
-        _g_ff_p = sorted(_g_ff_p, key=lambda x: os.path.basename(x).split('_')[3])
+        _g_ff_t = sorted(_g_ff_t, key=lambda xx: os.path.basename(xx).split('_')[3])
+        _g_ff_p = sorted(_g_ff_p, key=lambda xx: os.path.basename(xx).split('_')[3])
 
     # get number of hauls
     nh = max(len(_g_ff_t),
@@ -425,7 +425,7 @@ def utils_graph_fetch_csv_data(
         tdo_az.pop(i)
     tdo_tf = []
     for c in tdo_t:
-        tdo_tf.append(((float(c) * 9) /5) + 32)
+        tdo_tf.append(((float(c) * 9) / 5) + 32)
 
     # Depth conversion to fathoms ftm
     pftm = [dbar_to_fathoms(d - CTT_ATM_PRESSURE_DBAR) for d in p]

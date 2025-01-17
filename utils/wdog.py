@@ -21,7 +21,7 @@ def gui_dog_get():
     try:
         with open(DOG_GUI) as f:
             return int(f.readline())
-    except (Exception, ) as ex:
+    except (Exception, ):
         # disabled
         return 0
 

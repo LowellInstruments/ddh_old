@@ -1,1 +1,1 @@
-this SQS folder stores files that will be send uplink via SQS at a later time
+this SQS folder stores files that will be sent uplink via SQS at a later time

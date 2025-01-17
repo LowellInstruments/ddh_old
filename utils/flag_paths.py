@@ -53,7 +53,7 @@ LI_PATH_GROUPED_S3_FILE_FLAG = f'{d}/.ddt_this_box_has_grouped_s3_uplink.flag'
 LI_PATH_CELL_FW = f'{d}/.fw_cell_ver'
 DDH_USES_SHIELD_JUICE4HALT = f'{d}/.ddt_j4h_shield.flag'
 DDH_USES_SHIELD_SAILOR = f'{d}/.ddt_sailor_shield.flag'
-LI_FILE_ICCID=f'{d}/.iccid'
+LI_FILE_ICCID = f'{d}/.iccid'
 LI_PATH_TEST_MODE = f'{d}/.ddh_test_mode.flag'
 LI_PATH_PLT_ONLY_INSIDE_WATER = f'{d}/.ddh_plt_only_inside_water'
 

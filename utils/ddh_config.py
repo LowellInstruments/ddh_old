@@ -85,10 +85,6 @@ def dds_get_cfg_aws_en():
     return cfg['flags']['aws_en']
 
 
-def dds_get_cfg_gpq_en():
-    return cfg['flags']['gpq_en']
-
-
 def dds_get_cfg_skip_dl_in_port_en():
     rv = cfg['flags']['skip_dl_in_port_en']
     return rv
@@ -187,7 +183,6 @@ def dds_check_config_file():
             'aws_en',
             'sqs_en',
             'ble_en',
-            'gpq_en',
             'maps_en',
             'sms_en',
             'skip_dl_in_port_en',
@@ -202,12 +197,11 @@ def dds_check_config_file():
         print(f'error: missing flag {aux}')
         return aux
 
-    # check for EXTRA UNKNOWN ones
+    # check for EXTRA UNKNOWN ones, but this is NOT critical
     aux = b['flags']
     if len(aux):
         print(f'error: dds_check_cfg_has_all_flags')
         print(f'error: unexpected flags {aux}')
-        return aux
 
     # monitored macs checked in _check_monitored_macs_in_cfg_file()
 
@@ -275,7 +269,7 @@ def ddh_get_cfg_maps_en():
 def _get_exp_key_from_cfg(k):
     try:
         return cfg['experimental'][k]
-    except (Exception, ) as ex:
+    except (Exception, ):
         # print(f'error: _get_exp_key_from_cfg -> {ex}')
         # no value in [experimental] section
         return -1

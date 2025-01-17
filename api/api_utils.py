@@ -41,7 +41,7 @@ def api_get_api_version():
     try:
         with open(LI_PATH_API_VERSION, 'r') as f:
             return f.readline().replace('\n', '')
-    except (Exception, ) as ex:
+    except (Exception, ):
         return 'error_get_api_version'
 
 
@@ -213,7 +213,7 @@ def api_get_ddh_sw_version():
     try:
         with open(LI_PATH_DDH_VERSION, 'r') as f:
             return f.readline().replace('\n', '')
-    except (Exception, ) as ex:
+    except (Exception, ):
         return 'error_get_version'
 
 

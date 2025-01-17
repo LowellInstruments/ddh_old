@@ -625,7 +625,7 @@ def gui_confirm_by_user(s):
     return m.exec_() == QMessageBox.Ok
 
 
-def _parse_addr(my_app, addr):
+def _parse_addr(_, addr):
     ip, _ = addr
     # if ip != "127.0.0.1":
     #     my_app.lbl_ip.setText("remote DDH")

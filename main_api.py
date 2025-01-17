@@ -380,7 +380,7 @@ async def ep_rpi_temperature():
             ans = ans.replace(b"temp=", b"")
             ans = float(ans.decode())
             return {'rpi_temperature': str(ans)}
-    except (Exception,) as ex:
+    except (Exception,):
         return {'rpi_temperature': CTT_API_ER}
 
 
