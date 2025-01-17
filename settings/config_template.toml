@@ -30,8 +30,6 @@ aws_en = 1
 sqs_en = 1
 # Bluetooth
 ble_en = 1
-# generation of CST (CSV + tracking) combo files
-gpq_en = 1
 # bottom temperature maps
 maps_en = 0
 # support SMS
