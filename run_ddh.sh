@@ -13,6 +13,14 @@ fi
 
 
 
+# tweaking python files for PyQtWeb*Widgets
+DESIGNER_MAIN_PY=$FOL_DDH/ddh/gui/designer_main.py
+echo 'tweaking designer_main.py depending on laptop vs. raspberry'
+sed -i 's/from PyQt5 import QtWebEngineWidgets/from PyQt5 import QtWebKitWidgets/g' "$DESIGNER_MAIN_PY"
+sed -i 's/self.webView = QtWebEngineWidgets.QWebEngineView(self.tab_trawls)/self.webView = QtWebKitWidgets.QWebView(self.tab_trawls)/g' "$DESIGNER_MAIN_PY"
+
+
+
 # for crontab to detect already running
 check_already_running "main_ddh_controller"
 
