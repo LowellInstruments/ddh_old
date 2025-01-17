@@ -44,6 +44,7 @@ def main_test_box_buttons():
     os.system('clear')
     print('\nDDH hardware side buttons test v3_NEW')
     print('press Ctrl+C to quit')
+    print('')
     pause()
     GPIO.cleanup()
 
