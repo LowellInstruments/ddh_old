@@ -18,7 +18,7 @@ dpkg -s python3-pyqt5.qtwebkit | grep "Status: install ok"
 rv=$?
 if [ $rv -ne 0 ]; then
     _pb "installing via APT -> python3-pyqt5.qtwebkit"
-    sudo apt-get install -Y python3-pyqt5.qtwebkit
+    sudo apt-get install -y python3-pyqt5.qtwebkit
     sudo apt remove modemmanager
 fi
 
