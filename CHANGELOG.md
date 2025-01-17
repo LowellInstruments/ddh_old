@@ -236,8 +236,12 @@
 
 4.0.52 January 10, 2025
 
-    added smart-lock-out feature
+    added feature: smart-lock-out
 
 4.0.53 January 15, 2025
 
-    added map trawls feature
+    added feature: map trawls
+
+4.0.54 January 17, 2025
+
+    added feature: AWS copy instead of AWS sync

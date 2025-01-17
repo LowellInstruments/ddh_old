@@ -11,7 +11,7 @@ def query_is_it_time_to(k):
     return k not in _g_timecache
 
 
-def _annotate_time(k, t):
+def annotate_time(k, t):
     if t <= 0:
         return
     _g_timecache.add(k, k, ttl=t)
@@ -19,7 +19,7 @@ def _annotate_time(k, t):
 
 def is_it_time_to(k, t):
     if query_is_it_time_to(k):
-        _annotate_time(k, t)
+        annotate_time(k, t)
         return True
     # not enough time has passed since last occurrence of this
     return False

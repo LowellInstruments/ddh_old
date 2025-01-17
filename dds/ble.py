@@ -9,7 +9,6 @@ import time
 from tzlocal import get_localzone
 
 from ddh.utils_graph import utils_graph_set_fol_req_file
-from dds.aws import aws_cp
 from dds.ble_dl_dox import ble_interact_do1_or_do2
 from dds.ble_dl_dox_lsb import ble_interact_dox_lsb
 from dds.ble_dl_moana import ble_interact_moana
@@ -51,7 +50,6 @@ from utils.ddh_config import (
     dds_get_cfg_logger_mac_from_sn,
     exp_get_use_lsb_for_tdo_loggers,
     exp_get_use_lsb_for_dox_loggers,
-    exp_get_use_aws_cp,
     dds_get_cfg_monitored_macs,
     ddh_get_cfg_gear_type,
     dds_get_cfg_moving_speed, exp_get_use_smart_lockout
@@ -77,7 +75,7 @@ from utils.ddh_shared import (
     STATE_DDS_BLE_SCAN,
     STATE_DDS_BLE_NO_ASSIGNED_LOGGERS,
     STATE_DDS_BLE_APP_GPS_ERROR_SPEED,
-    STATE_DDS_BLE_ANTENNA,
+    STATE_DDS_BLE_ANTENNA, dds_get_flag_file_some_ble_dl,
 )
 from utils.logs import lg_dds as lg
 
@@ -352,8 +350,9 @@ async def _ble_interact_one_logger(mac, info: str, h, g):
         ln.dl_files = notes['dl_files']
         ln.gfv = notes['gfv']
         ln.bat = notes['battery_level']
-        if exp_get_use_aws_cp() == 1:
-            aws_cp(notes['dl_files'])
+
+    # indicate we will AWS-copy this
+    pathlib.Path(dds_get_flag_file_some_ble_dl()).touch()
 
     # plot this logger download
     _ble_analyze_and_graph_logger_result(rv, g, ln, _crit_error)
@@ -478,7 +477,7 @@ def ble_op_conditions_met(g) -> bool:
 
 def ble_show_antenna_type(_h, desc):
     _ad = f"hci{_h}"
-    s = f"debug: using {desc} bluetooth antenna, adapter {_ad}"
+    s = f"using {desc} bluetooth antenna, adapter {_ad}"
     if is_it_time_to(s, 60):
         # update GUI field
         _u(f"{STATE_DDS_BLE_ANTENNA}/{desc} radio")

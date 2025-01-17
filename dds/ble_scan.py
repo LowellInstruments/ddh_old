@@ -126,7 +126,7 @@ async def ble_scan(macs_mon, g, _h: int, _h_desc, t=6.0):
 
         # _our_devs: {'60:77:71:22:ca:6d': 'DO-2', ...}
         if len(_all) > 15:
-            s = "debug: crowded BLE environment"
+            s = "warning: detected crowded BLE environment"
             if is_it_time_to(s, t=3600 * 6):
                 lg.a(s)
         return _our

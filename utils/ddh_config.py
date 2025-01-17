@@ -293,10 +293,6 @@ def exp_get_use_lsb_for_dox_loggers():
     return _get_exp_key_from_cfg('use_lsb_for_dox_loggers')
 
 
-def exp_get_use_aws_cp():
-    return _get_exp_key_from_cfg('use_aws_cp')
-
-
 def exp_get_use_ble_passive_scanning():
     return _get_exp_key_from_cfg('use_ble_passive_scanning')
 

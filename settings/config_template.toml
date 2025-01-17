@@ -50,7 +50,6 @@ hook_ble_purge_this_mac_dl_files_folder = 0
 [experimental]
 use_lsb_for_tdo_loggers = 0
 use_lsb_for_dox_loggers = 0
-use_aws_cp = 0
 use_ble_passive_scanning = 0
 # affects download speed in LI loggers, default disabled!
 ble_do_crc = 0

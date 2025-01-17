@@ -14,7 +14,7 @@ import toml
 
 from utils.flag_paths import TMP_PATH_GUI_CLOSED_FLAG, TMP_PATH_DISABLE_BLE, TMP_PATH_AWS_HAS_WORK_VIA_GUI, \
     TMP_PATH_DDH_GOT_UPDATE, TMP_PATH_DDH_APP_OVERRIDE, TMP_PATH_GPS_DUMMY, \
-    TMP_PATH_CNV_REQUESTED_VIA_GUI, LI_PATH_DDH_VERSION, LI_PATH_PLT_ONLY_INSIDE_WATER
+    TMP_PATH_CNV_REQUESTED_VIA_GUI, LI_PATH_DDH_VERSION, LI_PATH_PLT_ONLY_INSIDE_WATER, TMP_PATH_BLE_SOMETHING_DL
 
 TESTMODE_FILENAME_PREFIX = 'testfile_'
 
@@ -206,6 +206,10 @@ def dds_get_ddh_got_an_update_flag_file() -> str:
 
 def dds_get_aws_has_something_to_do_via_gui_flag_file() -> str:
     return TMP_PATH_AWS_HAS_WORK_VIA_GUI
+
+
+def dds_get_flag_file_some_ble_dl() -> str:
+    return TMP_PATH_BLE_SOMETHING_DL
 
 
 def dds_get_cnv_requested_via_gui_flag_file() -> str:

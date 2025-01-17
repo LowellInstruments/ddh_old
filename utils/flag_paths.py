@@ -49,6 +49,9 @@ TMP_PATH_DDH_APP_OVERRIDE = "/tmp/ddh_app_override_file.flag"
 # internet via
 TMP_PATH_INET_VIA = '/tmp/ddh_internet_via.json'
 
+# indicate something was downloaded via bluetooth
+TMP_PATH_BLE_SOMETHING_DL = "/tmp/dds_something_dl_ble.flag"
+
 
 # stored in "li" folder, permanent on DDH even after update, temporary on dev platform
 d = '/home/pi/li/' if _is_rpi() else '/tmp'
@@ -67,3 +70,4 @@ h = str(pathlib.Path.home())
 h_ddh = f'{h}/li/ddh' if _is_rpi() else f'{h}/PycharmProjects/ddh'
 LI_PATH_DDH_VERSION = f'{h_ddh}/.ddh_version'
 LI_PATH_API_VERSION = f'{h_ddh}/.api_version'
+LI_PATH_LAST_YEAR_AWS_TEMPLATE = f'{h_ddh}/.ddh_aws_last_year_'

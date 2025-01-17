@@ -7,9 +7,14 @@ from multiprocessing import Process
 import time
 import subprocess as sp
 from ddh.draw_graph import gfm_serve
-from dds.aws import aws_serve
-from dds.ble import ble_interact_all_loggers, ble_show_antenna_type, ble_check_antenna_up_n_running, \
-    ble_op_conditions_met, ble_show_monitored_macs, BLE_PERIOD_SMART_LOCKOUT_PURGE_S
+from dds.aws import aws_sync_or_cp
+from dds.ble import (
+    ble_interact_all_loggers,
+    ble_show_antenna_type,
+    ble_check_antenna_up_n_running,
+    ble_op_conditions_met,
+    ble_show_monitored_macs
+)
 from dds.ble_scan import ble_scan
 from dds.cnv import cnv_serve
 from dds.cst import cst_serve
@@ -28,11 +33,15 @@ from dds.gps import (
 )
 from dds.happen import happen_purge
 from dds.hooks import apply_debug_hooks
-from dds.macs import dds_create_folder_macs_color, dds_macs_color_show_at_boot
+from dds.macs import (
+    dds_create_folder_macs_color,
+    dds_macs_color_show_at_boot
+)
 from dds.net import net_serve
 from dds.notifications_v2 import (
     notify_boot,
-    notify_error_sw_crash, notify_ddh_needs_sw_update,
+    notify_error_sw_crash,
+    notify_ddh_needs_sw_update,
     notify_ddh_alive)
 from dds.sqs import (
     dds_create_folder_sqs,
@@ -44,14 +53,22 @@ from dds.buttons import (
 )
 from dds.state import ddh_state
 from dds.timecache import is_it_time_to
-from mat.linux import linux_app_write_pid_to_tmp, linux_is_process_running
+from mat.linux import (
+    linux_app_write_pid_to_tmp,
+    linux_is_process_running
+)
 from mat.ble.ble_mat_utils import (
     ble_mat_disconnect_all_devices_ll,
-    ble_mat_get_antenna_type_v2, ble_mat_systemctl_restart_bluetooth, ble_mat_get_bluez_version
+    ble_mat_get_antenna_type_v2,
+    ble_mat_get_bluez_version
 )
 from mat.utils import linux_is_rpi
-from utils.ddh_config import dds_check_cfg_has_box_info, \
-    dds_get_cfg_monitored_macs, dds_check_config_file, dds_get_cfg_flag_download_test_mode, exp_get_use_aws_cp
+from utils.ddh_config import (
+    dds_check_cfg_has_box_info,
+    dds_get_cfg_monitored_macs,
+    dds_check_config_file,
+    dds_get_cfg_flag_download_test_mode,
+)
 from utils.ddh_shared import (
     PID_FILE_DDS,
     dds_create_folder_dl_files,
@@ -59,8 +76,13 @@ from utils.ddh_shared import (
     dds_ensure_proper_working_folder,
     PID_FILE_DDS_CONTROLLER,
     NAME_EXE_DDS_CONTROLLER,
-    NAME_EXE_DDS, ael, dds_get_aws_has_something_to_do_via_gui_flag_file,
-    dds_create_folder_gpq, NAME_EXE_BRT, dds_get_ddh_got_an_update_flag_file, STATE_DDS_SOFTWARE_UPDATED,
+    NAME_EXE_DDS,
+    ael,
+    dds_get_aws_has_something_to_do_via_gui_flag_file,
+    dds_create_folder_gpq,
+    NAME_EXE_BRT,
+    dds_get_ddh_got_an_update_flag_file,
+    STATE_DDS_SOFTWARE_UPDATED,
 )
 from utils.logs import (
     lg_dds as lg,
@@ -94,6 +116,7 @@ def main_dds():
     dds_macs_color_show_at_boot()
     m_j = dds_get_cfg_monitored_macs()
     dds_check_bluez_version()
+
     ble_show_monitored_macs()
     apply_debug_hooks()
     ble_mat_disconnect_all_devices_ll()
@@ -170,7 +193,7 @@ def main_dds():
         # cst_serve()
         gfm_serve()
         cnv_serve()
-        aws_serve()
+        aws_sync_or_cp()
         sqs_serve()
         net_serve()
 
@@ -212,15 +235,6 @@ def main_dds():
 
         # poor semaphore
         ddh_state.state_clr_downloading_ble()
-
-        # tell AWS has a sync to do, because we probably downloaded a logger
-        try:
-            if det and linux_is_rpi() and exp_get_use_aws_cp() != 1:
-                flag = dds_get_aws_has_something_to_do_via_gui_flag_file()
-                pathlib.Path(flag).touch()
-                lg.a("created AWS sync flag file after BLE interaction")
-        except (Exception,):
-            lg.a('error: creating AWS sync flag file')
 
         # recovery situations
         if rvi:
