@@ -1,11 +1,15 @@
+# sometimes these get created while developing
 dl_files/*
 logs/*
 dds/gpq/*.json
 .idea/
 
 
+# databases
 db_his.json*
 db_status.json*
+
+# files extensions
 *.so
 *.lid
 *.lix
@@ -20,11 +24,11 @@ db_status.json*
 ddh/gui/res/*dtm.gif
 ddh/gui/res/*mab.gif
 ddh/gui/res/*gom.gif
-.ts_aws.txt
 dds/ble_dl_moana.py
 
 # volatile settings
-.ddh_plt_only_inside_water
+.ddh_aws_last_year_*
+
 
 # just in case there are more dl_files here
 dds/dl_files/
