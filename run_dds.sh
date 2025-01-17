@@ -17,6 +17,7 @@ fi
 dpkg -s python3-pyqt5.qtwebkit | grep Status
 rv=$?
 if [ $rv -ne 0 ]; then
+    _pb "installing via APT -> python3-pyqt5.qtwebkit"
     sudo apt install python3-pyqt5.qtwebkit
 fi
 
