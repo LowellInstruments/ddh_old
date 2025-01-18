@@ -19,7 +19,7 @@ rv=$?
 if [ $rv -ne 0 ]; then
     _pb "installing via APT -> python3-pyqt5.qtwebkit"
     sudo apt-get install -y python3-pyqt5.qtwebkit
-    sudo apt remove modemmanager
+    sudo apt-get remove -y modemmanager
 fi
 
 
