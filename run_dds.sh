@@ -13,16 +13,6 @@ fi
 
 
 
-# install APT things that we will need
-dpkg -s python3-pyqt5.qtwebkit | grep "Status: install ok"
-rv=$?
-if [ $rv -ne 0 ]; then
-    _pb "installing via APT -> python3-pyqt5.qtwebkit"
-    sudo apt-get install -y python3-pyqt5.qtwebkit
-    sudo apt-get remove -y modemmanager
-fi
-
-
 # for crontab to detect already running
 check_already_running "main_dds_controller"
 
