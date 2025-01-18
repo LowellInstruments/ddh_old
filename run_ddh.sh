@@ -13,6 +13,17 @@ fi
 
 
 
+# install APT things that we will need
+dpkg -s python3-pyqt5.qtwebkit | grep "Status: install ok"
+rv=$?
+if [ $rv -ne 0 ]; then
+    _pb "installing via APT -> python3-pyqt5.qtwebkit"
+    sudo apt-get install -y python3-pyqt5.qtwebkit
+    sudo apt-get remove -y modemmanager
+fi
+
+
+
 # tweaking python files for PyQtWeb*Widgets
 DESIGNER_MAIN_PY=$FOL_DDH/ddh/gui/designer_main.py
 echo 'tweaking designer_main.py depending on laptop vs. raspberry'
