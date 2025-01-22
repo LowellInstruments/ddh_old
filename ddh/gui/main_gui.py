@@ -267,7 +267,7 @@ class DDH(QMainWindow, d_m.Ui_MainWindow):
         save_cfg['behavior']['gear_type'] = lhf
         save_cfg['monitored_macs'] = pairs
         save_cfg['flags']['skip_dl_in_port_en'] = sk
-        save_cfg['flags']['maps_en'] = me
+        save_cfg['flags']['maps_en'] = int(me)
         cfg_save_to_file(save_cfg)
 
         # we seem good to go
