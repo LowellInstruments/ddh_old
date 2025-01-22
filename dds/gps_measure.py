@@ -328,7 +328,6 @@ def _gps_measure():
                 if is_it_time_to("gps_power_cycle", PERIOD_GPS_POWER_CYCLE):
                     lg.a(f'warning: power-cycling GPS')
                     _gps_power_cycle()
-
                     # re-detect ports
                     global _g_pu_gps
                     global _g_pu_ctl
@@ -344,7 +343,15 @@ def _gps_measure():
             ns = _gps_parse_gsv_frame(b"$GPGSV" + re_gsv.group(1))
 
     except (Exception, ) as ex:
-        lg.a(f'error: gps_measure -> {ex}')
+        lg.a(f'error: gps_measure_inner -> {ex}')
+        if 'could not open port' in str(ex):
+            if is_it_time_to("gps_power_cycle_bad_port", PERIOD_GPS_POWER_CYCLE_BAD_PORT):
+                lg.a(f'warning: power-cycling GPS because could not open port')
+                _gps_power_cycle()
+                # re-detect ports
+                global _g_pu_gps
+                global _g_pu_ctl
+                _g_pu_gps, _g_pu_ctl = detect_quectel_usb_ports()
 
     # GPS caches
     global _g_ts_cached_gps_valid_for
@@ -406,14 +413,4 @@ def gps_measure():
         return _g_cached_gps
 
     except (Exception,) as ex:
-        lg.a(f"error: gps_measure() -> {ex}")
-
-        if 'could not open port' in str(ex):
-            if is_it_time_to("gps_power_cycle_bad_port", PERIOD_GPS_POWER_CYCLE_BAD_PORT):
-                lg.a(f'warning: power-cycling GPS because could not open port')
-                _gps_power_cycle()
-
-                # re-detect ports
-                global _g_pu_gps
-                global _g_pu_ctl
-                _g_pu_gps, _g_pu_ctl = detect_quectel_usb_ports()
+        lg.a(f"error: gps_measure_outer() -> {ex}")
