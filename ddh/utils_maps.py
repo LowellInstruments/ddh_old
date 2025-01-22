@@ -101,11 +101,11 @@ def gui_populate_maps_tab(my_app):
         my_app.btn_map_next.setVisible(True)
 
     # restriction, for now
-    if linux_is_rpi():
-        my_app.n_good_maps = 1
-        my_app.btn_map_next.setVisible(False)
-        got_gom = False
-        got_mab = False
+    # if linux_is_rpi():
+    #    my_app.n_good_maps = 1
+    #    my_app.btn_map_next.setVisible(False)
+    #    got_gom = False
+    #    got_mab = False
 
     # load the map picture
     if got_dtm:
