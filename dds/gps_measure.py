@@ -308,6 +308,8 @@ def _gps_measure():
         return lat, lon, datetime.datetime.utcnow(), 1
 
     # GPS state machine
+    global _g_pu_gps
+    global _g_pu_ctl
     g = None
     ns = -1
     try:
@@ -328,9 +330,6 @@ def _gps_measure():
                 if is_it_time_to("gps_power_cycle", PERIOD_GPS_POWER_CYCLE):
                     lg.a(f'warning: power-cycling GPS')
                     _gps_power_cycle()
-                    # re-detect ports
-                    global _g_pu_gps
-                    global _g_pu_ctl
                     _g_pu_gps, _g_pu_ctl = detect_quectel_usb_ports()
                 return
 
@@ -348,9 +347,6 @@ def _gps_measure():
             if is_it_time_to("gps_power_cycle_bad_port", PERIOD_GPS_POWER_CYCLE_BAD_PORT):
                 lg.a(f'warning: power-cycling GPS because could not open port')
                 _gps_power_cycle()
-                # re-detect ports
-                global _g_pu_gps
-                global _g_pu_ctl
                 _g_pu_gps, _g_pu_ctl = detect_quectel_usb_ports()
 
     # GPS caches
