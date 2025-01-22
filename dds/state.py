@@ -1,4 +1,6 @@
 import os
+
+from mat.utils import linux_is_rpi
 from utils.logs import lg_sta as lg
 from utils.ddh_shared import get_ddh_folder_path_tweak
 import toml
@@ -7,6 +9,8 @@ FILE_SAVED_BRIGHTNESS = f'{get_ddh_folder_path_tweak()}/.saved_brightness.toml'
 
 
 def state_get_saved_brightness():
+    if not linux_is_rpi():
+        return
     if not os.path.exists(FILE_SAVED_BRIGHTNESS):
         state_save_brightness(100)
     with open(FILE_SAVED_BRIGHTNESS, 'r') as f:

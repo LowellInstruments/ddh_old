@@ -173,6 +173,14 @@ def ddh_get_cfg_gear_type():
     return cfg['behavior']['gear_type']
 
 
+def ddh_get_cfg_has_lowell_loggers():
+    for mac, sn in cfg['monitored_macs'].items():
+        if sn.startswith('2') and len(sn) == 7:
+            return True
+        if sn.startswith('3') and len(sn) == 7:
+            return True
+
+
 def dds_check_config_file():
     b = copy.deepcopy(cfg)
     aux = None
@@ -333,3 +341,4 @@ if __name__ == '__main__':
     print('dds_get_flag_sqs_en', dds_get_cfg_flag_sqs_en())
     print('ddh_flag_maps_en', ddh_get_cfg_maps_en())
     print('conf_dox', exp_get_conf_dox())
+    print('has lowell logger', ddh_get_cfg_has_lowell_loggers())

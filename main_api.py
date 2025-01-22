@@ -51,7 +51,8 @@ from utils.ddh_config import (
     dds_get_cfg_vessel_name,
     dds_get_cfg_box_sn,
     dds_get_cfg_box_project,
-    dds_get_cfg_monitored_pairs
+    dds_get_cfg_monitored_pairs,
+    ddh_get_cfg_has_lowell_loggers
 )
 import uvicorn
 from fastapi import (
@@ -199,6 +200,7 @@ async def api_get_info():
         "boat_prj": _th(dds_get_cfg_box_project),
         "boat_sn": _th(dds_get_cfg_box_sn),
         "boat_name": _th(dds_get_cfg_vessel_name),
+        "has_lowell_loggers": _th(ddh_get_cfg_has_lowell_loggers),
         "running": _th(api_get_running_ddh_dds),
         "crontab_ddh": _th(api_get_crontab_ddh),
         "crontab_api": _th(api_get_crontab_api),

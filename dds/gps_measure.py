@@ -324,7 +324,10 @@ def _gps_measure():
 
             # try again
             b = _gps_read()
-            if not b:
+
+            # detect no output or strange thing with Linux USB ports
+            if not b or (b'CPIN' in b):
+                lg.a('error: bad GPS issue, b = ', b)
                 if is_it_time_to("gps_power_cycle", PERIOD_GPS_POWER_CYCLE):
                     lg.a(f'warning: power-cycling GPS')
                     _gps_power_cycle()
@@ -383,14 +386,14 @@ def _gps_measure():
         lg.a(f"using cached position {lat}, {lon}")
         return _g_cached_gps
 
+    # this line is ESSENTIAL so we can act upon errors
+    _g_cached_gps = None
+
     # failed, and cache is too OLD so INVALID
     global _g_banner_cache_too_old
     if now > _g_banner_cache_too_old:
         lg.a("failed, and cache is too old")
         _g_banner_cache_too_old = now + 300
-
-    # this line is ESSENTIAL so we can act on errors
-    _g_cached_gps = None
 
     # tell GUI about GPS error
     _u(STATE_DDS_BLE_APP_GPS_ERROR_POSITION)

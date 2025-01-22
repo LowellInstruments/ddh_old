@@ -187,6 +187,8 @@ def main_dds():
         if gps_utils_parse_errors(g):
             time.sleep(1)
             continue
+
+        # we have a good GPS frame
         lat, lon, tg, speed = g
         dds_log_tracking_add(lat, lon, tg)
         gps_utils_clock_sync_if_so(tg)
