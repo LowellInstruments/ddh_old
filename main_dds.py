@@ -128,7 +128,7 @@ def main_dds():
     gps_know_hat_firmware_version()
     gps_utils_boot_wait_first()
 
-    # remain here as long as no GPS clock sync at boot
+    # GPS clock sync at boot, remain here until successful
     nge_b = 0
     gps_utils_banner_clock_sync_at_boot()
     while not gps_utils_did_we_ever_clock_sync():

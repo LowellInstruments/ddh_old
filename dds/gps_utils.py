@@ -94,7 +94,6 @@ def gps_utils_check_for_errors(g) -> int:
     if is_it_time_to("tell_gps_hw_error", PERIOD_GPS_TELL_GPS_HW_ERROR_SECS):
         lg.a("error: no GPS frame, examine further log messages")
         notify_ddh_error_hw_gps()
-        return 1
 
     # detect errors in GPS frame
     if not g:

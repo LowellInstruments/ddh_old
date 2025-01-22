@@ -248,12 +248,12 @@ def gps_utils_boot_wait_first():
         g = gps_measure()
         if g:
             lg.a(f"boot: wait GPS first frame g = {str(g)}")
-            return g
+            # we don't even use this frame at all
+            return
         lg.a(f"{t_left} seconds remaining GPS at boot")
         time.sleep(1)
 
     lg.a("warning: gps_boot_wait_first did NOT get GPS lock")
-    return "", "", None, 0
 
 
 def _gps_read():
@@ -269,7 +269,7 @@ def _gps_read():
     return b
 
 
-def _gps_measure(forced_power_cycle=False):
+def _gps_measure():
 
     """
     returns (lat, lon, dt object, speed) or None
@@ -277,11 +277,6 @@ def _gps_measure(forced_power_cycle=False):
     """
 
     def _gps_power_cycle():
-        if not forced_power_cycle and not is_it_time_to(
-                "check_we_need_gps_power_cycle", PERIOD_GPS_POWER_CYCLE):
-            lg.a(f"warning: no power-cycle because fpc = {forced_power_cycle}")
-            return
-
         _u(STATE_DDS_GPS_POWER_CYCLE)
         t = 75
         lg.a(f"=== warning: power-cycling hat, wait ~{t} seconds ===")
@@ -296,9 +291,9 @@ def _gps_measure(forced_power_cycle=False):
         time.sleep(t)
         lg.a("=== warning: power-cycling done, hat should be ON by now ===")
 
-    # ------------
-    # gps measure
-    # ------------
+    # ----------------------
+    # _gps_measure main code
+    # ----------------------
 
     # hooks
     if dds_get_cfg_flag_gps_error_forced():
@@ -323,12 +318,19 @@ def _gps_measure(forced_power_cycle=False):
         # nothing came in from the port, at all
         if not _g_bu353s4_port and not b:
             _activate_gps_output()
-            # try again, maybe it was just disabled
+
+            # try again to see GPS output, maybe it was just disabled
             b = _gps_read()
             if not b:
-                lg.a(f'warning: power-cycling GPS due to no output')
-                _gps_power_cycle()
-                return
+                if is_it_time_to("gps_power_cycle", PERIOD_GPS_POWER_CYCLE):
+                    lg.a(f'warning: power-cycling GPS')
+                    _gps_power_cycle()
+
+                    # re-detect ports
+                    global _g_pu_gps
+                    global _g_pu_ctl
+                    _g_pu_gps, _g_pu_ctl = detect_quectel_usb_ports()
+                    return
 
         # detect RMC and GSV frames
         re_rmc = re.search(b"GPRMC(.*)\r\n", b)
@@ -383,7 +385,9 @@ def _gps_measure(forced_power_cycle=False):
     if now > _g_banner_cache_too_old:
         lg.a("failed, and cache is too old")
         _g_banner_cache_too_old = now + 300
-    _g_cached_gps = "", "", None, float(0)
+
+    # this line is ESSENTIAL so we can act on errors
+    _g_cached_gps = None
 
     # tell GUI about GPS error
     _u(STATE_DDS_BLE_APP_GPS_ERROR_POSITION)

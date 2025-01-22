@@ -250,3 +250,6 @@
 
     added feature: merged GPS3 branch
 
+4.0.56 January 21, 2025
+
+    added featured: fixed GPS3 merged branch with minor conditions
