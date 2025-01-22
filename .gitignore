@@ -28,7 +28,7 @@ dds/ble_dl_moana.py
 
 # volatile settings
 .ddh_aws_last_year_*
-
+dds/tweak/.saved_brightness.toml
 
 # just in case there are more dl_files here
 dds/dl_files/
