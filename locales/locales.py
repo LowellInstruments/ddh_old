@@ -25,6 +25,11 @@ lang_msg_db = {
         'fr': 'synchronisation GPS',
         'ca': 'esperant GPS'
     },
+    STR_SYNCING_GPS_TIME_STILL_WAITING_BOOT: {
+        'pt': '--',
+        'fr': '--',
+        'ca': '--'
+    },
     STR_DDH_UPDATED: {
         'pt': '--',
         'fr': "DDH actualisé!",

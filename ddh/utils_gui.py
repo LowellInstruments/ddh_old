@@ -91,7 +91,7 @@ from utils.ddh_shared import (
     STATE_DDS_BLE_DOWNLOAD_STATISTICS,
     STATE_DDS_PRESSED_BUTTON_1,
     send_ddh_udp_gui,
-    STATE_DDS_BOOT_GUI,
+    STATE_DDS_BOOT_GUI, STATE_DDS_NOTIFY_GPS_STILL_WAITING_BOOT,
 )
 from utils.flag_paths import LI_PATH_PLT_ONLY_INSIDE_WATER
 from utils.logs import lg_gui as lg
@@ -876,6 +876,10 @@ def _gui_parse_udp(my_app, s, ip="127.0.0.1"):
     elif f == STATE_DDS_NOTIFY_GPS_CLOCK:
         ct = _x(STR_SYNCING_GPS_TIME)
         ci = "gps_clock.png"
+
+    elif f == STATE_DDS_NOTIFY_GPS_STILL_WAITING_BOOT:
+        ct = _x(STR_SYNCING_GPS_TIME_STILL_WAITING_BOOT)
+        ci = "gps_still_waiting.png"
 
     elif f == STATE_DDS_NOTIFY_GPS_NUM_SAT:
         a.lbl_gps_sat.setText(f"{v} GPS satellites")

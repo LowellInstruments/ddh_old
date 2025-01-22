@@ -1,5 +1,7 @@
 import datetime
 import json
+import time
+
 from dds.gps_ctt import *
 from dds.notifications_v2 import notify_ddh_error_hw_gps
 from dds.timecache import is_it_time_to
@@ -16,7 +18,7 @@ from utils.ddh_shared import (
     send_ddh_udp_gui as _u,
     STATE_DDS_NOTIFY_BOAT_NAME,
     STATE_DDS_NOTIFY_GPS_CLOCK,
-    check_gps_dummy_mode,
+    check_gps_dummy_mode, STATE_DDS_NOTIFY_GPS_STILL_WAITING_BOOT,
 )
 from utils.logs import lg_gps as lg
 from utils.find_usb_port_auto import find_usb_port_automatically
@@ -115,8 +117,13 @@ def gps_utils_banner_clock_sync_at_boot():
 
 
 def gps_utils_did_we_ever_clock_sync() -> bool:
-    _u(STATE_DDS_NOTIFY_GPS_CLOCK)
+    _u(STATE_DDS_NOTIFY_GPS_STILL_WAITING_BOOT)
     return _g_ever_gps_clock_sync
+
+
+def gps_utils_show_gps_clock_sync():
+    _u(STATE_DDS_NOTIFY_GPS_CLOCK)
+    time.sleep(2)
 
 
 def gps_simulate_boat_speed(s_lo, knots, s_hi):

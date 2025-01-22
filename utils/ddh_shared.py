@@ -20,6 +20,7 @@ TESTMODE_FILENAME_PREFIX = 'testfile_'
 
 STATE_DDS_NOTIFY_BOAT_NAME = "boat_name"
 STATE_DDS_NOTIFY_GPS = "gps"
+STATE_DDS_NOTIFY_GPS_STILL_WAITING_BOOT = "gps_still_waiting_boot"
 STATE_DDS_NOTIFY_GPS_CLOCK = "gps_clock_time_sync"
 STATE_DDS_NOTIFY_GPS_NUM_SAT = "gps_num_sat"
 STATE_DDS_NOTIFY_GPS_BOOT = "gps_boot"

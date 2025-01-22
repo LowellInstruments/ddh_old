@@ -253,3 +253,11 @@
 4.0.56 January 21, 2025
 
     added featured: fixed GPS3 merged branch with minor conditions
+
+4.0.57 January 22, 2025
+
+    Addressed Huanxin request for feature: save DDH screen brightness value between runs
+
+4.0.58 January 22, 2025
+
+    Added GPS still waiting icon

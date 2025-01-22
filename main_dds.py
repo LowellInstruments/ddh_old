@@ -87,7 +87,7 @@ from dds.gps_utils import (
     gps_utils_banner_clock_sync_at_boot,
     gps_utils_did_we_ever_clock_sync,
     gps_utils_tell_vessel_name,
-    gps_utils_parse_errors
+    gps_utils_parse_errors, gps_utils_show_gps_clock_sync
 )
 
 # to write to temporary GPS database
@@ -136,6 +136,7 @@ def main_dds():
         if g:
             lat, lon, tg, speed = g
             if gps_utils_clock_sync_if_so(tg):
+                gps_utils_show_gps_clock_sync()
                 notify_boot(g)
                 break
         # nge_b: number gps errors at boot, approx 1 per second
