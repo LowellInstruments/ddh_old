@@ -78,7 +78,7 @@ import setproctitle
 from utils.ddh_shared import send_ddh_udp_gui as _u
 from utils.flag_paths import TMP_PATH_BLE_IFACE
 from dds.gps_measure import (
-    gps_utils_boot_wait_first,
+    gps_utils_boot_wait_long,
     gps_know_hat_firmware_version,
     gps_measure
 )
@@ -124,13 +124,15 @@ def main_dds():
     setproctitle.setproctitle(NAME_EXE_DDS)
     linux_app_write_pid_to_tmp(PID_FILE_DDS)
 
-    # GPS boot stage
+    # GPS boot stage, can take from seconds to minutes
     gps_know_hat_firmware_version()
-    gps_utils_boot_wait_first()
+    gps_utils_boot_wait_long()
+
+    # show message we are going to try GPS clock sync at boot
+    gps_utils_banner_clock_sync_at_boot()
 
     # GPS clock sync at boot, remain here until successful
     nge_b = 0
-    gps_utils_banner_clock_sync_at_boot()
     while not gps_utils_did_we_ever_clock_sync():
         g = gps_measure()
         if g:

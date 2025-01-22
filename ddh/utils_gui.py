@@ -1035,7 +1035,6 @@ def gui_ddh_set_brightness(a):
     lg.a(f"setting backlight brightness to {v} ({xc}%), index {c}")
 
 
-
 def gui_dim_screen_depending_on_hour(a):
     global dim_done_day
     global dim_done_night

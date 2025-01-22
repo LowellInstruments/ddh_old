@@ -261,3 +261,7 @@
 4.0.58 January 22, 2025
 
     Added GPS still waiting icon
+
+4.0.59 January 22, 2025
+
+    Bug fix: removed MAT library _emit_conversion_progress, seemed too stressful for GUI

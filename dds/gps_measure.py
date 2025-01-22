@@ -234,7 +234,7 @@ def _gps_parse_gsv_frame(data: bytes, force_print=False):
         return -1
 
 
-def gps_utils_boot_wait_first():
+def gps_utils_boot_wait_long():
 
     # Wikipedia: GPS-Time-To-First-Fix for cold start is typ.
     # 2 to 5 minutes, warm <= 45 secs, hot <= 22 secs
