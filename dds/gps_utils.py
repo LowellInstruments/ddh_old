@@ -85,7 +85,7 @@ def gps_utils_tell_position_logger(g):
     lg.a(f"starting logger processing at {lat}, {lon}, speed {speed}")
 
 
-def gps_utils_check_for_errors(g) -> int:
+def gps_utils_parse_errors(g) -> int:
     if g:
         # no error
         return 0

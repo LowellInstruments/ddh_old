@@ -87,7 +87,7 @@ from dds.gps_utils import (
     gps_utils_banner_clock_sync_at_boot,
     gps_utils_did_we_ever_clock_sync,
     gps_utils_tell_vessel_name,
-    gps_utils_check_for_errors
+    gps_utils_parse_errors
 )
 
 # to write to temporary GPS database
@@ -184,7 +184,7 @@ def main_dds():
 
         # GPS stage
         g = gps_measure()
-        if gps_utils_check_for_errors(g):
+        if gps_utils_parse_errors(g):
             time.sleep(1)
             continue
         lat, lon, tg, speed = g

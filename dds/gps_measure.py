@@ -315,11 +315,14 @@ def _gps_measure():
     ns = -1
     try:
         b = _gps_read()
-        # nothing came in from the port, at all
+
+        # nothing came in from the port like, at all
         if not _g_bu353s4_port and not b:
+
+            # maybe the GPS output was simply disabled
             _activate_gps_output()
 
-            # try again to see GPS output, maybe it was just disabled
+            # try again
             b = _gps_read()
             if not b:
                 if is_it_time_to("gps_power_cycle", PERIOD_GPS_POWER_CYCLE):
@@ -330,7 +333,7 @@ def _gps_measure():
                     global _g_pu_gps
                     global _g_pu_ctl
                     _g_pu_gps, _g_pu_ctl = detect_quectel_usb_ports()
-                    return
+                return
 
         # detect RMC and GSV frames
         re_rmc = re.search(b"GPRMC(.*)\r\n", b)
