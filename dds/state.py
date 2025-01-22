@@ -12,10 +12,13 @@ def state_get_saved_brightness():
     if not linux_is_rpi():
         return
     if not os.path.exists(FILE_SAVED_BRIGHTNESS):
-        state_save_brightness(100)
+        lg.a('creating brightness file with value 100, index 9')
+        state_save_brightness(9)
     with open(FILE_SAVED_BRIGHTNESS, 'r') as f:
         d = toml.load(f)
-        return d['saved_brightness']
+        v = d['saved_brightness']
+        lg.a(f'retrieving saved brightness {v}')
+        return v
 
 
 def state_save_brightness(v):

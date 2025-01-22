@@ -20,7 +20,7 @@ from ddh.db.db_his import DbHis
 from ddh.draw_graph import graph_process_n_draw
 from ddh.utils_maps import gui_populate_maps_tab
 from dds.emolt import this_box_has_grouped_s3_uplink
-from dds.state import state_get_saved_brightness
+from dds.state import state_get_saved_brightness, state_save_brightness
 from dds.timecache import is_it_time_to
 from locales.locales import _x
 from locales.strings import *
