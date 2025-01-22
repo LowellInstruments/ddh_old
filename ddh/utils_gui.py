@@ -20,7 +20,7 @@ from ddh.db.db_his import DbHis
 from ddh.draw_graph import graph_process_n_draw
 from ddh.utils_maps import gui_populate_maps_tab
 from dds.emolt import this_box_has_grouped_s3_uplink
-from dds.state import state_get_saved_brightness, state_save_brightness
+from dds.state import state_get_saved_brightness_clicks, state_save_brightness_clicks
 from dds.timecache import is_it_time_to
 from locales.locales import _x
 from locales.strings import *
@@ -170,7 +170,7 @@ def gui_setup_create_variables(a):
     a.tab_graph_wgt_ref = None
     a.key_pressed = None
     # brightness 9 is index for 100%
-    a.num_clicks_brightness = state_get_saved_brightness() or 9
+    a.num_clicks_brightness = state_get_saved_brightness_clicks() or 9
     a.lbl_ble_img_filled = False
     a.boat_pressed = 0
     a.commit_pressed = 0
@@ -1001,6 +1001,8 @@ def gui_ddh_set_brightness(a):
         lg.a("not raspberry, not setting brightness control")
         return
 
+    # key: num_clicks_brightness
+    # value: backlight Linux value
     d = {
         0: 12.75, 18: 12.75,
         1: 25.5 * 2, 17: 25.5 * 2,
@@ -1015,7 +1017,7 @@ def gui_ddh_set_brightness(a):
     }
 
     v = int(d[a.num_clicks_brightness])
-    state_save_brightness(v)
+    state_save_brightness_clicks(int(a.num_clicks_brightness))
     lg.a(f"setting brightness to {v}")
     b1 = '/sys/class/backlight/rpi_backlight/brightness"'
     b2 = '/sys/class/backlight/10-0045/brightness"'

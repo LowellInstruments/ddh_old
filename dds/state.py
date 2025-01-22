@@ -8,12 +8,12 @@ import toml
 FILE_SAVED_BRIGHTNESS = f'{get_ddh_folder_path_tweak()}/.saved_brightness.toml'
 
 
-def state_get_saved_brightness():
+def state_get_saved_brightness_clicks():
     if not linux_is_rpi():
         return
     if not os.path.exists(FILE_SAVED_BRIGHTNESS):
         lg.a('creating brightness file with value 100, index 9')
-        state_save_brightness(9)
+        state_save_brightness_clicks(9)
     with open(FILE_SAVED_BRIGHTNESS, 'r') as f:
         d = toml.load(f)
         v = d['brightness']
@@ -21,7 +21,7 @@ def state_get_saved_brightness():
         return v
 
 
-def state_save_brightness(v):
+def state_save_brightness_clicks(v):
     d = dict()
     d['brightness'] = v
     with open(FILE_SAVED_BRIGHTNESS, 'w') as f:
