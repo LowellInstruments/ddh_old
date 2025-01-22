@@ -23,7 +23,7 @@ def state_get_saved_brightness():
 
 def state_save_brightness(v):
     d = dict()
-    d['brightness'] = v
+    d['saved_brightness'] = v
     with open(FILE_SAVED_BRIGHTNESS, 'w') as f:
         toml.dump(d, f)
 
