@@ -21,5 +21,6 @@ def is_it_time_to(k, t):
     if query_is_it_time_to(k):
         annotate_time(k, t)
         return True
+
     # not enough time has passed since last occurrence of this
     return False

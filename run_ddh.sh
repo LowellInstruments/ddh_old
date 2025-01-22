@@ -14,7 +14,7 @@ fi
 
 
 # install APT things that we will need
-dpkg -s python3-pyqt5.qtwebkit | grep "Status: install ok"
+dpkg -s python3-pyqt5.qtwebkit | grep -q "Status: install ok"
 rv=$?
 if [ $rv -ne 0 ]; then
     _pb "installing via APT -> python3-pyqt5.qtwebkit"

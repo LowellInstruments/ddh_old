@@ -265,3 +265,7 @@
 4.0.59 January 22, 2025
 
     Bug fix: removed MAT library _emit_conversion_progress, seemed too stressful for GUI
+
+4.0.60 January 22, 2025
+
+    When error, data in plot is not displayed

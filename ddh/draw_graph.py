@@ -234,6 +234,23 @@ def _graph_busy_sign_hide(a):
     a.lbl_graph_busy.setVisible(False)
 
 
+def clear_graph(a):
+    global p1
+    global p2
+    global p3
+    global p3_bak
+    if p1:
+        p1.scene().removeItem(p3_bak)
+        p1.getAxis('right').setVisible(False)
+        p1.getAxis('left').setVisible(False)
+        p1.getAxis('bottom').setVisible(False)
+        p1.clear()
+    if p2:
+        p2.clear()
+    if p3:
+        p3.clear()
+
+
 def _graph_process_n_draw(a, r=''):
 
     # get graph from passed app
@@ -685,6 +702,7 @@ def graph_process_n_draw(a, r=''):
         # errors such as "no data files to graph"
         a.g.setTitle(e, color="red", size="15pt")
         a.g.getAxis('bottom').setLabel("")
+        clear_graph(a)
 
     except (Exception,) as ex:
         # not GraphException, but python errors such as IndexError
@@ -692,6 +710,8 @@ def graph_process_n_draw(a, r=''):
         a.g.setTitle(e, color="red", size="15pt")
         lg.a(f"error: graph_embed -> {str(ex)}")
         a.g.getAxis('bottom').setLabel("")
+        clear_graph(a)
+
 
     finally:
         _graph_busy_sign_hide(a)
