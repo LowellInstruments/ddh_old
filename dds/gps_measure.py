@@ -269,31 +269,28 @@ def _gps_read():
     return b
 
 
+def _gps_power_cycle():
+    _u(STATE_DDS_GPS_POWER_CYCLE)
+    t = 75
+    lg.a(f"=== warning: power-cycling hat, wait ~{t} seconds ===")
+
+    # GPIO26 controls the sixfab hat power rail
+    # on() means high-level, shutdowns power to hat
+    # off() means low-level, restores power to hat
+    _pin = LED(26)
+    _pin.on()
+    time.sleep(5)
+    _pin.off()
+    time.sleep(t)
+    lg.a("=== warning: power-cycling done, hat should be ON by now ===")
+
+
 def _gps_measure():
 
     """
     returns (lat, lon, dt object, speed) or None
     for a dummy or real GPS measurement
     """
-
-    def _gps_power_cycle():
-        _u(STATE_DDS_GPS_POWER_CYCLE)
-        t = 75
-        lg.a(f"=== warning: power-cycling hat, wait ~{t} seconds ===")
-
-        # GPIO26 controls the sixfab hat power rail
-        # on() means high-level, shutdowns power to hat
-        # off() means low-level, restores power to hat
-        _pin = LED(26)
-        _pin.on()
-        time.sleep(5)
-        _pin.off()
-        time.sleep(t)
-        lg.a("=== warning: power-cycling done, hat should be ON by now ===")
-
-    # ----------------------
-    # _gps_measure main code
-    # ----------------------
 
     # hooks
     if dds_get_cfg_flag_gps_error_forced():
@@ -354,9 +351,8 @@ def _gps_measure():
     global _g_cached_gps
 
     # number of satellites notification
-    if dds_get_cfg_vessel_name() == "Maggie Sue":
-        if 0 < ns <= 5 and is_it_time_to('SQS_gps_num_satellites', PERIOD_GPS_NOTI_NUM_GPS_SAT):
-            notify_ddh_number_of_gps_satellites(ns)
+    if 0 < ns <= 6 and is_it_time_to('SQS_gps_num_satellites', PERIOD_GPS_NOTI_NUM_GPS_SAT):
+        notify_ddh_number_of_gps_satellites(ns)
 
     # OK frame
     if g:
@@ -411,3 +407,13 @@ def gps_measure():
 
     except (Exception,) as ex:
         lg.a(f"error: gps_measure() -> {ex}")
+
+        if 'could not open port' in str(ex):
+            if is_it_time_to("gps_power_cycle_bad_port", PERIOD_GPS_POWER_CYCLE_BAD_PORT):
+                lg.a(f'warning: power-cycling GPS because could not open port')
+                _gps_power_cycle()
+
+                # re-detect ports
+                global _g_pu_gps
+                global _g_pu_ctl
+                _g_pu_gps, _g_pu_ctl = detect_quectel_usb_ports()
