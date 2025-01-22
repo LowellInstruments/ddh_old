@@ -1015,10 +1015,9 @@ def gui_ddh_set_brightness(a):
         8: 25.5 * 9, 10: 25.5 * 9,
         9: 25.5 * 10
     }
-
-    v = int(d[a.num_clicks_brightness])
-    state_save_brightness_clicks(int(a.num_clicks_brightness))
-    lg.a(f"setting brightness to {v}")
+    c = int(a.num_clicks_brightness)
+    v = int(d[c])
+    state_save_brightness_clicks(c)
     b1 = '/sys/class/backlight/rpi_backlight/brightness"'
     b2 = '/sys/class/backlight/10-0045/brightness"'
     # requires root or $ chmod 777 /sys/class.../backlight
@@ -1027,7 +1026,10 @@ def gui_ddh_set_brightness(a):
     o = sp.DEVNULL
     sp.run(shlex.split(s1), stdout=o, stderr=o)
     sp.run(shlex.split(s2), stdout=o, stderr=o)
-    a.lbl_brightness_txt.setText(str(ceil(100 * v / 255)) + "%")
+    xc = str(ceil(100 * v / 255))
+    a.lbl_brightness_txt.setText(xc + "%")
+    lg.a(f"setting backlight brightness to {v} ({xc}%), index {c}")
+
 
 
 def gui_dim_screen_depending_on_hour(a):
