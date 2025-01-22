@@ -16,14 +16,14 @@ def state_get_saved_brightness():
         state_save_brightness(9)
     with open(FILE_SAVED_BRIGHTNESS, 'r') as f:
         d = toml.load(f)
-        v = d['saved_brightness']
+        v = d['brightness']
         lg.a(f'retrieving saved brightness {v}')
         return v
 
 
 def state_save_brightness(v):
     d = dict()
-    d['saved_brightness'] = v
+    d['brightness'] = v
     with open(FILE_SAVED_BRIGHTNESS, 'w') as f:
         toml.dump(d, f)
 
