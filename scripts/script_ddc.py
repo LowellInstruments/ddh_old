@@ -371,6 +371,12 @@ def ddh_run_check():
         print(f'_check_fw_cell took {int(el_ts)}')
 
     ts = time.perf_counter()
+    ok_sixfab_installed = sh('ps -aux | grep ppp_connection_manager.sh | grep -v grep') == 0
+    if DEBUG_TIME:
+        el_ts = time.perf_counter() - ts
+        print(f'ok_sixfab_installed {int(el_ts)}')
+
+    ts = time.perf_counter()
     ok_internet_via_cell = sh('timeout 1 ping -c 1 -I ppp0 www.google.com -4') == 0
     if DEBUG_TIME:
         el_ts = time.perf_counter() - ts
@@ -405,6 +411,9 @@ def ddh_run_check():
         rv += 1
     if not ok_shield_j4h and not ok_shield_sailor:
         _w('none of 2 supported power shields detected')
+    if not ok_sixfab_installed:
+        _e('no sixfab installed')
+        rv += 1
     if not ok_internet_via_cell:
         _e('no cell internet')
         rv += 1

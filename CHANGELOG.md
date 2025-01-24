@@ -274,3 +274,11 @@
 
     DDC button tests should be fixed
 
+4.0.62 January 24, 2025
+
+    Better way to report GPS sync at boot error
+
+4.0.63 January 24, 2025
+
+    Added a way to know if sixfab is installed
+
