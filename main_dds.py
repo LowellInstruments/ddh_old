@@ -140,7 +140,7 @@ def main_dds():
                 gps_utils_show_gps_clock_sync()
                 notify_boot(g)
                 break
-        if is_it_time_to('report_gps_sync_boot_error', 600):
+        if is_it_time_to('report_gps_sync_boot_error', 1800):
             lg.a('error: cannot GPS sync at boot, sending notification')
             notify_error_gps_clock_sync()
             sqs_serve()
