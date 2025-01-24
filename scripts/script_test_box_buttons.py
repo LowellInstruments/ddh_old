@@ -15,8 +15,7 @@ PIN_BTN_2 = 20
 PIN_BTN_3 = 21
 b1 = Button(PIN_BTN_1, pull_up=True, bounce_time=MS_1)
 b2 = Button(PIN_BTN_2, pull_up=True, bounce_time=MS_1)
-#b3 = Button(PIN_BTN_3, pull_up=True, bounce_time=MS_1)
-b4 = Button(PIN_BTN_3)
+b3 = Button(PIN_BTN_3, pull_up=True, bounce_time=MS_1)
 
 
 def button1_pressed_cb():
@@ -40,6 +39,7 @@ def button3_pressed_cb():
     if b3.is_pressed:
         print('low')
 
+
 def main_test_box_buttons():
     os.system('clear')
     print('\nDDH hardware side buttons test v3')
@@ -49,9 +49,8 @@ def main_test_box_buttons():
     global b3
     b1.when_pressed = button1_pressed_cb
     b2.when_pressed = button2_pressed_cb
-    # b3.when_pressed = button3_pressed_cb
-    b3.wait_for_press()
-    #pause()
+    b3.when_pressed = button3_pressed_cb
+    pause()
 
 
 if __name__ == '__main__':
