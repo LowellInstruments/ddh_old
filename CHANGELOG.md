@@ -269,3 +269,8 @@
 4.0.60 January 22, 2025
 
     When error, data in plot is not displayed
+
+4.0.61 January 24, 2025
+
+    DDC button tests should be fixed
+
