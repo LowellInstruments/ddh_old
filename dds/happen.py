@@ -1,7 +1,7 @@
 import time
 
 
-DEBUG = False
+DEBUG = True
 dh = {}
 
 
@@ -52,23 +52,6 @@ def happen_add_one_as_list(ev):
     _p(f'** happen_one {ev}')
 
 
-def happen_purge(purge_seconds, ev_mask=''):
-    global dh
-    _dh_purged = {}
-    start_purge = time.perf_counter() - purge_seconds
-
-    # get rid of old values in lists
-    for k, ls_v in dh.items():
-        _dh_purged[k] = [v for v in ls_v if (v >= start_purge)
-                         and k.startswith(ev_mask)]
-    if _dh_purged:
-        dh = _dh_purged
-
-    # get rid of empty lists
-    dh = {k: ls_v for k, ls_v in dh.items() if ls_v}
-    _p(f'** happen_post_purge {start_purge}\n\t{dh}')
-
-
 def _happen_show():
     global dh
     if len(dh) == 0:
@@ -85,10 +68,30 @@ def happen_contains(ev):
     return ev in dh.keys()
 
 
+def happen_purge(purge_seconds, ev_mask=''):
+    global dh
+    limit_time = time.perf_counter() - purge_seconds
+
+    if ev_mask == '':
+        # when ev_mask empty, act over all keys
+        _dh_mask = dh
+    else:
+        # when ev_mask not empty, only keys starting with ev_mask
+        _dh_mask= {k:v for k, v in dh.items() if k.startswith(ev_mask)}
+
+    # purge too old stuff
+    _dh_time = {}
+    for k, ls_v in _dh_mask.items():
+        _dh_time[k] = [v for v in ls_v if v >= limit_time]
+
+    # purge things that become empty
+    _dh_time = {k: ls_v for k, ls_v in _dh_time.items() if ls_v}
+    dh = _dh_time
+    _p(f'** happen_post_purge {limit_time}\n\t{dh}')
+
+
 if __name__ == '__main__':
     happen_add_to_list('a')
-    time.sleep(1)
+    time.sleep(2)
     _happen_show()
-    happen_purge(2)
-
-
+    happen_purge(1)
