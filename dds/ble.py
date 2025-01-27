@@ -20,8 +20,7 @@ from dds.gps_utils import (
     gps_simulate_boat_speed
 )
 from dds.happen import (
-    happen_add_one_as_list,
-    happen_clear_all,
+    happen_set_single_one_as_list,
     happen_purge,
     happen_contains
 )
@@ -178,7 +177,7 @@ def _ble_analyze_and_graph_logger_result(rv,
     if rv == 0:
         if exp_get_use_smart_lockout() == 1:
             lg.a(f'debug: adding logger {sn} to smart lock-out')
-            happen_add_one_as_list(f'dl_{mac}')
+            happen_set_single_one_as_list(f'dl_{mac}')
         rm_mac_black(mac)
         rm_mac_orange(mac)
         add_mac_black(mac)
@@ -392,7 +391,7 @@ async def _ble_interact_one_logger(mac, info: str, h, g):
 
 async def ble_interact_all_loggers(macs_det, macs_mon, g, _h: int, _h_desc):
 
-    # purge BLE smart lock-out, if so
+    # periodical BLE smart lock-out
     happen_purge(BLE_PERIOD_SMART_LOCKOUT_PURGE_S, 'dl_')
 
     for mac, model in macs_det.items():
@@ -413,7 +412,8 @@ async def ble_interact_all_loggers(macs_det, macs_mon, g, _h: int, _h_desc):
         sn = dds_get_cfg_logger_sn_from_mac(mac)
         ev = f'dl_{mac}'
         if exp_get_use_smart_lockout() == 1 and happen_contains(ev):
-            happen_add_one_as_list(ev)
+            # refresh SLO value
+            happen_set_single_one_as_list(ev)
             if is_it_time_to(ev, BLE_PERIOD_TELL_LOGGER_UNDER_SLO_S):
                 lg.a(f'warning: ignoring logger {sn} because left on-deck')
             continue
@@ -458,7 +458,7 @@ def ble_op_conditions_met(g) -> bool:
     if os.path.isfile(flag):
         lg.a("debug: application override set")
         os.unlink(flag)
-        happen_clear_all('dl_')
+        happen_purge(-1, 'dl_')
         return True
 
     # case: forgot to assign loggers

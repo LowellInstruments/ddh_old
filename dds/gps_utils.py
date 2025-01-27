@@ -3,6 +3,7 @@ import json
 import time
 
 from dds.gps_ctt import *
+from dds.happen import happen_n_times_in_last_t_seconds, happen_append_to_list, happen_purge
 from dds.notifications_v2 import notify_ddh_error_hw_gps
 from dds.timecache import is_it_time_to
 from mat.quectel import FILE_QUECTEL_USB_CTL, FILE_QUECTEL_USB_GPS
@@ -93,9 +94,12 @@ def gps_utils_parse_errors(g) -> int:
         return 0
 
     # don't log GPS error too often
-    if is_it_time_to("tell_gps_hw_error", PERIOD_GPS_TELL_GPS_HW_ERROR_SECS):
+    ev = "gps_hw_error"
+    happen_append_to_list(ev)
+    if happen_n_times_in_last_t_seconds(ev, 60, 3600):
         lg.a("error: GPS issue, examine further log messages")
         notify_ddh_error_hw_gps()
+        happen_purge(-1, ev)
 
     # detect errors in GPS frame
     if not g:

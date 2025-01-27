@@ -18,6 +18,7 @@ from dds.ble import (
 from dds.ble_scan import ble_scan
 from dds.cnv import cnv_serve
 from dds.gpq import GpqW
+from dds.happen import happen_append_to_list, happen_n_times_in_last_t_seconds
 from dds.hooks import apply_debug_hooks
 from dds.macs import (
     dds_create_folder_macs_color,

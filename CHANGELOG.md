@@ -282,3 +282,6 @@
 
     Added a way to know if sixfab is installed
 
+4.0.64 January 27, 2025
+
+    Added the "happen" interface

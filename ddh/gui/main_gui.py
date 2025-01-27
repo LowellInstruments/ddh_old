@@ -43,6 +43,7 @@ from ddh.utils_gui import (
     gui_setup_timers, gui_setup_bootsplash, gui_ddh_populate_dropdown_trawls_logger
 )
 from ddh.utils_trawls import get_prev_trawl_of_a_logger, try_get_map_of_trawl, get_last_trawl_of_a_logger
+from dds.happen import happen_append_to_list
 from dds.notifications_v2 import notify_via_sms
 from dds.timecache import is_it_time_to
 from mat.linux import linux_is_process_running
