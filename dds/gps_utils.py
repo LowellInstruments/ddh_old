@@ -96,7 +96,7 @@ def gps_utils_parse_errors(g) -> int:
     # don't log GPS error too often
     ev = "gps_hw_error"
     happen_append_to_list(ev)
-    if happen_n_times_in_last_t_seconds(ev, 60, 3600):
+    if happen_n_times_in_last_t_seconds(ev, 20, 3600):
         lg.a("error: GPS issue, examine further log messages")
         notify_ddh_error_hw_gps()
         happen_purge(-1, ev)
