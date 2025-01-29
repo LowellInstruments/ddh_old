@@ -1,7 +1,7 @@
 import time
 
 
-DEBUG = True
+DEBUG = False
 dh = {}
 
 
@@ -18,7 +18,11 @@ def happen_contains(ev):
 def happen_n_times_in_last_t_seconds(ev, n, t):
     if not happen_contains(ev):
         return False
-    return len([i for i in dh[ev] if i >= time.perf_counter() - t]) >= n
+    ls = [i for i in dh[ev] if i >= time.perf_counter() - t]
+    rv = len(ls) >= n
+    if rv:
+        print(f'{ev} happened {len(ls)} within the last {t} seconds)
+    return rv
 
 
 def happen_append_to_list(ev):
