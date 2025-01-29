@@ -21,7 +21,7 @@ def happen_n_times_in_last_t_seconds(ev, n, t):
     ls = [i for i in dh[ev] if i >= time.perf_counter() - t]
     rv = len(ls) >= n
     if rv:
-        print(f'{ev} happened {len(ls)} within the last {t} seconds')
+        print(f'event "{ev}" happened {len(ls)} within the last {t} seconds')
     return rv
 
 
