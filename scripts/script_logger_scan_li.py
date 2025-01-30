@@ -68,6 +68,7 @@ def main():
         else:
             print(f'{mac}\t_______\t {rssi}')
 
+    print('press "enter" key to return to DCC menu')
     input()
 
 
