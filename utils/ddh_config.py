@@ -318,10 +318,6 @@ def exp_get_conf_dox():
     return int(rv)
 
 
-def exp_get_use_smart_lock_out_time():
-    return _get_exp_key_from_cfg('use_smart_lock_out_time')
-
-
 if __name__ == '__main__':
     print('vessel_name', dds_get_cfg_vessel_name())
     print('aws_en', dds_get_cfg_aws_en())

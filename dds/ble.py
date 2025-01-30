@@ -61,7 +61,8 @@ from utils.ddh_config import (
     exp_get_use_lsb_for_dox_loggers,
     dds_get_cfg_monitored_macs,
     ddh_get_cfg_gear_type,
-    dds_get_cfg_moving_speed, exp_get_use_smart_lockout
+    dds_get_cfg_moving_speed,
+    exp_get_use_smart_lockout
 )
 from utils.ddh_shared import (
     send_ddh_udp_gui as _u,
@@ -405,9 +406,11 @@ async def ble_interact_all_loggers(macs_det, macs_mon, g, _h: int, _h_desc):
         ev = f'dl_{mac}'
         t = BLE_SMART_LOCKOUT_PURGE_S
         if exp_get_use_smart_lockout() == 1:
-            if is_it_time_to(ev, t):
+            if is_it_time_to(ev, t, annotate=False):
+                # do this logger, will annotate later if succeeds
                 lg.a(f'debug: smart lock-out allows this logger')
             else:
+                # do nothing, but refresh logger still on-boat
                 annotate_time_this_occurred(ev, BLE_SMART_LOCKOUT_PURGE_S)
                 if is_it_time_to(ev, BLE_PERIOD_TELL_LOGGER_UNDER_SLO_S):
                     lg.a(f'warning: ignoring logger {sn} because left on-deck')
