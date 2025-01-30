@@ -174,11 +174,15 @@ def ddh_get_cfg_gear_type():
 
 
 def ddh_get_cfg_has_lowell_loggers():
-    for mac, sn in cfg['monitored_macs'].items():
+    d = cfg['monitored_macs']
+    if not d:
+        return 'empty'
+    for mac, sn in d.items():
         if sn.startswith('2') and len(sn) == 7:
-            return True
+            return 'yes'
         if sn.startswith('3') and len(sn) == 7:
-            return True
+            return 'yes'
+    return 'no'
 
 
 def dds_check_config_file():
