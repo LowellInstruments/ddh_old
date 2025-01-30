@@ -6,15 +6,23 @@ import time
 import pytz
 import tzlocal
 from dds.timecache import is_it_time_to
-from mat.ble.ble_mat_utils import ble_mat_get_antenna_type_v2, ble_mat_get_bluez_version
+from mat.ble.ble_mat_utils import (
+    ble_mat_get_antenna_type_v2,
+    ble_mat_get_bluez_version
+)
 from utils.logs import lg_sqs as lg
-from utils.ddh_config import (dds_get_cfg_box_sn,
-                              dds_get_cfg_box_project,
-                              dds_get_cfg_vessel_name)
-from utils.ddh_shared import (get_ddh_commit,
-                              get_ddh_local_sw_version,
-                              get_ddh_platform,
-                              get_ddh_folder_path_sqs)
+from utils.ddh_config import (
+    dds_get_cfg_box_sn,
+    dds_get_cfg_box_project,
+    dds_get_cfg_vessel_name,
+    ddh_get_cfg_has_lowell_loggers
+)
+from utils.ddh_shared import (
+    get_ddh_commit,
+    get_ddh_local_sw_version,
+    get_ddh_platform,
+    get_ddh_folder_path_sqs
+)
 
 # these MUST match the ones in DDN file "sqs/notifications_v2.py"
 DDH_NOTIFICATION_STATUS_BOOT = 'DDH just booted'
@@ -103,6 +111,7 @@ class _DDHNotification:
                 self.ddh_gps_position = '{:.4f}, {:.4f}'.format(float(lat), float(lon))
             self.ddh_gps_speed = '{:.2f} knots'.format(float(speed))
         self.ddh_sw_commit = get_ddh_commit()
+        self.ddh_has_lowell_loggers = ddh_get_cfg_has_lowell_loggers()
         self.time_local_str = str(now).split('.')[0]
         self.time_utc_str = str(now_utc).split('.')[0]
         self.time_local_epoch = int(now.timestamp())
