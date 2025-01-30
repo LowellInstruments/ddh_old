@@ -31,6 +31,7 @@ h = str(pathlib.Path.home())
 p = 'li/ddh' if is_rpi() else 'PycharmProjects/ddh'
 path_script_deploy_dox = f'{h}/{p}/scripts/run_script_deploy_logger_dox.sh'
 path_script_deploy_tdo = f'{h}/{p}/scripts/run_script_deploy_logger_tdo.sh'
+path_script_scan_li = f'{h}/{p}/scripts/run_script_scan_li.sh'
 
 
 # variables for errors and warnings
@@ -219,6 +220,14 @@ def cb_run_deploy_tdo():
         p_e(f'{ex} running deploy_tdo')
 
 
+def cb_run_scan_li():
+    try:
+        # do this or this script's prompts fail
+        sp.run(path_script_scan_li)
+    except (Exception,) as ex:
+        p_e(f'{ex} running scan_li')
+
+
 def cb_edit_brt_cfg_file():
     p_cfg = f'{h}/Downloads/cfg_brt_nadv.toml'
     if not os.path.exists(p_cfg):
@@ -348,6 +357,7 @@ def main_ddc():
             # 'e': (f"e) edit BLE range tool", cb_edit_brt_cfg_file),
             'o': (f"o) deploy logger DOX", cb_run_deploy_dox),
             't': (f"t) deploy logger TDO", cb_run_deploy_tdo),
+            'b': (f"b) detect LI loggers around", cb_run_scan_li),
             'u': (f"u) list Quectel USB ports", cb_list_quectel_usb_ports),
             's': (f"s) get cell signal quality (beta)", cb_get_csq),
             'i': (f"i) ~ see issues ~", cb_ddh_show_issues),
