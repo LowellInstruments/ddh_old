@@ -3,7 +3,6 @@ import json
 import time
 
 from dds.gps_ctt import *
-from dds.happen import happen_n_times_in_last_t_seconds, happen_append_to_list, happen_purge
 from dds.notifications_v2 import notify_ddh_error_hw_gps
 from dds.timecache import is_it_time_to
 from mat.quectel import FILE_QUECTEL_USB_CTL, FILE_QUECTEL_USB_GPS
@@ -83,7 +82,7 @@ def gps_utils_tell_vessel_name():
     _u(f"{STATE_DDS_NOTIFY_BOAT_NAME}/{v}")
 
 
-def gps_utils_tell_position_logger(g):
+def gps_utils_log_position_logger(g):
     lat, lon, tg, speed = g
     lg.a(f"starting logger processing at {lat}, {lon}, speed {speed}")
 
@@ -93,22 +92,16 @@ def gps_utils_parse_errors(g) -> int:
         # no error
         return 0
 
-    # don't log GPS error too often
-    ev = "gps_hw_error"
-    happen_append_to_list(ev)
-    if happen_n_times_in_last_t_seconds(ev, 20, 3600):
-        lg.a("error: GPS issue, examine further log messages")
-        notify_ddh_error_hw_gps()
-        happen_purge(-1, ev)
-
     # detect errors in GPS frame
     if not g:
         lg.a("error: no GPS frame, will not interact w/ loggers")
         return 1
+
     lat, lon, tg, speed = g
     if not lat:
         lg.a("error: no GPS latitude, will not interact w/ loggers")
         return 1
+
     lg.a(f"error: GPS unexpected {g}")
     return 1
 

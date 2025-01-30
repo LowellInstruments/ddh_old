@@ -285,3 +285,9 @@
 4.0.64 January 27, 2025
 
     Added the "happen" interface
+
+4.0.65 January 30, 2025
+
+    Simplified Smart-Lock-Out feature
+    Simplified GPS error e-mail notifications
+

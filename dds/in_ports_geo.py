@@ -2,7 +2,7 @@ import json
 import time
 import requests
 from dds.notifications_v2 import notify_ddh_in_port
-from dds.timecache import query_is_it_time_to, annotate_time
+from dds.timecache import annotate_time_this_occurred, is_it_time_to
 from utils.ddh_config import dds_get_cfg_skip_dl_in_port_en
 from utils.logs import lg_gps as lg
 
@@ -13,14 +13,14 @@ TIMEOUT_CACHE_IN_PORT_SECS = 300
 
 def dds_ask_in_port_to_ddn(_g, notify=True, tc=TIMEOUT_CACHE_IN_PORT_SECS):
 
-    global g_last_in_port
     if dds_get_cfg_skip_dl_in_port_en() == 0:
         # NOT in port when feature not-enabled
         return 0
 
+    global g_last_in_port
     s = 'tell_we_in_port'
-    if not query_is_it_time_to(s):
-        # cache
+    if not is_it_time_to(s, tc, annotate=False):
+        # use our cache to avoid repeated queries
         return g_last_in_port
 
     # build the query to API
@@ -40,7 +40,7 @@ def dds_ask_in_port_to_ddn(_g, notify=True, tc=TIMEOUT_CACHE_IN_PORT_SECS):
         j = json.loads(rsp.content.decode())
         # j: {'in_port': True}
         g_last_in_port = int(j['in_port'])
-        annotate_time(s, tc)
+        annotate_time_this_occurred(s, tc)
         if g_last_in_port and notify:
             notify_ddh_in_port(_g)
         return g_last_in_port

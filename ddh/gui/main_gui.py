@@ -40,10 +40,15 @@ from ddh.utils_gui import (
     gui_hide_maps_next_btn,
     gui_setup_create_variables,
     gui_setup_graph_tab,
-    gui_setup_timers, gui_setup_bootsplash, gui_ddh_populate_dropdown_trawls_logger
+    gui_setup_timers,
+    gui_setup_bootsplash,
+    gui_ddh_populate_dropdown_trawls_logger
 )
-from ddh.utils_trawls import get_prev_trawl_of_a_logger, try_get_map_of_trawl, get_last_trawl_of_a_logger
-from dds.happen import happen_append_to_list
+from ddh.utils_trawls import (
+    get_prev_trawl_of_a_logger,
+    try_get_map_of_trawl,
+    get_last_trawl_of_a_logger
+)
 from dds.notifications_v2 import notify_via_sms
 from dds.timecache import is_it_time_to
 from mat.linux import linux_is_process_running
@@ -77,16 +82,17 @@ from utils.ddh_shared import (
     clr_ddh_do_not_rerun_flag_li,
     dds_get_cnv_requested_via_gui_flag_file,
     NAME_EXE_API,
-    ddh_get_folder_path_res, get_html_file_no_trawl
+    ddh_get_folder_path_res,
+    get_html_file_no_trawl
 )
-
 from utils.logs import lg_gui as lg  # noqa: E402
 import subprocess as sp  # noqa: E402
-
 from utils.flag_paths import (
-    LI_PATH_GROUPED_S3_FILE_FLAG, LI_PATH_PLT_ONLY_INSIDE_WATER,
+    LI_PATH_GROUPED_S3_FILE_FLAG,
+    LI_PATH_PLT_ONLY_INSIDE_WATER,
 )
 from utils.wdog import gui_dog_clear
+
 
 _g_flag_ble_en = dds_get_cfg_flag_ble_en()
 

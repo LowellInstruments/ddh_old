@@ -16,13 +16,8 @@ from dds.ble_dl_rn4020 import ble_interact_rn4020
 from dds.ble_dl_tdo import ble_interact_tdo
 from dds.ble_dl_tdo_lsb import ble_interact_tdo_lsb
 from dds.gps_utils import (
-    gps_utils_tell_position_logger,
+    gps_utils_log_position_logger,
     gps_simulate_boat_speed
-)
-from dds.happen import (
-    happen_set_single_one_as_list,
-    happen_purge,
-    happen_contains
 )
 from dds.in_ports_geo import dds_ask_in_port_to_ddn
 from dds.macs import (
@@ -41,7 +36,7 @@ from dds.notifications_v2 import (
     notify_ddh_error_hw_ble
 )
 from dds.state import ddh_state
-from dds.timecache import is_it_time_to
+from dds.timecache import is_it_time_to, annotate_time_this_occurred, delete_all_annotations_by_mask
 from mat.ble.ble_mat_utils import (
     ble_mat_systemctl_restart_bluetooth,
     ble_mat_get_antenna_type_v2
@@ -96,7 +91,7 @@ from utils.logs import lg_dds as lg
 
 
 # time the logger is NOT detected by BLE scan
-BLE_PERIOD_SMART_LOCKOUT_PURGE_S = 120
+BLE_SMART_LOCKOUT_PURGE_S = 120
 # how often we tell this logger is not downloaded because SLO
 BLE_PERIOD_TELL_LOGGER_UNDER_SLO_S = 300
 _g_logger_errors = {}
@@ -177,7 +172,7 @@ def _ble_analyze_and_graph_logger_result(rv,
     if rv == 0:
         if exp_get_use_smart_lockout() == 1:
             lg.a(f'debug: adding logger {sn} to smart lock-out')
-            happen_set_single_one_as_list(f'dl_{mac}')
+            annotate_time_this_occurred(f'dl_{mac}', BLE_SMART_LOCKOUT_PURGE_S)
         rm_mac_black(mac)
         rm_mac_orange(mac)
         add_mac_black(mac)
@@ -391,9 +386,6 @@ async def _ble_interact_one_logger(mac, info: str, h, g):
 
 async def ble_interact_all_loggers(macs_det, macs_mon, g, _h: int, _h_desc):
 
-    # periodical BLE smart lock-out
-    happen_purge(BLE_PERIOD_SMART_LOCKOUT_PURGE_S, 'dl_')
-
     for mac, model in macs_det.items():
         mac = mac.lower()
         if mac not in macs_mon:
@@ -411,15 +403,18 @@ async def ble_interact_all_loggers(macs_det, macs_mon, g, _h: int, _h_desc):
         # check smart lock-out
         sn = dds_get_cfg_logger_sn_from_mac(mac)
         ev = f'dl_{mac}'
-        if exp_get_use_smart_lockout() == 1 and happen_contains(ev):
-            # refresh SLO value
-            happen_set_single_one_as_list(ev)
-            if is_it_time_to(ev, BLE_PERIOD_TELL_LOGGER_UNDER_SLO_S):
-                lg.a(f'warning: ignoring logger {sn} because left on-deck')
-            continue
+        t = BLE_SMART_LOCKOUT_PURGE_S
+        if exp_get_use_smart_lockout() == 1:
+            if is_it_time_to(ev, t):
+                lg.a(f'debug: smart lock-out allows this logger')
+            else:
+                annotate_time_this_occurred(ev, BLE_SMART_LOCKOUT_PURGE_S)
+                if is_it_time_to(ev, BLE_PERIOD_TELL_LOGGER_UNDER_SLO_S):
+                    lg.a(f'warning: ignoring logger {sn} because left on-deck')
+                continue
 
         # show the position of the logger we will download
-        gps_utils_tell_position_logger(g)
+        gps_utils_log_position_logger(g)
 
         # work with ONE logger of the scanned ones
         return await _ble_interact_one_logger(mac, model, _h, g)
@@ -458,7 +453,8 @@ def ble_op_conditions_met(g) -> bool:
     if os.path.isfile(flag):
         lg.a("debug: application override set")
         os.unlink(flag)
-        happen_purge(-1, 'dl_')
+        # for now, we cannot clear smart lock-out per logger
+        delete_all_annotations_by_mask('dl_')
         return True
 
     # case: forgot to assign loggers

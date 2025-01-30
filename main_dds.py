@@ -18,7 +18,6 @@ from dds.ble import (
 from dds.ble_scan import ble_scan
 from dds.cnv import cnv_serve
 from dds.gpq import GpqW
-from dds.happen import happen_append_to_list, happen_n_times_in_last_t_seconds
 from dds.hooks import apply_debug_hooks
 from dds.macs import (
     dds_create_folder_macs_color,
@@ -29,7 +28,9 @@ from dds.notifications_v2 import (
     notify_boot,
     notify_error_sw_crash,
     notify_ddh_needs_sw_update,
-    notify_ddh_alive, notify_error_gps_clock_sync)
+    notify_ddh_alive,
+    notify_error_gps_clock_sync
+)
 from dds.sqs import (
     dds_create_folder_sqs,
     sqs_serve,

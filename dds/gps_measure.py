@@ -9,11 +9,16 @@ from dds.gps_utils import (
     gps_utils_bu353s4_find_usb_port,
     gps_get_quectel_usb_port_from_file
 )
-from dds.notifications_v2 import notify_ddh_number_of_gps_satellites
+from dds.notifications_v2 import (
+    notify_ddh_number_of_gps_satellites,
+    notify_ddh_error_hw_gps
+)
 from dds.timecache import is_it_time_to
-from mat.quectel import is_this_telit_cell, detect_quectel_usb_ports
+from mat.quectel import (
+    is_this_telit_cell,
+    detect_quectel_usb_ports
+)
 from utils.ddh_config import (
-    dds_get_cfg_vessel_name,
     dds_get_cfg_flag_gps_error_forced,
     dds_get_cfg_fake_gps_position,
     dds_get_cfg_flag_gps_external
@@ -27,7 +32,10 @@ from utils.ddh_shared import (
     STATE_DDS_NOTIFY_GPS_NUM_SAT,
     STATE_DDS_NOTIFY_GPS_BOOT,
 )
-from utils.flag_paths import TMP_PATH_GPS_LAST_JSON, LI_PATH_CELL_FW
+from utils.flag_paths import (
+    TMP_PATH_GPS_LAST_JSON,
+    LI_PATH_CELL_FW
+)
 from utils.logs import lg_gps as lg
 
 
@@ -331,6 +339,7 @@ def _gps_measure():
                     lg.a(f'warning: power-cycling GPS')
                     _gps_power_cycle()
                     _g_pu_gps, _g_pu_ctl = detect_quectel_usb_ports()
+                    notify_ddh_error_hw_gps()
                 return
 
         # detect RMC and GSV frames
@@ -348,6 +357,8 @@ def _gps_measure():
                 lg.a(f'warning: power-cycling GPS because could not open port')
                 _gps_power_cycle()
                 _g_pu_gps, _g_pu_ctl = detect_quectel_usb_ports()
+                notify_ddh_error_hw_gps()
+                return
 
     # GPS caches
     global _g_ts_cached_gps_valid_for

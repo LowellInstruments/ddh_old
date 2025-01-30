@@ -23,7 +23,7 @@ from dds.emolt import this_box_has_grouped_s3_uplink
 from dds.net import ddh_get_internet_via
 from dds.notifications_v2 import notify_error_sw_aws_s3
 from dds.state import ddh_state
-from dds.timecache import is_it_time_to, annotate_time
+from dds.timecache import is_it_time_to, annotate_time_this_occurred
 from mat.linux import linux_is_process_running
 from mat.utils import linux_is_rpi
 from utils.ddh_config import (
@@ -420,7 +420,7 @@ def aws_sync_or_cp():
         # sync and rebuild AWS-cp database assuming went OK
         aws_sync()
         aws_cp_init()
-        annotate_time(k, period_aws_cp_secs)
+        annotate_time_this_occurred(k, period_aws_cp_secs)
         return
 
     # during the second call of this function we sync last year files
@@ -450,7 +450,7 @@ def aws_sync_or_cp():
         # sync and rebuild database assuming went ok
         aws_sync()
         aws_cp_init()
-        annotate_time(k, period_aws_cp_secs)
+        annotate_time_this_occurred(k, period_aws_cp_secs)
         return
 
     # upload upon newly downloaded BLE files
@@ -458,14 +458,14 @@ def aws_sync_or_cp():
         lg.a(f'doing S3 copy session, detected flag BLE download')
         os.unlink(flag_dl)
         aws_cp()
-        annotate_time(k, period_aws_cp_secs)
+        annotate_time_this_occurred(k, period_aws_cp_secs)
         return
 
     # check enough time passed since last AWS copy
     if is_it_time_to(k, period_aws_cp_secs):
         lg.a(f'doing S3 periodic copy session, once per day OK')
         aws_cp()
-        annotate_time(k, period_aws_cp_secs)
+        annotate_time_this_occurred(k, period_aws_cp_secs)
         return
 
 
