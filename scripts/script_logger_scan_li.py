@@ -2,19 +2,13 @@
 
 
 import asyncio
-import sys
 import subprocess as sp
 import os
 import toml
-
-from mat.utils import PrintColors as PC
 from script_logger_dox_deploy_utils import (
-    set_script_cfg_file,
-    deploy_logger_dox,
-    get_script_cfg_file,
     ble_scan_for_dox_loggers,
 )
-from scripts.script_logger_tdo_deploy_utils import ble_scan_for_tdo_loggers
+from script_logger_tdo_deploy_utils import ble_scan_for_tdo_loggers
 
 # don't move this from here
 FILE_ALL_MACS_TOML = f'../settings/all_macs.toml'
