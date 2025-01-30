@@ -46,7 +46,6 @@ asyncio.set_event_loop(ael)
 def main():
     _screen_clear()
     d_macs_sn = get_ddh_toml_all_macs_content()
-    print(d_macs_sn)
     d_macs_sn = {k.lower(): v for k, v in d_macs_sn.items()}
 
     sr = ael.run_until_complete(ble_scan_for_dox_loggers())
@@ -68,6 +67,8 @@ def main():
             print(f'{mac}\t{sn}\t {rssi}')
         else:
             print(f'{mac}\t_______\t {rssi}')
+
+    input()
 
 
 if __name__ == "__main__":
