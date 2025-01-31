@@ -334,12 +334,12 @@ def _gps_measure():
 
             # detect no output or strange thing with Linux USB ports
             if not b or (b'CPIN' in b):
-                lg.a('error: bad GPS issue, b = ', b)
+                lg.a('error: bad GPS issue -> b = ', b)
                 if is_it_time_to("gps_power_cycle", PERIOD_GPS_POWER_CYCLE):
+                    notify_ddh_error_hw_gps()
                     lg.a(f'warning: power-cycling GPS')
                     _gps_power_cycle()
                     _g_pu_gps, _g_pu_ctl = detect_quectel_usb_ports()
-                    notify_ddh_error_hw_gps()
                 return
 
         # detect RMC and GSV frames
@@ -355,9 +355,9 @@ def _gps_measure():
         if 'could not open port' in str(ex):
             if is_it_time_to("gps_power_cycle_bad_port", PERIOD_GPS_POWER_CYCLE_BAD_PORT):
                 lg.a(f'warning: power-cycling GPS because could not open port')
+                notify_ddh_error_hw_gps()
                 _gps_power_cycle()
                 _g_pu_gps, _g_pu_ctl = detect_quectel_usb_ports()
-                notify_ddh_error_hw_gps()
                 return
 
     # GPS caches
