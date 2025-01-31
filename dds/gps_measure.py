@@ -39,6 +39,10 @@ from utils.flag_paths import (
 from utils.logs import lg_gps as lg
 
 
+class myGpsException(Exception):
+    pass
+
+
 _g_ts_cached_gps_valid_for = 0
 _g_cached_gps = None
 _g_banner_cache_too_old = 0
@@ -334,13 +338,7 @@ def _gps_measure():
 
             # detect no output or strange thing with Linux USB ports
             if not b or (b'CPIN' in b):
-                lg.a('error: bad GPS issue -> b = ', b)
-                if is_it_time_to("gps_power_cycle", PERIOD_GPS_POWER_CYCLE):
-                    notify_ddh_error_hw_gps()
-                    lg.a(f'warning: power-cycling GPS')
-                    _gps_power_cycle()
-                    _g_pu_gps, _g_pu_ctl = detect_quectel_usb_ports()
-                return
+                raise MyGpsException(f'bad GPS issue -> b = {b}')
 
         # detect RMC and GSV frames
         re_rmc = re.search(b"GPRMC(.*)\r\n", b)
@@ -351,14 +349,8 @@ def _gps_measure():
             ns = _gps_parse_gsv_frame(b"$GPGSV" + re_gsv.group(1))
 
     except (Exception, ) as ex:
-        lg.a(f'error: gps_measure_inner -> {ex}')
-        if 'could not open port' in str(ex):
-            if is_it_time_to("gps_power_cycle_bad_port", PERIOD_GPS_POWER_CYCLE_BAD_PORT):
-                lg.a(f'warning: power-cycling GPS because could not open port')
-                notify_ddh_error_hw_gps()
-                _gps_power_cycle()
-                _g_pu_gps, _g_pu_ctl = detect_quectel_usb_ports()
-                return
+        if not _g_bu353s4_port and 'could not open port' in str(ex):
+            raise MyGpsException('could not open GPS port')
 
     # GPS caches
     global _g_ts_cached_gps_valid_for
@@ -418,6 +410,18 @@ def gps_measure():
 
         # cache might be valid or just empty
         return _g_cached_gps
+
+    except MyGpsException as ex:
+        lg.a(f"error: gps_measure_inner() -> {ex}")
+        if is_it_time_to("gps_power_cycle", PERIOD_GPS_POWER_CYCLE):
+            lg.a(f'warning: power-cycling GPS')
+            notify_ddh_error_hw_gps()
+            _gps_power_cycle()
+
+        lg.a(f'warning: auto-detecting GPS USB ports')
+        global _g_pu_gps, _g_pu_ctl
+        _g_pu_gps, _g_pu_ctl = detect_quectel_usb_ports()
+
 
     except (Exception,) as ex:
         lg.a(f"error: gps_measure_outer() -> {ex}")
