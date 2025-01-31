@@ -39,7 +39,7 @@ from utils.flag_paths import (
 from utils.logs import lg_gps as lg
 
 
-class myGpsException(Exception):
+class MyGpsException(Exception):
     pass
 
 
