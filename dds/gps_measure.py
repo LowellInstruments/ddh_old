@@ -413,15 +413,17 @@ def gps_measure():
 
     except MyGpsException as ex:
         lg.a(f"error: gps_measure_inner() -> {ex}")
+
+        if is_it_time_to("re-detect-ports", PERIOD_GPS_RE_AUTODETECT_PORTS):
+            lg.a(f'warning: auto-detecting GPS USB ports')
+            global _g_pu_gps, _g_pu_ctl
+            _g_pu_gps, _g_pu_ctl = detect_quectel_usb_ports()
+            return
+
         if is_it_time_to("gps_power_cycle", PERIOD_GPS_POWER_CYCLE):
             lg.a(f'warning: power-cycling GPS')
             notify_ddh_error_hw_gps()
             _gps_power_cycle()
-
-        lg.a(f'warning: auto-detecting GPS USB ports')
-        global _g_pu_gps, _g_pu_ctl
-        _g_pu_gps, _g_pu_ctl = detect_quectel_usb_ports()
-
 
     except (Exception,) as ex:
         lg.a(f"error: gps_measure_outer() -> {ex}")
