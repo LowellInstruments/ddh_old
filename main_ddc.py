@@ -170,6 +170,56 @@ def cb_get_csq():
     input()
 
 
+def cb_get_gsq():
+    rv = detect_quectel_usb_ports()
+    if not rv:
+        _p_e('could not detect quectel USB ports for CSQ')
+        time.sleep(2)
+        return
+    p_gps, _ = rv
+
+    ser = serial.Serial(p_gps, 11500)
+
+    till = time.perf_counter() + 30
+
+    while time.perf_counter() < till:
+        cc = str(ser.readline())
+        line = cc[2:-1]
+        if not line.startswith('$GPGSV'):
+            continue
+
+        line = line[:line.index('*')]
+        f = line.split(',')
+        mn = f[2]
+        if mn == "1":
+            # separator for clearer output
+            print('\n\n')
+        # print(line)
+
+        # 1    = Total number of messages of this type in this cycle
+        # 2    = Message number
+        # 3    = Total number of SVs in view
+        # 4    = SV PRN number
+        # 5    = Elevation in degrees, 90 maximum
+        # 6    = Azimuth, degrees from true north, 000 to 359
+        # 7    = SNR, 00-99 dB (null when not tracking)
+        # 8-11 = Information about second SV, same as field 4-7
+        # 12-15= Information about third SV, same as field 4-7
+        # 16-19= Information about fourth SV, same as field 4-7
+
+        for i in range(4, 17, 4):
+            try:
+                s_id = f[i]
+                s_snr = f[i + 3]
+                if s_snr:
+                    print(f'sat id = {s_id}, snr = {s_snr}')
+            except:
+                pass
+
+    input()
+
+
+
 def cb_test_buttons():
     try:
         if not is_rpi():
@@ -360,6 +410,7 @@ def main_ddc():
             'b': (f"b) detect LI loggers around", cb_run_scan_li),
             'u': (f"u) list Quectel USB ports", cb_list_quectel_usb_ports),
             's': (f"s) get cell signal quality (beta)", cb_get_csq),
+            'g': (f"g) get GPSl signal quality (beta)", cb_get_gsq),
             'i': (f"i) ~ see issues ~", cb_ddh_show_issues),
             'h': (f"h) help", cb_ddh_show_help),
             'q': (f"q) quit", cb_quit)
