@@ -413,7 +413,7 @@ def main_ddc():
             'b': (f"b) detect LI loggers around", cb_run_scan_li),
             'u': (f"u) list Quectel USB ports", cb_list_quectel_usb_ports),
             's': (f"s) get cell signal quality (beta)", cb_get_csq),
-            'g': (f"g) get GPSl signal quality (beta)", cb_get_gsq),
+            'g': (f"g) get GPS  signal quality (beta)", cb_get_gsq),
             'i': (f"i) ~ see issues ~", cb_ddh_show_issues),
             'h': (f"h) help", cb_ddh_show_help),
             'q': (f"q) quit", cb_quit)
