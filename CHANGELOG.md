@@ -291,3 +291,6 @@
     Simplified Smart-Lock-Out feature
     Simplified GPS error e-mail notifications
 
+4.0.66 February 4, 2025
+
+    Added GPS signal quality to DCC
