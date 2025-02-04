@@ -191,9 +191,11 @@ def cb_get_gsq():
         line = line[:line.index('*')]
         f = line.split(',')
         mn = f[2]
+        sv = f[3]
         if mn == "1":
             # separator for clearer output
             print('\n\n')
+            print(f'satellites in view = {sv}')
         # print(line)
 
         # 1    = Total number of messages of this type in this cycle
@@ -212,10 +214,11 @@ def cb_get_gsq():
                 s_id = f[i]
                 s_snr = f[i + 3]
                 if s_snr:
-                    print(f'sat id = {s_id}, snr = {s_snr}')
+                    print(f'\tid = {s_id}, snr = {s_snr}')
             except:
                 pass
 
+    print('GPS quality test ended, press ENTER to go back to DCC')
     input()
 
 
