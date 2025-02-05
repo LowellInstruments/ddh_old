@@ -23,8 +23,8 @@ PERIOD_MACS_ORANGE_SECS = 15
 def dds_macs_color_show_at_boot():
     b = macs_black()
     o = macs_orange()
-    lg.a(f"boot macs_black  = {b}")
-    lg.a(f"boot macs_orange = {o}")
+    lg.a(f"debug: boot macs_black  = {b}")
+    lg.a(f"debug: boot macs_orange = {o}")
 
 
 def dds_create_folder_macs_color():
