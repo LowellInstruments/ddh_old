@@ -294,3 +294,7 @@
 4.0.66 February 4, 2025
 
     Added GPS signal quality to DCC
+
+4.0.67 February 5, 2025
+
+    Fixed bug in aws_sync_or_cp() with os.path.exists()
