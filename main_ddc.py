@@ -178,25 +178,38 @@ def cb_get_gsq():
         return
     p_gps, _ = rv
 
-    ser = serial.Serial(p_gps, 11500)
+    os.system('clear')
+    print('GPS quality test, running')
+    ser = serial.Serial(p_gps, 115200, timeout=.1)
+    till_run = time.perf_counter() + 30
 
-    till = time.perf_counter() + 30
-
-    while time.perf_counter() < till:
-        cc = str(ser.readline())
-        line = cc[2:-1]
+    dt = {}
+    while time.perf_counter() < till_run:
+        bb = bytes()
+        we_have_line = 0
+        till_read = time.perf_counter() + 2
+        while time.perf_counter() < till_read:
+            b = ser.read()
+            bb += b
+            if b == b'\n':
+                we_have_line = 1
+                break
+        if len(bb) < 20:
+            continue
+        if we_have_line == 0:
+            continue
+        line = bb.decode()
         if not line.startswith('$GPGSV'):
             continue
 
         line = line[:line.index('*')]
         f = line.split(',')
+        tm = f[1]
         mn = f[2]
         sv = f[3]
         if mn == "1":
-            # separator for clearer output
-            print('\n\n')
+            os.system('clear')
             print(f'satellites in view = {sv}')
-        # print(line)
 
         # 1    = Total number of messages of this type in this cycle
         # 2    = Message number
@@ -209,18 +222,36 @@ def cb_get_gsq():
         # 12-15= Information about third SV, same as field 4-7
         # 16-19= Information about fourth SV, same as field 4-7
 
+        d = {}
+        d[mn] = {}
+        if mn == '1':
+            dt = {}
+
         for i in range(4, 17, 4):
             try:
                 s_id = f[i]
                 s_snr = f[i + 3]
-                if s_snr:
-                    print(f'\tid = {s_id}, snr = {s_snr}')
+                d[mn][s_id] = s_snr
+                dt[s_id] = s_snr
             except:
                 pass
 
+        # order final dictionary
+        dt = {k: v for k, v in sorted(dt.items(), key=lambda item: item[1], reverse=True)}
+        # print(d)
+        if mn == tm:
+            print('[ id ] snr (max 99)\n')
+            for k, v in dt.items():
+                if not v:
+                    print(f'[ {k} ] na')
+                    continue
+                n = int(v)
+                s = '#' * n
+                print(f'[ {k} ] {v} {s} ')
+            time.sleep(3)
+
     print('GPS quality test ended, press ENTER to go back to DCC')
     input()
-
 
 
 def cb_test_buttons():

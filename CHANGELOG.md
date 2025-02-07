@@ -298,3 +298,7 @@
 4.0.67 February 5, 2025
 
     Fixed bug in aws_sync_or_cp() with os.path.exists()
+
+4.0.68 February 7, 2025
+
+    Improved script GPS quality test
