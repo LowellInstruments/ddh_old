@@ -302,3 +302,7 @@
 4.0.68 February 7, 2025
 
     Improved script GPS quality test
+
+4.0.69 February 7, 2025
+
+    Minimized SQS notifications around the port

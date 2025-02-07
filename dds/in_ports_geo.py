@@ -42,7 +42,8 @@ def dds_ask_in_port_to_ddn(_g, notify=True, tc=TIMEOUT_CACHE_IN_PORT_SECS):
         g_last_in_port = int(j['in_port'])
         annotate_time_this_occurred(s, tc)
         if g_last_in_port and notify:
-            notify_ddh_in_port(_g)
+            if is_it_time_to('notify_we_in_port', 43200):
+                notify_ddh_in_port(_g)
         return g_last_in_port
 
     except (Exception,) as err:
